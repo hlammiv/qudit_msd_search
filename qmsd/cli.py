@@ -1,0 +1,101 @@
+"""Command-line interface: search / reconstruct / asymptotic (NOTES sec 10).
+
+Examples
+--------
+  python -m qmsd search --p 5 --m 4 --trials 5000
+  python -m qmsd reconstruct --label "[[20,5,2]]_5"
+  python -m qmsd asymptotic --p 5
+"""
+from __future__ import annotations
+
+import argparse
+
+
+def _fmt(c) -> str:
+    g = c.gamma
+    cert = "" if c.d_certified else "  (d uncertified)"
+    ad = "" if c.A_d is None else f"  A_d={c.A_d}"
+    return f"{c.label:<22} gamma={g:.4f}{ad}{cert}"
+
+
+def _cmd_search(args) -> int:
+    from .search import search, manhattan_sweep, random_search
+    if args.m is not None:
+        codes = manhattan_sweep(args.p, args.m)
+        if args.p ** args.m <= 1500:
+            codes += random_search(args.p, args.m, args.trials, seed=args.seed)
+        codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
+        print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
+        for c in codes[:args.top]:
+            print("  " + _fmt(c))
+    else:
+        res = search(args.p, trials_per_m=args.trials, seed=args.seed, top=args.top)
+        print(f"# p={args.p}: scanned m={res['scanned']['m_values']}, "
+              f"{res['scanned']['n_candidates']} candidates")
+        print("## best by yield gamma:")
+        for c in res["best_by_gamma"]:
+            print("  " + _fmt(c))
+        print("## best by single-round cost C (delta_in=1e-3):")
+        for c in res["best_by_cost"]:
+            print("  " + _fmt(c))
+    return 0
+
+
+def _cmd_reconstruct(args) -> int:
+    from .oracle import load_oracle
+    from .codes import code_from_puncture
+    match = [oc for oc in load_oracle() if oc.label.replace(" ", "") == args.label.replace(" ", "")]
+    if not match:
+        labels = ", ".join(oc.label for oc in load_oracle())
+        print(f"no oracle code with label {args.label!r}. Available: {labels}")
+        return 1
+    from .codes import gamma as _gamma
+    oc = match[0]
+    # Distance is now certified by the meet-in-the-middle routine even for the large
+    # blocks (seconds); A_d exact counting is still only feasible for the small ones.
+    c = code_from_puncture(oc.p, oc.m, oc.puncture_columns_1indexed,
+                           compute_A_d=(oc.n <= 130), max_distance=oc.d + 1)
+    print(f"reconstructed {oc.label} from {oc.k} puncture columns "
+          f"(r_max={oc.r_max}, rtilde={oc.r_tilde}):")
+    d_show = c.d if c.d is not None else f"{oc.d} (paper value; not certified)"
+    cert = "certified" if c.d_certified else "uncertified"
+    print(f"  n={c.n}  k={c.k}  d={d_show} ({cert})  full_rank={c.full_rank}  A_d={c.A_d}")
+    d_for_gamma = c.d if c.d is not None else oc.d
+    print(f"  gamma = log(n/k)/log(d) = {_gamma(c.n, c.k, d_for_gamma):.4f}")
+    return 0
+
+
+def _cmd_asymptotic(args) -> int:
+    from .asymptotics import optimal_gamma
+    g0, t0 = optimal_gamma(args.p)
+    print(f"p={args.p}: asymptotic optimal yield gamma_0 = {g0:.5f} at t_0 = {t0:.5f}")
+    return 0
+
+
+def main(argv=None) -> int:
+    """Argparse entry point with subcommands search/reconstruct/asymptotic (NOTES sec 10)."""
+    parser = argparse.ArgumentParser(
+        prog="qmsd",
+        description="Discover qudit triorthogonal magic-state-distillation codes "
+                    "(after arXiv:2510.10852).",
+    )
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    ps = sub.add_parser("search", help="search for low-gamma codes given a prime p")
+    ps.add_argument("--p", type=int, required=True, help="prime qudit dimension")
+    ps.add_argument("--m", type=int, default=None, help="RM variables (default: scan a range)")
+    ps.add_argument("--trials", type=int, default=2000, help="random-search trials per m")
+    ps.add_argument("--seed", type=int, default=0)
+    ps.add_argument("--top", type=int, default=10)
+    ps.set_defaults(func=_cmd_search)
+
+    pr = sub.add_parser("reconstruct", help="rebuild a published oracle code from its punctures")
+    pr.add_argument("--label", type=str, required=True, help='e.g. "[[20,5,2]]_5"')
+    pr.set_defaults(func=_cmd_reconstruct)
+
+    pa = sub.add_parser("asymptotic", help="asymptotic optimal yield gamma_0(p)")
+    pa.add_argument("--p", type=int, required=True)
+    pa.set_defaults(func=_cmd_asymptotic)
+
+    args = parser.parse_args(argv)
+    return args.func(args)

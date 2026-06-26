@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Literature kept local-only: the arXiv:2510.10852 paper PDF plus our derivation notes and
+# undergraduate tutorial. The package's required oracle data lives in qmsd/data/.
+literature/
+
+# OS / editor
+.DS_Store
+*.swp
