@@ -107,7 +107,7 @@ def dual_matrix(G, p):
     return G.null_space()
 
 
-def build_triorthogonal_code(p, m, r, puncture_columns_1indexed) -> dict:
+def build_triorthogonal_code(p, m, r, puncture_columns_1indexed, G=None) -> dict:
     """MASTER builder: the CSS(G0 -> X, G'^perp -> Z) triorthogonal code (NOTES sec 3, sec 10 item 7).
 
     Builds G = rm_generator(r,m,p) (a triorthogonal space, requiring 3r < m(p-1), Thm 1),
@@ -130,7 +130,8 @@ def build_triorthogonal_code(p, m, r, puncture_columns_1indexed) -> dict:
     assert 3 * r < m * (p - 1), "RM space is triorthogonal only when 3r < m(p-1) (Thm 1)"
 
     GF = GFp(p)
-    G = rm_generator(r, m, p)
+    if G is None:  # callers (e.g. the search) may pass a prebuilt generator to reuse it
+        G = rm_generator(r, m, p)
 
     cols0 = [c - 1 for c in puncture_columns_1indexed]
     npunc = len(cols0)

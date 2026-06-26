@@ -1,6 +1,6 @@
 # qmsd — build status
 
-**Status: complete and green.** All modules implemented; full test suite **161 passed,
+**Status: complete and green.** All modules implemented; full test suite **165 passed,
 0 failed, 0 skipped** (`python -m pytest -q` from the project root). Built with adversarial
 verification at every module, and the meet-in-the-middle minimum-distance routine was
 independently adversarially verified (2,937 fuzz cases vs. null-space ground truth, plus
@@ -35,6 +35,15 @@ Key conventions enforced: triorthogonality / `r_max` use **`m(p-1)`** (not the p
 misprinted `p(m-1)`); puncture columns are 1-indexed with `x_1` least significant; a distance
 is never reported exact unless certified (`d_certified`).
 
+**Search capabilities (parallel + structure-aware).** The explicit `random_search` runs across
+processes (`n_jobs`, joblib — ~linear speedup) and supports a `sampler` mode: `uniform`
+(default), `capset` (no-3-collinear point sets), and `capset_climb` (cap seed + cap-preserving
+distance climb). The cap-set climb reaches the rare high-distance puncture sets where uniform
+random stalls — it reconstructs the paper's `[[72,9,3]]₃` in tens of evaluations vs uniform's
+0 in 4000. The cap structure was identified by a multi-agent investigation
+(`SAMPLING_INVESTIGATION.md`): RM minimum-weight codewords lie on affine lines, so cap sets
+(no 3 collinear) avoid the short dual codewords that collapse the distance.
+
 ## Remaining limitations (honest)
 
 1. **Distance certification is capped at d ≤ 6** (the MITM splits into halves of size ≤ 3).
@@ -54,12 +63,13 @@ is never reported exact unless certified (`d_certified`).
 - **Extend `A_d` counting** with the MITM idea (the natural next deliverable now that distance
   is fast) — this completes single-round distillation scoring for the large codes.
 - Lift the distance cap to d ≤ 8 (size-4 halves) if targeting higher-distance codes.
-- Then pursue the paper's open targets: a qutrit `gamma<1` code at `n<729` (the authors found
-  none and were compute-limited), and cost-`C`-optimized (vs `gamma`-optimized) search.
+- Then pursue the paper's open targets — now reachable with the cap-set sampler + parallel
+  search: a qutrit `gamma<1` code at `n<729` (the authors found none and were compute-limited),
+  and cost-`C`-optimized (vs `gamma`-optimized) search.
 
 ## Layout
 
 `qmsd/` (package, incl. `mindist.py` and the validated `data/puncture_locations.json`),
-`tests/` (161 tests + `ground_truth.py` + oracle loader), `IMPLEMENTATION_BLUEPRINT.md`
+`tests/` (165 tests + `ground_truth.py` + oracle loader), `IMPLEMENTATION_BLUEPRINT.md`
 (design), `qmsd/README.md` (usage). The arXiv:2510.10852 paper, verified notes, and typeset
 tutorial are maintained locally (not in this repo).

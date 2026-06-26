@@ -52,7 +52,7 @@ def gamma(n, k, d) -> float:
 
 
 def code_from_puncture(
-    p, m, puncture_columns_1indexed, r=None, compute_A_d=True, max_distance=None
+    p, m, puncture_columns_1indexed, r=None, compute_A_d=True, max_distance=None, G=None
 ) -> Code:
     """Build a Code from an explicit puncture-column set (NOTES sec 5, sec 7).
 
@@ -67,7 +67,7 @@ def code_from_puncture(
     """
     if r is None:
         r = r_max(m, p)
-    built = build_triorthogonal_code(p, m, r, puncture_columns_1indexed)
+    built = build_triorthogonal_code(p, m, r, puncture_columns_1indexed, G=G)
     n, k, full_rank = built["n"], built["k"], built["full_rank"]
 
     # Quantum distance = min weight of G0^perp = min number of F_p-dependent columns of

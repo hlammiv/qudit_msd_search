@@ -3,26 +3,29 @@
 Two engines, matching the paper:
   * manhattan_sweep -- the analytic Manhattan-weight family (exact, integer-only, scales
     to astronomically large blocks); sweep the cutoff w and read off [[n,k,d]] and gamma.
-  * random_search    -- randomized puncture-location search over RM_p(r_max,m) (this is how
-    the paper found its best small codes, e.g. [[519,106,5]]_5); bounded to small p^m.
+  * random_search    -- randomized puncture-location search over RM_p(r_max,m). Supports
+    process-level parallelism (``n_jobs``, trials are independent) and a ``sampler`` mode:
+      - "uniform"      : i.i.d. random puncture sets (stalls at d=2 on hard cases).
+      - "capset"       : draw cap sets (no 3 collinear points) -- the structure that the
+                         paper's high-distance codes have (see SAMPLING_INVESTIGATION.md).
+      - "capset_climb" : a cap seed followed by a cap-preserving distance hill-climb; the
+                         most efficient at reaching the rare d>=3 puncture sets.
 
 search(p) drives both across a range of m and returns the best codes by yield gamma and by
 single-round distillation cost C.
 """
 from __future__ import annotations
 
+import os
 import random
 
-from .reedmuller import r_max, d_rm
+from .reedmuller import r_max, d_rm, rm_generator
 from .codes import code_from_manhattan, code_from_puncture, Code
 from .distillation import nbar_T, cost
+from .sampling import all_points, random_cap, cap_extends, points_to_columns
 
-# Largest p^m for which the explicit (distance-certifying) search is run. The
-# meet-in-the-middle minimum-distance routine (qmsd.mindist) certifies distances up to 6
-# for blocks of this size in seconds, so the explicit search reaches the paper's regime
-# (it certified [[519,106,5]]_5 and [[690,39,5]]_3). The analytic Manhattan engine still
-# has no size limit. Distances above 6 are left uncertified (the MITM cap).
-EXPLICIT_MAX_BLOCK = 750
+EXPLICIT_MAX_BLOCK = 750  # largest p^m for which the distance-certifying explicit search runs
+SAMPLERS = ("uniform", "capset", "capset_climb")
 
 
 def manhattan_sweep(p, m, r=None) -> list:
@@ -42,35 +45,122 @@ def manhattan_sweep(p, m, r=None) -> list:
     return out
 
 
-def random_search(p, m, trials, seed=0, target_k=None, max_distance=6) -> list:
-    """Randomized puncture-location search over RM_p(r_max,m) (NOTES sec 5).
-
-    Samples ``trials`` puncture-column sets (deterministically, from ``seed``), builds the
-    triorthogonal code, and keeps every full-rank, distance-certified candidate (deduped by
-    puncture set), sorted by gamma. ``max_distance`` bounds the distance certification so the
-    scan stays tractable; codes whose distance exceeds it are skipped, not mis-reported.
-
-    If ``target_k`` is given, every sample has exactly that many punctures; otherwise the
-    puncture count is drawn per trial. Bounded to small p**m (it builds F_p matrices).
-    """
+def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
+                  sampler, climb_steps, swap_tries) -> dict:
+    """Evaluate ``n_trials`` candidate puncture sets; return {frozenset(cols): Code} of valid
+    (full-rank, distance-certified, d>=2) codes. Self-contained for parallel workers (builds
+    its own RM generator and RNG). ``sampler`` selects how each candidate is drawn."""
     rng = random.Random(seed)
-    pm = p ** m
-    # A loose upper bound on #punctures worth trying (full rank is guaranteed below d_RM,
-    # but the check in build_triorthogonal_code is the real gate, so allow a bit more).
-    cap = min(pm - 1, max(2, 2 * d_rm(r_max(m, p), m, p)))
-    best: dict[frozenset, Code] = {}
-    for _ in range(trials):
+    G = rm_generator(r, m, p)
+    best: dict = {}
+
+    if sampler == "uniform":
+        for _ in range(n_trials):
+            k = target_k if target_k is not None else rng.randint(1, cap)
+            k = min(k, pm - 1)
+            cols = tuple(sorted(rng.sample(range(1, pm + 1), k)))
+            key = frozenset(cols)
+            if key in best:
+                continue
+            c = code_from_puncture(p, m, cols, r=r, compute_A_d=False,
+                                   max_distance=max_distance, G=G)
+            if not c.full_rank or not c.d_certified or c.d is None or c.d < 2 or c.n <= c.k:
+                continue
+            best[key] = c
+        return best
+
+    # --- structure-aware cap-set samplers ---
+    allpts = all_points(m, p)
+
+    def _eval(cols):
+        """code_from_puncture(cols); record valid codes; return (d_int, full_rank, Code)."""
+        key = frozenset(cols)
+        cached = best.get(key)
+        if cached is not None:
+            return cached.d, True, cached
+        c = code_from_puncture(p, m, cols, r=r, compute_A_d=False,
+                               max_distance=max_distance, G=G)
+        if c.full_rank and c.d_certified and c.d is not None and c.d >= 2 and c.n > c.k:
+            best[key] = c
+        return (c.d if c.d is not None else 0), bool(c.full_rank), c
+
+    for _ in range(n_trials):
         k = target_k if target_k is not None else rng.randint(1, cap)
         k = min(k, pm - 1)
-        cols = tuple(sorted(rng.sample(range(1, pm + 1), k)))
-        key = frozenset(cols)
-        if key in best:
+        seed_pts = random_cap(m, p, k, rng, allpts)
+        if seed_pts is None:  # greedy pass stalled (k too large for a cap); retry next trial
             continue
-        c = code_from_puncture(p, m, cols, compute_A_d=False, max_distance=max_distance)
-        if not c.full_rank or not c.d_certified or c.d is None or c.d < 2 or c.n <= c.k:
+        cur_pts = seed_pts
+        d0, fr0, _ = _eval(points_to_columns(cur_pts, p))
+        cur_d = d0 if fr0 else -1
+        if sampler != "capset_climb":
             continue
-        best[key] = c
-    out = list(best.values())
+        # cap-preserving, full-rank-preserving swap hill-climb (accept non-decreasing d)
+        cur_set = set(cur_pts)
+        for _step in range(climb_steps):
+            outside = [x for x in allpts if x not in cur_set]
+            rng.shuffle(outside)
+            drop_idx = rng.randrange(len(cur_pts))
+            base = cur_pts[:drop_idx] + cur_pts[drop_idx + 1:]  # still a cap (subset)
+            moved = False
+            for newx in outside[:swap_tries]:
+                if not cap_extends(base, newx, p):
+                    continue
+                cand_pts = base + [newx]
+                dd, ffr, _ = _eval(points_to_columns(cand_pts, p))
+                if ffr and dd >= cur_d:
+                    cur_pts, cur_set, cur_d = cand_pts, set(cand_pts), dd
+                    moved = True
+                    break
+            if not moved:
+                break
+    return best
+
+
+def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
+                  sampler="uniform", climb_steps=30, swap_tries=8) -> list:
+    """Randomized puncture-location search over RM_p(r_max,m) (NOTES sec 5).
+
+    Evaluates ``trials`` candidate puncture sets, keeping every full-rank, distance-certified
+    code (deduped by puncture set), sorted by gamma. ``max_distance`` bounds the (certified)
+    distance; codes above it are skipped, not mis-reported. ``target_k`` fixes the puncture
+    count per candidate.
+
+    ``sampler`` (see SAMPLERS): "uniform" (default, unchanged i.i.d. sampling); "capset"
+    (draw cap sets -- no 3 collinear points); "capset_climb" (cap seed + cap-preserving
+    distance hill-climb -- the most efficient at finding d>=3 sets). Cap samplers need
+    ``target_k`` within the cap-size bound to be useful; ``climb_steps``/``swap_tries`` tune
+    the climb. For "capset_climb" each of the ``trials`` is one seed+climb (many evaluations).
+
+    ``n_jobs`` controls process-level parallelism (trials are independent): n_jobs=1 is serial
+    and deterministic from ``seed``; n_jobs>1/-1 splits trials across worker processes (joblib),
+    each with a seed-derived RNG. Parallel results are reproducible for a fixed
+    (seed, sampler, n_jobs, trials) but are not bit-identical to the serial stream.
+    """
+    if sampler not in SAMPLERS:
+        raise ValueError(f"sampler must be one of {SAMPLERS}, got {sampler!r}")
+    pm = p ** m
+    r = r_max(m, p)
+    cap = min(pm - 1, max(2, 2 * d_rm(r, m, p)))
+    args = (p, m, r, cap, pm)
+    tail = (target_k, max_distance, sampler, climb_steps, swap_tries)
+
+    if n_jobs == 1:
+        merged = _search_chunk(*args, trials, seed, *tail)
+    else:
+        from joblib import Parallel, delayed
+        n = (os.cpu_count() or 1) if n_jobs in (-1, None) else n_jobs
+        n = max(1, min(n, trials))
+        per = [trials // n + (1 if i < trials % n else 0) for i in range(n)]
+        chunks = Parallel(n_jobs=n)(
+            delayed(_search_chunk)(*args, per[i], seed * 100003 + i, *tail)
+            for i in range(n) if per[i] > 0
+        )
+        merged = {}
+        for d in chunks:
+            merged.update(d)
+
+    out = list(merged.values())
     out.sort(key=lambda c: c.gamma)
     return out
 
@@ -80,12 +170,14 @@ def _cost(c: Code, delta_in: float) -> float:
     return cost(c.n, nbar_T(c.n, c.k, c.p, delta_in))
 
 
-def search(p, m_values=None, trials_per_m=2000, seed=0, delta_in=1e-3, top=10) -> dict:
+def search(p, m_values=None, trials_per_m=2000, seed=0, delta_in=1e-3, top=10, n_jobs=1,
+           sampler="uniform") -> dict:
     """Top-level: given a prime p, redo the paper's search across a range of m.
 
     Runs the analytic Manhattan sweep (all m) plus a randomized explicit search (small p**m),
-    and returns the best codes ranked by yield gamma and by single-round cost C.
-    Returns {best_by_gamma, best_by_cost, scanned}.
+    and returns the best codes ranked by yield gamma and by single-round cost C. ``n_jobs`` and
+    ``sampler`` are passed to the explicit ``random_search``. Returns {best_by_gamma,
+    best_by_cost, scanned}.
     """
     assert isinstance(p, int) and p >= 2
     if m_values is None:
@@ -94,13 +186,10 @@ def search(p, m_values=None, trials_per_m=2000, seed=0, delta_in=1e-3, top=10) -
     found: list[Code] = []
     for m in m_values:
         found.extend(manhattan_sweep(p, m))
-        # Explicit search only on small blocks: certifying minimum distance scans
-        # ~C(p^m, d) column subsets, which is infeasible once p^m grows. The analytic
-        # Manhattan engine above covers all sizes (exact, no matrices).
         if p ** m <= EXPLICIT_MAX_BLOCK:
-            found.extend(random_search(p, m, trials_per_m, seed=seed))
+            found.extend(random_search(p, m, trials_per_m, seed=seed, n_jobs=n_jobs,
+                                       sampler=sampler))
 
-    # Dedup by (n,k,d) keeping the first occurrence.
     seen: set = set()
     uniq: list[Code] = []
     for c in found:

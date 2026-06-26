@@ -48,6 +48,28 @@ for c in res["best_by_gamma"][:5]:
    paper's best small codes were found; it is bounded by `p^m` (matrix size) and by the cost
    of certifying minimum distance / `A_d`.
 
+## Sampling & parallelism
+
+`random_search` (and `search`) take:
+
+- **`sampler`** — how each candidate puncture set is drawn:
+  - `"uniform"` (default): i.i.d. random sets — stalls at low distance on hard cases.
+  - `"capset"`: **cap sets** (no 3 collinear points). RM minimum-weight codewords lie on
+    affine lines, so collinear punctures collapse the distance; caps avoid that obstruction.
+  - `"capset_climb"`: a cap seed + a cap-preserving distance hill-climb — reaches the rare
+    high-distance puncture sets where uniform random fails (it reconstructs the paper's
+    `[[72,9,3]]_3` in tens of evaluations vs uniform's 0 in 4000). See
+    [`../SAMPLING_INVESTIGATION.md`](../SAMPLING_INVESTIGATION.md). Per-run reliability is
+    stochastic — use more `trials` / fresh seeds (or `n_jobs`) for robustness.
+- **`n_jobs`** — process-level parallelism (trials are independent): `1` (serial, default),
+  or `>1`/`-1` for joblib worker processes. Reproducible for a fixed
+  `(seed, sampler, n_jobs, trials)`.
+
+```python
+from qmsd.search import random_search
+codes = random_search(3, 4, trials=200, target_k=9, sampler="capset_climb", n_jobs=-1)
+```
+
 ## Module map
 
 | module | contents |
@@ -61,7 +83,8 @@ for c in res["best_by_gamma"][:5]:
 | `codes` | `Code` dataclass, `code_from_puncture`, `code_from_manhattan` |
 | `distillation` | `nbar_T`, `cost`, `delta_out_*` (eqs 38/39) |
 | `asymptotics` | saddle `xi`, `H_p`, `gamma0`, `optimal_gamma` (Table 1) |
-| `search` | `manhattan_sweep`, `random_search`, top-level `search(p)` |
+| `search` | `manhattan_sweep`, `random_search` (samplers + `n_jobs`), top-level `search(p)` |
+| `sampling` | cap-set geometry (no 3 collinear points) for structure-aware puncturing |
 | `cli` | `python -m qmsd search/reconstruct/asymptotic` |
 | `oracle` | loads the 10 validated paper codes (the correctness oracle) |
 
