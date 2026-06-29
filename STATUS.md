@@ -1,7 +1,9 @@
 # qmsd — build status
 
-**Status: complete and green.** All modules implemented; full test suite **165 passed,
-0 failed, 0 skipped** (`python -m pytest -q` from the project root). Built with adversarial
+**Status: complete and green.** All modules implemented; full test suite **243 passed,
+0 failed, 2 skipped** (`python -m pytest -q` from the project root; the 2 skips are the
+slow `[[667,62,4]]₃` 43.0M-message enumerations, gated behind `QMSD_RUN_SLOW=1` — both pass
+when run). Built with adversarial
 verification at every module, and the meet-in-the-middle minimum-distance routine was
 independently adversarially verified (2,937 fuzz cases vs. null-space ground truth, plus
 directional bug-hunts and edge/guard checks — no counterexample).
@@ -44,16 +46,40 @@ random stalls — it reconstructs the paper's `[[72,9,3]]₃` in tens of evaluat
 (`SAMPLING_INVESTIGATION.md`): RM minimum-weight codewords lie on affine lines, so cap sets
 (no 3 collinear) avoid the short dual codewords that collapse the distance.
 
+## The exact MacWilliams engine (small-dual regime) — distance > 6 and exact A_d
+
+`qmsd/weightdist.py` is an exact, certified weight-distribution engine for the **small-dual /
+high-puncture** regime, where the shortened generator `G0` (= `X_stab`) has small dimension
+(`dim(G0) = G0.shape[0]` is tiny when the puncture count `k` is large). It enumerates the
+`q**dim(G0)` codewords of `G0` exactly (chunked numpy, big-int histogram) and applies the q-ary
+**MacWilliams identity** to get the FULL weight distribution `B` of `G0^perp` — hence the
+certified minimum distance (`= min w>0 with B_w>0`) and `A_d = B_d`. All arithmetic is exact
+python int (Krawtchouk values, the transform, the divisibility/`B_0=1`/`sum B = q^(n-dim)`
+invariants are asserted). It is wired into `codes.py` via `code_certify` (and an opt-in
+`exact_budget` on `code_from_puncture`, default 0 = OFF so the search and all existing tests are
+unchanged). This lifts two prior limitations:
+
+- **Distance > 6 is now certifiable.** Verified on an MDS witness — a Reed-Solomon `[10,6]`
+  generator over `F_11` whose dual is `[10,4,7]`: the engine certifies distance **7** (with
+  `A_7 = 1200`), where `min_dependent_columns` provably raises (its d≤6 cap).
+- **Exact `A_d` for large codes** where `A_d_logical_Z` refuses. Verified on `[[667,62,4]]₃`
+  (`C(667,4) ≈ 8.2e9` blows the subset-scan budget, so the reference raises): the engine returns
+  the paper's `A_d = 3972` exactly by enumerating `3**16 = 43.0M` messages.
+- All six small-dual oracle codes (`[[20,5,2]]₅`, `[[72,9,3]]₃`, `[[112,13,3]]₅`, `[[200,43,3]]₃`,
+  `[[206,37,4]]₃`, `[[667,62,4]]₃`) reproduce the published `A_d` exactly via `B_d`; where cheap
+  this is cross-checked against the slow logical reference `A_d_logical_Z` (the minimum-weight
+  dual codewords are all logical — no weight-d stabilizers — so `A_d_logical == B_d`).
+
 ## Remaining limitations (honest)
 
-1. **Distance certification is capped at d ≤ 6** (the MITM splits into halves of size ≤ 3).
-   This bounds every code in the paper (Table 3 has d ≤ 6). Codes with distance > 6 are left
-   uncertified rather than mis-reported. Lifting the cap needs size-4 halves (straightforward
-   extension) and more compute.
-2. **Exact `A_d` for large codes** still raises `NotImplementedError` rather than guess (only
-   the 3 small oracle codes are certified). `A_d` is now the main remaining gap — the same
-   meet-in-the-middle idea (count, rather than detect, weight-d codewords on `G0^perp`, then
-   filter out stabilizers) would certify it for the larger codes too.
+1. **Distance certification is capped at d ≤ 6 *only for the meet-in-the-middle path*** (the MITM
+   splits into halves of size ≤ 3). Codes with distance > 6 whose dual is **not** small-dual
+   (so the exact MacWilliams engine cannot enumerate `G0`) are still left uncertified rather than
+   mis-reported. Lifting the MITM cap itself needs size-4 halves (straightforward extension).
+2. **Exact `A_d` outside the small-dual regime.** For codes where `dim(G0)` is too large to
+   enumerate (`q**dim(G0)` over budget) AND `C(n,d)` is over the `A_d_logical_Z` budget, exact
+   `A_d` still raises rather than guess. The exact engine closes this gap in the small-dual /
+   high-puncture regime (e.g. all six small-dual oracle codes, incl. `[[667,62,4]]₃`).
 3. The explicit search builds `GF(p)` matrices, so it is bounded by `p^m`
    (`search.EXPLICIT_MAX_BLOCK = 750`, comfortably covering the paper's regime). The analytic
    Manhattan engine has no size limit.

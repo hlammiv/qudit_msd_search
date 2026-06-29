@@ -1,0 +1,43 @@
+{
+  "method": "stern_isd",
+  "code": "[[1968,219]]_3 (m=7 cap qutrit)",
+  "n": 1968,
+  "r": 55,
+  "k": 1913,
+  "threads": 20,
+  "minutes": 2.0,
+  "weight_budget": 13,
+  "lowest_weight_found": 2,
+  "below_10": true,
+  "witness_support": [
+    1003,
+    1241
+  ],
+  "total_iterations": 80,
+  "rounds": 1,
+  "per_p_iterations": {
+    "1": 20,
+    "2": 20,
+    "3": 20,
+    "4": 20
+  },
+  "per_p_best": {
+    "1": 2,
+    "2": 4,
+    "3": 6,
+    "4": 8
+  },
+  "history": [
+    {
+      "p": 1,
+      "weight": 2,
+      "round": 0,
+      "support": [
+        1003,
+        1241
+      ]
+    }
+  ],
+  "elapsed_sec": 11.870452165603638,
+  "verdict": "refuted-d-below-10"
+}

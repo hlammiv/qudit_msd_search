@@ -1,0 +1,3 @@
+[S support-scan]  n=1939 K=26 avg_rowwt=1293  steps=60000000  113.13s  5.303e+05 steps/s/core
+[P avx2-packed]   n=1939 K=26 avg_rowwt=1293  steps=60000000  5.14s  1.167e+07 steps/s/core
+chk 60000000 60000000
