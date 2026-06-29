@@ -13,13 +13,15 @@ All load-bearing claims were adversarially verified; see confidence flags / Veri
 > Remaining work is *efficiency, not existence*: low overhead (γ<1), exact ring distance/A_d, the
 > distillation routine, and d=8/16/32.
 >
-> ## ⛔ LOW OVERHEAD — γ<1 is BARRIERED for this construction (see `M4_FINDINGS.md`)
-> Minimal code is **[[8,1,2]]₄** (the [[9,1,2]] minus its free |0⟩ ancilla; dense-verified, γ=3.0); k≥2
-> codes are direct sums (γ stays 3.0). **γ<1 is a hard structural barrier** over cyclic Z₄, caused by the
-> **zero divisor 2**: distance is capped at 2 (weight-1 Z-logical 2·eₚ; d≥3 never seen in ~470k+
-> constructions) and the separable (single-qudit) rate at n/k≥8. The open route to γ<1 is a **GF(4) field
-> punctured-RM** code with a forced separable (non-CCZ) transversal gate — reaches γ<1 or yields a clean
-> no-go (γ<1 single-qudit ⇒ zero-divisor ring ⇒ d=2). Publishable either way.
+> ## 🔓 LOW OVERHEAD — γ<1 is OPEN (the "barrier" was a CSS artifact; see `ATTACK_VECTORS.md`)
+> The minimal **diagonal-CSS** code is [[8,1,2]]₄ (γ=3.0), and γ<1 is barriered *for that construction*
+> by the Z₄ zero divisor. **BUT** that cap is **CSS-specific, not ring-intrinsic**: a non-CSS Z₄ symplectic
+> code **[[5,2,3]]₄** exists (brute-verified, distance 3, no weight-1 logical) with γ-parameters ≈0.83<1.
+> So **γ<1 is OPEN**. Three live attack vectors (ranked): **V7** non-CSS/non-diagonal ring codes (test
+> whether the d≥3 codes host a transversal level-3 gate — sharpest, hard part done); **V1** GF(4) field +
+> a forced *separable* (non-CCZ) gate (CS=diag(1,1,1,i) is genuine magic; cleanest route to actual γ<1);
+> **V8** magic-state cultivation (different metric). Dead: larger d, Galois ring, code-switching,
+> addressable gates, CCZ→T catalysis.
 >
 > **STATUS 2026-06-29 — Phase 0 (M0+M1+K1), M1.5, M2 COMPLETE. See `PHASE0_FINDINGS.md`, `M2_FINDINGS.md`. 42 tests pass.**
 > - **K1 CLEARED** (d=4,8,16,32): single-qudit C₃\C₂ magic gates exist, exact count d(d−1). Target gate is

@@ -36,18 +36,22 @@ assert min_dependent_columns(b["X_stab"], 17, d_max=7) == 5   # certified distan
 # n = 17**2 - len(punc) = 234, k = len(punc) = 55  ->  gamma = 0.8997
 ```
 
-### `[[237, 52, ≥6]]₁₇`  —  γ ≤ 0.847  (found 2026-06-29, overnight d=6 hunt — improves the flagship)
+### `[[237, 52, 6]]₁₇`  —  γ = 0.8466  (EXACT; found 2026-06-29 overnight, d pinned 2026-06-29 — improves the flagship)
 
-- **Improves on `[[234,55,5]]` above** (γ 0.8997 → ≤0.847): reaching d≥6 at lighter puncturing (k=52).
-- Construction: puncture `RM₁₇(10, 2)` at k=52; n = 237, k = 52, d ≥ 6 (certified); full rank (dim G0 = 14);
-  γ = log(237/52)/log(6) = 0.8466.
-- A second such code at k=51: `[[238,51,≥6]]₁₇`, γ ≤ 0.860 (dim G0 = 15). The 6 h hunt found **7 d≥6 codes**
-  (4 at k=51, 3 at k=52); the k=52 ones are lower-γ.
-- **d≥6 rigorously certified**: `min_dependent_columns(X_stab, 17, d_max=5)` completes with NO dependency of
-  weight ≤5. EXACT d (6 vs ≥7) too search-expensive to pin (the weight-3 MITM exhausts, >10 min/code), so
-  γ≤0.847 is an upper bound — the true γ is lower if d≥7.
-- Found by a 6-hour parallel screen on lenore (n_jobs=30, ~3000 trials/batch; d≥6 rare ~1/450).
-- A_d: not computed (dim-14 dual MacWilliams-feasible at 17^14 but slow; deferred).
+- **Improves on `[[234,55,5]]` above** (γ 0.8997 → 0.847): d=6 at lighter puncturing (k=52).
+- n = 237, k = 52, **d = 6 (exact)**; full rank (dim G0 = 14); γ = log(237/52)/log(6) = 0.8466.
+- A second code at k=51: `[[238,51,≥6]]₁₇`, γ ≤ 0.860. The 6 h hunt found **7 d≥6 codes** (4 at k=51, 3 at k=52).
+- **d=6 certified two independent ways**:
+  (i) **d≥6** — `min_dependent_columns(X_stab, 17, d_max=5)` finds NO dependency of weight ≤5;
+  (ii) **d≤6** — the STRUCTURED line argument (`qmsd/structured_pe.py`): minimum-weight RM₁₇(21,2) codewords are
+  line-supported (on each 17-point line, a degree-≤5 univariate poly with ≤5 roots ⇒ ≥ d_RM=12 nonzeros), so the
+  line-punctured distance = `d_RM − max_ℓ|S∩ℓ| = 12 − 6 = 6`, with an EXPLICIT weight-6 codeword v (support at
+  0-indexed points 214–219; independently verified `X_stab·v ≡ 0 mod 17`, weight 6). 6 ≤ d ≤ 6 ⇒ **d = 6**.
+  This sidesteps the brute weight-6 MITM entirely (which is `(p−1)³·C(237,3) ≈ 9e9` ops / ~287 GB at p=17) — just a 306-line scan.
+- Found by a 6-hour parallel screen on lenore (n_jobs=30; d≥6 rare ~1/450); exact d via `structured_pe`.
+- A_d: not computed (the line family's A₆ is enumerable, but a certified total also needs the 2D full-span codewords).
+- **Insight** (from the line argument): d = `d_RM − max_ℓ|S∩ℓ|`, so a 52-puncture set with `max_ℓ|S∩ℓ| ≤ 5`
+  would give d ≥ 7 (γ ≤ 0.755) *provided* no 2D full-span codeword punctures lower — an open optimization.
 
 Puncture columns (1-indexed) for the best `[[237,52,≥6]]`, saved in `p17_d6_code.json`:
 

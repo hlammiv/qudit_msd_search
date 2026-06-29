@@ -220,6 +220,95 @@ def min_dependent_columns(H, p, d_max=None) -> int:
     )
 
 
+# ---------------------------------------------------------------------------
+# Parallel MITM: identical result to min_dependent_columns, but the weight-3 right-half
+# enumeration is split across processes by the right subset's first-column index. The
+# read-only left table is auto-memmapped by joblib (one shared copy on disk, mmapped by
+# every worker) so peak RAM is ~the single-thread footprint, NOT n_jobs copies. Hard-capped
+# at weight 3 (d <= 6): it never builds the weight-4 (C(n,4)) table that causes OOM.
+# ---------------------------------------------------------------------------
+def _right_i_collision(H, p, powers, left_codes, left_supps, i_list):
+    """Worker: does any weight-3 right-subset whose first column is in ``i_list`` collide
+    with the shared, read-only left table on disjoint supports? Mirrors the b==3 branch of
+    _iter_right + the matching in _weight_d_exists, restricted to ``i_list``."""
+    r, n = H.shape
+    nz = range(1, p)
+    for i in i_list:
+        j, k = _pairs_after(i + 1, n)
+        if j.size == 0:
+            continue
+        Hi = H[:, i] % p
+        supp = np.stack([np.full(j.size, i), j, k], axis=1)
+        for c2 in nz:
+            Hj = (c2 * H[:, j]) % p
+            for c3 in nz:
+                S = (Hi[:, None] + Hj + c3 * H[:, k]) % p
+                target = _encode((p - S) % p, powers)
+                pos = np.searchsorted(left_codes, target, side="left")
+                in_range = pos < left_codes.size
+                hit = np.zeros(target.shape, dtype=bool)
+                hit[in_range] = left_codes[pos[in_range]] == target[in_range]
+                if not hit.any():
+                    continue
+                for ridx in np.nonzero(hit)[0]:
+                    t = target[ridx]
+                    lo = np.searchsorted(left_codes, t, side="left")
+                    hi = np.searchsorted(left_codes, t, side="right")
+                    rcols = set(int(x) for x in supp[ridx])
+                    for li in range(lo, hi):
+                        if rcols.isdisjoint(int(x) for x in left_supps[li]):
+                            return True
+    return False
+
+
+def _weight_d_exists_parallel(H, p, d, powers, n_jobs):
+    r, n = H.shape
+    if d > n:
+        return False
+    a, b = d // 2, d - d // 2
+    left_codes, left_supps = _build_left(H, p, a, powers)
+    if left_codes.size == 0:
+        return False
+    if b != 3 or n_jobs == 1:
+        return _weight_d_exists(H, p, d, powers)  # b<=2 is cheap -> serial
+    from joblib import Parallel, delayed
+    # round-robin i-slices balance load (small i has the widest (j,k) range -> most work)
+    chunks = [list(range(w, n - 2, n_jobs)) for w in range(n_jobs)]
+    res = Parallel(n_jobs=n_jobs)(
+        delayed(_right_i_collision)(H, p, powers, left_codes, left_supps, ch)
+        for ch in chunks if ch
+    )
+    return any(res)
+
+
+def min_dependent_columns_parallel(H, p, d_max=None, n_jobs=-1) -> int:
+    """Parallel min_dependent_columns: identical result, weight-3 right-half search split
+    across ``n_jobs`` processes. joblib auto-memmaps the read-only left table so RAM stays
+    ~one shared copy (not n_jobs copies); the weight-3 cap (d<=6) keeps it out of the
+    weight-4 memory-blowup regime. n_jobs=-1 uses all cores."""
+    import os
+    H = np.asarray(H, dtype=np.int64) % p
+    r, n = H.shape
+    if r == 0:
+        return 1
+    powers = _powers(p, r)
+    HARD_CAP = 6
+    cap = min(d_max if d_max is not None else (r + 1), n, HARD_CAP)
+    if n_jobs in (-1, None):
+        n_jobs = os.cpu_count() or 1
+    for d in range(1, cap + 1):
+        if d == 1:
+            if (H == 0).all(axis=0).any():
+                return 1
+            continue
+        if _weight_d_exists_parallel(H, p, d, powers, n_jobs):
+            return d
+    raise ValueError(
+        f"no dependent column set of size <= {cap} found; minimum distance exceeds {cap} "
+        f"(MITM certifies up to {HARD_CAP}) -- not certified"
+    )
+
+
 def min_distance_certified(generator, p, d_max=None) -> int:
     """Exact minimum distance of the code spanned by ``generator``, via MITM on its dual.
 

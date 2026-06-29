@@ -3,6 +3,15 @@
 *Status 2026-06-29.  Multi-strategy workflow (16 agents) + independent re-verification.  Minimal code
 frozen in `tests/test_m3_witness.py::test_minimal_8_1_2_code` (43 tests pass).*
 
+> **⚠️ SCOPE CORRECTION (2026-06-29, see `ATTACK_VECTORS.md`).**  The "d=2 cap / hard structural barrier"
+> below is correct **only for the CSS + diagonal-transversal construction**, NOT ring-intrinsic.  A later
+> adversarial probe (independently brute-force-verified) built a **non-CSS Z₄ code [[5,2,3]]₄** (full
+> symplectic formalism, distance 3, zero weight-1 logicals) — its parameters give γ≈0.83<1.  So the 2·eₚ
+> weight-1 logical is a CSS artifact (it fires only on all-even columns), and **γ<1 is NOT barriered in
+> general**.  The low-overhead question is OPEN; the open gate is whether a d≥3 non-CSS code hosts a
+> transversal level-3 single-qudit gate (vector V7), with the GF(4)-separable route (V1) as the field-side
+> mirror.  Read the barrier below as "barrier *for diagonal-CSS-over-Z₄*", not "for single-qudit MSD".
+
 ## Headline
 
 > **γ < 1 is NOT reachable for the single-ququart transversal-diagonal construction over cyclic Z₄ —
