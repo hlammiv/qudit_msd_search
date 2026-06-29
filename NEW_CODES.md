@@ -36,8 +36,53 @@ assert min_dependent_columns(b["X_stab"], 17, d_max=7) == 5   # certified distan
 # n = 17**2 - len(punc) = 234, k = len(punc) = 55  ->  gamma = 0.8997
 ```
 
-Note: many other γ<1 codes exist at p=17, m=2 in the high-k window (k≈53–59, d=4–5); this is the
-lowest-γ one found so far. p=19 (more headroom) and pushing for d=6 are expected to go lower.
+### `[[237, 52, ≥6]]₁₇`  —  γ ≤ 0.847  (found 2026-06-29, overnight d=6 hunt — improves the flagship)
+
+- **Improves on `[[234,55,5]]` above** (γ 0.8997 → ≤0.847): reaching d≥6 at lighter puncturing (k=52).
+- Construction: puncture `RM₁₇(10, 2)` at k=52; n = 237, k = 52, d ≥ 6 (certified); full rank (dim G0 = 14);
+  γ = log(237/52)/log(6) = 0.8466.
+- A second such code at k=51: `[[238,51,≥6]]₁₇`, γ ≤ 0.860 (dim G0 = 15). The 6 h hunt found **7 d≥6 codes**
+  (4 at k=51, 3 at k=52); the k=52 ones are lower-γ.
+- **d≥6 rigorously certified**: `min_dependent_columns(X_stab, 17, d_max=5)` completes with NO dependency of
+  weight ≤5. EXACT d (6 vs ≥7) too search-expensive to pin (the weight-3 MITM exhausts, >10 min/code), so
+  γ≤0.847 is an upper bound — the true γ is lower if d≥7.
+- Found by a 6-hour parallel screen on lenore (n_jobs=30, ~3000 trials/batch; d≥6 rare ~1/450).
+- A_d: not computed (dim-14 dual MacWilliams-feasible at 17^14 but slow; deferred).
+
+Puncture columns (1-indexed) for the best `[[237,52,≥6]]`, saved in `p17_d6_code.json`:
+
+```
+[6,19,32,37,40,44,47,54,59,61,69,79,84,87,95,97,103,106,109,125,131,132,137,138,145,151,164,177,
+ 179,185,186,187,202,204,205,206,207,211,212,221,246,247,248,251,254,259,266,268,269,273,283,285]
+```
+
+Verify: `b=build_triorthogonal_code(17,2,10,punc)`; `assert b["full_rank"]`; then
+`min_dependent_columns(b["X_stab"],17,d_max=5)` raises (no dep ≤5 ⇒ d≥6) ⇒ γ ≤ 0.847.
+
+Note: many other γ<1 codes exist at p=17, m=2 in the high-k window; the two above are the lowest-γ found.
+
+## p = 19
+
+### `[[293, 68, ≥5]]₁₉`  —  γ ≤ 0.9076  (found 2026-06-29)
+
+- **Second new γ<1 search dimension** (after p=17). Construction: puncture `RM₁₉(11, 2)` at k=68
+  (m=2, r = r_max = 11; triorthogonal since 3·11 = 33 < 2·18 = 36).
+- Parameters: n = 293, k = 68, d ≥ 5 (certified); full rank (dim G0 = 10); γ = log(293/68)/log(5) = 0.9076.
+- **d≥5 rigorously certified**: `min_dependent_columns(X_stab, 19, d_max=4)` completes with NO dependency ≤4.
+  Likely exactly d=5 (so γ=0.9076). Below the RS threshold (p=19 < 23), so not reachable by an m=1 RS code.
+- Found by a weight-2 screen on lenore (n_jobs=24): d≥5 common (~17%) at k=68, vanishing by k=69 (d→4).
+  k-sweep: k=65 (γ≤0.942) → k=68 (γ≤0.908, the floor) → k=69 (no d≥5).
+
+Puncture columns (1-indexed), saved in `p19_lock.json`:
+
+```
+[3,24,33,35,44,48,59,60,61,62,65,71,80,81,82,84,88,91,94,101,102,113,117,118,122,126,127,130,135,159,
+ 169,175,181,189,190,199,203,208,213,214,217,227,228,230,231,237,259,262,265,268,272,273,275,278,280,
+ 290,293,295,305,307,308,317,333,337,345,348,352,358]
+```
+
+Verify: `b=build_triorthogonal_code(19,2,11,punc)`; `assert b["full_rank"]`; then
+`min_dependent_columns(b["X_stab"],19,d_max=4)` raises (no dep ≤4 ⇒ d≥5) ⇒ γ ≤ 0.9076.
 
 ## p = 3 (qutrit), m = 7 — cap puncturing  ⟶  REFUTED
 

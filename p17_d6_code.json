@@ -1,0 +1,21 @@
+{
+  "code": "[[237,52,>=6]]_17",
+  "p": 17,
+  "m": 2,
+  "r": 10,
+  "n": 237,
+  "k": 52,
+  "d_certified_ge": 6,
+  "gamma_le": 0.8466,
+  "full_rank": true,
+  "dim_G0": 14,
+  "improves": "[[234,55,5]]_17 gamma=0.8997 (this is gamma<=0.8466)",
+  "certification": "min_dependent_columns(X_stab,17,d_max=5) completes with no dependency <=5 => d>=6. Exact d (6 vs >=7) not pinned: the weight-3 MITM exhausts (>10 min/code). gamma<=0.8466 is an upper bound.",
+  "A_d": "not computed (dim-14 dual MacWilliams-feasible at 17^14 but slow; deferred)",
+  "found": "2026-06-29 overnight d>=6 hunt on lenore (n_jobs=30, ~3000 trials/batch; 7 d>=6 codes: 4 at k=51, 3 at k=52)",
+  "puncture_columns_1indexed": [6, 19, 32, 37, 40, 44, 47, 54, 59, 61, 69, 79, 84, 87, 95, 97, 103, 106, 109, 125, 131, 132, 137, 138, 145, 151, 164, 177, 179, 185, 186, 187, 202, 204, 205, 206, 207, 211, 212, 221, 246, 247, 248, 251, 254, 259, 266, 268, 269, 273, 283, 285],
+  "sibling_k51": {
+    "code": "[[238,51,>=6]]_17", "gamma_le": 0.8597,
+    "puncture_columns_1indexed": [1, 3, 4, 7, 15, 20, 24, 25, 26, 32, 39, 42, 47, 50, 51, 54, 61, 62, 67, 68, 69, 73, 100, 104, 106, 127, 137, 148, 171, 177, 190, 195, 199, 207, 215, 217, 219, 221, 223, 227, 232, 233, 245, 255, 263, 266, 278, 279, 280, 287, 289]
+  }
+}
