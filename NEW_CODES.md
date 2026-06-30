@@ -67,15 +67,18 @@ Note: many other γ<1 codes exist at p=17, m=2 in the high-k window; the two abo
 
 ## p = 19
 
-### `[[293, 68, ≥5]]₁₉`  —  γ ≤ 0.9076  (found 2026-06-29)
+### `[[293, 68, 5]]₁₉`  —  γ = 0.9076  (EXACT; d pinned 2026-06-29)
 
 - **Second new γ<1 search dimension** (after p=17). Construction: puncture `RM₁₉(11, 2)` at k=68
   (m=2, r = r_max = 11; triorthogonal since 3·11 = 33 < 2·18 = 36).
-- Parameters: n = 293, k = 68, d ≥ 5 (certified); full rank (dim G0 = 10); γ = log(293/68)/log(5) = 0.9076.
-- **d≥5 rigorously certified**: `min_dependent_columns(X_stab, 19, d_max=4)` completes with NO dependency ≤4.
-  Likely exactly d=5 (so γ=0.9076). Below the RS threshold (p=19 < 23), so not reachable by an m=1 RS code.
+- Parameters: n = 293, k = 68, **d = 5 (exact)**; full rank (dim G0 = 10); γ = log(293/68)/log(5) = 0.9076.
+- **d=5 certified two ways**: (i) d≥5 — `min_dependent_columns(X_stab, 19, d_max=4)` finds NO dependency ≤4;
+  (ii) d≤5 — the structured line argument (`qmsd/structured_pe.py`): `d_lines = d_RM − max_line = 13 − 8 = 5`
+  (verified, `exact=True`). 5 ≤ d ≤ 5 ⇒ d = 5. Below the RS threshold (p=19 < 23), so not an m=1 RS code.
 - Found by a weight-2 screen on lenore (n_jobs=24): d≥5 common (~17%) at k=68, vanishing by k=69 (d→4).
-  k-sweep: k=65 (γ≤0.942) → k=68 (γ≤0.908, the floor) → k=69 (no d≥5).
+- **Open improvement** (2026-06-29): a flat-spread 68-set easily reaches `max_line=6` (all searches), giving
+  `d_lines = 13 − 6 = 7`, so **`[[293,68,7]]₁₉` γ=0.751 is geometrically on the table** if no 2D codeword caps
+  below 7 — pending the `d_max=6` certification (the p=19 analog of the p=17 d=7 cert; d=6 alone gives γ=0.815).
 
 Puncture columns (1-indexed), saved in `p19_lock.json`:
 
@@ -141,9 +144,14 @@ See `QUTRIT_PARETO.md` for the full (γ, C, A_d) study.
   beat-the-paper like the qutrit (880→572). Same playbook, weaker provenance.
 - Puncture columns (1-indexed), saved in `p5_Ad_code.json`:
   [21, 38, 40, 48, 51, 56, 73, 78, 80, 82, 103, 110, 120]
-- **Deferred:** the flagship `[[519,106,5]]₅` (γ=0.987, the paper's γ<1 ququint code) is m=4 with dim G0 = 16,
-  so MacWilliams is infeasible (5¹⁶ ≈ 1.5e11); optimizing its A₅ needs the m=4 structured A_d enumerator
-  (extend `structured_m3` to 3-flats).
+### `[[519,106,5]]₅` (flagship γ<1 ququint) — A₅ = 1904   (2026-06-29)
+
+- The paper's γ<1 ququint code (γ=0.987), m=4, dim G0 = 16 ⇒ MacWilliams infeasible (5¹⁶ ≈ 1.5e11). A₅ computed
+  **exactly via the direct streamed weight-5 count** (`qmsd.weightcount`, dim(G0)-independent) — the structured
+  flat-decomposition doesn't pay off here (j=2 plane contribution is 0; A₅ lives at j=3/4). **A₅ = 1904** (exact),
+  the minimum over a flat-spread d=5 sweep (range 1904–2168, median ~2084; ~9% below median). Saved in
+  `flagship_p5_d5_Ad.json`. Validated tooling: the m=4 `structured_ad` (overflow-proof hash MITM, == MacWilliams
+  at p=5 m=4) + `weightcount`. Deeper sweep (46 seeds) did not beat 1904.
 
 ## p ≥ 23 (Reed–Solomon, m = 1) — the optimal small γ<1 code FAMILY   (2026-06-27, verified)
 
