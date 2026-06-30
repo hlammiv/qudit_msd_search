@@ -13,6 +13,15 @@ This plan fuses three scout briefs (AG/non-RM evaluation codes; direct triorthog
 search; obstruction theory + feasibility filter). It is **kill-criteria-first**: rule out the
 hopeless p before searching, and structure every probe to *trigger* a kill fast.
 
+> **EXECUTION STATUS (2026-06-30, see `D_PHASE01_FINDINGS.md` for full results).**
+> Phases 0–1 run. **Three routes CLOSED:** Rank 1 (cyclic/BCH — non-RM triorthogonal codes exist but
+> collapse to d≤2 under puncturing, γ≥1.65), Rank 3 (AG — not triorthogonal over prime F_p, genus 1&2),
+> Rank 4 (Artin–Schreier — degenerate over the prime field). The §1/§6 thesis (**cap is generic to
+> triorthogonality over prime F_p, not RM-special**) is now directly evidenced. **Re-scope:** Filter C
+> shows p=11 misses γ<1 by only **+1** at its optimal k=21 (not the "+4 / near-hopeless" below), co-equal
+> with p=13. **Next:** Rank 2 (moment-ILP, Phase 2) — the last genuine search route. The realistic
+> deliverable is now the publishable negative.
+
 ---
 
 ## 1. Goal and success criterion
