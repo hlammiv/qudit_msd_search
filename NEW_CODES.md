@@ -50,8 +50,10 @@ assert min_dependent_columns(b["X_stab"], 17, d_max=7) == 5   # certified distan
   This sidesteps the brute weight-6 MITM entirely (which is `(p−1)³·C(237,3) ≈ 9e9` ops / ~287 GB at p=17) — just a 306-line scan.
 - Found by a 6-hour parallel screen on lenore (n_jobs=30; d≥6 rare ~1/450); exact d via `structured_pe`.
 - A_d: not computed (the line family's A₆ is enumerable, but a certified total also needs the 2D full-span codewords).
-- **Insight** (from the line argument): d = `d_RM − max_ℓ|S∩ℓ|`, so a 52-puncture set with `max_ℓ|S∩ℓ| ≤ 5`
-  would give d ≥ 7 (γ ≤ 0.755) *provided* no 2D full-span codeword punctures lower — an open optimization.
+- **Insight, TESTED + REFUTED** (2026-06-30): d = `d_RM − max_ℓ|S∩ℓ|` gives a *line* bound; a 52-set with
+  `max_line=5` (`d_lines=7`) exists, but `mindist_balanced(d_max=6)` (full 8.97e9 stream, 57 min on lenore)
+  finds a **weight-6 2D full-span codeword** ⇒ true d=6. So the 2D codewords cap d at 6 regardless of line-spread;
+  **d=6 is the 2D ceiling at k=52 ⇒ γ=0.847 is optimal here** (would-have-been γ=0.779 at d=7 is not realized).
 
 Puncture columns (1-indexed) for the best `[[237,52,≥6]]`, saved in `p17_d6_code.json`:
 
@@ -76,9 +78,10 @@ Note: many other γ<1 codes exist at p=17, m=2 in the high-k window; the two abo
   (ii) d≤5 — the structured line argument (`qmsd/structured_pe.py`): `d_lines = d_RM − max_line = 13 − 8 = 5`
   (verified, `exact=True`). 5 ≤ d ≤ 5 ⇒ d = 5. Below the RS threshold (p=19 < 23), so not an m=1 RS code.
 - Found by a weight-2 screen on lenore (n_jobs=24): d≥5 common (~17%) at k=68, vanishing by k=69 (d→4).
-- **Open improvement** (2026-06-29): a flat-spread 68-set easily reaches `max_line=6` (all searches), giving
-  `d_lines = 13 − 6 = 7`, so **`[[293,68,7]]₁₉` γ=0.751 is geometrically on the table** if no 2D codeword caps
-  below 7 — pending the `d_max=6` certification (the p=19 analog of the p=17 d=7 cert; d=6 alone gives γ=0.815).
+- **d-improvement TESTED + REFUTED** (2026-06-30): a flat-spread 68-set reaches `max_line=6` (`d_lines=7`), but
+  `min_dependent_columns(d_max=5)` finds a **weight-5 2D codeword** ⇒ true d=5. So the 2D codewords cap d at 5
+  regardless of line-spread; **d=5 is the 2D ceiling at k=68 ⇒ γ=0.9076 is optimal here** (same mechanism as the
+  p=17 d=7 refutation and p=11/13).
 
 Puncture columns (1-indexed), saved in `p19_lock.json`:
 

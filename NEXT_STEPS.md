@@ -2,12 +2,13 @@
 
 Last updated 2026-06-29. Status tags: ✅ done · 🔄 running · ⏸ deferred · 🔭 research.
 
-## A. Push the new γ<1 codes lower (line-spread → higher d)
-The line-spread that pinned p=17 d=6 has a next rung: lower `max_ℓ|S∩ℓ|` ⇒ higher d.
-- **p=17:** `[[237,52,6]]` γ=0.847 → **d≥7 ⇒ γ≈0.78** (needs `max_line≤5`; avg ≈3, plausible).
-- **p=19:** `[[293,68,≥5]]` γ=0.908 → **d≥6 ⇒ γ≈0.82** (d_RM=13 ⇒ `max_line≤7`); also pin p=19's exact d.
-- Cost: the d+1 certification needs the `d_max=6` MITM (the ~9e9 wall; memory-safe via `mindist_balanced`,
-  compute-heavy). At p=17 the 2D codewords stayed ≥6, so d=7 is a *plausible probe*, not a sure thing.
+## A. Push the new γ<1 codes lower — ✅ TESTED + REFUTED (2026-06-30)
+The line-spread d+1 rung was tested for both flagships and **refuted by the 2D cap**: a lower-max_line set
+reaches the higher *line* bound (p=17 `d_lines=7` at max_line=5; p=19 `d_lines=7` at max_line=6), but a 2D
+full-span codeword punctures to the *current* distance (p=17 weight-6 ⇒ d=6, via `mindist_balanced(d_max=6)`,
+57 min; p=19 weight-5 ⇒ d=5, via `min_dependent_columns(d_max=5)`, 27 s). So **`[[237,52,6]]₁₇` γ=0.847 and
+`[[293,68,5]]₁₉` γ=0.9076 are at their 2D ceilings — optimal at their (n,k)**, and p=19's d is now pinned exact.
+Caveat: one candidate set tested each; the 2D cap is structural (matches p=11/13), so very likely general.
 
 ## B. Fully characterize the headline codes (A_d)
 - ⏸ **EXACT A₆ for `[[237,52,6]]₁₇` — needs a REBALANCED weight-counter (added 2026-06-29).** The blocker:
