@@ -49,7 +49,12 @@ assert min_dependent_columns(b["X_stab"], 17, d_max=7) == 5   # certified distan
   0-indexed points 214–219; independently verified `X_stab·v ≡ 0 mod 17`, weight 6). 6 ≤ d ≤ 6 ⇒ **d = 6**.
   This sidesteps the brute weight-6 MITM entirely (which is `(p−1)³·C(237,3) ≈ 9e9` ops / ~287 GB at p=17) — just a 306-line scan.
 - Found by a 6-hour parallel screen on lenore (n_jobs=30; d≥6 rare ~1/450); exact d via `structured_pe`.
-- A_d: not computed (the line family's A₆ is enumerable, but a certified total also needs the 2D full-span codewords).
+- **A₆ = 147,856** (EXACT, 2026-06-30) — computed via the rebalanced counter `qmsd/weightcount_balanced.py`
+  (the full 8.97e9 stream, ~5 h on lenore; defeats the 72 GB OOM wall of `weightcount`). This is the first exact
+  suppression coefficient for a γ<1 *search* code at p≥17. **Distillation:** δ_out ≈ (A₆/((p−1)p⁵))·δ_in⁶ =
+  6.5e-3·δ_in⁶, so the protocol threshold δ_th = 2.74 > 1 (suppresses *any* input error — A₆ is only 0.0065× the
+  crossover 2.27e7); one round takes δ_in=0.01 → 6.5e-15, vs `[[14,3,4]]₁₇` (A₄=16016, d=4) → 2e-9. Fully
+  characterized: γ=0.847, d=6 (2D-capped ceiling), A₆=147856, threshold generous.
 - **Insight, TESTED + REFUTED** (2026-06-30): d = `d_RM − max_ℓ|S∩ℓ|` gives a *line* bound; a 52-set with
   `max_line=5` (`d_lines=7`) exists, but `mindist_balanced(d_max=6)` (full 8.97e9 stream, 57 min on lenore)
   finds a **weight-6 2D full-span codeword** ⇒ true d=6. So the 2D codewords cap d at 6 regardless of line-spread;
