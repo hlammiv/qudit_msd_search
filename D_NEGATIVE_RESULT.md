@@ -104,6 +104,37 @@ removing **any** single point breaks it (10/10), **0 of 250** random proper subs
 p=11 and p=13; and RM(t,m) has **no** non-trivial 0/1 codeword (the constant-forcing step), exhaustively
 at p=11.
 
+### 4.1 The boundary engine — a closed form for *why* the threshold is p=17
+
+The flat cap (§3) shows p≤13 is capped *empirically*; the following gives the **closed-form reason**, and
+pins the boundary to a single inequality.
+
+> **Boundary engine (proved; independently verified).** The moment / normal-rational curve in `F_p^r`
+> (columns `(1, t, t², …, t^{r-1})`, `t∈F_p`) is **triorthogonal iff `3(r−1) < p−1`**, and is **MDS**, so its
+> Z-distance is `d = r+1` (Singleton defect 0). Hence the maximum distance of any *triorthogonal-MDS* cap is
+> `d_max = ⌊(p+1)/3⌋ + 1`, giving
+
+| p | 5 | 7 | 11 | 13 | **17** | 19 |
+|---|---|---|---|---|---|---|
+| triorthogonal-MDS `d_max` | 3 | 3 | 5 | 5 | **7** | 7 |
+
+> The first prime admitting a triorthogonal-MDS cap of distance **6** is **p=17** (at `r=5`: `3·4=12<16`),
+> matching `[[237,52,6]]₁₇` exactly. So `p≤13` is hard-capped at `d=5`, and `p=17` is precisely where `d=6`
+> first becomes algebraically available — *without* over-killing `p≥17`.
+
+*Proof sketch.* The row functions are the power maps `t↦t^j`; the 2nd/3rd moments are power sums
+`Σ_{t∈F_p} t^s`, which vanish mod p unless `(p−1)∣s`. The largest exponent appearing is `3(r−1)` (triple
+products), so all moments vanish iff `3(r−1) < p−1`. The normal rational curve is the classic MDS arc
+(`d=r+1`). Verified end-to-end (`scratchpad/verify_proof.py`): `is_triorthogonal ⟺ 3(r−1)<p−1` matched on
+every `(p,r)`, and `d = r+1` (MDS) every time; the `d_max` table reproduced as `{5:3, 7:3, 11:5, 13:5, 17:7}`.
+
+**Caveat (the MDS branch carries no logicals).** A defect-0 (MDS) triorthogonal cap admits `k=0` logical
+qudits — the high-`d` MDS route does not by itself give a `γ<1` *code* (its logical-by-magic Gram block is
+totally isotropic, so its rank is `≤⌊k/2⌋<k`). So `d_max` is the distance *ceiling*; the codes that actually
+carry logicals (`k≥1`) sit strictly below it (e.g. p=11 realizes `d=4`, p=13 `d=5` with logicals), which is
+why both miss `γ<1` by exactly one distance unit. Closing that last unit *rigorously* (the rank + 2D-codeword
+cap) is the one remaining open crux — see §7 and `D_PROOF_MAP.md`.
+
 ## 5. Non-evaluation routes are closed too (strong evidence for the general thesis)
 
 Three families that are *not* evaluation codes — the natural candidates to escape the forced grid — each fail:
