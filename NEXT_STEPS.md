@@ -11,7 +11,9 @@ full-span codeword punctures to the *current* distance (p=17 weight-6 ⇒ d=6, v
 Caveat: one candidate set tested each; the 2D cap is structural (matches p=11/13), so very likely general.
 
 ## B. Fully characterize the headline codes (A_d)
-- ⏸ **EXACT A₆ for `[[237,52,6]]₁₇` — needs a REBALANCED weight-counter (added 2026-06-29).** The blocker:
+- ✅ **EXACT A₆ for `[[237,52,6]]₁₇` = 147,856 — DONE 2026-06-30** via the rebalanced counter
+  `qmsd/weightcount_balanced.py` (8.97e9 stream, ~5 h lenore). Threshold δ_th=2.74>1 (suppresses any input
+  error; A₆ = 0.0065× the 2.27e7 crossover). The flagship is now fully characterized. *(history below:)* The blocker:
   `count_weight_d` splits d=6 as d1=3 ⇒ left table `C(237,3)·16³ ≈ 9e9` entries (~72 GB) ⇒ **OOM**; and
   `structured_ad(jmax=1)` gives a *wrong* 0 at p=17 m=2 (contradicts the verified line-supported d=6 witness —
   not validated there). FIX = the count-analog of `mindist_balanced`: fix the left block's leading coefficient
