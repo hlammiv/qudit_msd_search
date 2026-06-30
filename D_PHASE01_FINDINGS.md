@@ -1,16 +1,19 @@
-# Direction D — Phase 0 & 1 execution findings
+# Direction D — Phase 0–2 execution findings
 
-2026-06-30. Executes `D_PLAN.md` Phases 0–1 (feasibility filter + the two cheapest decisive probes).
-All local on the 15 GB box; distance certified by `min_dependent_columns(d_max≤5)` (RAM-safe).
+2026-06-30. Executes `D_PLAN.md` Phases 0–2 (feasibility filter + the cheapest decisive probes +
+the moment/direct search). All local on the 15 GB box; distance certified by
+`min_dependent_columns(d_max≤5)` (RAM-safe). See `D_NEGATIVE_RESULT.md` for the consolidated write-up.
 
 ## Headline
 
-**Three of the plan's escape routes are now CLOSED** — Rank 1 (cyclic/BCH) on the γ<1 objective,
-Rank 3 (algebraic-geometry), and Rank 4 (Artin–Schreier). The central thesis (`D_PLAN.md` §1, §6)
-— **the distance cap is generic to triorthogonality over prime F_p, not an RM/flat-geometry artifact**
-— is now directly evidenced by a *non-affine-invariant* family (cyclic codes) that collapses just as
-hard as RM. The **publishable-negative outcome is the front-runner**. One genuine search route remains
-(Rank 2, moment-ILP) plus the affine falsifier (Rank 5) and the still-uncertified p=7 mid-k RM window.
+**ALL of the plan's genuine search routes are now CLOSED.** Rank 1 (cyclic/BCH), Rank 3 (AG), Rank 4
+(Artin–Schreier), and Rank 2 (direct moment search) all fail to produce a γ<1 code; Rank 5 (affine) is
+subsumed by the forced-grid theorem. The central thesis (`D_PLAN.md` §1, §6) — **the distance cap is
+generic to triorthogonality over prime F_p, not an RM/flat-geometry artifact** — is directly evidenced:
+a *non-affine-invariant* family (cyclic codes) collapses just as hard as RM, and within the
+evaluation-code framework the **FORCED-GRID THEOREM** (Phase 2, independently verified) proves the *only*
+triorthogonal column-subsets are ∅ and the full grid. **Direction D is resolved as a negative result**,
+with one honest uncovered tail (high-dim general-position caps, <5%).
 
 ## Phase 0 — feasibility filter (targets locked; one re-scope)
 
@@ -81,19 +84,42 @@ codes):** with `Z` = spectral support (`Z_n` minus the defining set),
 
 Reproducible p=11 dim-30 survivor: `Z = {1,2,5,6,11,21,22,25,26,31,35,41,42,46,51,55,61,62,66,71,75,81,82,86,91,101,102,105,106,111}` (then `T = Z₁₂₀∖Z`, generator `g = ∏_{t∈T}(x−α^t)`, α a primitive element of GF(11²)).
 
-## What remains
+## Phase 2 — Rank 2 (moment / direct triorthogonal-matrix search): CONFIRMED-KILL + a theorem
 
-- **Rank 2 — moment-ILP direct search (Phase 2).** The last genuine search route. The triorthogonality
-  moments are *linear* in column multiplicities ⇒ mod-p linear feasibility on a small pool + capset
-  hill-climb. The §1 thesis predicts the same collapse, but this is the cleanest test of the *general*
-  claim (and the <5% tail where a survivor could appear). **Recommended next phase.**
-- **Rank 5 — PRM / cap-puncture.** Fast affine-route falsifier; expected to fail (inherits the flat cap).
-- **p=7 mid-k m=4 RM window** `k∈[110,312]`. Still uncertified (`min_dependent_columns` overflows past
-  R=21 rows). This is *RM*, not non-RM — closing it rigorously (overflow-safe distance) would tidy the RM
-  no-go but is a separate task from Direction D.
+The moment/point view (CONFIRMED == `is_triorthogonal`, 0/30 mismatches): a triorthogonal code is a
+column-multiset with vanishing 2nd & 3rd moment tensors mod p; the affine form (constant-1 coordinate)
+avoids the trivial d=2 cone-collapse. Direct construction found **no γ<1 survivor** at p=11/13 — the best
+codes are RM itself (`[[100,21,4]]₁₁` γ=1.126, `[[143,26,5]]₁₃` γ=1.059), and every directly-built non-RM
+config does strictly worse. Coverage (each VERIFIED by `is_triorthogonal` = ground truth):
+- **Line-unions** (~17 non-RM configs, generator dim 18–26): collapse to **d=1** (line-rich ⇒ collinear).
+- **Moment-zero caps** (genuine caps, 0 collinear triples, built via ±-symmetry MITM subset-sum): collapse
+  to **d≤3** in the *shortened* code (weight-2 dependencies appear in G0) — best γ=1.32 (p=7), 3.62 at D=5.
+- **Uncovered tail (honest):** the γ<1-density general-position cap needs generator dim K≈28 (p=11)/36
+  (p=13) ⇒ points in F_p^~27 ⇒ a 0/1 (set) subset-sum over ~4000 moment equations — NP-hard, not
+  constructively reachable here. Not closed by theorem. This is the **<5% tail**.
 
-**Assessment.** With Rank 1 (γ<1), Rank 3, and Rank 4 closed and the degeneracy-cap thesis directly
-evidenced, the realistic deliverable is the **negative result**: the cap is generic to triorthogonality
-over prime F_p (p≤13). Rank 2 is the one experiment that would make that airtight — or, against the odds,
-produce the survivor. Per-p success odds revised down from the plan: p=7 mid-k (RM) is the only genuinely
-open window; non-RM p=11/p=13 now look as caped as everything else.
+### The FORCED-GRID THEOREM (rigorous core — independently verified)
+
+For the F_p^m evaluation pool with the full degree-`r_max` monomial generator, a subset `S⊆F_p^m` is
+triorthogonal **iff** `1_S ⊥ RM(r)^{⋆3} = RM(3r,m)`, i.e. `1_S ∈ RM(t,m)` with `t = m(p−1)−3r−1`. Since
+`2t < p` at every target, on each affine line `1_S` is a univariate degree-≤t polynomial g with g∈{0,1}
+⇒ `g(g−1)≡0` (degree 2t<p) ⇒ g constant ⇒ `1_S` globally constant ⇒ **`S ∈ {∅, full grid}` only.**
+So within the evaluation framework — where *every* known γ<1 RM code and all its puncturings live — there
+is **no non-RM triorthogonal escape**; only ordinary RM puncturing, Filter-C capped (p=11 d=4, p=13 d=5).
+
+**Independent verification** (`scratchpad/verify_p2.py`, RAM-bounded): (1) Hadamard-cube rank identity
+`rank(RM(r,m)^{⋆3}) = dim RM(3r,m)` exact — **118=118** (p=11), **163=163** (p=13), **333=333** (p=7,m=3);
+(2) `t` and `2t<p` hold at all targets (p=11 t=1, p=13/p=7m3/p=7m4 t=2, p=5m4 t=0); (3) full grid
+triorthogonal, **removing any single point breaks it 10/10**, **0/250 random proper subsets** triorthogonal
+(p=11 *and* p=13); (4) constant-forcing — **0 non-trivial 0/1 codewords** of RM(t,m) (exhaustive at p=11,
+sampled at p=13/p=7).
+
+## Status: Direction D resolved (negative)
+
+All five plan routes closed: Rank 1/2/3/4 fail to cross γ<1; Rank 5 (affine) is subsumed by forced-grid.
+The realistic and now-delivered outcome is the **negative result** — the distance cap is generic to
+triorthogonality over prime F_p (p≤13): rigorous within the evaluation framework (forced-grid), strongly
+evidenced generally (cyclic/AG/Artin–Schreier kills + moment-cap collapses). **Honest open items:** (i) the
+high-dim general-position cap tail (<5%, not closed by theorem); (ii) the p=7 mid-k m=4 *RM* window
+`k∈[110,312]` (still uncertified — `min_dependent_columns` overflows past R=21 rows; separate from D).
+Consolidated in `D_NEGATIVE_RESULT.md`.
