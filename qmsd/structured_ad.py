@@ -102,6 +102,45 @@ def _null_space(G, p):
     return basis
 
 
+def _inv_modp(B, p):
+    """Inverse of a square full-rank matrix B over F_p via Gauss-Jordan on [B | I]."""
+    B = np.asarray(B, dtype=np.int64) % p
+    n = B.shape[0]
+    M = np.concatenate([B, np.eye(n, dtype=np.int64)], axis=1) % p
+    for c in range(n):
+        sel = -1
+        for rr in range(c, n):
+            if M[rr, c] % p != 0:
+                sel = rr
+                break
+        if sel < 0:
+            raise ValueError("singular matrix in _inv_modp")
+        M[[c, sel]] = M[[sel, c]]
+        inv = pow(int(M[c, c]), p - 2, p)
+        M[c] = (M[c] * inv) % p
+        for rr in range(n):
+            if rr != c and M[rr, c] % p != 0:
+                M[rr] = (M[rr] - M[rr, c] * M[c]) % p
+    return M[:, n:] % p
+
+
+def _systematic_lift(Gsurv, Gj, p):
+    """Per-flat systematic decoder: codeword-values-on-survivors -> full codeword on the flat.
+
+    ``Gsurv`` (dimCF x |surv|) is the flat generator restricted to surviving columns.  Because
+    the global puncture submatrix is full rank, the restriction ``C_F -> C_F|surv`` is injective,
+    so ``Gsurv`` has full row rank dimCF and an information set exists *among the survivors*.
+    Returns ``(pivots, T)``: ``pivots`` = the dimCF survivor-local column indices of an info set,
+    and ``T = B^{-1} @ Gj`` (dimCF x p^j) with ``B = Gsurv[:, pivots]``.  For any codeword the full
+    evaluation on the whole flat is ``c[pivots] @ T`` -- one rref+inverse per flat replaces the
+    per-codeword linear solve (the old hot path)."""
+    _, pivots = _rref(Gsurv, p)
+    B = np.asarray(Gsurv, dtype=np.int64)[:, pivots] % p
+    Binv = _inv_modp(B, p)
+    T = (Binv @ (np.asarray(Gj, dtype=np.int64) % p)) % p
+    return pivots, T
+
+
 def _solve(A, b, p, ncols):
     """One solution u (length ncols) of A u = b over F_p (A: r x ncols), assumed consistent."""
     A = np.asarray(A, dtype=np.int64) % p
@@ -179,13 +218,48 @@ def _flats(m, j, p):
 # ---------------------------------------------------------------------------
 # meet-in-the-middle: weight-d codewords of H^perp (H = parity check)
 # ---------------------------------------------------------------------------
-def _half_sums(H, powers, d_half, p, negate=False):
-    """For all d_half-subsets x all-nonzero-coeffs: encoded syndrome, support, coeffs.
+# Overflow-proof syndrome encoding.  The old int64 p-adic ``powers @ s`` is bijective but
+# raises ``OverflowError`` once ``p**rows > 2**63`` -- which happens at m=4, j>=3 where the
+# restricted code ``C_F`` has large redundancy ``rows`` (e.g. 5**29).  The MITM only needs
+# syndrome EQUALITY (``left_sum + right_sum = 0``), so we encode each length-``rows`` syndrome
+# vector with a 64-bit polynomial HASH (uint64, wraps mod 2**64) and resolve every hash hit by
+# verifying the actual parity ``H @ codeword == 0`` (a hash collision is then simply rejected).
+# This is strictly more general than the int64 path and gives identical results.
+_HASH_BASE = np.uint64(0x9E3779B97F4A7C15)  # fixed 64-bit golden-ratio multiplier
 
-    Returns (codes (N,), supps (N,d_half), coefs (N,d_half)).  Vectorised with numpy.
-    ``negate`` encodes the *negated* syndrome ``(-s) mod p`` (componentwise) -- used for
-    the right half so that a left/right code match means ``left_sum + right_sum = 0``.
-    The returned coefficients are always the actual (positive) coefficients of the codeword.
+
+@lru_cache(maxsize=None)
+def _base_powers(rows):
+    """``[B^0, B^1, ..., B^(rows-1)]`` as uint64 (mod 2**64); the polynomial-hash basis.
+
+    Computed in Python big-ints reduced mod 2**64 so the modular reduction is explicit (no
+    noisy numpy uint64-overflow RuntimeWarning); the resulting wrap is exactly mod 2**64.
+    """
+    B = int(_HASH_BASE)
+    MASK = (1 << 64) - 1
+    vals = [1]
+    for _ in range(1, rows):
+        vals.append((vals[-1] * B) & MASK)
+    return np.array(vals, dtype=np.uint64)
+
+
+def _hash_cols(s, basepows):
+    """Hash each column of ``s`` (rows x NC, entries in [0,p)) -> (NC,) uint64 polynomial hash.
+
+    The per-element products and the column sum are computed in uint64 and wrap mod 2**64
+    (an intentional modular hash); errstate silences numpy's overflow warning for the wrap.
+    """
+    with np.errstate(over="ignore"):
+        return (basepows[:, None] * s.astype(np.uint64)).sum(axis=0)
+
+
+def _half_sums(H, basepows, d_half, p, negate=False):
+    """For all d_half-subsets x all-nonzero-coeffs: hashed syndrome, support, coeffs.
+
+    Returns (hashes (N,) uint64, supps (N,d_half), coefs (N,d_half)).  Vectorised with numpy.
+    ``negate`` encodes the *negated* syndrome ``(-s) mod p`` (componentwise) BEFORE hashing --
+    used for the right half so that a left/right hash match means (after verification)
+    ``left_sum + right_sum = 0``.  Coefficients returned are the actual (positive) codeword coeffs.
     """
     rows, n = H.shape
     combos = np.fromiter(
@@ -193,7 +267,7 @@ def _half_sums(H, powers, d_half, p, negate=False):
         dtype=np.int64,
     )
     if combos.size == 0:
-        return (np.empty(0, np.int64), np.empty((0, d_half), np.int64),
+        return (np.empty(0, np.uint64), np.empty((0, d_half), np.int64),
                 np.empty((0, d_half), np.int64))
     combos = combos.reshape(-1, d_half)                       # (NC, d_half)
     Hsel = H[:, combos]                                        # (rows, NC, d_half)
@@ -203,8 +277,7 @@ def _half_sums(H, powers, d_half, p, negate=False):
         s = (Hsel * cfa[None, None, :]).sum(axis=2) % p        # (rows, NC)
         if negate:
             s = (p - s) % p                                    # encode -syndrome (componentwise)
-        codes = powers @ s                                     # (NC,) int64, bijective
-        code_chunks.append(codes)
+        code_chunks.append(_hash_cols(s, basepows))            # (NC,) uint64 hash
         supp_chunks.append(combos)
         coef_chunks.append(np.broadcast_to(cfa, combos.shape))
     return (np.concatenate(code_chunks),
@@ -215,26 +288,25 @@ def _half_sums(H, powers, d_half, p, negate=False):
 def _mitm(H, d, p):
     """All weight-d codewords of the code with parity check H (rows x n).
 
-    Returns a list of (support_tuple, values_tuple).  Splits d = d1 + d2, encodes each
-    F_p^rows partial syndrome as one int64 (bijective), and matches left/right halves by
-    sorted searchsorted -- fully vectorised in numpy.
+    Returns a list of (support_tuple, values_tuple).  Splits d = d1 + d2, hashes each
+    F_p^rows partial syndrome to one uint64 (overflow-proof), matches left/right halves by
+    sorted searchsorted, and VERIFIES every hash hit against the true parity ``H @ cw == 0``
+    (rejecting the rare hash collision) -- fully vectorised in numpy.
     """
     rows, n = H.shape
     if d > n or n == 0 or rows == 0:
         return []
     H = np.asarray(H, dtype=np.int64) % p
-    if p ** rows > np.iinfo(np.int64).max:
-        raise OverflowError(f"syndrome encoding p**rows = {p}**{rows} exceeds int64")
-    powers = (p ** np.arange(rows, dtype=np.int64)).astype(np.int64)
+    basepows = _base_powers(rows)
 
     d1, d2 = d // 2, d - d // 2
-    Lcode, Lsupp, Lcoef = _half_sums(H, powers, d1, p)
+    Lcode, Lsupp, Lcoef = _half_sums(H, basepows, d1, p)
     if Lcode.size == 0:
         return []
     order = np.argsort(Lcode, kind="stable")
     Lcode, Lsupp, Lcoef = Lcode[order], Lsupp[order], Lcoef[order]
 
-    target, Rsupp, Rcoef = _half_sums(H, powers, d2, p, negate=True)  # target = encode(-right_sum)
+    target, Rsupp, Rcoef = _half_sums(H, basepows, d2, p, negate=True)  # hash(-right_sum)
     pos = np.searchsorted(Lcode, target, side="left")
     valid = pos < Lcode.size
     match = np.zeros(target.shape, dtype=bool)
@@ -256,6 +328,11 @@ def _mitm(H, d, p):
                 for c, a in zip(rsupp, Rcoef[ri]):
                     vals[int(c)] = int(a)
                 keys = tuple(sorted(vals))
+                # verify the actual parity (reject a hash collision): H[:,keys] @ vals == 0
+                cols = np.array(keys, dtype=np.int64)
+                coef = np.array([vals[k] for k in keys], dtype=np.int64)
+                if np.any((H[:, cols] @ coef) % p):
+                    continue
                 out.add((keys, tuple(vals[k] for k in keys)))
     return list(out)
 
@@ -416,13 +493,20 @@ def structured_ad(p, m, r, puncture_columns, jmax=None, distance=None, return_co
                 cws = _full_space_weight_d(int(survpos.size), d, p)
             else:
                 cws = _mitm(H, d, p)
+            if not cws:
+                continue
+            # one systematic decoder per flat (replaces the per-codeword linear solve)
+            pivots, T = _systematic_lift(Gsurv, Gj, p)     # full = c[pivots] @ T
+            piv_row = {int(c): r for r, c in enumerate(pivots)}
             for (sup_local, vals) in cws:
-                # sup_local: indices into survpos; reconstruct full C_F codeword on F
-                y = np.zeros(survpos.size, dtype=np.int64)
+                # sup_local: indices into survpos; the codeword is determined by its values on
+                # the info columns (pivots), so gather those and lift via T.
+                cp = np.zeros(dimCF, dtype=np.int64)
                 for i, v in zip(sup_local, vals):
-                    y[i] = v % p
-                u = _solve(Gsurv.T, y, p, dimCF)           # u @ Gsurv = y
-                full = (u @ Gj) % p
+                    r = piv_row.get(int(i))
+                    if r is not None:
+                        cp[r] = v % p
+                full = (cp @ T) % p
                 supp = np.nonzero(full)[0]                  # positions in F_p^j
                 glob = colmap[supp]                         # global point indices
                 w = int(supp.size)
