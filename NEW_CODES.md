@@ -127,6 +127,24 @@ sub-cap of a rank-deficient 236-cap); the min-weight (weight-18 = 2 parallel 2-f
 
 See `QUTRIT_PARETO.md` for the full (γ, C, A_d) study.
 
+## p = 5 (ququint), m = 3 — A_d-optimized code   (2026-06-29)
+
+### `[[112, 13, 3]]₅` — A_d = 396
+
+- Same parameters as the paper's ququint regime (n=112, k=13, d=3; γ = log(112/13)/log(3) = 1.96, a
+  **γ>1 few-round / suppression-regime code**, like the qutrit Table-3 codes), with **A_d minimized to 396**.
+- Optimized via flat-spread + local-search puncturing; A_d (= min-weight logical-operator count, output error
+  per round ∝ A_d) computed **exactly via MacWilliams** (dim G0 = 7, 5⁷ trivial). The local search could not
+  beat 396, so it is at/near optimal.
+- **Caveat (honest):** the paper does **not** tabulate p=5 A_d, so this is "**optimized vs a typical d=3
+  construction**" (median 478, worst 744 ⇒ 17% below median, 47% below worst), **not** a documented
+  beat-the-paper like the qutrit (880→572). Same playbook, weaker provenance.
+- Puncture columns (1-indexed), saved in `p5_Ad_code.json`:
+  [21, 38, 40, 48, 51, 56, 73, 78, 80, 82, 103, 110, 120]
+- **Deferred:** the flagship `[[519,106,5]]₅` (γ=0.987, the paper's γ<1 ququint code) is m=4 with dim G0 = 16,
+  so MacWilliams is infeasible (5¹⁶ ≈ 1.5e11); optimizing its A₅ needs the m=4 structured A_d enumerator
+  (extend `structured_m3` to 3-flats).
+
 ## p ≥ 23 (Reed–Solomon, m = 1) — the optimal small γ<1 code FAMILY   (2026-06-27, verified)
 
 The paper lists only `[[17,6,3]]₂₃` as "the smallest known γ<1 code." But at m=1 the quantum code is a

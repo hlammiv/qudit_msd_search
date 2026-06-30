@@ -1,0 +1,18 @@
+{
+  "code": "[[112,13,3]]_5",
+  "p": 5,
+  "m": 3,
+  "r": 3,
+  "n": 112,
+  "k": 13,
+  "d": 3,
+  "gamma": 1.96,
+  "regime": "gamma>1 (few-round / suppression regime, like the qutrit Table-3 codes)",
+  "A_d": 396,
+  "A_d_metric": "number of minimum-weight logical operators (B_d == A_d_logical); output error per MSD round ~ A_d * p_in^d, so lower A_d = better suppression",
+  "A_d_baseline": "optimized vs a TYPICAL d=3 construction: median 478, worst 744 (so 17% below median, 47% below worst). The paper does NOT tabulate p=5 A_d, so this is 'optimized vs typical', not a documented beat-the-paper (unlike qutrit [[206,37,4]] 880->572).",
+  "method": "flat-spread + local-search puncturing minimizing A_d; A_d computed EXACTLY via MacWilliams (dim_G0=7, 5^7 trivial)",
+  "found": "2026-06-29 p=5 A_d-optimization pass (the qutrit playbook applied to ququint)",
+  "note": "the flagship p=5 code [[519,106,5]]_5 (gamma=0.987, the paper's gamma<1 ququint) is m=4 dim_G0=16 -> MacWilliams infeasible (5^16=1.5e11); optimizing its A_5 needs the m=4 structured A_d enumerator (extend structured_m3 to 3-flats) -- deferred.",
+  "puncture_columns_1indexed": [21, 38, 40, 48, 51, 56, 73, 78, 80, 82, 103, 110, 120]
+}
