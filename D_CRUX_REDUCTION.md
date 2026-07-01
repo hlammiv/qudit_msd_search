@@ -1,72 +1,64 @@
-# The corrected m=2 crux, reduced to a classical arc bound
+# The corrected m=2 crux: the 2D-codeword cap (verified at the extremal arc)
 
-2026-06-30 — "the real run" at the corrected crux from `D_PROOF_MAP.md` §4. Outcome: **a clean
-reduction of the scoped m=2 no-go (p=11, p=13) to a single classical finite-geometry number**, with
-the surrounding structure proved and the proof-map's crux corrected — but the final arc bound itself
-left open (resists HiGHS/PicoSAT in available time). Companion to `D_NEGATIVE_RESULT.md` §4.1.
+2026-06-30 — "the real run" at the corrected crux (`D_PROOF_MAP.md` §4), **with a mid-run self-correction.**
+Net outcome: the p=11 m=2 no-go is **verified at the extremal configuration** (true `d=4`, no crossing), the
+binding object is confirmed to be the **2D full-span codeword** (the proof map's original crux — restored),
+and a line/arc-counting shortcut I attempted **was refuted** by the classical arc value. The *general*
+rigorous proof of the +1 gap remains **open**, with a now-sharpened, verified target.
 
-## 1. Clean restatement
+## 1. Restatement (unchanged)
+For p≤13 m=2, `G0 = shorten(RM_p(r_max,2), S)` (auto-triorthogonal; the moment hypothesis is inert),
+`|S|=k`, `n_c=p²−k`. The scoped no-go ⟺ `d ≤ n_c/k` (γ≥1) ⟺ `k(d+1) ≤ p²`.
 
-For p≤13, m=2: let `G0 = shorten(RM_p(r_max,2), S)`, `3r<2(p-1)` (so `G0` is automatically
-triorthogonal — the moment hypothesis is inert, `D_PROOF_MAP` L7), `|S|=k`, `n_c = p²−k`, `d` = Z-distance.
-The scoped no-go ⟺ **`d ≤ n_c/k` (γ≥1) ⟺ `k(d+1) ≤ p²`.** Tight: p=13, k=26, d=5 ⟹ `156 ≤ 169`, but
-`d=6` would need `182 > 169`.
+## 2. The attempted line+arc reduction — and why it is WRONG
 
-## 2. The reduction (two ingredients) — and the correction to the proof map
+I first reduced the crux to a pure incidence bound: `d ≤ d_RM − max_line` (**line bound L6, proved**) plus
+`max_line ≥ 4` for every k=21 set (i.e. `m_3(AG(2,11)) ≤ 20`, the max ≤3-per-line set). My greedy/annealer/
+ILP/SAT all capped construction at 20, which *looked* like `m_3=20`.
 
-> **`d ≤ d_RM(dual) − max_line(S)` (line bound, L6 — PROVED)** with `d_RM` = 8 (p=11) / 9 (p=13),
-> and **`max_line(S) ≥ d_RM − n_c/k` (arc bound)** ⟹ `d ≤ n_c/k`, i.e. **γ≥1**.
+**This was a search artifact.** The literature is definitive: **`m_3(2,11) = 21`** (Marcugini,
+*Maximal (n,3)-arcs in PG(2,11)*; Coolsaet–Sticker, *The complete (k,3)-arcs of PG(2,q), q≤13*), with only
+**two** inequivalent (21,3)-arcs — rigid structures random search essentially never hits. Arc counting
+forces any (21,3)-arc to miss `t_0 = 91 − t_3 ≥ 21` lines (`t_3≤70`), so it embeds affinely:
+**`m_3(AG(2,11)) = 21`.** Hence `max_line = 3` **is** achievable at k=21, `d_lines = d_RM − 3 = 5`, and the
+line bound alone does **not** close p=11. The line+arc route is refuted.
 
-The arc bound follows from the **(k;s)-arc maxima** `m_s(2,p)` (max size of a set in AG(2,p) with ≤s
-points on every line): `k > m_s ⟹ max_line ≥ s+1`. The relevant instances:
+## 3. Verified verdict at the extremal arc (the decisive check)
 
-| p | k_opt | needed `max_line ≥` | reduces to |
-|---|---|---|---|
-| 11 | 21 | `⌈8 − 100/21⌉ = 4` | `m_3(2,11) ≤ 20` |
-| 13 | 26 | `⌈9 − 143/26⌉ = 4` | `m_3(2,13) ≤ 25` |
+HiGHS constructed an explicit (21,3)-arc (max_line=3, full rank, dim G0=7):
+`S = [2,6,7,12,33,38,41,44,48,51,56,57,59,67,73,81,85,87,99,109,120]` (0-indexed AG(2,11) columns).
 
-**Correction to `D_PROOF_MAP` (which proposed a "rank + 2D full-span codeword" crux).** Computationally
-verified that at the *optimal* k the **line bound is already tight** (`true d = d_lines`) and that
-search **cannot push `max_line` below 4**; the 2D codeword only binds at *higher* k (k≥22 / 27), where
-γ>1 already. So the real obstruction is the **arc bound on `max_line`**, not a 2D codeword.
+- Line bound: `d_lines = 5` (would give γ = 0.97 < 1 if tight).
+- **True distance: `d = min_dependent_columns(G0) = 4`** ⇒ **`[[100,21,4]]₁₁`, γ = 1.126 ≥ 1.**
 
-## 3. What is rigorously established
+So a **2D full-span codeword caps `d` at 4 < `d_lines = 5`** — **no γ<1 crossing**, the no-go holds at the
+extremal configuration, and the binding object is the 2D codeword (the proof map's original crux, **not** the
+line bound). This matches the prior-session ILP finding and the workflow's "no p=11 crossing" stress-test.
 
-- **Line bound L6** (workflow, 3× SOUND): `d ≤ d_RM − max_line`, min-weight dual words line-supported
-  (the `a=1` GRM regime, `rtilde`∈[10,20)).
-- **Two elementary `max_line` lower bounds (proved here):** from `Σ_ℓ|S∩ℓ| = k(p+1)` and
-  `Σ_ℓ|S∩ℓ|² = k(p+k)`, the second moment gives `max_line ≥ (p+k)/(p+1)`; the pencil through a point
-  gives `max_line ≥ ⌈(k−1)/(p+1)⌉ + 1`. **Both give `max_line ≥ 3` at p=11,k=21** ⟹ `d ≤ 5` — exactly
-  **one short** of the needed `d ≤ 4`.
-- **Strong counterexample-negative:** simulated annealing, greedy, ILP (HiGHS) and SAT (PicoSAT) all cap
-  the ≤3-per-line construction at **20** (p=11) / 22 (p=13), and **no γ<1 crossing** appears in any
-  search (best true `d = 4` / `5`, matching `[[100,21,4]]₁₁`, `[[143,26,5]]₁₃`).
+## 4. The correct open crux (= the proof map's L-crux, restored)
 
-## 4. The single remaining gap
+> **Crux (open).** For p≤13 m=2, every full-rank puncture set `S` admits a **2D full-span codeword** in
+> `ker(G0)` of weight `≤ n_c/k`, forcing `d ≤ n_c/k` (γ≥1) — even when `S` is a `max_line=3` extremal arc
+> where the line bound gives `d_lines > n_c/k`. Verified at the p=11 extremal (21,3)-arc (`d=4`); the general
+> statement (the DGM α=1 second-weight-class word capping `d`) is unproven.
 
-**Lemma (open): `m_3(2,11) ≤ 20`** (and `m_3(2,13) ≤ 25`, which has wide margin). Status:
-- **Lower bound `≥ 20` is constructed** (HiGHS + greedy both exhibit a 20-set; no 21-set ever found).
-- **Upper bound resists computation:** HiGHS could not prove optimality in 230 s; PicoSAT (even with the
-  affine-group symmetry breaking — two points fixed by transitivity) did not close the boundary UNSAT in
-  1500 s. The over-constrained UNSAT is the hard part.
-- **Literature brackets it:** Barlotti `m_n(2,q) ≤ (n−1)q+n` gives `≤ 25`; Ball–Blokhuis–Mazzocca (q odd)
-  rules out maximal arcs, so `< 25`. The elementary bounds give only `max_line ≥ 3` (the +1 gap).
+The line/arc-counting shortcut does **not** reach this — it is genuinely a statement about the second
+low-weight class of `RM_p(rtilde,2)` after puncturing, not about `max_line`.
 
-**Residual uncertainty (small but honest):** if `m_3(2,11) = 21` (contra all evidence), a `max_line=3`
-21-set would have `d_lines = 5`, and one must then check its *true* d — `d = 5` would be a new
-`[[100,21,5]]₁₁`, γ=0.97 (a crossing); `d = 4` (a 2D codeword capping it) would keep γ≥1. Every search
-indicates `m_3 = 20` and `d ≤ 4`, so this residual is very unlikely, but it is not rigorously closed.
+## 5. What stands
 
-## 5. How to finish
+- **Proved:** the line bound L6 (`d ≤ d_RM − max_line`); the elementary `max_line ≥ 3` bounds (second-moment
+  `(p+k)/(p+1)`, pencil `⌈(k−1)/(p+1)⌉+1`) — now seen to be *consistent* with `m_3=21`, not a route to the +1.
+- **Verified (not just evidenced):** at the p=11 extremal `max_line=3` arc, `true d = 4` ⇒ no crossing.
+- **Open:** the general 2D-codeword cap (`d ≤ n_c/k`) — the true crux, harder than an arc bound.
 
-1. **Settle `m_3(2,11) ≤ 20`** — by a literature value (PG(2,11)/AG(2,11) (k;3)-arc tables), a tuned
-   exact solver (a leaner at-least-k cardinality encoding; a portfolio/parallel SAT; or hours on lenore),
-   or a dedicated combinatorial argument sharpening `max_line ≥ 3` to `≥ 4` for k=21.
-2. With that lemma, the **m=2 p=11/13 no-go is a complete proof** (line bound + arc bound). The p=5,7 m=2
-   cases are already closed (Singleton-infeasible); m=3 / p=7-m=4 are separate (see `D_P7M4_WINDOW.md`).
+## 6. Status and next steps
 
-## Bottom line
+**p=11 m=2 no-go: holds, and verified at the extremal configuration; rigorous general proof OPEN** (crux =
+2D-codeword cap). The clean "reduce to a classical arc bound" hope is closed off (`m_3(AG(2,11))=21`).
+To finish, prove the 2D full-span codeword cap directly via the GRM (DGM) weight hierarchy — the α=1
+second-weight class of the punctured dual — showing it punctures to `≤ n_c/k` for every full-rank `S` at
+p≤13. This is a coding-theoretic (weight-hierarchy) problem, not a finite-geometry arc bound.
 
-The corrected crux is no longer vague: it is the **single classical inequality `m_3(2,11) ≤ 20`**, with
-everything around it proved and the empirics overwhelmingly consistent. This is a clean, well-posed
-milestone — short of a complete proof only by one stubborn (but standard) finite-geometry bound.
+*Meta:* checking the literature (option 2) first was the right move — it exposed that the arc-bound target
+was false before any lenore compute was spent chasing it.
