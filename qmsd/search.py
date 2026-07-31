@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import random
+from dataclasses import replace
 
 from .reedmuller import r_max, d_rm, rm_generator
 from .codes import code_from_manhattan, code_from_puncture, Code
@@ -88,9 +89,24 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
             return cached.d, True, cached.A_d, cached
         c = code_from_puncture(p, m, cols, r=r, compute_A_d=want_ad,
                                max_distance=max_distance, G=G, exact_budget=ad_budget)
+        ad = c.A_d
+        # arc_climb surrogate fallback: when the exact MacWilliams A_d declines (large dual,
+        # e.g. m>=5) count the minimum-weight dual codewords DIRECTLY by meet-in-the-middle.
+        # That count is dim(G0)-independent, so the (distance, -A_d) gradient survives exactly
+        # where MacWilliams dies -- this is what lets arc_climb push d=5 -> d=6 at m=5.
+        if want_ad and ad is None and c.d is not None and c.d_certified and 2 <= c.d <= 6:
+            from .weightcount import count_weight_d
+            from .triorthogonal import build_triorthogonal_code
+            try:
+                G0 = build_triorthogonal_code(p, m, r, cols, G=G)["X_stab"]
+                ad = count_weight_d(G0, c.d, p)
+            except (NotImplementedError, MemoryError):
+                ad = None
         if c.full_rank and c.d_certified and c.d is not None and c.d >= 2 and c.n > c.k:
+            if ad is not None and c.A_d is None:
+                c = replace(c, A_d=ad)   # attach the counted A_d to the stored Code
             best[key] = c
-        return (c.d if c.d is not None else 0), bool(c.full_rank), c.A_d, c
+        return (c.d if c.d is not None else 0), bool(c.full_rank), ad, c
 
     # Climb fitness: maximise the certified distance, then MINIMISE the multiplicity of the
     # minimum-weight dual codewords A_d. The integer distance is a flat plateau with isolated
