@@ -21,8 +21,8 @@ N = p ** m
 KS = [312, 311, 310, 309, 308, 307, 306, 305, 304]   # highest-k (cheapest, best gamma<1 chance) first
 NJOBS = 28            # internal parallelism of the balanced certifier
 DMAX = 6              # d_max=6: a <=6 dependency => d<=6 (gamma>=1); none found => d>=7 (gamma<1!)
-CLIMB_STEPS = 25
-SWAP_TRIES = 4
+CLIMB_STEPS = 6      # certs are ~84s each on lenore -> keep climbs shallow, favour breadth across k/seeds
+SWAP_TRIES = 2
 TIME_BUDGET = 5.0 * 3600
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "p7_hunt_results.json")
 
