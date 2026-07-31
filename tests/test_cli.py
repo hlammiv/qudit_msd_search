@@ -30,3 +30,12 @@ def test_cli_search_smoke():
     r = _run("search", "--p", "5", "--m", "2", "--trials", "40", "--seed", "1")
     assert r.returncode == 0, r.stderr
     assert "gamma=" in r.stdout
+
+
+def test_cli_search_capset_climb_reproduces_oracle():
+    # The uniform CLI search stalls at [[72,9,2]]; --sampler capset_climb reaches the
+    # paper's d=3 code from the command line. Deterministic for this seed/budget.
+    r = _run("search", "--p", "3", "--m", "4", "--sampler", "capset_climb",
+             "--target-k", "9", "--trials", "15", "--seed", "0", "--top", "20")
+    assert r.returncode == 0, r.stderr
+    assert "[[72,9,3]]_3" in r.stdout
