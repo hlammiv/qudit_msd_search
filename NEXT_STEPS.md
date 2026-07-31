@@ -37,13 +37,16 @@ high-risk; possibly its own paper.
 The session is a paper's worth: new γ<1 codes (p=17/19), the optimal RS family (p≥23), the **flat-cap no-go
 boundary**, the A_d optimizations (qutrit/ququint), the distillation analysis, and the tooling. Synthesize.
 
-## F. ✅ DONE (2026-06-30): p=7 m=4 hyperplane-capped — closure airtight
+## F. ✅ (2026-06-30): p=7 m=4 hyperplane-capped — high-k closed; ⚠ mid-k open (corrected by adversarial verify)
 Probed p=7 m=4 (N=2401, D=326) at the γ<1 density (high k): true d = 2–3 (via `min_dependent_columns(d_max=3)`,
 e.g. k=314 ⇒ d=3, k=320 ⇒ d=2), vs d>6.6 needed for γ<1. The codim-1 flats (hyperplanes, 7³ pts) over-puncture
-(~k/7 each) — same mechanism as p=11/13 m=3 (plane) and p≤13 m=2 (2D). So **p=7 has no small γ<1 code at any
-feasible m≤4** (m=2 Singleton-infeasible, m=3 plane-capped, m=4 hyperplane-capped). The flat-cap no-go is now
-**airtight for p=7, 11, 13.** (p=5 is the exception: it DOES cross at m=4 — the flagship `[[519,106,5]]` γ=0.987,
-A₅=1904 — just no *smaller* code.)
+(~k/7 each) — same mechanism as p=11/13 m=3 (plane) and p≤13 m=2 (2D). **CORRECTION (adversarial verification,
+RESULTS.md):** this is rigorous only for **k ≥ 313** (Hamming/MDS on redundancy R=326−k); the **mid-k window
+k ∈ [110, 312] is NOT certified** (`min_dependent_columns` overflows at R>21 rows there, and the "~k/7" heuristic
+is loose — binding weight-21 2-flat words cost only ~k/114 per hyperplane). So "airtight for p=7" was an
+**overstatement**: p=7 is closed only for k ≥ 313; the mid-k m=4 window is the one open loose end (and is D's best
+non-RM target — see D_PLAN.md §2.3). **p=11, 13 closures are airtight** (fully validated). (p=5 is the exception:
+it DOES cross at m=4 — the flagship `[[519,106,5]]` γ=0.987, A₅=1904 — just no *smaller* code.)
 
 ---
 ## Settled this session (context for the above)

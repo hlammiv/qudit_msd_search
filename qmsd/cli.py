@@ -3,6 +3,7 @@
 Examples
 --------
   python -m qmsd search --p 5 --m 4 --trials 5000
+  python -m qmsd search --p 3 --m 4 --sampler capset_climb --target-k 9   # -> [[72,9,3]]_3
   python -m qmsd reconstruct --label "[[20,5,2]]_5"
   python -m qmsd asymptotic --p 5
 """
@@ -22,8 +23,13 @@ def _cmd_search(args) -> int:
     from .search import search, manhattan_sweep, random_search
     if args.m is not None:
         codes = manhattan_sweep(args.p, args.m)
-        if args.p ** args.m <= 1500:
-            codes += random_search(args.p, args.m, args.trials, seed=args.seed)
+        # Run the randomized search when the space is small, OR whenever the user has asked
+        # for a directed search (a non-uniform sampler or a fixed puncture count) -- that is
+        # how the paper's d>=3 codes are reached at larger m where uniform sampling stalls.
+        directed = args.sampler != "uniform" or args.target_k is not None
+        if args.p ** args.m <= 1500 or directed:
+            codes += random_search(args.p, args.m, args.trials, seed=args.seed,
+                                   sampler=args.sampler, target_k=args.target_k)
         codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
@@ -87,6 +93,13 @@ def main(argv=None) -> int:
     ps.add_argument("--trials", type=int, default=2000, help="random-search trials per m")
     ps.add_argument("--seed", type=int, default=0)
     ps.add_argument("--top", type=int, default=10)
+    ps.add_argument("--sampler", choices=["uniform", "capset", "capset_climb"],
+                    default="uniform",
+                    help="puncture sampler (used with --m): 'capset_climb' reaches the d>=3 "
+                         "sets that uniform sampling misses, e.g. the paper's [[72,9,3]]_3")
+    ps.add_argument("--target-k", type=int, default=None, dest="target_k",
+                    help="fix the puncture count k per candidate (needed for the cap samplers "
+                         "to be useful)")
     ps.set_defaults(func=_cmd_search)
 
     pr = sub.add_parser("reconstruct", help="rebuild a published oracle code from its punctures")
