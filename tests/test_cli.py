@@ -34,8 +34,10 @@ def test_cli_search_smoke():
 
 def test_cli_search_capset_climb_reproduces_oracle():
     # The uniform CLI search stalls at [[72,9,2]]; --sampler capset_climb reaches the
-    # paper's d=3 code from the command line. Deterministic for this seed/budget.
+    # paper's d=3 code from the command line. No --trials: this exercises the small
+    # per-sampler default (25), so the 120s _run timeout also guards against the default
+    # regressing back to the slow uniform budget (2000).
     r = _run("search", "--p", "3", "--m", "4", "--sampler", "capset_climb",
-             "--target-k", "9", "--trials", "15", "--seed", "0", "--top", "20")
+             "--target-k", "9", "--seed", "0", "--top", "20")
     assert r.returncode == 0, r.stderr
     assert "[[72,9,3]]_3" in r.stdout

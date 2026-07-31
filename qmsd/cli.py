@@ -11,6 +11,11 @@ from __future__ import annotations
 
 import argparse
 
+# Default trial budget per sampler: the directed samplers do a search *inside* each trial,
+# so they need far fewer draws than blind uniform sampling. Keeps the flagship
+# `--sampler capset_climb` command fast when the user does not pass --trials.
+_DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25}
+
 
 def _fmt(c) -> str:
     g = c.gamma
@@ -21,6 +26,10 @@ def _fmt(c) -> str:
 
 def _cmd_search(args) -> int:
     from .search import search, manhattan_sweep, random_search
+    # Resolve the trial budget: an explicit --trials wins; otherwise use the per-sampler
+    # default so `--sampler capset_climb` is fast out of the box (its climb makes 2000 draws
+    # needlessly slow). The full-scan path (no --m) is uniform, so it gets the uniform default.
+    trials = args.trials if args.trials is not None else _DEFAULT_TRIALS[args.sampler]
     if args.m is not None:
         codes = manhattan_sweep(args.p, args.m)
         # Run the randomized search when the space is small, OR whenever the user has asked
@@ -28,14 +37,14 @@ def _cmd_search(args) -> int:
         # how the paper's d>=3 codes are reached at larger m where uniform sampling stalls.
         directed = args.sampler != "uniform" or args.target_k is not None
         if args.p ** args.m <= 1500 or directed:
-            codes += random_search(args.p, args.m, args.trials, seed=args.seed,
+            codes += random_search(args.p, args.m, trials, seed=args.seed,
                                    sampler=args.sampler, target_k=args.target_k)
         codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
             print("  " + _fmt(c))
     else:
-        res = search(args.p, trials_per_m=args.trials, seed=args.seed, top=args.top)
+        res = search(args.p, trials_per_m=trials, seed=args.seed, top=args.top)
         print(f"# p={args.p}: scanned m={res['scanned']['m_values']}, "
               f"{res['scanned']['n_candidates']} candidates")
         print("## best by yield gamma:")
@@ -90,7 +99,9 @@ def main(argv=None) -> int:
     ps = sub.add_parser("search", help="search for low-gamma codes given a prime p")
     ps.add_argument("--p", type=int, required=True, help="prime qudit dimension")
     ps.add_argument("--m", type=int, default=None, help="RM variables (default: scan a range)")
-    ps.add_argument("--trials", type=int, default=2000, help="random-search trials per m")
+    ps.add_argument("--trials", type=int, default=None,
+                    help="random-search trials per m (default by sampler: 2000 uniform / "
+                         "200 capset / 25 capset_climb -- the climb needs far fewer)")
     ps.add_argument("--seed", type=int, default=0)
     ps.add_argument("--top", type=int, default=10)
     ps.add_argument("--sampler", choices=["uniform", "capset", "capset_climb"],
