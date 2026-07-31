@@ -14,7 +14,7 @@ import argparse
 # Default trial budget per sampler: the directed samplers do a search *inside* each trial,
 # so they need far fewer draws than blind uniform sampling. Keeps the flagship
 # `--sampler capset_climb` command fast when the user does not pass --trials.
-_DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25}
+_DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25, "arc_climb": 15}
 
 
 def _fmt(c) -> str:
@@ -38,13 +38,14 @@ def _cmd_search(args) -> int:
         directed = args.sampler != "uniform" or args.target_k is not None
         if args.p ** args.m <= 1500 or directed:
             codes += random_search(args.p, args.m, trials, seed=args.seed,
-                                   sampler=args.sampler, target_k=args.target_k)
+                                   sampler=args.sampler, target_k=args.target_k,
+                                   n_jobs=args.jobs)
         codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
             print("  " + _fmt(c))
     else:
-        res = search(args.p, trials_per_m=trials, seed=args.seed, top=args.top)
+        res = search(args.p, trials_per_m=trials, seed=args.seed, top=args.top, n_jobs=args.jobs)
         print(f"# p={args.p}: scanned m={res['scanned']['m_values']}, "
               f"{res['scanned']['n_candidates']} candidates")
         print("## best by yield gamma:")
@@ -104,13 +105,19 @@ def main(argv=None) -> int:
                          "200 capset / 25 capset_climb -- the climb needs far fewer)")
     ps.add_argument("--seed", type=int, default=0)
     ps.add_argument("--top", type=int, default=10)
-    ps.add_argument("--sampler", choices=["uniform", "capset", "capset_climb"],
+    ps.add_argument("--sampler", choices=["uniform", "capset", "capset_climb", "arc_climb"],
                     default="uniform",
                     help="puncture sampler (used with --m): 'capset_climb' reaches the d>=3 "
-                         "sets that uniform sampling misses, e.g. the paper's [[72,9,3]]_3")
+                         "sets that uniform sampling misses (e.g. [[72,9,3]]_3); 'arc_climb' "
+                         "climbs the (distance, -A_d) surrogate to target d>=4 in the "
+                         "small-dual regime")
     ps.add_argument("--target-k", type=int, default=None, dest="target_k",
                     help="fix the puncture count k per candidate (needed for the cap samplers "
                          "to be useful)")
+    ps.add_argument("--jobs", type=int, default=1,
+                    help="process-level parallelism for the randomized search (trials are "
+                         "independent; -1 uses all cores). Serial (1) is bit-for-bit "
+                         "reproducible; parallel is reproducible per (seed, sampler, jobs, trials)")
     ps.set_defaults(func=_cmd_search)
 
     pr = sub.add_parser("reconstruct", help="rebuild a published oracle code from its punctures")

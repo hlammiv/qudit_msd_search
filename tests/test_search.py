@@ -77,6 +77,20 @@ def test_capset_modes_deterministic_and_parallel_valid():
         assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 4
 
 
+def test_arc_climb_valid_deterministic_and_reports_Ad():
+    # arc_climb ranks candidates by the (distance, -A_d) surrogate; in the small-dual regime
+    # (p=3,m=4) the exact A_d engine is feasible, so found codes carry an exact A_d.
+    a = random_search(3, 4, trials=4, seed=0, target_k=9, sampler="arc_climb",
+                      climb_steps=8, swap_tries=4)
+    b = random_search(3, 4, trials=4, seed=0, target_k=9, sampler="arc_climb",
+                      climb_steps=8, swap_tries=4)
+    assert [c.label for c in a] == [c.label for c in b]   # deterministic per config
+    assert a
+    for c in a:
+        assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 4
+    assert any(c.A_d is not None for c in a)   # the A_d surrogate was actually computed
+
+
 def test_invalid_sampler_raises():
     with pytest.raises(ValueError):
         random_search(3, 4, trials=2, sampler="bogus")

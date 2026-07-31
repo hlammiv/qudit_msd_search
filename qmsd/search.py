@@ -25,7 +25,10 @@ from .distillation import nbar_T, cost
 from .sampling import all_points, random_cap, cap_extends, points_to_columns
 
 EXPLICIT_MAX_BLOCK = 750  # largest p^m for which the distance-certifying explicit search runs
-SAMPLERS = ("uniform", "capset", "capset_climb")
+SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb")
+# arc_climb ranks candidates by the exact A_d surrogate; it routes A_d through the exact
+# MacWilliams engine, feasible only when p**dim(G0) <= this budget (the small-dual regime).
+_ARC_EXACT_BUDGET = 5_000_000
 
 
 def manhattan_sweep(p, m, r=None) -> list:
@@ -71,18 +74,37 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
 
     # --- structure-aware cap-set samplers ---
     allpts = all_points(m, p)
+    # arc_climb ranks candidates by the A_d surrogate and so needs A_d; it routes A_d through
+    # the exact MacWilliams engine (fast + distance-uncapped when the dual is small). The
+    # other structure-aware samplers leave A_d off (cheaper) and rank on distance alone.
+    want_ad = sampler == "arc_climb"
+    ad_budget = _ARC_EXACT_BUDGET if want_ad else 0
 
     def _eval(cols):
-        """code_from_puncture(cols); record valid codes; return (d_int, full_rank, Code)."""
+        """Build/keep the code; return (d_int, full_rank, A_d_or_None, Code)."""
         key = frozenset(cols)
         cached = best.get(key)
         if cached is not None:
-            return cached.d, True, cached
-        c = code_from_puncture(p, m, cols, r=r, compute_A_d=False,
-                               max_distance=max_distance, G=G)
+            return cached.d, True, cached.A_d, cached
+        c = code_from_puncture(p, m, cols, r=r, compute_A_d=want_ad,
+                               max_distance=max_distance, G=G, exact_budget=ad_budget)
         if c.full_rank and c.d_certified and c.d is not None and c.d >= 2 and c.n > c.k:
             best[key] = c
-        return (c.d if c.d is not None else 0), bool(c.full_rank), c
+        return (c.d if c.d is not None else 0), bool(c.full_rank), c.A_d, c
+
+    # Climb fitness: maximise the certified distance, then MINIMISE the multiplicity of the
+    # minimum-weight dual codewords A_d. The integer distance is a flat plateau with isolated
+    # d+1 spikes, so on "arc_climb" the A_d term supplies the gradient that carries a cap down
+    # its A_d basin until the minimum-weight codewords vanish and the distance ticks up. When
+    # A_d is unavailable (None -- dual too large for the exact engine) the tuple degrades to
+    # distance-only, i.e. "capset_climb" behaviour. "capset_climb" never computes A_d, so it
+    # always ranks on distance alone -- its original behaviour, bit-for-bit.
+    HUGE = pm * pm + 1
+
+    def _fit(d_int, full_rank, ad):
+        if not full_rank:
+            return (-1, 0)
+        return (d_int, -(ad if ad is not None else HUGE))
 
     for _ in range(n_trials):
         k = target_k if target_k is not None else rng.randint(1, cap)
@@ -91,11 +113,11 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
         if seed_pts is None:  # greedy pass stalled (k too large for a cap); retry next trial
             continue
         cur_pts = seed_pts
-        d0, fr0, _ = _eval(points_to_columns(cur_pts, p))
-        cur_d = d0 if fr0 else -1
-        if sampler != "capset_climb":
+        d0, fr0, ad0, _ = _eval(points_to_columns(cur_pts, p))
+        if sampler == "capset":  # seed-only sampler: no climb
             continue
-        # cap-preserving, full-rank-preserving swap hill-climb (accept non-decreasing d)
+        # cap-preserving, full-rank-preserving swap hill-climb (accept non-worsening fitness)
+        cur_fit = _fit(d0, fr0, ad0)
         cur_set = set(cur_pts)
         for _step in range(climb_steps):
             outside = [x for x in allpts if x not in cur_set]
@@ -107,9 +129,10 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
                 if not cap_extends(base, newx, p):
                     continue
                 cand_pts = base + [newx]
-                dd, ffr, _ = _eval(points_to_columns(cand_pts, p))
-                if ffr and dd >= cur_d:
-                    cur_pts, cur_set, cur_d = cand_pts, set(cand_pts), dd
+                dd, ffr, ad_new, _ = _eval(points_to_columns(cand_pts, p))
+                cand_fit = _fit(dd, ffr, ad_new)
+                if cand_fit >= cur_fit:
+                    cur_pts, cur_set, cur_fit = cand_pts, set(cand_pts), cand_fit
                     moved = True
                     break
             if not moved:
@@ -128,9 +151,13 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
 
     ``sampler`` (see SAMPLERS): "uniform" (default, unchanged i.i.d. sampling); "capset"
     (draw cap sets -- no 3 collinear points); "capset_climb" (cap seed + cap-preserving
-    distance hill-climb -- the most efficient at finding d>=3 sets). Cap samplers need
-    ``target_k`` within the cap-size bound to be useful; ``climb_steps``/``swap_tries`` tune
-    the climb. For "capset_climb" each of the ``trials`` is one seed+climb (many evaluations).
+    distance hill-climb -- the most efficient at finding d>=3 sets); "arc_climb" (cap seed +
+    a hill-climb on the lexicographic (distance, -A_d) fitness -- targets d>=4 by driving the
+    minimum-weight-codeword multiplicity to zero where plain distance is a flat plateau; needs
+    the exact A_d engine, so it only gets its gradient in the small-dual regime, otherwise it
+    degrades to capset_climb). Cap samplers need ``target_k`` within the cap-size bound to be
+    useful; ``climb_steps``/``swap_tries`` tune the climb. For the climb samplers each of the
+    ``trials`` is one seed+climb (many evaluations).
 
     ``n_jobs`` controls process-level parallelism (trials are independent): n_jobs=1 is serial
     and deterministic from ``seed``; n_jobs>1/-1 splits trials across worker processes (joblib),
