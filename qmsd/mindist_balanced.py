@@ -101,8 +101,14 @@ def available_ram_bytes() -> int:
     try:
         return os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_AVPHYS_PAGES")
     except (ValueError, OSError, AttributeError):
+        pass
+    # Windows (and any other platform without /proc/meminfo or os.sysconf):
+    # psutil works cross-platform, including Windows.
+    try:
+        import psutil
+        return psutil.virtual_memory().available
+    except ImportError:
         return 0
-
 
 def left_table_entries(p: int, a: int, n: int) -> int:
     """Number of rebalanced LEFT entries: (p-1)**(a-1) * C(n, a)."""
