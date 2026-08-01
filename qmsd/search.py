@@ -24,10 +24,11 @@ from .reedmuller import r_max, d_rm, rm_generator
 from .codes import code_from_manhattan, code_from_puncture, Code
 from .distillation import nbar_T, cost
 from .sampling import (all_points, random_cap, cap_extends, points_to_columns,
-                       random_plane_spread, random_near_cap)
+                       random_plane_spread, random_near_cap, random_flat_spread)
 
 EXPLICIT_MAX_BLOCK = 750  # largest p^m for which the distance-certifying explicit search runs
-SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb", "plane_spread", "near_cap")
+SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb", "plane_spread", "near_cap",
+            "flat_spread")
 # arc_climb ranks candidates by the exact A_d surrogate; it routes A_d through the exact
 # MacWilliams engine, feasible only when p**dim(G0) <= this budget (the small-dual regime).
 _ARC_EXACT_BUDGET = 5_000_000
@@ -126,7 +127,9 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
     for _ in range(n_trials):
         k = target_k if target_k is not None else rng.randint(1, cap)
         k = min(k, pm - 1)
-        if sampler == "plane_spread":     # cap + no-4-coplanar: reaches the higher-distance codes
+        if sampler == "flat_spread":      # UNIFIED: auto-pick max feasible arc order (near-cap fallback)
+            seed_pts = random_flat_spread(m, p, k, rng, allpts)
+        elif sampler == "plane_spread":   # cap + no-4-coplanar: reaches the higher-distance codes
             seed_pts = random_plane_spread(m, p, k, rng, allpts)
         elif sampler == "near_cap":       # cap relaxed by <=max_triples: reaches k near the max-cap
             seed_pts = random_near_cap(m, p, k, max_triples, rng, allpts)
@@ -136,7 +139,7 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
             continue
         cur_pts = seed_pts
         d0, fr0, ad0, _ = _eval(points_to_columns(cur_pts, p))
-        if sampler in ("capset", "plane_spread", "near_cap"):  # seed-only samplers: no climb
+        if sampler in ("capset", "plane_spread", "near_cap", "flat_spread"):  # seed-only: no climb
             continue
         # cap-preserving, full-rank-preserving swap hill-climb (accept non-worsening fitness)
         cur_fit = _fit(d0, fr0, ad0)
@@ -183,8 +186,11 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
     (plane-spread) cap-size bound to be useful; ``climb_steps``/``swap_tries`` tune the climb.
     "near_cap" (draw caps relaxed to allow up to ``max_triples`` collinear triples -- builds at
     k NEAR the max-cap size where strict caps stall, e.g. k=43 in AG(5,3); reaches [[200,43,3]]_3).
-    "capset"/"plane_spread"/"near_cap" are seed-only (one draw per trial); the climb samplers do a
-    full seed+climb per trial. ``max_triples`` is the collinear-triple budget for "near_cap".
+    "flat_spread" (UNIFIED: auto-pick the highest feasible arc order for the given k -- cap /
+    no-4-coplanar / no-5-on-a-3-flat -- with a near-cap fallback; subsumes capset, plane_spread and
+    near_cap as operating points and adds order 3 for d=7 at small k). "capset"/"plane_spread"/
+    "near_cap"/"flat_spread" are seed-only (one draw per trial); the climb samplers do a full
+    seed+climb per trial. ``max_triples`` is the collinear-triple budget for "near_cap".
 
     ``n_jobs`` controls process-level parallelism (trials are independent): n_jobs=1 is serial
     and deterministic from ``seed``; n_jobs>1/-1 splits trials across worker processes (joblib),

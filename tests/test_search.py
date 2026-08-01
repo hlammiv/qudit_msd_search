@@ -115,6 +115,22 @@ def test_near_cap_builds_where_strict_caps_stall():
         assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 5
 
 
+def test_flat_spread_unifies_and_auto_selects_order():
+    # The unified flat_spread sampler auto-picks the max feasible arc order for the given k,
+    # monotonically stepping cap-order 3 -> 2 -> 1 -> near-cap fallback (0) as k grows. This is
+    # the single sampler that subsumes capset (order 1), plane_spread (order 2), near_cap (0).
+    from qmsd.sampling import max_feasible_order, all_points
+    allpts = all_points(5, 3)
+    assert max_feasible_order(5, 3, 6, allpts) == 3       # order-3 arc: the d=7 regime
+    assert max_feasible_order(5, 3, 13, allpts) == 2      # order-2 == plane_spread ([[230,13,6]])
+    assert max_feasible_order(5, 3, 28, allpts) == 1      # order-1 == cap
+    assert max_feasible_order(5, 3, 43, allpts) == 0      # cap stalls -> near-cap fallback
+    # and it builds valid, distance-certified codes (k=43 -> near-cap fallback, low d)
+    codes = [c for c in random_search(3, 5, trials=6, seed=0, target_k=43, sampler="flat_spread")
+             if c.k == 43]
+    assert codes and all(c.full_rank and c.d_certified and c.d >= 2 for c in codes)
+
+
 def test_invalid_sampler_raises():
     with pytest.raises(ValueError):
         random_search(3, 4, trials=2, sampler="bogus")

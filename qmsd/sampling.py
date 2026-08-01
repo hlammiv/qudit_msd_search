@@ -12,6 +12,8 @@ the familiar a+b+c == 0 (mod 3) line condition.
 """
 from __future__ import annotations
 
+from itertools import combinations
+
 import numpy as np
 
 from .puncture import column_to_point, point_to_column
@@ -181,4 +183,96 @@ def random_plane_spread(m, p, k, rng, allpts=None):
             chosen.append(x)
             if len(chosen) == k:
                 return chosen
+    return None
+
+
+# --- unified flat-spread / arc-order sampling ---------------------------------------------
+# The cap / plane_spread / near_cap samplers are one idea at different strictness: bound the
+# occupancy of every j-flat. An "order-t arc" keeps <=(j+1) points on every j-flat for
+# j=1..t: order 1 == cap (no 3 collinear); order 2 == plane_spread (no 4 coplanar);
+# order 3 == no 5 on a 3-flat (-> d=7). Higher order = stronger = higher distance but only
+# builds at smaller k. random_flat_spread auto-picks the max feasible order for the given k,
+# falling back to a near-cap when even a cap stalls (k near the max-cap size).
+def _flat_occupied(chosen, x, p, j) -> bool:
+    """True if adding x would put a (j+2)-th point on some j-flat that already holds j+1 chosen
+    points (an affinely-independent (j+1)-subset spanning the flat, with x on it)."""
+    m = len(x)
+    for combo in combinations(chosen, j + 1):
+        base = combo[0]
+        dirs = [[(c[t] - base[t]) % p for t in range(m)] for c in combo[1:]]
+        if _fp_rank(dirs, p) < j:                      # combo degenerate: not a spanning j-flat
+            continue
+        xd = [(x[t] - base[t]) % p for t in range(m)]
+        if _fp_rank(dirs + [xd], p) <= j:              # x lies on the j-flat the combo spans
+            return True
+    return False
+
+
+def arc_extends(chosen, x, p, order) -> bool:
+    """Does adding x keep <=(j+1) points on every j-flat for j=1..order? (an order-`order` arc)."""
+    n = len(chosen)
+    for a in range(n):                                 # j=1 (lines): no 3 collinear
+        for b in range(a + 1, n):
+            if collinear(chosen[a], chosen[b], x, p):
+                return False
+    for j in range(2, order + 1):                      # j>=2: no (j+2) on a j-flat
+        if _flat_occupied(chosen, x, p, j):
+            return False
+    return True
+
+
+def random_arc(m, p, k, order, rng, allpts=None):
+    """A greedy random order-`order` arc of ``k`` points, or None if it stalls.
+    order 1 == cap, 2 == plane_spread, 3 == space-spread (d=7). Higher order builds only at
+    smaller k but reaches higher distance."""
+    if allpts is None:
+        allpts = all_points(m, p)
+    order_pts = list(allpts)
+    rng.shuffle(order_pts)
+    chosen: list = []
+    for x in order_pts:
+        if arc_extends(chosen, x, p, order):
+            chosen.append(x)
+            if len(chosen) == k:
+                return chosen
+    return None
+
+
+_ORDER_CACHE: dict = {}
+
+
+def max_feasible_order(m, p, k, allpts=None, max_order=3, attempts=4) -> int:
+    """Highest arc order (<=max_order) at which a size-k arc builds; 0 if even a cap (order 1)
+    stalls (k near/above the max-cap size). Cached per (m,p,k,max_order); deterministic."""
+    key = (m, p, k, max_order)
+    if key not in _ORDER_CACHE:
+        if allpts is None:
+            allpts = all_points(m, p)
+        import random as _random
+        rng = _random.Random(0x5EED ^ (k * 131 + p))
+        found = 0
+        for order in range(max_order, 0, -1):
+            if any(random_arc(m, p, k, order, rng, allpts) is not None for _ in range(attempts)):
+                found = order
+                break
+        _ORDER_CACHE[key] = found
+    return _ORDER_CACHE[key]
+
+
+def random_flat_spread(m, p, k, rng, allpts=None, max_order=3):
+    """UNIFIED adaptive sampler: build the highest-order arc that fits size ``k`` (auto-selected,
+    cached), or fall back to a near-cap with an auto-grown triple budget when even a cap stalls.
+    Subsumes capset (order 1), plane_spread (order 2), and near_cap (fallback) as operating
+    points; adds order 3 (d=7) at small k."""
+    if allpts is None:
+        allpts = all_points(m, p)
+    order = max_feasible_order(m, p, k, allpts, max_order)
+    if order >= 1:
+        return random_arc(m, p, k, order, rng, allpts)
+    budget = k                                          # cap stalls -> near-cap, grow budget
+    for _ in range(6):
+        pts = random_near_cap(m, p, k, budget, rng, allpts)
+        if pts is not None:
+            return pts
+        budget *= 2
     return None

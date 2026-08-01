@@ -15,7 +15,7 @@ import argparse
 # so they need far fewer draws than blind uniform sampling. Keeps the flagship
 # `--sampler capset_climb` command fast when the user does not pass --trials.
 _DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25, "arc_climb": 15,
-                   "plane_spread": 300, "near_cap": 2000}
+                   "plane_spread": 300, "near_cap": 2000, "flat_spread": 300}
 
 
 def _fmt(c) -> str:
@@ -108,14 +108,14 @@ def main(argv=None) -> int:
     ps.add_argument("--top", type=int, default=10)
     ps.add_argument("--sampler",
                     choices=["uniform", "capset", "capset_climb", "arc_climb", "plane_spread",
-                             "near_cap"],
+                             "near_cap", "flat_spread"],
                     default="uniform",
-                    help="puncture sampler (used with --m): 'capset'/'capset_climb' reach the "
-                         "cap-structured codes uniform misses (e.g. [[72,9,3]]_3, [[206,37,4]]_3); "
-                         "'plane_spread' additionally forbids 4 coplanar points and reaches the "
-                         "higher-distance codes (e.g. [[230,13,6]]_3 d=6); 'near_cap' relaxes the "
-                         "cap by --max-triples for k near the max-cap size (e.g. [[200,43,3]]_3); "
-                         "'arc_climb' climbs the (distance, -A_d) surrogate in the small-dual regime")
+                    help="puncture sampler (used with --m): 'flat_spread' is the UNIFIED one -- it "
+                         "auto-picks the max feasible arc order for the given k (cap / no-4-coplanar "
+                         "/ higher), falling back to a near-cap when a cap stalls, and subsumes the "
+                         "rest; the fixed operating points are 'capset', 'plane_spread' (no 4 "
+                         "coplanar, e.g. [[230,13,6]]_3 d=6), 'near_cap' (+--max-triples, e.g. "
+                         "[[200,43,3]]_3); 'arc_climb' climbs the (distance, -A_d) surrogate")
     ps.add_argument("--max-triples", type=int, default=0, dest="max_triples",
                     help="collinear-triple budget for --sampler near_cap (0 = strict cap)")
     ps.add_argument("--target-k", type=int, default=None, dest="target_k",
