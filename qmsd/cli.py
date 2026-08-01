@@ -14,7 +14,8 @@ import argparse
 # Default trial budget per sampler: the directed samplers do a search *inside* each trial,
 # so they need far fewer draws than blind uniform sampling. Keeps the flagship
 # `--sampler capset_climb` command fast when the user does not pass --trials.
-_DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25, "arc_climb": 15}
+_DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25, "arc_climb": 15,
+                   "plane_spread": 300}
 
 
 def _fmt(c) -> str:
@@ -105,12 +106,14 @@ def main(argv=None) -> int:
                          "200 capset / 25 capset_climb -- the climb needs far fewer)")
     ps.add_argument("--seed", type=int, default=0)
     ps.add_argument("--top", type=int, default=10)
-    ps.add_argument("--sampler", choices=["uniform", "capset", "capset_climb", "arc_climb"],
+    ps.add_argument("--sampler",
+                    choices=["uniform", "capset", "capset_climb", "arc_climb", "plane_spread"],
                     default="uniform",
-                    help="puncture sampler (used with --m): 'capset_climb' reaches the d>=3 "
-                         "sets that uniform sampling misses (e.g. [[72,9,3]]_3); 'arc_climb' "
-                         "climbs the (distance, -A_d) surrogate to target d>=4 in the "
-                         "small-dual regime")
+                    help="puncture sampler (used with --m): 'capset'/'capset_climb' reach the "
+                         "cap-structured codes uniform misses (e.g. [[72,9,3]]_3, [[206,37,4]]_3); "
+                         "'plane_spread' additionally forbids 4 coplanar points and reaches the "
+                         "higher-distance codes (e.g. [[230,13,6]]_3 d=6); 'arc_climb' climbs the "
+                         "(distance, -A_d) surrogate in the small-dual regime")
     ps.add_argument("--target-k", type=int, default=None, dest="target_k",
                     help="fix the puncture count k per candidate (needed for the cap samplers "
                          "to be useful)")

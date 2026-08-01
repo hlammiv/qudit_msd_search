@@ -23,10 +23,10 @@ from dataclasses import replace
 from .reedmuller import r_max, d_rm, rm_generator
 from .codes import code_from_manhattan, code_from_puncture, Code
 from .distillation import nbar_T, cost
-from .sampling import all_points, random_cap, cap_extends, points_to_columns
+from .sampling import all_points, random_cap, cap_extends, points_to_columns, random_plane_spread
 
 EXPLICIT_MAX_BLOCK = 750  # largest p^m for which the distance-certifying explicit search runs
-SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb")
+SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb", "plane_spread")
 # arc_climb ranks candidates by the exact A_d surrogate; it routes A_d through the exact
 # MacWilliams engine, feasible only when p**dim(G0) <= this budget (the small-dual regime).
 _ARC_EXACT_BUDGET = 5_000_000
@@ -125,12 +125,15 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
     for _ in range(n_trials):
         k = target_k if target_k is not None else rng.randint(1, cap)
         k = min(k, pm - 1)
-        seed_pts = random_cap(m, p, k, rng, allpts)
-        if seed_pts is None:  # greedy pass stalled (k too large for a cap); retry next trial
+        if sampler == "plane_spread":     # cap + no-4-coplanar: reaches the higher-distance codes
+            seed_pts = random_plane_spread(m, p, k, rng, allpts)
+        else:
+            seed_pts = random_cap(m, p, k, rng, allpts)
+        if seed_pts is None:  # greedy pass stalled (k too large for the structure); retry next trial
             continue
         cur_pts = seed_pts
         d0, fr0, ad0, _ = _eval(points_to_columns(cur_pts, p))
-        if sampler == "capset":  # seed-only sampler: no climb
+        if sampler in ("capset", "plane_spread"):  # seed-only samplers: no climb
             continue
         # cap-preserving, full-rank-preserving swap hill-climb (accept non-worsening fitness)
         cur_fit = _fit(d0, fr0, ad0)
@@ -166,14 +169,17 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
     count per candidate.
 
     ``sampler`` (see SAMPLERS): "uniform" (default, unchanged i.i.d. sampling); "capset"
-    (draw cap sets -- no 3 collinear points); "capset_climb" (cap seed + cap-preserving
-    distance hill-climb -- the most efficient at finding d>=3 sets); "arc_climb" (cap seed +
+    (draw cap sets -- no 3 collinear points -- reproduces the cap-structured paper codes uniform
+    misses); "plane_spread" (draw caps that ALSO have no 4 coplanar points, i.e. <=3 per 2-flat --
+    reaches the higher-distance codes the plain cap misses, e.g. [[230,13,6]]_3 d=6 vs the cap's
+    d=5); "capset_climb" (cap seed + cap-preserving distance hill-climb); "arc_climb" (cap seed +
     a hill-climb on the lexicographic (distance, -A_d) fitness -- targets d>=4 by driving the
     minimum-weight-codeword multiplicity to zero where plain distance is a flat plateau; needs
     the exact A_d engine, so it only gets its gradient in the small-dual regime, otherwise it
-    degrades to capset_climb). Cap samplers need ``target_k`` within the cap-size bound to be
-    useful; ``climb_steps``/``swap_tries`` tune the climb. For the climb samplers each of the
-    ``trials`` is one seed+climb (many evaluations).
+    degrades to capset_climb). The structure-aware samplers need ``target_k`` within the
+    (plane-spread) cap-size bound to be useful; ``climb_steps``/``swap_tries`` tune the climb.
+    "capset"/"plane_spread" are seed-only (one draw per trial); the climb samplers do a full
+    seed+climb per trial.
 
     ``n_jobs`` controls process-level parallelism (trials are independent): n_jobs=1 is serial
     and deterministic from ``seed``; n_jobs>1/-1 splits trials across worker processes (joblib),

@@ -12,6 +12,8 @@ the familiar a+b+c == 0 (mod 3) line condition.
 """
 from __future__ import annotations
 
+import numpy as np
+
 from .puncture import column_to_point, point_to_column
 
 
@@ -83,3 +85,68 @@ def random_cap(m, p, k, rng, allpts=None):
 def points_to_columns(points, p) -> tuple:
     """Sorted 1-indexed columns for a list of F_p^m points."""
     return tuple(sorted(point_to_column(x, p) for x in points))
+
+
+# --- plane-spread sampling: caps that additionally keep <=3 points per 2-flat -------------
+# Empirical basis: a cap (no 3 collinear) kills the LINE-supported low-weight codewords, but at
+# higher m the binding low-weight dual codewords sit on 2-flats. The paper's [[230,13,6]]_3 (d=6)
+# puncture set has max 3 points on any 2-flat, whereas every random d=5 cap has 4. Enforcing
+# "no 4 coplanar" reproduces the d=6 code deterministically (see tests).
+def _fp_rank(rows, p) -> int:
+    """Rank over F_p of a small integer matrix given as a list of rows."""
+    M = np.array(rows, dtype=np.int64) % p
+    nr, nc = M.shape
+    rr = 0
+    for c in range(nc):
+        piv = next((i for i in range(rr, nr) if M[i, c] % p), None)
+        if piv is None:
+            continue
+        M[[rr, piv]] = M[[piv, rr]]
+        M[rr] = (M[rr] * pow(int(M[rr, c]), p - 2, p)) % p
+        for i in range(nr):
+            if i != rr and M[i, c] % p:
+                M[i] = (M[i] - M[i, c] * M[rr]) % p
+        rr += 1
+        if rr == nr:
+            break
+    return rr
+
+
+def four_coplanar(a, b, c, x, p) -> bool:
+    """True if a, b, c, x lie on one affine 2-flat in F_p^m (difference vectors have rank <= 2)."""
+    m = len(a)
+    dirs = [[(b[i] - a[i]) % p for i in range(m)],
+            [(c[i] - a[i]) % p for i in range(m)],
+            [(x[i] - a[i]) % p for i in range(m)]]
+    return _fp_rank(dirs, p) <= 2
+
+
+def plane_spread_extends(chosen, x, p) -> bool:
+    """Does adding x keep ``chosen`` a cap (no 3 collinear) AND no 4 points coplanar (<=3/2-flat)?"""
+    n = len(chosen)
+    for i in range(n):                       # cap: no 3 collinear
+        for j in range(i + 1, n):
+            if collinear(chosen[i], chosen[j], x, p):
+                return False
+    for i in range(n):                       # no 4 coplanar
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                if four_coplanar(chosen[i], chosen[j], chosen[k], x, p):
+                    return False
+    return True
+
+
+def random_plane_spread(m, p, k, rng, allpts=None):
+    """A greedy random plane-spread cap of ``k`` points (no 3 collinear, no 4 coplanar), or None if
+    it stalls. These sets carry the higher distance the plain cap misses (e.g. d=6 vs d=5 at m=5)."""
+    if allpts is None:
+        allpts = all_points(m, p)
+    order = list(allpts)
+    rng.shuffle(order)
+    chosen: list = []
+    for x in order:
+        if plane_spread_extends(chosen, x, p):
+            chosen.append(x)
+            if len(chosen) == k:
+                return chosen
+    return None

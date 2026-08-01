@@ -91,6 +91,19 @@ def test_arc_climb_valid_deterministic_and_reports_Ad():
     assert any(c.A_d is not None for c in a)   # the A_d surrogate was actually computed
 
 
+def test_plane_spread_reproduces_high_distance_paper_code():
+    # plane_spread (cap + no 4 coplanar) reproduces the paper's [[230,13,6]]_3 (d=6) -- the
+    # highest-distance qutrit code -- which plain caps never reach (they top out at d=5, and
+    # 240k uniform samples never exceed d=3). Every built size-13 plane-spread cap is d=6.
+    codes = [c for c in random_search(3, 5, trials=15, seed=0, target_k=13, sampler="plane_spread")
+             if c.k == 13]
+    assert codes, "plane_spread built no size-13 sets"
+    assert any(c.n == 230 and c.k == 13 and c.d == 6 for c in codes), \
+        "plane_spread did not reproduce [[230,13,6]] d=6"
+    for c in codes:
+        assert c.full_rank and c.d_certified and c.d >= 2
+
+
 def test_invalid_sampler_raises():
     with pytest.raises(ValueError):
         random_search(3, 4, trials=2, sampler="bogus")
