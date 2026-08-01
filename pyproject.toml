@@ -3,7 +3,7 @@ name = "qmsd"
 version = "0.1.0"
 description = "Discovery of qudit triorthogonal codes for magic state distillation (after arXiv:2510.10852)"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24", "galois>=0.3", "scipy>=1.10"]
+dependencies = ["numpy>=1.24", "galois>=0.3", "scipy>=1.10", "psutil>=5.9"]
 
 [build-system]
 requires = ["setuptools>=68"]
