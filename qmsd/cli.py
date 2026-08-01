@@ -15,7 +15,7 @@ import argparse
 # so they need far fewer draws than blind uniform sampling. Keeps the flagship
 # `--sampler capset_climb` command fast when the user does not pass --trials.
 _DEFAULT_TRIALS = {"uniform": 2000, "capset": 200, "capset_climb": 25, "arc_climb": 15,
-                   "plane_spread": 300}
+                   "plane_spread": 300, "near_cap": 2000}
 
 
 def _fmt(c) -> str:
@@ -40,7 +40,7 @@ def _cmd_search(args) -> int:
         if args.p ** args.m <= 1500 or directed:
             codes += random_search(args.p, args.m, trials, seed=args.seed,
                                    sampler=args.sampler, target_k=args.target_k,
-                                   n_jobs=args.jobs)
+                                   n_jobs=args.jobs, max_triples=args.max_triples)
         codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
@@ -107,13 +107,17 @@ def main(argv=None) -> int:
     ps.add_argument("--seed", type=int, default=0)
     ps.add_argument("--top", type=int, default=10)
     ps.add_argument("--sampler",
-                    choices=["uniform", "capset", "capset_climb", "arc_climb", "plane_spread"],
+                    choices=["uniform", "capset", "capset_climb", "arc_climb", "plane_spread",
+                             "near_cap"],
                     default="uniform",
                     help="puncture sampler (used with --m): 'capset'/'capset_climb' reach the "
                          "cap-structured codes uniform misses (e.g. [[72,9,3]]_3, [[206,37,4]]_3); "
                          "'plane_spread' additionally forbids 4 coplanar points and reaches the "
-                         "higher-distance codes (e.g. [[230,13,6]]_3 d=6); 'arc_climb' climbs the "
-                         "(distance, -A_d) surrogate in the small-dual regime")
+                         "higher-distance codes (e.g. [[230,13,6]]_3 d=6); 'near_cap' relaxes the "
+                         "cap by --max-triples for k near the max-cap size (e.g. [[200,43,3]]_3); "
+                         "'arc_climb' climbs the (distance, -A_d) surrogate in the small-dual regime")
+    ps.add_argument("--max-triples", type=int, default=0, dest="max_triples",
+                    help="collinear-triple budget for --sampler near_cap (0 = strict cap)")
     ps.add_argument("--target-k", type=int, default=None, dest="target_k",
                     help="fix the puncture count k per candidate (needed for the cap samplers "
                          "to be useful)")

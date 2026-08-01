@@ -136,6 +136,38 @@ def plane_spread_extends(chosen, x, p) -> bool:
     return True
 
 
+def new_collinear_count(chosen, x, p) -> int:
+    """Number of collinear triples {a, b, x} that adding x to a cap-ish ``chosen`` would create."""
+    n = len(chosen)
+    cnt = 0
+    for i in range(n):
+        a = chosen[i]
+        for j in range(i + 1, n):
+            if collinear(a, chosen[j], x, p):
+                cnt += 1
+    return cnt
+
+
+def random_near_cap(m, p, k, max_triples, rng, allpts=None):
+    """A greedy random NEAR-cap of ``k`` points with at most ``max_triples`` collinear triples
+    total, or None if it stalls. Near-caps build at k near the max-cap size where strict caps
+    stall (e.g. k=43 in AG(5,3), whose max cap is 45) and reach codes like [[200,43,3]]_3."""
+    if allpts is None:
+        allpts = all_points(m, p)
+    order = list(allpts)
+    rng.shuffle(order)
+    chosen: list = []
+    used = 0
+    for x in order:
+        nc = new_collinear_count(chosen, x, p)
+        if used + nc <= max_triples:
+            chosen.append(x)
+            used += nc
+            if len(chosen) == k:
+                return chosen
+    return None
+
+
 def random_plane_spread(m, p, k, rng, allpts=None):
     """A greedy random plane-spread cap of ``k`` points (no 3 collinear, no 4 coplanar), or None if
     it stalls. These sets carry the higher distance the plain cap misses (e.g. d=6 vs d=5 at m=5)."""

@@ -104,6 +104,17 @@ def test_plane_spread_reproduces_high_distance_paper_code():
         assert c.full_rank and c.d_certified and c.d >= 2
 
 
+def test_near_cap_builds_where_strict_caps_stall():
+    # near_cap (cap relaxed by max_triples) builds valid codes at k=43 in AG(5,3), where strict
+    # caps stall (near the max-cap = 45). At scale it reproduces [[200,43,3]]_3 (d=3, ~1/2000);
+    # here we just confirm it builds valid, full-rank, distance-certified codes.
+    codes = [c for c in random_search(3, 5, trials=8, seed=0, target_k=43,
+                                      sampler="near_cap", max_triples=45) if c.k == 43]
+    assert codes, "near_cap built no size-43 sets"
+    for c in codes:
+        assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 5
+
+
 def test_invalid_sampler_raises():
     with pytest.raises(ValueError):
         random_search(3, 4, trials=2, sampler="bogus")
