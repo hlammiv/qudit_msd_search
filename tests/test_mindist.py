@@ -73,3 +73,26 @@ def test_mitm_certifies_oracle_distance(oc):
     built = build_triorthogonal_code(oc.p, oc.m, oc.r_max, oc.puncture_columns_1indexed)
     G0 = np.asarray(built["X_stab"]) % oc.p
     assert min_dependent_columns(G0, oc.p, d_max=6) == oc.d
+
+
+def test_hash_encoder_handles_overflow_redundancy():
+    # The 64-bit polynomial-hash syndrome match handles redundancy where the OLD p-adic int64
+    # radix overflowed (p**r > 2**63). Here p=7, r=25 -> 7**25 = 1.3e21 >> int64: the old
+    # encoder raised OverflowError. A planted weight-3 codeword is now found exactly (== brute
+    # force), proving the hash + rank-verify path stays certified.
+    import itertools
+    from qmsd.mindist import _fp_rank
+    rng = np.random.default_rng(1)
+    p, r, n = 7, 25, 45
+    H = rng.integers(0, p, (r, n))
+    H[:, 2] = (-(H[:, 0] + H[:, 1])) % p          # weight-3 dependency on columns {0,1,2}
+    assert p ** r > 2 ** 63                        # would have overflowed the old int64 radix
+
+    def brute():
+        for dd in range(1, 7):
+            for c in itertools.combinations(range(n), dd):
+                if _fp_rank(H[:, list(c)].T % p, p) < dd:
+                    return dd
+        return None
+
+    assert min_dependent_columns(H, p, d_max=6) == brute() == 3

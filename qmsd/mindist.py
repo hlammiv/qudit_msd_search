@@ -15,8 +15,10 @@ column subsets. Meet-in-the-middle splits d = a + b:
 and a codeword exists iff some s_L = -s_R on disjoint supports. Fixing the b-block's
 leading coefficient to 1 removes the global scaling redundancy while still covering every
 codeword (scale it so its b-block's smallest column has coefficient 1). Each syndrome (a
-vector in F_p^r) is encoded as a single int64 by mixed radix, which is a *bijection*, so a
-code match is an exact syndrome match -- no false positives, only a disjoint-support test.
+vector in F_p^r) is matched by a 64-bit polynomial HASH; a hash collision on disjoint
+supports is VERIFIED exactly by an F_p rank test (_dependent) before it counts, so there are
+no false positives and the redundancy r is UNBOUNDED (no p-adic int64 overflow -- the wall
+we kept hitting at large p / mid-k).
 
 This is exact and certified: it returns the true minimum distance (up to d_max), never an
 under-report. Supports d up to 6 (halves of size <= 3), which covers every code in the
@@ -30,8 +32,11 @@ import numpy as np
 
 from .triorthogonal import dual_matrix
 
-# int64 must hold p**r for the syndrome encoding to be injective.
-_INT64_MAX = np.iinfo(np.int64).max
+# Syndromes are matched by a 64-bit polynomial HASH (not the p-adic int64 radix, which
+# overflows once p**r > 2**63 -- the wall we kept hitting at large p / large redundancy).
+# The hash is NOT injective, so every collision on disjoint supports is VERIFIED exactly by
+# an F_p rank test (_dependent) before it counts -- results stay certified, r is unbounded.
+_HASH_BASE = np.uint64(0x9E3779B97F4A7C15)  # fixed 64-bit golden-ratio multiplier
 
 
 def _as_int_H(generator, p):
@@ -41,21 +46,52 @@ def _as_int_H(generator, p):
 
 
 def _powers(p, r):
+    """Polynomial-hash basis [B^0 .. B^(r-1)] mod 2**64 (uint64). Overflow-proof replacement
+    for the p-adic radix; no cap on the redundancy r (p is unused, kept for signature compat)."""
     if r == 0:
-        return np.ones(0, dtype=np.int64)
-    if p ** r > _INT64_MAX:
-        raise OverflowError(
-            f"syndrome encoding p**r = {p}**{r} exceeds int64; redundancy too large "
-            f"for the MITM encoder"
-        )
-    return (p ** np.arange(r, dtype=np.int64)).astype(np.int64)
+        return np.ones(0, dtype=np.uint64)
+    B = int(_HASH_BASE)
+    mask = (1 << 64) - 1
+    vals = [1]
+    for _ in range(1, r):
+        vals.append((vals[-1] * B) & mask)
+    return np.array(vals, dtype=np.uint64)
 
 
 def _encode(S, powers):
-    """Encode syndrome columns S (shape (r, N), entries in [0,p)) to int64 codes (N,)."""
+    """Hash syndrome columns S (shape (r, N), entries in [0,p)) -> (N,) uint64 (wraps mod 2**64)."""
     if S.shape[0] == 0:
-        return np.zeros(S.shape[1], dtype=np.int64)
-    return powers @ S  # (r,)·(r,N) -> (N,)
+        return np.zeros(S.shape[1], dtype=np.uint64)
+    with np.errstate(over="ignore"):
+        return (powers[:, None] * S.astype(np.uint64)).sum(axis=0)
+
+
+def _fp_rank(rows_mat, p) -> int:
+    """Rank over F_p of a small integer matrix given as rows."""
+    M = np.asarray(rows_mat, dtype=np.int64) % p
+    nr, nc = M.shape
+    rank = 0
+    for c in range(nc):
+        piv = next((i for i in range(rank, nr) if M[i, c] % p), None)
+        if piv is None:
+            continue
+        M[[rank, piv]] = M[[piv, rank]]
+        M[rank] = (M[rank] * pow(int(M[rank, c]), p - 2, p)) % p
+        for i in range(nr):
+            if i != rank and M[i, c] % p:
+                M[i] = (M[i] - M[i, c] * M[rank]) % p
+        rank += 1
+        if rank == nr:
+            break
+    return rank
+
+
+def _dependent(H, p, cols) -> bool:
+    """True iff columns H[:, cols] are F_p-linearly dependent (rank < #cols). Given all lower
+    weights are already ruled out, this certifies a genuine full-support weight-|cols| codeword
+    and rejects hash-collision false positives."""
+    cols = list(cols)
+    return _fp_rank(H[:, cols].T, p) < len(cols)
 
 
 def _pairs_after(start, n):
@@ -109,7 +145,7 @@ def _build_left(H, p, a, powers):
     else:
         raise ValueError("left half size must be 1, 2, or 3")
 
-    codes = np.concatenate(code_chunks) if code_chunks else np.empty(0, np.int64)
+    codes = np.concatenate(code_chunks) if code_chunks else np.empty(0, np.uint64)
     supps = np.concatenate(supp_chunks) if supp_chunks else np.empty((0, a), np.int64)
     order = np.argsort(codes, kind="stable")
     return codes[order], supps[order]
@@ -186,7 +222,8 @@ def _weight_d_exists(H, p, d, powers):
             for li in range(lo, hi):
                 lcols = left_supps[li]
                 if rcols.isdisjoint(int(x) for x in lcols):
-                    return True
+                    if _dependent(H, p, [int(x) for x in lcols] + list(rcols)):
+                        return True  # exact rank check rejects hash-collision false positives
     return False
 
 
@@ -256,8 +293,10 @@ def _right_i_collision(H, p, powers, left_codes, left_supps, i_list):
                     hi = np.searchsorted(left_codes, t, side="right")
                     rcols = set(int(x) for x in supp[ridx])
                     for li in range(lo, hi):
-                        if rcols.isdisjoint(int(x) for x in left_supps[li]):
-                            return True
+                        lcols = left_supps[li]
+                        if rcols.isdisjoint(int(x) for x in lcols):
+                            if _dependent(H, p, [int(x) for x in lcols] + list(rcols)):
+                                return True  # exact rank check rejects hash collisions
     return False
 
 
