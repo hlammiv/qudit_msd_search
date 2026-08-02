@@ -231,15 +231,17 @@ def _scan_right(H, p, b, powers, lcodes, lsupp):
 
 
 @njit(cache=True)
-def _scan_right_b4(H, p, powers, lcodes, lsupp):
+def _scan_right_b4(H, p, powers, lcodes, lsupp, i_max):
     """b=4 right stream (first coeff fixed to 1) against an a=2 left table -> weight-6 witness.
     This is the 2+4 split for d=6: only the a=2 left table is stored (fits), the weight-4 side is
     streamed with early witness-exit, so d=6 is certifiable WITHOUT the a=3 table (~TBs at n~2000).
     Full scan is C(n,4)(p-1)^3 (proving d>=7 stays infeasible); finding a weight-6 witness exits
-    early. Assumes no weight<6 exists (call after the d<=5 search returns nothing)."""
+    early. ``i_max`` bounds the leading column so a d>=7 set (no witness) can't run forever -- a
+    d=6 code has weight-6 words with small leading index and is found in a modest budget. Assumes
+    no weight<6 exists (call after the d<=5 search returns nothing)."""
     r, n = H.shape
     rcols = np.empty(4, dtype=np.int32)
-    for i in range(n):
+    for i in range(min(i_max, n)):
         for j in range(i + 1, n):
             for k in range(j + 1, n):
                 for l in range(k + 1, n):
@@ -256,10 +258,12 @@ def _scan_right_b4(H, p, powers, lcodes, lsupp):
     return False
 
 
-def weight6_exists_via_2_4(H, p):
+def weight6_exists_via_2_4(H, p, i_max=None):
     """True iff H has 6 F_p-dependent columns, found via a 2+4 split (a=2 left table + b=4 stream).
     Memory = the a=2 left table only, so this certifies d=6 at n~2000 where the standard a=3,b=3
-    d=6 path OOMs. Assumes no weight<6 (call after min_dependent_columns(d_max=5) finds nothing)."""
+    d=6 path OOMs. ``i_max`` bounds the weight-4 leading column (default: all n) so a d>=7 set
+    can't hang; a genuine d=6 code is found within a small budget. Assumes no weight<6 (call after
+    min_dependent_columns(d_max=5) finds nothing)."""
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 6:
@@ -268,7 +272,7 @@ def weight6_exists_via_2_4(H, p):
     lcodes, lsupp = _build_left(H, p, 2, powers)
     if lcodes.shape[0] == 0:
         return False
-    return bool(_scan_right_b4(H, p, powers, lcodes, lsupp))
+    return bool(_scan_right_b4(H, p, powers, lcodes, lsupp, n if i_max is None else int(i_max)))
 
 
 def min_distance_upto6_lowmem(H, p):
