@@ -10,6 +10,7 @@ from qmsd.mindist import min_dependent_columns
 from qmsd.structured_distance import (
     structured_distance,
     max_flat_occupancy,
+    geometric_distance_upper,
     weight_hierarchy,
     flat_lower_bound,
 )
@@ -46,6 +47,23 @@ def test_no_go_distance_at_most_6_for_all_k_ge_3():
     for S in [(1, 2, 3), (34, 61, 95, 140, 152), (5, 40, 88, 121, 199, 233)]:
         assert max_flat_occupancy(3, 5, S, 2) >= 3
         assert structured_distance(3, 5, 3, S)["d_upper"] <= 6
+
+
+@pytest.mark.parametrize("oc", _QUTRIT_M5, ids=[oc.label for oc in _QUTRIT_M5])
+def test_geometric_distance_upper_is_tight_and_valid_on_qutrit_m5(oc):
+    # qutrit m=5 is the tight regime (rtilde == (m-2)(p-1) == 6, so p^2 == d_RM == 9):
+    # the screen value p^2 - max_2flat equals d_RM - max_2flat and is EXACT here.
+    g = geometric_distance_upper(oc.p, oc.m, oc.r_max, oc.puncture_columns_1indexed)
+    assert g == 9 - max_flat_occupancy(oc.p, oc.m, oc.puncture_columns_1indexed, 2)
+    assert g >= oc.d                                   # a certified UPPER bound
+    assert g == oc.d                                   # and tight in this regime
+
+
+def test_geometric_distance_upper_returns_none_when_2flat_not_a_codeword():
+    # When (m-2)(p-1) > rtilde the full-2-flat indicator is NOT a dual codeword, so there is no
+    # valid 2-flat bound -> None (the search must then fall back to the MITM, never skip).
+    # p=3, m=3, r=4: (m-2)(p-1)=2 > rtilde = m(p-1)-r-1 = 6-4-1 = 1.
+    assert geometric_distance_upper(3, 3, 4, (1, 2, 5)) is None
 
 
 def test_weight_hierarchy_second_weight_is_12():

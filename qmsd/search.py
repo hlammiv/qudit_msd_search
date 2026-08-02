@@ -25,6 +25,7 @@ from .codes import code_from_manhattan, code_from_puncture, Code
 from .distillation import nbar_T, cost
 from .sampling import (all_points, random_cap, cap_extends, points_to_columns,
                        random_plane_spread, random_near_cap, random_flat_spread)
+from .structured_distance import geometric_distance_upper
 
 EXPLICIT_MAX_BLOCK = 750  # largest p^m for which the distance-certifying explicit search runs
 SAMPLERS = ("uniform", "capset", "capset_climb", "arc_climb", "plane_spread", "near_cap",
@@ -52,13 +53,27 @@ def manhattan_sweep(p, m, r=None) -> list:
 
 
 def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
-                  sampler, climb_steps, swap_tries, max_triples) -> dict:
+                  sampler, climb_steps, swap_tries, max_triples, min_keep_distance=None) -> dict:
     """Evaluate ``n_trials`` candidate puncture sets; return {frozenset(cols): Code} of valid
     (full-rank, distance-certified, d>=2) codes. Self-contained for parallel workers (builds
-    its own RM generator and RNG). ``sampler`` selects how each candidate is drawn."""
+    its own RM generator and RNG). ``sampler`` selects how each candidate is drawn.
+
+    ``min_keep_distance`` (opt-in): a geometric distance FLOOR. Before the ~15s weight-3 MITM
+    we compute the certified upper bound d_RM - max_2flat_occupancy(S) in ~tens of ms; if it is
+    below the floor the true distance is too, so the candidate is skipped without the MITM. Sound
+    (never drops a code whose true d >= floor); most useful with cheap samplers hunting high d."""
     rng = random.Random(seed)
     G = rm_generator(r, m, p)
     best: dict = {}
+
+    def _below_floor(cols):
+        """True iff the geometric upper bound proves d < min_keep_distance (skip the MITM).
+        Returns False when no floor is set or no valid geometric bound exists for this (p,m,r)
+        (geometric_distance_upper -> None): then the MITM decides, never an unsound skip."""
+        if min_keep_distance is None:
+            return False
+        ub = geometric_distance_upper(p, m, r, cols)
+        return ub is not None and ub < min_keep_distance
 
     if sampler == "uniform":
         for _ in range(n_trials):
@@ -67,6 +82,8 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
             cols = tuple(sorted(rng.sample(range(1, pm + 1), k)))
             key = frozenset(cols)
             if key in best:
+                continue
+            if _below_floor(cols):
                 continue
             c = code_from_puncture(p, m, cols, r=r, compute_A_d=False,
                                    max_distance=max_distance, G=G)
@@ -89,6 +106,8 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
         cached = best.get(key)
         if cached is not None:
             return cached.d, True, cached.A_d, cached
+        if _below_floor(cols):            # geometric floor: skip the MITM on provably-low-d sets
+            return 0, False, None, None
         c = code_from_puncture(p, m, cols, r=r, compute_A_d=want_ad,
                                max_distance=max_distance, G=G, exact_budget=ad_budget)
         ad = c.A_d
@@ -166,7 +185,8 @@ def _search_chunk(p, m, r, cap, pm, n_trials, seed, target_k, max_distance,
 
 
 def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
-                  sampler="uniform", climb_steps=30, swap_tries=8, max_triples=0) -> list:
+                  sampler="uniform", climb_steps=30, swap_tries=8, max_triples=0,
+                  min_keep_distance=None) -> list:
     """Randomized puncture-location search over RM_p(r_max,m) (NOTES sec 5).
 
     Evaluates ``trials`` candidate puncture sets, keeping every full-rank, distance-certified
@@ -196,6 +216,15 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
     and deterministic from ``seed``; n_jobs>1/-1 splits trials across worker processes (joblib),
     each with a seed-derived RNG. Parallel results are reproducible for a fixed
     (seed, sampler, n_jobs, trials) but are not bit-identical to the serial stream.
+
+    ``min_keep_distance`` (opt-in, default None = off): a geometric distance FLOOR. The exact
+    distance certifier is a ~15s weight-3 meet-in-the-middle search on the high-distance codes;
+    it is the search's dominant cost at r=r_max. When a floor is set, each candidate is first
+    screened by the CERTIFIED upper bound d_RM - max_2flat_occupancy(S) (~tens of ms) and the
+    MITM is skipped when that bound is below the floor -- sound (true d <= the bound), so no code
+    with true d >= floor is ever dropped. Most useful with a cheap sampler (capset/uniform)
+    hunting high d, where it avoids the MITM on the many sub-floor draws (~14x on capset k=13,
+    floor 6). No effect on flat_spread, whose sampler already enforces the 2-flat occupancy.
     """
     if sampler not in SAMPLERS:
         raise ValueError(f"sampler must be one of {SAMPLERS}, got {sampler!r}")
@@ -203,7 +232,8 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
     r = r_max(m, p)
     cap = min(pm - 1, max(2, 2 * d_rm(r, m, p)))
     args = (p, m, r, cap, pm)
-    tail = (target_k, max_distance, sampler, climb_steps, swap_tries, max_triples)
+    tail = (target_k, max_distance, sampler, climb_steps, swap_tries, max_triples,
+            min_keep_distance)
 
     if n_jobs == 1:
         merged = _search_chunk(*args, trials, seed, *tail)

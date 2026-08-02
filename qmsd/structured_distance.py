@@ -33,7 +33,8 @@ import numpy as np
 from .reedmuller import rm_generator, d_rm
 from .structured_ad import _flats
 
-__all__ = ["structured_distance", "max_flat_occupancy", "weight_hierarchy", "flat_lower_bound"]
+__all__ = ["structured_distance", "max_flat_occupancy", "geometric_distance_upper",
+           "weight_hierarchy", "flat_lower_bound"]
 
 
 def _min_punctured_weight(Gj, surv_mask, p, dim_cap=12):
@@ -89,6 +90,28 @@ def structured_distance(p, m, r, puncture_columns, jmax=2):
         "jmax": min(jmax, m),
         "exact_if": "binding codeword is flat-supported (span<=jmax); true d otherwise strictly less",
     }
+
+
+def geometric_distance_upper(p, m, r, puncture_columns):
+    """Fast CERTIFIED UPPER bound on the distance from the full-2-flat codeword, or ``None`` when
+    that codeword does not exist for this (p,m,r) (caller then must NOT screen).
+
+    A full affine 2-flat carries p^2 points; its indicator is a product of (m-2) linear-form
+    factors, degree (m-2)(p-1), so it lies in the dual RM_p(rtilde,m) iff (m-2)(p-1) <= rtilde.
+    When it does, its punctured weight is p^2 - |flat cap S|, so
+
+        d(S) <= p^2 - max_2flat_occupancy(S)
+
+    -- one flat-incidence pass (~tens of ms), no MITM. Used as a distance FLOOR pre-screen: if
+    this bound is below the floor, the true distance is too, so the ~15s weight-3 MITM is skipped.
+    It is TIGHT (== true d) exactly when the 2-flat is the minimum-weight support, i.e. rtilde ==
+    (m-2)(p-1) (p^2 == d_RM) -- the qutrit m=5 regime (9 - max-2flat). Elsewhere it is a valid but
+    LOOSER bound (rarely below the floor -> few skips, but never an unsound drop). Returns None
+    when (m-2)(p-1) > rtilde so the caller falls back to the MITM rather than trust a non-codeword."""
+    rtilde = m * (p - 1) - r - 1
+    if (m - 2) * (p - 1) > rtilde:
+        return None
+    return p * p - max_flat_occupancy(p, m, puncture_columns, 2)
 
 
 def max_flat_occupancy(p, m, puncture_columns, j=2):

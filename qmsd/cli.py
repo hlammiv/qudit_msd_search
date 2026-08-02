@@ -40,7 +40,8 @@ def _cmd_search(args) -> int:
         if args.p ** args.m <= 1500 or directed:
             codes += random_search(args.p, args.m, trials, seed=args.seed,
                                    sampler=args.sampler, target_k=args.target_k,
-                                   n_jobs=args.jobs, max_triples=args.max_triples)
+                                   n_jobs=args.jobs, max_triples=args.max_triples,
+                                   min_keep_distance=args.min_keep_distance)
         codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
@@ -121,6 +122,10 @@ def main(argv=None) -> int:
     ps.add_argument("--target-k", type=int, default=None, dest="target_k",
                     help="fix the puncture count k per candidate (needed for the cap samplers "
                          "to be useful)")
+    ps.add_argument("--min-keep-distance", type=int, default=None, dest="min_keep_distance",
+                    help="geometric distance FLOOR: skip the (slow) exact-distance MITM on any "
+                         "candidate whose fast geometric upper bound (d_RM - max-2flat) is below "
+                         "this. Sound; speeds up high-d hunts with cheap samplers (e.g. 6)")
     ps.add_argument("--jobs", type=int, default=1,
                     help="process-level parallelism for the randomized search (trials are "
                          "independent; -1 uses all cores). Serial (1) is bit-for-bit "

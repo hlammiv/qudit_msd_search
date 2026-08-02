@@ -44,6 +44,24 @@ def test_random_search_parallel_valid_and_deterministic():
     assert any(c.n == 20 and c.k == 5 and c.d == 2 for c in a)
 
 
+def test_min_keep_distance_is_sound_and_opt_in():
+    # The geometric distance FLOOR must (a) be a no-op at floor 2 (true d>=2 => bound>=2, never
+    # skipped) and (b) never drop a code whose true distance meets the floor -- it only skips
+    # candidates the fast geometric upper bound already proves are below it.
+    keyset = lambda L: {frozenset(c.puncture_columns) for c in L}
+    base = random_search(3, 4, trials=300, seed=5, sampler="capset")
+    assert base, "capset search found no codes"
+    # (a) floor at the minimum kept distance changes nothing
+    assert keyset(random_search(3, 4, trials=300, seed=5, sampler="capset",
+                                min_keep_distance=2)) == keyset(base)
+    # (b) a higher floor only ever REMOVES candidates, and never one with true d >= floor
+    floor = 3
+    hi = random_search(3, 4, trials=300, seed=5, sampler="capset", min_keep_distance=floor)
+    assert keyset(hi) <= keyset(base)                                 # screen only removes
+    kept_highd = {frozenset(c.puncture_columns) for c in base if c.d >= floor}
+    assert kept_highd <= keyset(hi)                                   # none with d>=floor dropped
+
+
 def test_search_driver_structure():
     # restrict to m=2 so the driver test stays fast (explicit search now reaches large m)
     res = search(5, m_values=[2], trials_per_m=60, seed=0, top=5)
