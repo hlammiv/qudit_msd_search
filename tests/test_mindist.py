@@ -12,7 +12,8 @@ import galois
 import pytest
 
 from qmsd.mindist import min_dependent_columns, _weight_d_exists, _powers
-from qmsd.mindist_nb import weight_d_exists_fast, HAVE_NUMBA
+from qmsd.mindist_nb import (weight_d_exists_fast, weight6_exists_via_2_4,
+                             min_distance_upto6_lowmem, HAVE_NUMBA)
 from qmsd.oracle import load_oracle
 from qmsd.triorthogonal import build_triorthogonal_code
 
@@ -69,6 +70,37 @@ def test_numba_kernel_matches_numpy_weight_d_exists():
             assert weight_d_exists_fast(H, p, d) == _weight_d_exists(H, p, d, powers)
             checks += 1
     assert checks >= 200
+
+
+def test_2plus4_split_certifies_d6_without_a3_table():
+    # The 2+4 split (a=2 left table + b=4 stream) certifies d=6 using only the a=2 table, so d=6
+    # is reachable where the standard a=3,b=3 path OOMs. Correctness pinned against brute force.
+    import itertools
+
+    def brute_weight6(H, p):
+        r, n = H.shape
+        for cols in itertools.combinations(range(n), 6):
+            M = H[:, list(cols)] % p
+            for coef in itertools.product(range(p), repeat=6):
+                if all(coef) and not np.any((np.array(coef) @ M.T) % p):
+                    return True
+        return False
+
+    # hand-built min-distance-6 circuit over F_7: e0..e4 plus col5 = -(sum)
+    p = 7
+    I = np.eye(5, dtype=np.int64)
+    H6 = np.column_stack([I, (-(I.sum(0)) % p).reshape(-1, 1)]) % p
+    assert min_distance_upto6_lowmem(H6, p) == 6
+    assert weight6_exists_via_2_4(H6, p) is True
+
+    rng = random.Random(11)
+    nprng = np.random.RandomState(5)
+    for _ in range(40):
+        p = rng.choice([2, 3, 5, 7])
+        r = rng.randint(3, 6)
+        n = rng.randint(6, 9)
+        H = nprng.randint(0, p, size=(r, n)).astype(np.int64) % p
+        assert weight6_exists_via_2_4(H, p) == brute_weight6(H, p)
 
 
 def test_numba_is_the_active_path():

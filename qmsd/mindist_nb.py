@@ -230,6 +230,69 @@ def _scan_right(H, p, b, powers, lcodes, lsupp):
     return False
 
 
+@njit(cache=True)
+def _scan_right_b4(H, p, powers, lcodes, lsupp):
+    """b=4 right stream (first coeff fixed to 1) against an a=2 left table -> weight-6 witness.
+    This is the 2+4 split for d=6: only the a=2 left table is stored (fits), the weight-4 side is
+    streamed with early witness-exit, so d=6 is certifiable WITHOUT the a=3 table (~TBs at n~2000).
+    Full scan is C(n,4)(p-1)^3 (proving d>=7 stays infeasible); finding a weight-6 witness exits
+    early. Assumes no weight<6 exists (call after the d<=5 search returns nothing)."""
+    r, n = H.shape
+    rcols = np.empty(4, dtype=np.int32)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                for l in range(k + 1, n):
+                    for c2 in range(1, p):
+                        for c3 in range(1, p):
+                            for c4 in range(1, p):
+                                target = np.uint64(0)
+                                for t in range(r):
+                                    v = (H[t, i] + c2 * H[t, j] + c3 * H[t, k] + c4 * H[t, l]) % p
+                                    target = target + powers[t] * np.uint64((p - v) % p)
+                                rcols[0] = i; rcols[1] = j; rcols[2] = k; rcols[3] = l
+                                if _probe(H, p, lcodes, lsupp, target, rcols, 4):
+                                    return True
+    return False
+
+
+def weight6_exists_via_2_4(H, p):
+    """True iff H has 6 F_p-dependent columns, found via a 2+4 split (a=2 left table + b=4 stream).
+    Memory = the a=2 left table only, so this certifies d=6 at n~2000 where the standard a=3,b=3
+    d=6 path OOMs. Assumes no weight<6 (call after min_dependent_columns(d_max=5) finds nothing)."""
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if n < 6:
+        return False
+    powers = _powers_u64(p, r)
+    lcodes, lsupp = _build_left(H, p, 2, powers)
+    if lcodes.shape[0] == 0:
+        return False
+    return bool(_scan_right_b4(H, p, powers, lcodes, lsupp))
+
+
+def min_distance_upto6_lowmem(H, p):
+    """Exact min distance as an int in 1..6, or 7 meaning ">=7", using ONLY a<=2 left tables.
+
+    d=1..5 go through the standard MITM halves (a<=2, memory-safe); d=6 uses the 2+4 split
+    (a=2 left table + b=4 stream) instead of the a=3,b=3 path whose C(n,3)(p-1)^3 left table is
+    ~TBs at n~2000. So this certifies d=6 codes on a normal RAM budget where min_dependent_columns
+    OOMs -- the enabler for the gamma<1 (d>=6) regime. Returning 7 requires the full b=4 scan
+    (feasible only at small n); at large n a d>=7 code makes the b=4 stream infeasible (expected)."""
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if r == 0:
+        return 1
+    if (H == 0).all(axis=0).any():
+        return 1
+    for d in (2, 3, 4, 5):
+        if weight_d_exists_fast(H, p, d):
+            return d
+    if weight6_exists_via_2_4(H, p):
+        return 6
+    return 7
+
+
 def weight_d_exists_fast(H, p, d):
     """True iff H has d columns with a nontrivial zero F_p-combination using all d (assumes no
     weight < d exists -- call with increasing d). Numba MITM; identical result to the numpy path."""
