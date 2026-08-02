@@ -19,10 +19,11 @@ from __future__ import annotations
 import numpy as np
 
 try:
-    from numba import njit
+    from numba import njit, prange
     HAVE_NUMBA = True
 except Exception:                       # pragma: no cover - environment without numba
     HAVE_NUMBA = False
+    prange = range
 
     def njit(*args, **kwargs):          # no-op fallback: functions stay pure-python (correct, slow)
         if args and callable(args[0]):
@@ -273,6 +274,111 @@ def weight6_exists_via_2_4(H, p, i_max=None):
     if lcodes.shape[0] == 0:
         return False
     return bool(_scan_right_b4(H, p, powers, lcodes, lsupp, n if i_max is None else int(i_max)))
+
+
+@njit(cache=True)
+def _fp_dependent_b3(H, p, lcols, i, j, k, a):
+    """Rank-verify: are the a+3 columns (lcols[:a] then i,j,k) F_p-dependent? Scalar-arg form of
+    _fp_dependent for the parallel b=3 scan (no per-iteration array to confuse numba's parfor)."""
+    r = H.shape[0]
+    d = a + 3
+    M = np.empty((r, d), dtype=np.int64)
+    for s in range(a):
+        c = lcols[s]
+        for t in range(r):
+            M[t, s] = H[t, c] % p
+    for t in range(r):
+        M[t, a] = H[t, i] % p
+        M[t, a + 1] = H[t, j] % p
+        M[t, a + 2] = H[t, k] % p
+    rank = 0
+    for col in range(d):
+        piv = -1
+        for row in range(rank, r):
+            if M[row, col] % p != 0:
+                piv = row
+                break
+        if piv < 0:
+            continue
+        if piv != rank:
+            for cc in range(d):
+                tmp = M[rank, cc]; M[rank, cc] = M[piv, cc]; M[piv, cc] = tmp
+        inv = _inv(M[rank, col], p)
+        for cc in range(d):
+            M[rank, cc] = (M[rank, cc] * inv) % p
+        for row in range(r):
+            if row != rank and M[row, col] % p != 0:
+                f = M[row, col]
+                for cc in range(d):
+                    val = (M[row, cc] - f * M[rank, cc]) % p
+                    if val < 0:
+                        val += p
+                    M[row, cc] = val
+        rank += 1
+        if rank == r:
+            break
+    return rank < d
+
+
+@njit(cache=True, parallel=True)
+def _scan_right_b3_parallel(H, p, powers, lcodes, lsupp):
+    """Thread-parallel (prange over the leading column) full b=3 stream against an a=2 left table
+    -> does a weight-5 dependency exist? No early exit (a full scan is needed to PROVE none, i.e.
+    d>=6), so prange gives a near-linear speedup on the expensive case. Identical verdict to the
+    serial ``_scan_right`` for b=3; used to make the d>=6 proof tractable at n~2000 (~min not hr)."""
+    r, n = H.shape
+    N = lcodes.shape[0]
+    a = lsupp.shape[1]
+    total = 0
+    for i in prange(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                for c2 in range(1, p):
+                    for c3 in range(1, p):
+                        target = np.uint64(0)
+                        for t in range(r):
+                            v = (H[t, i] + c2 * H[t, j] + c3 * H[t, k]) % p
+                            target = target + powers[t] * np.uint64((p - v) % p)
+                        ii = np.searchsorted(lcodes, target)
+                        while ii < N and lcodes[ii] == target:
+                            ok = True
+                            for s in range(a):
+                                ls = lsupp[ii, s]
+                                if ls == i or ls == j or ls == k:
+                                    ok = False
+                                    break
+                            if ok and _fp_dependent_b3(H, p, lsupp[ii], i, j, k, a):
+                                total += 1
+                            ii += 1
+    return total > 0
+
+
+def weight5_exists_parallel(H, p):
+    """True iff H has a weight-5 (a=2 + b=3) F_p-dependent column set, via the thread-parallel
+    full b=3 scan. Same verdict as weight_d_exists_fast(H,p,5) but scans in parallel, so proving
+    ABSENCE (the d>=6 case, no early exit) is ~cores-times faster. Call after ruling out weight<=4."""
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if n < 5:
+        return False
+    powers = _powers_u64(p, r)
+    lcodes, lsupp = _build_left(H, p, 2, powers)
+    if lcodes.shape[0] == 0:
+        return False
+    return bool(_scan_right_b3_parallel(H, p, powers, lcodes, lsupp))
+
+
+def distance_is_ge6_parallel(H, p):
+    """True iff min distance >= 6 (no weight<=5), using fast serial checks for d<=4 and the
+    thread-parallel b=3 scan for weight-5. The tractable d>=6 PROOF at n~2000."""
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if r == 0 or (H == 0).all(axis=0).any():
+        return False
+    for d in (2, 3, 4):
+        if weight_d_exists_fast(H, p, d):
+            return False
+    return not weight5_exists_parallel(H, p)
 
 
 def min_distance_upto6_lowmem(H, p):
