@@ -83,6 +83,37 @@ k=75: **high-rate and geometric-structure are incompatible at p=7 m=4**, so C-OC
 - `geometric_distance_dual` itself is a keeper: a p-general point-restricted certifier that IS exact
   for flat-binding codes — the right tool if a flat-binding high-rate family is ever constructed.
 
+## 4b. C-LIT RESULT (2026-08-02): all structured/analytic alternatives CLOSED — (c) converges on the crux
+
+Scanned the paper (`literature/2510.10852/`, incl. NOTES) + the full internal theory corpus
+(D_NEGATIVE_RESULT, D_CRUX_REDUCTION, D_PROOF_MAP, P7_MIDK_PROPOSALS, D_P7M4_WINDOW, ...).
+
+**Paper-grounded facts:**
+- γ<1 at p=7 IS solved analytically — but only by the Manhattan family at **m=13**:
+  `[[96448935471, 440074936, 231]]₇` (~10¹¹ qudits, d=231, paper Table 2). γ₀(7)=0.508 asymptotic.
+- The Manhattan γ decreases slowly with m: m=4→1.595, m=7→1.248, m=8→1.224, reaching our 1.19 only
+  at **m≥9 (block ≥40M)**. So **`[[2093,308,5]]₇` (γ=1.19, block 2401) is the best known p=7 code for
+  every block size up to ~40M** — it beats the analytic family across the whole practical range.
+- Certified γ<1 exists at moderate block only for **p≥17** (`[[237,52,6]]₁₇` γ=0.847; RS for p≥23).
+
+**Every structured/analytic alternative to Manhattan is CLOSED** (Forced-Grid Theorem + family-by-family,
+D_NEGATIVE_RESULT / D_PHASE01_FINDINGS): RM-puncture (flat-capped), Reed–Solomon (inapplicable at p=7,
+r_max=1), cyclic/BCH (exist but collapse to d≤2 punctured), AG/Goppa & Artin–Schreier (not triorthogonal
+over prime F_p; extension-field versions → multi-qudit field-CCZ collapse), direct-moment/cap
+(crux-blocked, caps stall k≈75), projective/GRM (subsumed by forced-grid). The nominally "untried"
+C-LIT families reduce to closed cases too: **subfield-subcode RM / product / coordinate-subspace** are
+evaluation codes on a (product) grid → forced-grid → only RM puncturing; **concatenation** gives a
+γ that is the *mediant* of its components' γ's → can never beat the best component.
+
+**Verdict for (c):** the only genuine open residuals are (a) the p=7 m=4 **mid-k window k∈[127,~250]**
+where a d≥6/d≥7 survivor could hide but CANNOT be certified without cracking the crux, (b) the <5%
+high-dimensional general-position moment tail, and (c) the crux itself. All three are gated by ONE
+open theorem: the **full-span DGM second-weight-class weight-hierarchy** result (D_CRUX_REDUCTION §4–6).
+This is a coding-theory NO-GO direction, not a construction — proving it CLOSES all of p≤13 (incl. p=7
+m=4) as a corollary; the relevant math is Leducq's second-weight GRM classification (arXiv:1203.5244)
+and Dang–Ghorpade min-weight enumeration (arXiv:2504.21816). No construction reachable from here gives
+γ<1 at moderate-block p=7.
+
 ## 4. Gating experiment (original plan — now executed, see §4a)
 
 **Does the geometric law `d = d_RM − max_flat_occupancy` hold EXACTLY at p=7 m=4?** i.e. is the
