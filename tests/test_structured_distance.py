@@ -11,6 +11,7 @@ from qmsd.structured_distance import (
     structured_distance,
     max_flat_occupancy,
     geometric_distance_upper,
+    geometric_distance_dual,
     weight_hierarchy,
     flat_lower_bound,
 )
@@ -47,6 +48,13 @@ def test_no_go_distance_at_most_6_for_all_k_ge_3():
     for S in [(1, 2, 3), (34, 61, 95, 140, 152), (5, 40, 88, 121, 199, 233)]:
         assert max_flat_occupancy(3, 5, S, 2) >= 3
         assert structured_distance(3, 5, 3, S)["d_upper"] <= 6
+
+
+@pytest.mark.parametrize("oc", _QUTRIT_M5, ids=[oc.label for oc in _QUTRIT_M5])
+def test_geometric_distance_dual_is_exact_on_qutrit_m5(oc):
+    # The point-restricted dual-MITM geometric certifier (works where codeword enumeration OOMs,
+    # e.g. p=7) reproduces the exact distance on the flat-binding qutrit m=5 oracle codes.
+    assert geometric_distance_dual(oc.p, oc.m, oc.r_max, oc.puncture_columns_1indexed, j=2) == oc.d
 
 
 @pytest.mark.parametrize("oc", _QUTRIT_M5, ids=[oc.label for oc in _QUTRIT_M5])

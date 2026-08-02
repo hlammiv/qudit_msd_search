@@ -58,7 +58,32 @@ is an S that holds every weight-21 support to ≤15 (and higher weights proporti
    product/coordinate-subspace structures). AG and cyclic are already closed (see
    D_NEGATIVE_RESULT / nonrm-triorthogonal-frontier).
 
-## 4. Gating experiment (do FIRST — decides if C-OCC is viable)
+## 4a. GATING RESULT (2026-08-02): NEGATIVE for j=2 — the crux is active at p=7 m=4
+
+Built the point-restricted p=7 geometric certifier (`geometric_distance_dual` in
+`structured_distance.py`): per 2-flat, min punctured weight = `min_dependent_columns(dual_matrix(
+RM₇(4,2) restricted to F∖S))`, so it works where the codeword-enumeration OOMs. **Validated EXACT
+on all four qutrit m=5 oracle codes** (reproduces d = 6,5,4,3).
+
+On `[[2093,308,5]]` (true d=5): **`d_geo(j=2) = None`** — none of the 117 heavy 2-flats (|S∩F|≥15)
+carries a codeword capturing the weight-5 binding. So **the binding codeword is NOT 2-flat-supported
+at p=7 m=4** — the full-span / higher-flat crux is active, unlike qutrit m=5 where it was exact.
+
+**Deeper reason (connects to the known p=7 hard core):** caps stall at **k≈75** in AG(4,7), so there
+is no flat-binding structured substrate at high k — high-k codes are effectively random and
+crux-bound, which is *why* geometric certification is loose here. This is the "2D-codeword crux"
+(`nonrm-triorthogonal-frontier`, memory). C-OCC needs high k for rate but flat-structure fails past
+k=75: **high-rate and geometric-structure are incompatible at p=7 m=4**, so C-OCC is largely blocked.
+
+**Consequence for the plan:**
+- C-OCC (2-flat occupancy) does not get traction at p=7 m=4. Optional deeper check: `j=3` (is the
+  binding 3-flat-supported? ~1–3 hr, not run — the cap-stall argument closes C-OCC regardless).
+- Pivot weight to **C-LIT** (other analytic families) and **higher m** (does the crux relax at
+  p=7 m=5, where caps may reach higher absolute k?), or accept γ<1 at p=7 m=4 is crux-blocked.
+- `geometric_distance_dual` itself is a keeper: a p-general point-restricted certifier that IS exact
+  for flat-binding codes — the right tool if a flat-binding high-rate family is ever constructed.
+
+## 4. Gating experiment (original plan — now executed, see §4a)
 
 **Does the geometric law `d = d_RM − max_flat_occupancy` hold EXACTLY at p=7 m=4?** i.e. is the
 distance-binding codeword flat-supported there, as it was for qutrit m=5?

@@ -34,7 +34,7 @@ from .reedmuller import rm_generator, d_rm
 from .structured_ad import _flats
 
 __all__ = ["structured_distance", "max_flat_occupancy", "geometric_distance_upper",
-           "weight_hierarchy", "flat_lower_bound"]
+           "geometric_distance_dual", "weight_hierarchy", "flat_lower_bound"]
 
 
 def _min_punctured_weight(Gj, surv_mask, p, dim_cap=12):
@@ -90,6 +90,47 @@ def structured_distance(p, m, r, puncture_columns, jmax=2):
         "jmax": min(jmax, m),
         "exact_if": "binding codeword is flat-supported (span<=jmax); true d otherwise strictly less",
     }
+
+
+def geometric_distance_dual(p, m, r, puncture_columns, j=2, d_max=6):
+    """Point-restricted geometric distance UPPER bound via the flat-restricted DUAL MITM -- works
+    where structured_distance's codeword-enumeration OOMs (high-dim flats, e.g. p=7 m=4 where the
+    j=2 restricted code RM_7(4,2) has dim 15 >> the enum cap).
+
+    For each affine j-flat F, the flat-restricted dual code is RM_p(rr, j), rr = rtilde-(m-j)(p-1);
+    its min punctured weight (= min over dual codewords supported on F of |supp\\S|) is the min
+    distance of that code restricted to the surviving (F\\S) columns, computed by
+    min_dependent_columns(dual_matrix(G[:, F\\S]), p). Only flats with |S cap F| >= d_RM - d_max can
+    bind at <= d_max (min punctured >= d_RM - |S cap F|), so lighter flats are skipped. Returns the
+    min over flats (or None if none bind within d_max). Validated EXACT on the qutrit m=5 oracle
+    codes; at p=7 m=4 it returns None on the random d=5 codes -> binding codeword NOT j=2-supported
+    (full-span crux). This is a certified UPPER bound; == true d iff the binding codeword is
+    flat-supported (span <= j)."""
+    from .reedmuller import rm_generator
+    from .triorthogonal import dual_matrix
+    from .mindist import min_dependent_columns
+    from .structured_ad import _flats
+    rtilde = m * (p - 1) - r - 1
+    rr = rtilde - (m - j) * (p - 1)
+    if rr < 0:
+        return None
+    G = np.asarray(rm_generator(rr, j, p), dtype=np.int64) % p
+    d_min_rm = d_rm(rtilde, m, p)
+    S = set(int(c) - 1 for c in puncture_columns)
+    min_occ = d_min_rm - d_max
+    best = None
+    for colmap in _flats(m, j, p):
+        surv = np.fromiter((int(c) not in S for c in colmap), dtype=bool, count=len(colmap))
+        if int((~surv).sum()) < min_occ:          # |S cap F| too small to bind within d_max
+            continue
+        surv_cols = np.where(surv)[0]
+        try:
+            w = min_dependent_columns(dual_matrix(G[:, surv_cols], p), p, d_max=d_max)
+        except ValueError:
+            continue                              # min punctured weight > d_max on this flat
+        if best is None or w < best:
+            best = w
+    return best
 
 
 def geometric_distance_upper(p, m, r, puncture_columns):
