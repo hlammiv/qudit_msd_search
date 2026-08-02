@@ -31,6 +31,7 @@ import itertools
 import numpy as np
 
 from .triorthogonal import dual_matrix
+from .mindist_nb import weight_d_exists_fast, HAVE_NUMBA as _HAVE_NUMBA
 
 # Syndromes are matched by a 64-bit polynomial HASH (not the p-adic int64 radix, which
 # overflows once p**r > 2**63 -- the wall we kept hitting at large p / large redundancy).
@@ -146,7 +147,10 @@ def _build_left(H, p, a, powers):
         raise ValueError("left half size must be 1, 2, or 3")
 
     codes = np.concatenate(code_chunks) if code_chunks else np.empty(0, np.uint64)
-    supps = np.concatenate(supp_chunks) if supp_chunks else np.empty((0, a), np.int64)
+    # int32 supports halve the giant left table's memory (columns << 2**31 for any certifiable
+    # block); indices are cast to int downstream so the narrower dtype is transparent.
+    supps = (np.concatenate(supp_chunks).astype(np.int32, copy=False)
+             if supp_chunks else np.empty((0, a), np.int32))
     order = np.argsort(codes, kind="stable")
     return codes[order], supps[order]
 
@@ -238,10 +242,13 @@ def min_dependent_columns(H, p, d_max=None) -> int:
     r, n = H.shape
     if r == 0:
         return 1  # empty parity check: every single column is a codeword
-    powers = _powers(p, r)
+    powers = _powers(p, r) if not _HAVE_NUMBA else None
     # Search weight 1..cap. Any r+1 columns of an r-row matrix are dependent, so the true
     # distance is at most r+1; the MITM halves (each size <= 3) only certify up to HARD_CAP,
     # so cap the search there and raise (never mis-report) if nothing is found by then.
+    # The numba kernel (weight_d_exists_fast) fuses the syndrome build+hash into nopython loops
+    # (~3x, compact int32 supports) and gives the IDENTICAL result -- the numpy _weight_d_exists
+    # is the reference/fallback when numba is unavailable (fuzzed equal in tests).
     HARD_CAP = 6
     cap = min(d_max if d_max is not None else (r + 1), n, HARD_CAP)
     for d in range(1, cap + 1):
@@ -249,7 +256,9 @@ def min_dependent_columns(H, p, d_max=None) -> int:
             if (H == 0).all(axis=0).any():
                 return 1
             continue
-        if _weight_d_exists(H, p, d, powers):
+        found = (weight_d_exists_fast(H, p, d) if _HAVE_NUMBA
+                 else _weight_d_exists(H, p, d, powers))
+        if found:
             return d
     raise ValueError(
         f"no dependent column set of size <= {cap} found; minimum distance exceeds {cap} "

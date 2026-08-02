@@ -5,6 +5,12 @@ description = "Discovery of qudit triorthogonal codes for magic state distillati
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24", "galois>=0.3", "scipy>=1.10", "psutil>=5.9"]
 
+# Optional accelerator: the meet-in-the-middle distance certifier auto-uses a numba-JIT kernel
+# when present (~3x faster, compact int32 left table -> larger p/blocks fit a smaller RAM budget);
+# without it qmsd falls back to the pure-numpy path with identical results. `pip install qmsd[fast]`.
+[project.optional-dependencies]
+fast = ["numba>=0.58"]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

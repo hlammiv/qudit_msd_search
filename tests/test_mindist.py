@@ -11,7 +11,8 @@ import numpy as np
 import galois
 import pytest
 
-from qmsd.mindist import min_dependent_columns
+from qmsd.mindist import min_dependent_columns, _weight_d_exists, _powers
+from qmsd.mindist_nb import weight_d_exists_fast, HAVE_NUMBA
 from qmsd.oracle import load_oracle
 from qmsd.triorthogonal import build_triorthogonal_code
 
@@ -50,6 +51,29 @@ def test_mitm_matches_bruteforce_fuzz():
         assert mm == bf, f"p={p} r={r} n={n}: brute={bf} mitm={mm}\n{H}"
         checked += 1
     assert checked >= 80
+
+
+def test_numba_kernel_matches_numpy_weight_d_exists():
+    """The numba MITM kernel must return the IDENTICAL weight-d existence verdict as the numpy
+    reference, per d, over a fuzz battery incl. p=7 (the large-p regime it exists to speed up)."""
+    rng = random.Random(7)
+    nprng = np.random.RandomState(3)
+    checks = 0
+    for _ in range(120):
+        p = rng.choice([2, 3, 5, 7])
+        r = rng.randint(2, 5)
+        n = rng.randint(r + 2, r + 8)
+        H = (nprng.randint(0, p, size=(r, n))).astype(np.int64) % p
+        powers = _powers(p, r)
+        for d in range(2, min(6, n) + 1):
+            assert weight_d_exists_fast(H, p, d) == _weight_d_exists(H, p, d, powers)
+            checks += 1
+    assert checks >= 200
+
+
+def test_numba_is_the_active_path():
+    # Guard: in this environment the fast kernel is what min_dependent_columns actually runs.
+    assert HAVE_NUMBA
 
 
 def test_mitm_edge_cases():
