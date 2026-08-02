@@ -7,7 +7,12 @@ import pytest
 from qmsd.oracle import load_oracle
 from qmsd.triorthogonal import build_triorthogonal_code
 from qmsd.mindist import min_dependent_columns
-from qmsd.structured_distance import structured_distance, max_flat_occupancy
+from qmsd.structured_distance import (
+    structured_distance,
+    max_flat_occupancy,
+    weight_hierarchy,
+    flat_lower_bound,
+)
 
 _QUTRIT_M5 = [oc for oc in load_oracle() if oc.p == 3 and oc.m == 5]
 
@@ -31,3 +36,29 @@ def test_geometric_is_an_upper_bound_never_under_reports():
                                              oc.puncture_columns_1indexed)["X_stab"], dtype=int) % oc.p
     d_true = min_dependent_columns(G0, oc.p, d_max=6)
     assert structured_distance(oc.p, oc.m, oc.r_max, oc.puncture_columns_1indexed)["d_upper"] >= d_true
+
+
+def test_no_go_distance_at_most_6_for_all_k_ge_3():
+    # RIGOROUS NO-GO: any 3 puncture points share a common 2-flat (they span <= 2 dims), whose
+    # weight-9 indicator is a codeword, so |supp\S| <= 9 - 3 = 6. Hence d(S) <= 6 for EVERY k>=3
+    # at qutrit m=5 -> [[230,13,6]] is distance-optimal and d>=7 is impossible. The two facts:
+    #   (i) max_2flat_occupancy(S) >= 3 for every k>=3, and (ii) d_upper = d_RM - max_2flat <= 6.
+    for S in [(1, 2, 3), (34, 61, 95, 140, 152), (5, 40, 88, 121, 199, 233)]:
+        assert max_flat_occupancy(3, 5, S, 2) >= 3
+        assert structured_distance(3, 5, 3, S)["d_upper"] <= 6
+
+
+def test_weight_hierarchy_second_weight_is_12():
+    # Minimal-affine-span hierarchy of RM_3(6,5): span-2 (2-flat indicator) has weight 9 = d_RM;
+    # the next span (span-3) has weight 12. The second weight w2=12 is the lower-bound input.
+    assert weight_hierarchy(3, 5, 3) == {2: 9, 3: 12}
+
+
+def test_flat_lower_bound_pins_distance_in_small_k_regime():
+    # Certified lower bound min(d_RM - max_2flat, w2 - k) meets the Phase-1 upper bound in the
+    # small-k regime -> EXACT distance with no MITM. Cross-checked here against the MITM.
+    S = (34, 61, 95, 140, 152)  # k=5, max_2flat=3
+    lo = flat_lower_bound(3, 5, 3, S, w2=12)      # min(9-3, 12-5) = min(6,7) = 6
+    up = structured_distance(3, 5, 3, S)["d_upper"]
+    G0 = np.asarray(build_triorthogonal_code(3, 5, 3, S)["X_stab"], dtype=int) % 3
+    assert lo == up == min_dependent_columns(G0, 3, d_max=6) == 6

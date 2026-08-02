@@ -14,8 +14,15 @@ meet-in-the-middle certifier (capped at d<=6) and Brouwer-Zimmermann cannot.
 
 Phase 1 (this module): the upper bound / screen. For the paper's qutrit m=5 codes the j=2
 term is exactly  d_RM - max_{2-flat} |plane cap S|  -- the flat-occupancy law observed
-empirically (max-2flat 3 -> d=6, 4 -> d=5, ...). Phase 2 (the certified d>=7 LOWER bound) needs
-the weight-class enumeration up to weight w+k and inherits the full-span crux; not in scope here.
+empirically (max-2flat 3 -> d=6, 4 -> d=5, ...).
+
+Phase 2 (weight_hierarchy / flat_lower_bound): the certified LOWER bound. Its headline result is
+a rigorous NO-GO, not a d>=7 certificate: at qutrit m=5, ANY 3 puncture points lie on a common
+2-flat (they span <= 2 dims), whose weight-9 indicator is a codeword, so |supp\\S| <= 9 - 3 = 6.
+Hence  d(S) <= 6 for EVERY puncture set of size k>=3  -- so [[230,13,6]] is distance-OPTIMAL and
+d>=7 is IMPOSSIBLE at m=5. In the small-k regime the lower bound meets the Phase-1 upper bound and
+pins the distance EXACTLY with no MITM. The general large-k lower bound still inherits the
+full-span crux (D_CRUX_REDUCTION.md).
 """
 from __future__ import annotations
 
@@ -26,7 +33,7 @@ import numpy as np
 from .reedmuller import rm_generator, d_rm
 from .structured_ad import _flats
 
-__all__ = ["structured_distance", "max_flat_occupancy"]
+__all__ = ["structured_distance", "max_flat_occupancy", "weight_hierarchy", "flat_lower_bound"]
 
 
 def _min_punctured_weight(Gj, surv_mask, p, dim_cap=12):
@@ -94,3 +101,85 @@ def max_flat_occupancy(p, m, puncture_columns, j=2):
         if occ > best:
             best = occ
     return best
+
+
+# --- Phase 2: certified LOWER bound (weight-gap) ------------------------------------------
+# Distance splits over the RM weight classes. The min-weight (span-2) codewords give an
+# EXHAUSTIVE term d_RM - max_2flat_occupancy(S). Every heavier codeword has RM-weight >= w2
+# (the second weight), so its punctured weight is >= w2 - k. Hence
+#       d(S) >= min( d_RM - max_2flat_occupancy(S),  w2 - k ).
+# NO-GO COROLLARY (m=5): any 3 points share a 2-flat => max_2flat_occupancy(S) >= 3 for every
+# k>=3 => d_span2 = d_RM - max_2flat <= 9 - 3 = 6. So d(S) <= 6 for ALL k>=3: d>=7 is impossible
+# and [[230,13,6]] is distance-optimal at qutrit m=5. (This is the Phase-1 upper bound applied
+# structurally; the lower bound below pins the exact value when it meets that upper bound.)
+# This is a certified lower bound; combined with the Phase-1 upper bound it pins the distance
+# EXACTLY when they meet -- reaching d>=7 with no MITM in the small-k / short-window regime.
+# SOUND iff w2 is a true lower bound on every codeword weight above d_RM. For RM_3(6,5) the
+# minimal-affine-span hierarchy gives span-2=9, span-3=12; confirming w2=12 for ALL spans
+# (no weight-10/11 codeword of span 4,5) is the Leducq weight-hierarchy question = the
+# full-span crux (see GEOMETRIC_CERTIFIER_SCOPE.md). Pass w2 explicitly.
+def _fullspan_min_weight(p, j, rr, dim_cap=13):
+    """Min weight of a codeword of RM_p(rr,j) whose affine span is exactly j (brute; small dim)."""
+    G = np.asarray(rm_generator(rr, j, p), dtype=np.int64) % p
+    dim = G.shape[0]
+    if dim > dim_cap:
+        return None
+    pts = np.array(list(product(range(p), repeat=j)), dtype=np.int64)
+    best = None
+    for msg in product(range(p), repeat=dim):
+        if not any(msg):
+            continue
+        c = (np.asarray(msg, dtype=np.int64) @ G) % p
+        supp = np.nonzero(c)[0]
+        w = supp.size
+        if best is not None and w >= best:
+            continue
+        P = (pts[supp] - pts[supp][0]) % p
+        if _fp_rank(P, p) == j:            # spans the full j-flat
+            best = w
+    return best
+
+
+def _fp_rank(M, p):
+    M = np.asarray(M, dtype=np.int64) % p
+    nr, nc = M.shape
+    rk = 0
+    for c in range(nc):
+        piv = next((i for i in range(rk, nr) if M[i, c] % p), None)
+        if piv is None:
+            continue
+        M[[rk, piv]] = M[[piv, rk]]
+        M[rk] = (M[rk] * pow(int(M[rk, c]), p - 2, p)) % p
+        for i in range(nr):
+            if i != rk and M[i, c] % p:
+                M[i] = (M[i] - M[i, c] * M[rk]) % p
+        rk += 1
+        if rk == nr:
+            break
+    return rk
+
+
+def weight_hierarchy(p, m, r, jmax=3):
+    """{span j : min weight of an exactly-span-j codeword} of RM_p(rtilde,m), for j=2..jmax
+    (brute per flat; small spans only). The second weight w2 is min over j>=3."""
+    rtilde = m * (p - 1) - r - 1
+    out = {}
+    for j in range(2, min(jmax, m) + 1):
+        rr = rtilde - (m - j) * (p - 1)
+        if rr < 0:
+            continue
+        w = _fullspan_min_weight(p, j, rr)
+        if w is not None:
+            out[j] = w
+    return out
+
+
+def flat_lower_bound(p, m, r, puncture_columns, w2):
+    """Certified lower bound d(S) >= min( d_RM - max_2flat_occupancy(S), w2 - k ), with w2 a
+    (sound) lower bound on every RM-weight above d_RM. Meets the Phase-1 upper bound -> EXACT
+    distance, no MITM, in the small-k regime (incl. d>=7). See module notes for the w2 caveat."""
+    S = set(int(c) - 1 for c in puncture_columns)
+    k = len(S)
+    d_RM = d_rm(m * (p - 1) - r - 1, m, p)
+    d_span2 = d_RM - max_flat_occupancy(p, m, puncture_columns, 2)
+    return min(d_span2, w2 - k)

@@ -1,4 +1,8 @@
-# Geometric / flat-occupancy distance certifier — scope + Phase 1
+# Geometric / flat-occupancy distance certifier — scope + Phases 1–2
+
+> **Headline result.** The certifier proves **d(S) ≤ 6 for every qutrit m=5 code with k ≥ 3** —
+> so `[[230,13,6]]₃` is *distance-optimal* and **d ≥ 7 is impossible** at m=5. The original "cover
+> the d≥7 regime" goal is answered: there is no d≥7 code there to find.
 
 **Goal.** Compute the distance of punctured-RM triorthogonal codes from their *geometry*, not
 column enumeration — covering the **d≥7** regime where the meet-in-the-middle certifier (capped
@@ -47,20 +51,45 @@ abundant at small k." Those plane_spread/flat_spread codes have max-2flat = 3 �
 the MITM agrees (d=6). d≥7 requires **max-2flat ≤ 2**, a stronger 2-flat condition our samplers do
 not target; whether such codes exist at m=5 is open (and the certifier is the tool to check them).
 
-## Phase 2 — certified d≥7 LOWER bound (research bet, NOT built)
+## Phase 2 — certified LOWER bound (BUILT) → and the no-go it proves
 
-To certify d ≥ w, only codewords of unpunctured weight **< w+k** can violate it. Classify + verify
-exactly the window [d_RM, w+k). For w=7: k=6 → 4 weight-levels, k=8 → 6, k=13 → 11. If every
-codeword in the window is flat-classified (DGM/Leducq), the lower bound is exact. **Ceiling = the
-full-span crux** (`D_CRUX_REDUCTION.md`): a full-span codeword below w+k escapes the geometry.
-Small-k / short-window is where d≥7 can actually be certified.
+`weight_hierarchy` + `flat_lower_bound` in `qmsd/structured_distance.py`. The distance splits over
+the RM weight classes: the min-weight (span-2) codewords give the **exhaustive** term
+`d_RM − max_2flat_occupancy(S)`; every heavier codeword has RM-weight ≥ the **second weight** w₂,
+so its punctured weight is ≥ w₂−k. Hence the certificate
+
+    d(S) ≥ min( d_RM − max_2flat_occupancy(S),  w₂ − k ),   w₂ = 12 for RM₃(6,5).
+
+**What Phase 2 actually settled — a rigorous NO-GO, not a d≥7 certificate.** The d≥7 target does
+not exist at qutrit m=5: **any 3 puncture points lie on a common 2-flat** (they span ≤ 2 dims),
+whose weight-9 indicator is a codeword, so `|supp(c)\S| ≤ 9 − 3 = 6`. Therefore
+
+    d(S) ≤ 6  for EVERY puncture set with k ≥ 3.
+
+So `[[230,13,6]]` is **distance-optimal** and **d≥7 is impossible** at qutrit m=5. This is the
+Phase-1 upper bound applied *structurally* (`max_2flat_occupancy(S) ≥ 3` whenever k≥3), and it
+definitively closes the "is there a d≥7 qutrit m=5 code?" question — NO. It also retires the old
+"d≥7 abundant at small k" claim for good.
+
+**Where the lower bound pins the exact distance (no MITM).** In the small-k regime the two bounds
+meet: for `w₂ − k ≥ d_RM − max_2flat`, `flat_lower_bound = d_upper` and the distance is exact.
+Cross-checked against the MITM on small sets (e.g. k=5, max-2flat=3 → lower = upper = MITM = 6).
+
+**Weight hierarchy computed.** `weight_hierarchy(3,5,3) = {2: 9, 3: 12}` (span-2 = d_RM = 9;
+span-3 = 12). The general **large-k** lower bound (proving w₂ is a true bound for *all* spans 4,5
+— no weight-10/11 full-span codeword) still inherits the **full-span crux** (`D_CRUX_REDUCTION.md`),
+but the no-go above makes it moot at m=5: there is nothing above d=6 to certify.
 
 ## Build status & next steps
 
-- **Done:** Phase 1 upper bound / screen (`structured_distance`, `max_flat_occupancy`), exact for
-  the qutrit m=5 arc codes; 5 tests. Generalizes over `structured_ad`'s flat enumeration.
+- **Done (Phase 1):** upper bound / screen (`structured_distance`, `max_flat_occupancy`), exact for
+  the qutrit m=5 arc codes. Generalizes over `structured_ad`'s flat enumeration.
+- **Done (Phase 2):** lower bound (`flat_lower_bound`), weight hierarchy (`weight_hierarchy`), and
+  the **d ≤ 6 no-go** for all k≥3 at qutrit m=5. 8 tests in `test_structured_distance.py`.
+- **Open (other m/p):** the no-go argument is m-specific (it uses that 3 points span a 2-flat and
+  the 2-flat indicator sits in RM_p(r̃,m)). For higher m the analogous ceiling is
+  `d_RM − (points forced onto the lowest binding flat)`; recompute per (m,p) before claiming a
+  distance ceiling elsewhere.
 - **Cheap next:** per-flat min-weight for j≥3 via a small restricted-code MITM (tighter upper
   bound when the min-weight term isn't binding); wire `structured_distance` as a pre-screen into
   `qmsd.search`.
-- **Research:** Phase 2 lower bound — enumerate the [d_RM, w+k) weight classes; gated on the
-  full-span crux.
