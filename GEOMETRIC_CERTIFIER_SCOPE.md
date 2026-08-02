@@ -90,6 +90,15 @@ but the no-go above makes it moot at m=5: there is nothing above d=6 to certify.
   the 2-flat indicator sits in RM_p(r̃,m)). For higher m the analogous ceiling is
   `d_RM − (points forced onto the lowest binding flat)`; recompute per (m,p) before claiming a
   distance ceiling elsewhere.
+- **Done (screen):** wired into `qmsd.search` as an opt-in distance FLOOR (`min_keep_distance`,
+  CLI `--min-keep-distance`). Profiling the real `r=r_max` search found the dominant cost is the
+  **weight-3 MITM** (~15s on the high-distance qutrit m=5 codes), not the sampler or code build;
+  `geometric_distance_upper(p,m,r,S) = p² − max_2flat_occupancy(S)` (~tens of ms) is a certified
+  upper bound (when the full-2-flat indicator is a codeword, `(m−2)(p−1) ≤ r̃`, else `None`), so
+  a candidate below the floor skips the MITM. Sound (never drops a true-`d ≥ floor` code); ~14×
+  on capset k=13 hunting d=6. Tight only in the `r̃=(m−2)(p−1)` (`p²=d_RM`) regime — qutrit m=5.
+- **Also done (sampler):** `random_arc` rebuilt with an incremental forbidden-point set,
+  byte-identical and ~200× faster at order≥2 (matters in the small-`r`/interactive regime; at
+  `r_max` the MITM dominates and `--jobs` is the throughput lever).
 - **Cheap next:** per-flat min-weight for j≥3 via a small restricted-code MITM (tighter upper
-  bound when the min-weight term isn't binding); wire `structured_distance` as a pre-screen into
-  `qmsd.search`.
+  bound when the min-weight term isn't binding).
