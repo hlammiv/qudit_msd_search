@@ -1,7 +1,7 @@
 """Tests for qmsd.search: the Manhattan sweep, the randomized search, and the top-level driver."""
 import pytest
 
-from qmsd.search import manhattan_sweep, random_search, search
+from qmsd.search import manhattan_sweep, random_search, search, best_code
 
 
 def test_manhattan_sweep_returns_valid_sorted_codes():
@@ -60,6 +60,21 @@ def test_min_keep_distance_is_sound_and_opt_in():
     assert keyset(hi) <= keyset(base)                                 # screen only removes
     kept_highd = {frozenset(c.puncture_columns) for c in base if c.d >= floor}
     assert kept_highd <= keyset(hi)                                   # none with d>=floor dropped
+
+
+def test_best_code_one_liner():
+    # Large p**m: explicit is gated off, so the analytic (Manhattan) code is returned, instantly,
+    # and it self-identifies (puncture_columns is None, .w is set) -- works for any prime up to 101+.
+    c = best_code(97, 2)
+    assert c is not None and c.d >= 2 and c.n > c.k and c.p == 97
+    assert c.puncture_columns is None and c.w is not None            # analytic provenance
+    # explicit=False returns exactly the lowest-gamma analytic code
+    a = best_code(23, 1, explicit=False)
+    man = [x for x in manhattan_sweep(23, 1) if x.d >= 2 and x.n > x.k]
+    assert a.gamma == pytest.approx(min(x.gamma for x in man))
+    # best_code only ADDS candidates, so it is never worse than analytic-only
+    b = best_code(7, 2, trials=20)
+    assert b.gamma <= best_code(7, 2, explicit=False).gamma + 1e-9
 
 
 def test_search_driver_structure():

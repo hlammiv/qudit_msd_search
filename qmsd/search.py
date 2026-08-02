@@ -255,6 +255,31 @@ def random_search(p, m, trials, seed=0, target_k=None, max_distance=6, n_jobs=1,
     return out
 
 
+def best_code(p, m, explicit=True, explicit_max_block=EXPLICIT_MAX_BLOCK, trials=300,
+              sampler="flat_spread", target_k=None, n_jobs=1, seed=0) -> Code:
+    """Best triorthogonal code we can produce for the DECLARED (p, m) -- the one-liner.
+
+    ALWAYS includes the closed-form Manhattan analytic family (Theorems 4/5: distance-certified,
+    instant, works for ANY prime p and any m). When ``explicit`` and ``p**m <= explicit_max_block``
+    it ALSO runs the explicit random search (``sampler``, default 'flat_spread', with the
+    numba-accelerated exact distance certifier) and returns whichever candidate has the LOWER gamma.
+
+    Returns a single ``Code`` (or None if none is valid). The winner self-identifies its provenance:
+    an analytic Manhattan code has ``.w`` set and ``.puncture_columns is None``; an explicit search
+    code has ``.puncture_columns`` set and ``.w is None``.
+
+    The explicit half is distance-certification-limited (exact d only up to 6, and slower at large
+    n / large p), which is why it is gated by ``explicit_max_block`` -- the analytic half has no
+    such limit, so for large ``p**m`` you get the (certified) Manhattan code."""
+    def _valid(c):
+        return c.d is not None and c.d >= 2 and c.k >= 1 and c.n > c.k
+    cands = [c for c in manhattan_sweep(p, m) if _valid(c)]
+    if explicit and p ** m <= explicit_max_block:
+        cands += [c for c in random_search(p, m, trials=trials, sampler=sampler,
+                                           target_k=target_k, n_jobs=n_jobs, seed=seed) if _valid(c)]
+    return min(cands, key=lambda c: c.gamma) if cands else None
+
+
 def _cost(c: Code, delta_in: float) -> float:
     """Single-round distillation cost C = n / nbar_T (NOTES eq 39)."""
     return cost(c.n, nbar_T(c.n, c.k, c.p, delta_in))

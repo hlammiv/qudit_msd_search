@@ -2,6 +2,8 @@
 
 Examples
 --------
+  python -m qmsd best --p 97 --m 2                # one-liner: best code for a declared (p,m)
+  python -m qmsd best --p 101 --m 4 --analytic-only
   python -m qmsd search --p 5 --m 4 --trials 5000
   python -m qmsd search --p 3 --m 4 --sampler capset_climb --target-k 9   # -> [[72,9,3]]_3
   python -m qmsd reconstruct --label "[[20,5,2]]_5"
@@ -90,8 +92,28 @@ def _cmd_asymptotic(args) -> int:
     return 0
 
 
+def _cmd_best(args) -> int:
+    """One-liner: the best code we can produce for the DECLARED (p, m). Always the closed-form
+    Manhattan analytic code; plus the explicit search when p**m is small enough; prints whichever
+    has the lower gamma, tagged by provenance."""
+    from .search import best_code, EXPLICIT_MAX_BLOCK
+    trials = args.trials if args.trials is not None else _DEFAULT_TRIALS.get(args.sampler, 300)
+    c = best_code(args.p, args.m, explicit=not args.analytic_only, trials=trials,
+                  sampler=args.sampler, target_k=args.target_k, n_jobs=args.jobs, seed=args.seed)
+    if c is None:
+        print(f"# p={args.p} m={args.m}: no valid code found")
+        return 1
+    src = ("analytic (Manhattan, closed-form d)" if c.puncture_columns is None
+           else "explicit search (exact-certified d<=6)")
+    skipped = (not args.analytic_only) and args.p ** args.m > EXPLICIT_MAX_BLOCK
+    note = f"  [explicit search skipped: p^m={args.p ** args.m} > {EXPLICIT_MAX_BLOCK}]" if skipped else ""
+    print(f"# best code for p={args.p}, m={args.m}  ->  {src}{note}")
+    print("  " + _fmt(c))
+    return 0
+
+
 def main(argv=None) -> int:
-    """Argparse entry point with subcommands search/reconstruct/asymptotic (NOTES sec 10)."""
+    """Argparse entry point with subcommands search/reconstruct/asymptotic/best (NOTES sec 10)."""
     parser = argparse.ArgumentParser(
         prog="qmsd",
         description="Discover qudit triorthogonal magic-state-distillation codes "
@@ -139,6 +161,24 @@ def main(argv=None) -> int:
     pa = sub.add_parser("asymptotic", help="asymptotic optimal yield gamma_0(p)")
     pa.add_argument("--p", type=int, required=True)
     pa.set_defaults(func=_cmd_asymptotic)
+
+    pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
+                                     "search, lower-gamma wins (the one-liner)")
+    pb.add_argument("--p", type=int, required=True, help="prime qudit dimension")
+    pb.add_argument("--m", type=int, required=True, help="RM variables")
+    pb.add_argument("--analytic-only", action="store_true", dest="analytic_only",
+                    help="return the closed-form Manhattan code only (skip the explicit search)")
+    pb.add_argument("--trials", type=int, default=None,
+                    help="explicit-search trials (default by sampler); ignored with --analytic-only")
+    pb.add_argument("--sampler",
+                    choices=["uniform", "capset", "capset_climb", "arc_climb", "plane_spread",
+                             "near_cap", "flat_spread"],
+                    default="flat_spread", help="explicit-search sampler (default: flat_spread)")
+    pb.add_argument("--target-k", type=int, default=None, dest="target_k",
+                    help="fix the puncture count k for the explicit search")
+    pb.add_argument("--jobs", type=int, default=1, help="process parallelism for the explicit search")
+    pb.add_argument("--seed", type=int, default=0)
+    pb.set_defaults(func=_cmd_best)
 
     args = parser.parse_args(argv)
     return args.func(args)
