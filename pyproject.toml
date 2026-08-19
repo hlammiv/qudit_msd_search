@@ -10,6 +10,7 @@ dependencies = ["numpy>=1.24", "galois>=0.3", "scipy>=1.10", "psutil>=5.9"]
 # without it qmsd falls back to the pure-numpy path with identical results. `pip install qmsd[fast]`.
 [project.optional-dependencies]
 fast = ["numba>=0.58"]
+viz = ["streamlit>=1.35", "plotly>=5.18", "pandas>=2.0"]
 
 [build-system]
 requires = ["setuptools>=68"]

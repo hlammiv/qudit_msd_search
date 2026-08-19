@@ -12,6 +12,7 @@ Examples
 from __future__ import annotations
 
 import argparse
+import sys
 
 # Default trial budget per sampler: the directed samplers do a search *inside* each trial,
 # so they need far fewer draws than blind uniform sampling. Keeps the flagship
@@ -44,10 +45,16 @@ def _cmd_search(args) -> int:
                                    sampler=args.sampler, target_k=args.target_k,
                                    n_jobs=args.jobs, max_triples=args.max_triples,
                                    min_keep_distance=args.min_keep_distance)
-        codes = sorted({(c.n, c.k, c.d): c for c in codes}.values(), key=lambda c: c.gamma)
+        # Preserve structurally distinct puncture sets even when their [[n,k,d]] labels agree;
+        # they can have different A_d and geometry and therefore belong in separate artifacts.
+        codes = sorted({
+            (c.p, c.m, c.n, c.k, c.d, c.A_d, c.w, c.puncture_columns): c
+            for c in codes
+        }.values(), key=lambda c: c.gamma)
         print(f"# p={args.p}, m={args.m}: {len(codes)} candidate codes (best gamma first)")
         for c in codes[:args.top]:
             print("  " + _fmt(c))
+        exported = codes[:args.top]
     else:
         res = search(args.p, trials_per_m=trials, seed=args.seed, top=args.top, n_jobs=args.jobs)
         print(f"# p={args.p}: scanned m={res['scanned']['m_values']}, "
@@ -58,6 +65,36 @@ def _cmd_search(args) -> int:
         print("## best by single-round cost C (delta_in=1e-3):")
         for c in res["best_by_cost"]:
             print("  " + _fmt(c))
+        unique = {}
+        for c in res["best_by_gamma"] + res["best_by_cost"]:
+            key = (c.p, c.m, c.n, c.k, c.d, c.puncture_columns)
+            unique[key] = c
+        exported = sorted(unique.values(), key=lambda c: c.gamma)
+    if args.output:
+        from .catalog import write_search_export
+        metadata = {
+            "p": args.p, "m": args.m, "trials": trials, "seed": args.seed,
+            "top": args.top, "sampler": args.sampler, "target_k": args.target_k,
+            "jobs": args.jobs, "max_triples": args.max_triples,
+            "min_keep_distance": args.min_keep_distance,
+        }
+        path = write_search_export(args.output, exported, metadata)
+        print(f"# wrote {len(exported)} structured result(s) to {path}")
+    return 0
+
+
+def _cmd_catalog_import(args) -> int:
+    from .catalog import import_search_export
+    try:
+        result = import_search_export(args.source, args.catalog_dir, args.status)
+    except (OSError, ValueError, TypeError) as exc:
+        print(f"catalog import failed: {exc}", file=sys.stderr)
+        return 2
+    print(f"catalog: {result['directory']}")
+    print(f"imported: {len(result['imported'])}")
+    for artifact_id in result["imported"]:
+        print(f"  + {artifact_id}")
+    print(f"already present: {len(result['unchanged'])}")
     return 0
 
 
@@ -113,7 +150,7 @@ def _cmd_best(args) -> int:
 
 
 def main(argv=None) -> int:
-    """Argparse entry point with subcommands search/reconstruct/asymptotic/best (NOTES sec 10)."""
+    """Argparse entry point with search, catalog, reconstruct, asymptotic, and best."""
     parser = argparse.ArgumentParser(
         prog="qmsd",
         description="Discover qudit triorthogonal magic-state-distillation codes "
@@ -152,7 +189,18 @@ def main(argv=None) -> int:
                     help="process-level parallelism for the randomized search (trials are "
                          "independent; -1 uses all cores). Serial (1) is bit-for-bit "
                          "reproducible; parallel is reproducible per (seed, sampler, jobs, trials)")
+    ps.add_argument("--output", type=str,
+                    help="write the displayed candidates as a versioned JSON search bundle")
     ps.set_defaults(func=_cmd_search)
+
+    pc = sub.add_parser("catalog", help="manage explorer catalog artifacts")
+    pcsub = pc.add_subparsers(dest="catalog_cmd", required=True)
+    pci = pcsub.add_parser("import", help="validate and import a JSON search bundle")
+    pci.add_argument("source", help="bundle created by `qmsd search --output ...`")
+    pci.add_argument("--catalog-dir", help="override qmsd/data/catalog (also useful in automation)")
+    pci.add_argument("--status", choices=["confirmed", "partial", "candidate"],
+                     help="override inferred evidence status; confirmed still requires certification")
+    pci.set_defaults(func=_cmd_catalog_import)
 
     pr = sub.add_parser("reconstruct", help="rebuild a published oracle code from its punctures")
     pr.add_argument("--label", type=str, required=True, help='e.g. "[[20,5,2]]_5"')
