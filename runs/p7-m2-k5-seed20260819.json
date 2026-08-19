@@ -1,0 +1,237 @@
+{
+  "codes": [
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        6,
+        16,
+        42,
+        44,
+        47
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        26,
+        30,
+        40,
+        46,
+        48
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        2,
+        32,
+        39,
+        43,
+        48
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        19,
+        20,
+        31,
+        38,
+        48
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        13,
+        26,
+        28,
+        33,
+        41
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        4,
+        10,
+        12,
+        17,
+        19
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        3,
+        19,
+        20,
+        33,
+        45
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        6,
+        37,
+        38,
+        45,
+        47
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        1,
+        2,
+        18,
+        44,
+        46
+      ],
+      "r": 3,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.9795443250691258,
+      "k": 5,
+      "label": "[[44,5,3]]_7",
+      "m": 2,
+      "n": 44,
+      "p": 7,
+      "puncture_columns_1indexed": [
+        5,
+        7,
+        9,
+        10,
+        34
+      ],
+      "r": 3,
+      "w": null
+    }
+  ],
+  "schema": "qmsd.search-results.v1",
+  "search": {
+    "jobs": 1,
+    "m": 2,
+    "max_triples": 0,
+    "min_keep_distance": null,
+    "p": 7,
+    "sampler": "flat_spread",
+    "seed": 20260819,
+    "target_k": 5,
+    "top": 10,
+    "trials": 100
+  }
+}
