@@ -1,0 +1,28 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p7-n44-k5-db8d7e6e083f",
+  "d": 3,
+  "distance_evidence": "Certified by the qmsd search engine",
+  "family": "imported explicit search",
+  "gamma_value": 1.9795443250691258,
+  "k": 5,
+  "label": "[[44,5,3]]_7",
+  "m": 2,
+  "n": 44,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 2, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 7, \"sampler\": \"flat_spread\", \"seed\": 20260819, \"target_k\": 5, \"top\": 10, \"trials\": 100}",
+  "p": 7,
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": [
+    26,
+    30,
+    40,
+    46,
+    48
+  ],
+  "r": 3,
+  "schema": "qmsd.catalog-record.v1",
+  "source": "p7-m2-k5-seed20260819.json",
+  "status": "confirmed",
+  "w": null
+}

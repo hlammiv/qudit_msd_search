@@ -1,7 +1,7 @@
 """Tests for qmsd.search: the Manhattan sweep, the randomized search, and the top-level driver."""
 import pytest
 
-from qmsd.search import manhattan_sweep, random_search, search
+from qmsd.search import manhattan_sweep, random_search, search, best_code
 
 
 def test_manhattan_sweep_returns_valid_sorted_codes():
@@ -44,6 +44,39 @@ def test_random_search_parallel_valid_and_deterministic():
     assert any(c.n == 20 and c.k == 5 and c.d == 2 for c in a)
 
 
+def test_min_keep_distance_is_sound_and_opt_in():
+    # The geometric distance FLOOR must (a) be a no-op at floor 2 (true d>=2 => bound>=2, never
+    # skipped) and (b) never drop a code whose true distance meets the floor -- it only skips
+    # candidates the fast geometric upper bound already proves are below it.
+    keyset = lambda L: {frozenset(c.puncture_columns) for c in L}
+    base = random_search(3, 4, trials=300, seed=5, sampler="capset")
+    assert base, "capset search found no codes"
+    # (a) floor at the minimum kept distance changes nothing
+    assert keyset(random_search(3, 4, trials=300, seed=5, sampler="capset",
+                                min_keep_distance=2)) == keyset(base)
+    # (b) a higher floor only ever REMOVES candidates, and never one with true d >= floor
+    floor = 3
+    hi = random_search(3, 4, trials=300, seed=5, sampler="capset", min_keep_distance=floor)
+    assert keyset(hi) <= keyset(base)                                 # screen only removes
+    kept_highd = {frozenset(c.puncture_columns) for c in base if c.d >= floor}
+    assert kept_highd <= keyset(hi)                                   # none with d>=floor dropped
+
+
+def test_best_code_one_liner():
+    # Large p**m: explicit is gated off, so the analytic (Manhattan) code is returned, instantly,
+    # and it self-identifies (puncture_columns is None, .w is set) -- works for any prime up to 101+.
+    c = best_code(97, 2)
+    assert c is not None and c.d >= 2 and c.n > c.k and c.p == 97
+    assert c.puncture_columns is None and c.w is not None            # analytic provenance
+    # explicit=False returns exactly the lowest-gamma analytic code
+    a = best_code(23, 1, explicit=False)
+    man = [x for x in manhattan_sweep(23, 1) if x.d >= 2 and x.n > x.k]
+    assert a.gamma == pytest.approx(min(x.gamma for x in man))
+    # best_code only ADDS candidates, so it is never worse than analytic-only
+    b = best_code(7, 2, trials=20)
+    assert b.gamma <= best_code(7, 2, explicit=False).gamma + 1e-9
+
+
 def test_search_driver_structure():
     # restrict to m=2 so the driver test stays fast (explicit search now reaches large m)
     res = search(5, m_values=[2], trials_per_m=60, seed=0, top=5)
@@ -75,6 +108,60 @@ def test_capset_modes_deterministic_and_parallel_valid():
     par = random_search(3, 4, trials=12, seed=1, target_k=9, sampler="capset_climb", n_jobs=3)
     for c in list(cs) + list(par):
         assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 4
+
+
+def test_arc_climb_valid_deterministic_and_reports_Ad():
+    # arc_climb ranks candidates by the (distance, -A_d) surrogate; in the small-dual regime
+    # (p=3,m=4) the exact A_d engine is feasible, so found codes carry an exact A_d.
+    a = random_search(3, 4, trials=4, seed=0, target_k=9, sampler="arc_climb",
+                      climb_steps=8, swap_tries=4)
+    b = random_search(3, 4, trials=4, seed=0, target_k=9, sampler="arc_climb",
+                      climb_steps=8, swap_tries=4)
+    assert [c.label for c in a] == [c.label for c in b]   # deterministic per config
+    assert a
+    for c in a:
+        assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 4
+    assert any(c.A_d is not None for c in a)   # the A_d surrogate was actually computed
+
+
+def test_plane_spread_reproduces_high_distance_paper_code():
+    # plane_spread (cap + no 4 coplanar) reproduces the paper's [[230,13,6]]_3 (d=6) -- the
+    # highest-distance qutrit code -- which plain caps never reach (they top out at d=5, and
+    # 240k uniform samples never exceed d=3). Every built size-13 plane-spread cap is d=6.
+    codes = [c for c in random_search(3, 5, trials=15, seed=0, target_k=13, sampler="plane_spread")
+             if c.k == 13]
+    assert codes, "plane_spread built no size-13 sets"
+    assert any(c.n == 230 and c.k == 13 and c.d == 6 for c in codes), \
+        "plane_spread did not reproduce [[230,13,6]] d=6"
+    for c in codes:
+        assert c.full_rank and c.d_certified and c.d >= 2
+
+
+def test_near_cap_builds_where_strict_caps_stall():
+    # near_cap (cap relaxed by max_triples) builds valid codes at k=43 in AG(5,3), where strict
+    # caps stall (near the max-cap = 45). At scale it reproduces [[200,43,3]]_3 (d=3, ~1/2000);
+    # here we just confirm it builds valid, full-rank, distance-certified codes.
+    codes = [c for c in random_search(3, 5, trials=8, seed=0, target_k=43,
+                                      sampler="near_cap", max_triples=45) if c.k == 43]
+    assert codes, "near_cap built no size-43 sets"
+    for c in codes:
+        assert c.full_rank and c.d_certified and c.d >= 2 and c.n + c.k == 3 ** 5
+
+
+def test_flat_spread_unifies_and_auto_selects_order():
+    # The unified flat_spread sampler auto-picks the max feasible arc order for the given k,
+    # monotonically stepping cap-order 3 -> 2 -> 1 -> near-cap fallback (0) as k grows. This is
+    # the single sampler that subsumes capset (order 1), plane_spread (order 2), near_cap (0).
+    from qmsd.sampling import max_feasible_order, all_points
+    allpts = all_points(5, 3)
+    assert max_feasible_order(5, 3, 6, allpts) == 3       # order-3 arc: the d=7 regime
+    assert max_feasible_order(5, 3, 13, allpts) == 2      # order-2 == plane_spread ([[230,13,6]])
+    assert max_feasible_order(5, 3, 28, allpts) == 1      # order-1 == cap
+    assert max_feasible_order(5, 3, 43, allpts) == 0      # cap stalls -> near-cap fallback
+    # and it builds valid, distance-certified codes (k=43 -> near-cap fallback, low d)
+    codes = [c for c in random_search(3, 5, trials=6, seed=0, target_k=43, sampler="flat_spread")
+             if c.k == 43]
+    assert codes and all(c.full_rank and c.d_certified and c.d >= 2 for c in codes)
 
 
 def test_invalid_sampler_raises():

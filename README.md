@@ -41,6 +41,26 @@ python -m qmsd asymptotic --p 5                      # asymptotic optimal yield 
 python -m pytest -q                                  # run the test suite
 ```
 
+## Add new search results to the explorer
+
+Export the displayed search candidates as structured JSON, then import them into the
+local explorer catalog:
+
+```bash
+python -m qmsd search --p 3 --m 5 --sampler flat_spread --target-k 13 \
+  --trials 300 --jobs -1 --output runs/p3-m5-k13.json
+python -m qmsd catalog import runs/p3-m5-k13.json
+streamlit run app.py
+```
+
+Imports are validated, deduplicated under stable artifact IDs, and written to
+`qmsd/data/catalog/`. Certified, full-rank search results are inferred as `confirmed`;
+uncertified results are imported as `candidate` and cannot be promoted to `confirmed`
+by a command-line flag. The running explorer notices catalog changes on its next rerun.
+
+Use `--status candidate` to deliberately keep a certified result provisional, or
+`--catalog-dir PATH` (equivalently `QMSD_CATALOG_DIR`) for a separate catalog.
+
 ## Convention note
 
 Triorthogonality and `r_max` use **`m(p-1)`** — the paper's §3.2 misprints this as `p(m-1)`;

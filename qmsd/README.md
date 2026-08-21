@@ -28,6 +28,17 @@ python -m qmsd reconstruct --label "[[20,5,2]]_5"
 python -m qmsd asymptotic --p 5
 ```
 
+To retain search results and make them visible in the Streamlit explorer:
+
+```bash
+python -m qmsd search --p 5 --m 4 --trials 5000 --output runs/p5-m4.json
+python -m qmsd catalog import runs/p5-m4.json
+streamlit run app.py
+```
+
+The import is idempotent and preserves distance/full-rank certification metadata.
+Imported records live in `qmsd/data/catalog/` and are discovered automatically.
+
 ```python
 from qmsd.search import search
 res = search(5)                       # given p, redo the paper's search
