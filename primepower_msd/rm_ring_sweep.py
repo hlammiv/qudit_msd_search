@@ -60,7 +60,7 @@ def one(P: list[int], label: str, d_max: int = 4) -> dict:
     h = rgt.hosts(c, rgt.TransversalLayer.uniform(c.n, q), "support")
     par = rgt.axis_parity_report(c)
     try:
-        d, cert, det = code_distance(c, d_max=d_max)
+        d, cert, det = code_distance(c, d_max=d_max, sides=("Z",))   # X-logicals have weight >= 2^7 - k
     except MemoryError:
         d, cert, det = None, False, {}
     g = math.log(c.n / c.k) / math.log(d) if (d and d > 1 and c.k > 0) else None

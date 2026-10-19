@@ -213,18 +213,21 @@ def min_weight_logical(H, excl_gens, n: int, kind: str = "css", d: int = 4, d_ma
 
 
 # --------------------------------------------------------------------------- public API
-def css_distance(MX, MZ, n: int, d: int = 4, d_max: int = 6, **kw):
+def css_distance(MX, MZ, n: int, d: int = 4, d_max: int = 6, sides=("X", "Z"), **kw):
     """CSS Z_d code with X-stabilizer generators MX and Z-stabilizer generators MZ.
     d_Z = min weight of z in MX^perp \\ <MZ>  (Z-type logicals);  d_X symmetric.
     Returns (d_min, d_X, d_Z, certified) with None entries when > d_max."""
     MX = np.atleast_2d(np.asarray(MX, dtype=np.int64)) % d if len(MX) else np.zeros((0, n), np.int64)
     MZ = np.atleast_2d(np.asarray(MZ, dtype=np.int64)) % d if len(MZ) else np.zeros((0, n), np.int64)
-    dZ, _ = min_weight_logical(MX if MX.size else np.zeros((1, n), np.int64), MZ, n, "css", d, d_max, **kw)
-    dX, _ = min_weight_logical(MZ if MZ.size else np.zeros((1, n), np.int64), MX, n, "css", d, d_max, **kw)
+    dZ = dX = None
+    if "Z" in sides:
+        dZ, _ = min_weight_logical(MX if MX.size else np.zeros((1, n), np.int64), MZ, n, "css", d, d_max, **kw)
+    if "X" in sides:
+        dX, _ = min_weight_logical(MZ if MZ.size else np.zeros((1, n), np.int64), MX, n, "css", d, d_max, **kw)
     cands = [x for x in (dX, dZ) if x is not None]
     dmin = min(cands) if cands else None
-    # an unknown side means > d_max >= dmin, so dmin is certified whenever one side is known
-    certified = dmin is not None
+    # an unknown COMPUTED side means > d_max >= dmin; a skipped side leaves dmin uncertified as a min
+    certified = dmin is not None and set(sides) == {"X", "Z"}
     return dmin, dX, dZ, certified
 
 
@@ -236,12 +239,13 @@ def symplectic_distance(rows, n: int, d: int = 4, d_max: int = 6, **kw):
     return w, w is not None
 
 
-def code_distance(code, d_max: int = 6, **kw):
-    """Dispatch on a symplectic.Z4Code: (d_min, certified, details)."""
+def code_distance(code, d_max: int = 6, sides=("X", "Z"), **kw):
+    """Dispatch on a symplectic.Z4Code: (d_min, certified, details).  sides=("Z",) computes only the
+    Z-logical distance (useful when M_Z is huge and the X-logicals are known to be heavy)."""
     if code.is_css:
         MX = np.array(code.x_gens, dtype=np.int64).reshape(-1, code.n)
         MZ = np.array(code.z_rows, dtype=np.int64).reshape(-1, code.n)
-        dmin, dX, dZ, cert = css_distance(MX, MZ, code.n, code.d, d_max, **kw)
+        dmin, dX, dZ, cert = css_distance(MX, MZ, code.n, code.d, d_max, sides=sides, **kw)
         return dmin, cert, {"d_X": dX, "d_Z": dZ}
     w, cert = symplectic_distance(code.rows, code.n, code.d, d_max, **kw)
     return w, cert, {}
