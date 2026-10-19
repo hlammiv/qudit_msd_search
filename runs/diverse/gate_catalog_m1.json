@@ -1,0 +1,17 @@
+{
+ "m": 1,
+ "d": 4,
+ "mode": "exhaustive",
+ "module_size": 1024,
+ "counts": {
+  "total": 64,
+  "level3_strict": 48,
+  "entangling": 0,
+  "escaping": 32,
+  "escaping_entangling": 0,
+  "lemma_violations": 0,
+  "mixed_not_mod_d": 0
+ },
+ "lemma_violation_examples": [],
+ "seconds": 0.0
+}

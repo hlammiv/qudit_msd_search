@@ -17,7 +17,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["qmsd"]
+packages = ["qmsd", "primepower_msd", "primepower_msd.galoisring"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
