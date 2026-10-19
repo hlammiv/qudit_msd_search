@@ -1,0 +1,1379 @@
+[
+ {
+  "label": "GR(4,2) T n=4 S<1 L[1,2) T[]",
+  "n": 8,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 0.3
+ },
+ {
+  "label": "GR(4,2) T n=4 S<1 L[1,2) T[2, 3]",
+  "n": 8,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": [
+    2,
+    3
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 2.8
+ },
+ {
+  "label": "GR(4,2) T n=4 S<1 L[1,3) T[]",
+  "n": 8,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 0.3
+ },
+ {
+  "label": "GR(4,2) T n=4 S<1 L[1,3) T[3]",
+  "n": 8,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": [
+    3
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.6
+ },
+ {
+  "label": "GR(4,2) T n=4 S<2 L[2,3) T[]",
+  "n": 8,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.6
+ },
+ {
+  "label": "GR(4,2) T n=4 S<2 L[2,3) T[3]",
+  "n": 8,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 4,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": [
+    3
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 3.0
+ },
+ {
+  "label": "GR(4,2) T* n=3 S<1 L[1,2) T[]",
+  "n": 6,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 3,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 0.6
+ },
+ {
+  "label": "GR(4,2) T* n=3 S<1 L[1,2) T[2]",
+  "n": 6,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 2,
+   "n_points": 3,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": [
+    2
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.4
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,2) T[]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.7
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,2) T[2, 3]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": [
+    2,
+    3
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.7
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,3) T[]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.8
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,3) T[3, 4]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 1,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": [
+    3,
+    4
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 8.1
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,4) T[]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2,
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.8
+ },
+ {
+  "label": "GR(4,3) T n=8 S<1 L[1,4) T[4, 5]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 1,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2,
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 8.1
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,3) T[]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 4.0
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,3) T[3, 4]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": [
+    3,
+    4
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 9.3
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,4) T[]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.4
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,4) T[4, 5]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 5.9
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,5) T[]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3,
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.9
+ },
+ {
+  "label": "GR(4,3) T n=8 S<2 L[2,5) T[5, 6]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3,
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 5.7
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,4) T[]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 3.7
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,4) T[4, 5]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 8.4
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,5) T[]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 3.5
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,5) T[5, 6]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 8.1
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,6) T[]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4,
+    5
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 5.1
+ },
+ {
+  "label": "GR(4,3) T n=8 S<3 L[3,6) T[6, 7]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4,
+    5
+   ],
+   "torsion_degs": [
+    6,
+    7
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 14.3
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,5) T[]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.6
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,5) T[5, 6]",
+  "n": 24,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 24.9
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,6) T[]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 13.4
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,6) T[6, 7]",
+  "n": 24,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5
+   ],
+   "torsion_degs": [
+    6,
+    7
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 26.3
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,7) T[]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5,
+    6
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 13.1
+ },
+ {
+  "label": "GR(4,3) T n=8 S<4 L[4,7) T[7]",
+  "n": 24,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 8,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5,
+    6
+   ],
+   "torsion_degs": [
+    7
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 19.2
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,2) T[]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.7
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,2) T[2, 3]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1
+   ],
+   "torsion_degs": [
+    2,
+    3
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.5
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,3) T[]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.6
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,3) T[3, 4]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 1,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2
+   ],
+   "torsion_degs": [
+    3,
+    4
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.4
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,4) T[]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2,
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 1.7
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<1 L[1,4) T[4, 5]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0
+   ],
+   "log_degs": [
+    1,
+    2,
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.4
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,3) T[]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 4.0
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,3) T[3, 4]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2
+   ],
+   "torsion_degs": [
+    3,
+    4
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.8
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,4) T[]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 4.1
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,4) T[4, 5]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.4
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,5) T[]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3,
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 4.0
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<2 L[2,5) T[5, 6]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1
+   ],
+   "log_degs": [
+    2,
+    3,
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.6
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,4) T[]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.4
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,4) T[4, 5]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3
+   ],
+   "torsion_degs": [
+    4,
+    5
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 16.8
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,5) T[]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.3
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,5) T[5, 6]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 16.8
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,6) T[]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4,
+    5
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 7.5
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<3 L[3,6) T[6]",
+  "n": 21,
+  "k": 3.0,
+  "k_genuine": 3,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2
+   ],
+   "log_degs": [
+    3,
+    4,
+    5
+   ],
+   "torsion_degs": [
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.8
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<4 L[4,5) T[]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 1,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.7
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<4 L[4,5) T[5, 6]",
+  "n": 21,
+  "k": 1.0,
+  "k_genuine": 1,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4
+   ],
+   "torsion_degs": [
+    5,
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 22.8
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<4 L[4,6) T[]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5
+   ],
+   "torsion_degs": []
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 11.6
+ },
+ {
+  "label": "GR(4,3) T* n=7 S<4 L[4,6) T[6]",
+  "n": 21,
+  "k": 2.0,
+  "k_genuine": 2,
+  "soft": 0,
+  "free": true,
+  "info": {
+   "m": 3,
+   "n_points": 7,
+   "stab_degs": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "log_degs": [
+    4,
+    5
+   ],
+   "torsion_degs": [
+    6
+   ]
+  },
+  "hosting_hits": [],
+  "any_escaping_logical": false,
+  "seconds": 17.2
+ }
+]
