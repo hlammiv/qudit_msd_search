@@ -111,8 +111,8 @@ def brute_distance(stab_rows, n: int, d: int = 4, cap: int = 4) -> int:
 
 
 # --------------------------------------------------------------------------- logical basis
-def _reduce_pool(pool, span, d):
-    return [c for c in pool if any(t % d for t in c) and not in_span(list(c), span, d)]
+def _reduce_pool(pool, tester: "SpanTester", d):
+    return [c for c in pool if any(t % d for t in c) and not tester.contains(c)]
 
 
 def logical_pairs(stab_rows, n: int, d: int = 4) -> tuple[list[tuple[list[int], list[int]]], int]:
@@ -120,13 +120,14 @@ def logical_pairs(stab_rows, n: int, d: int = 4) -> tuple[list[tuple[list[int], 
     number of 'soft' directions (centralizer elements pairing evenly with everything left).
 
     Same procedure as scratchpad/logical.py (dense-validated): greedy symplectic Gram-Schmidt on the
-    centralizer-mod-stabilizer pool, pairing on a UNIT (odd) form only.
+    centralizer-mod-stabilizer pool, pairing on a UNIT (odd) form only.  Membership tests use a cached
+    Howell form (SpanTester) that is rebuilt only when the span grows.
     """
     rows = [list(map(int, np.asarray(r, dtype=np.int64) % d)) for r in stab_rows]
     cg = centralizer_gens(rows, n, d)
-    Hs = [list(map(int, r)) for r in howell_form(np.array(rows, dtype=np.int64) % d, d)] if rows else []
-    span = [list(r) for r in Hs]
-    pool = _reduce_pool([list(v) for v in cg], span, d)
+    span = [list(r) for r in rows] if rows else []
+    tester = SpanTester(span, d) if span else SpanTester(np.zeros((1, 2 * n), dtype=np.int64), d)
+    pool = _reduce_pool([list(v) for v in cg], tester, d)
     pairs = []; soft = 0
     while pool:
         g = pool[0]
@@ -138,19 +139,21 @@ def logical_pairs(stab_rows, n: int, d: int = 4) -> tuple[list[tuple[list[int], 
         if h is None:
             soft += 1
             span = span + [g]
-            pool = _reduce_pool(pool[1:], span, d)
+            tester = SpanTester(span, d)
+            pool = _reduce_pool(pool[1:], tester, d)
             continue
         inv = pow(sval, -1, d)
         h = [(inv * t) % d for t in h]
         pairs.append((g, h))
         span = span + [g, h]
+        tester = SpanTester(span, d)
         newpool = []
         for c in pool:
             if c is g or c is h:
                 continue
             ch = symp(c, h, n, d); cgp = symp(c, g, n, d)
             newpool.append([(c[i] - ch * g[i] + cgp * h[i]) % d for i in range(2 * n)])
-        pool = _reduce_pool(newpool, span, d)
+        pool = _reduce_pool(newpool, tester, d)
     return pairs, soft
 
 
