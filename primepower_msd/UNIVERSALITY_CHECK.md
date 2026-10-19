@@ -123,3 +123,31 @@ therefore: hosting ∧ transversal/across-block ∧ `induced_logical` escapes �
 
 Reproduce: `python -m pytest primepower_msd/tests/test_a2.py primepower_msd/tests/test_phase_tables.py -q`;
 `python -c "from primepower_msd.phase_tables import catalog; print(catalog(2))"`.
+
+
+## 7. Two-tier ("CCZ most of the time, T for universality") — the exponent cannot be shared
+
+**Theorem (finite cheap group).**  In the A₂ eigenbasis {(|0⟩±|2⟩)/√2, (|1⟩±|3⟩)/√2}^{⊗n} every Clifford
+generator (F, S, CSUM) and the ring-CCZ i^{xyz} is a MONOMIAL matrix whose phases are 8th roots of unity
+(checked exactly: phase exponents in {0,2,4,8}/16).  Hence H = ⟨Clifford, ring-CCZ⟩ ⊂ μ₈ ≀ S_{4ⁿ} is FINITE
+(the large element orders observed — up to 9840 — are permutation orders, not evidence of infinitude).  The
+same holds for any A₂-preserving gate with root-of-unity phases.
+
+**Consequence.**  With t universality-enabling (escaping) gates and arbitrary H-padding at most |H|^{t+1}
+unitaries are reachable, so ε-approximating a generic unitary needs t = Θ(log 1/ε) escaping gates.  The
+asymptotic overhead exponent of any protocol is therefore γ of the escaping (T-like) resource; cheap ring-CCZ
+factories improve constants (Toffoli-heavy algorithms) but not the exponent.  (A cheap gate with irrational
+phases would break this, but such gates are not Clifford-hierarchy gates and are not distillable by MSD.)
+
+## 8. Fault-tolerant ring-CCZ codes (step 2, `ccz_search.py`)
+
+Across-block ring-CCZ on three copies of a lifted CSS code hosts iff
+    (C4)  |a ∧ u ∧ v| ≡ 0 (mod 4)   for all X-stabilizers a and u, v ∈ stabilizers ∪ logical reps,
+and induces a genuine order-4 logical ring-CCZ iff some logical triple overlap |l∧l'∧l''| is odd.  (C4) is
+the mod-4 strengthening of Haah–Hastings' CCZ-triple condition.  Results: punctured RM(1,5) gives the FT
+ring-CCZ codes [[31,1,3]]₄ (γ 3.13) and [[30,2,2]]₄ (γ 3.91); CSS Hamming codes and RM(2,m≤7) puncture codes
+violate (C4) even after dropping to one logical (triple intersections 2 mod 4).  By Ax, RM(1,m) satisfies
+(C4) for m ≥ 5 and RM(2,m) needs m ≥ 13 (n = 8192) — the same "Haah–Hastings regime" as the T-like family.
+**The Phase-5 γ<1 values are existence statements about codes, not protocols**: no FT ring-CCZ code with
+γ<1 is known, and the residue bound ties lifted ring codes to binary codes with 4-divisible triple
+intersections, which at n ≤ 10⁴ reach γ ≈ 1.2–1.3 at best.
