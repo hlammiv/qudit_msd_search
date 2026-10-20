@@ -1,0 +1,156 @@
+{
+ "date": "2026-10-20",
+ "method": "flat lemma + top-down failing-flat BFS (primepower_msd/rm_puncture_cert.py, rm_cert_bfs.py) + local Sidon/Kasami-Tokura lemma for flats of dim <= 8",
+ "sidon82": {
+  "code": "[[8110,82,10]]_4",
+  "gamma_T": 1.9952,
+  "d_Z": 10,
+  "status": "CERTIFIED (d_Z = 10 exactly)",
+  "rank_phi2_P": 65,
+  "rank_phi3_P": 82,
+  "sidon": true,
+  "bad_halfspaces": 2211,
+  "bfs_levels": [
+   {
+    "codim": 1,
+    "failing": 2211,
+    "seconds": 1.3
+   },
+   {
+    "codim": 2,
+    "children_tested_with_dups": 18110301,
+    "failing": 12675,
+    "seconds": 169.2
+   },
+   {
+    "codim": 3,
+    "children_tested_with_dups": 51904125,
+    "failing": 4940,
+    "seconds": 811.9
+   },
+   {
+    "codim": 4,
+    "children_tested_with_dups": 10112180,
+    "failing": 0,
+    "seconds": 248.2
+   }
+  ],
+  "no_failing_flat_at_codim": 4,
+  "upper_bound_witness": {
+   "flat_points": [
+    2815,
+    7661,
+    2439,
+    7829,
+    1050,
+    4872,
+    1890,
+    4208,
+    4030,
+    6316,
+    3270,
+    7124,
+    347,
+    5705,
+    547,
+    5425
+   ],
+   "P_points_in_flat": [
+    2815,
+    7661,
+    2439,
+    1050,
+    4030,
+    5425
+   ],
+   "R": [
+    7829,
+    4872,
+    1890,
+    4208,
+    6316,
+    3270,
+    7124,
+    347,
+    5705,
+    547
+   ],
+   "d_upper": 10
+  },
+  "external_inputs": [
+   "Kasami-Tokura classification of RM words of weight < 2d",
+   "Sidon numbers s(4..8)=6,7,9,12,18"
+  ]
+ },
+ "split128": {
+  "code": "[[8064,128,8]]_4",
+  "gamma_T": 1.9924,
+  "d_Z_upper": 8,
+  "status": "NOT certified (lower bound open)",
+  "rank_phi2_P": 92,
+  "rank_phi3_P": 128,
+  "halves_sidon": [
+   true,
+   true
+  ],
+  "bfs_levels": [
+   {
+    "codim": 1,
+    "failing": 1808
+   },
+   {
+    "codim": 2,
+    "failing": 67596,
+    "seconds": 480
+   },
+   {
+    "codim": 3,
+    "failing": 236349,
+    "seconds": 7078
+   }
+  ],
+  "needed": "no failing flat at codim 5 (local lemma covers flats of dim <= 8 with D=8)",
+  "upper_bound_witness": {
+   "flat_points": [
+    0,
+    65,
+    1487,
+    1422,
+    3743,
+    3806,
+    2896,
+    2833,
+    4551,
+    4486,
+    5128,
+    5193,
+    8024,
+    7961,
+    6807,
+    6870
+   ],
+   "P_points_in_flat": [
+    0,
+    65,
+    1487,
+    3743,
+    4551,
+    5128,
+    6870,
+    8024
+   ],
+   "R": [
+    1422,
+    3806,
+    2896,
+    2833,
+    4486,
+    5193,
+    7961,
+    6807
+   ],
+   "d_upper": 8
+  }
+ },
+ "compute": "lenore, 30 processes: Sidon BFS ~20 min wall; split BFS levels 1-3 ~2.6 h wall (stopped before codim 4)"
+}

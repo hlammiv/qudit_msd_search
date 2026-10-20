@@ -1,0 +1,31 @@
+{
+ "points_file": "runs/diverse/sidon82_F2_13.json",
+ "target_codim": 5,
+ "levels": [
+  {
+   "codim": 1,
+   "failing": 2211,
+   "seconds": 1.3
+  },
+  {
+   "codim": 2,
+   "children_tested_with_dups": 18110301,
+   "failing": 12675,
+   "seconds": 169.2
+  },
+  {
+   "codim": 3,
+   "children_tested_with_dups": 51904125,
+   "failing": 4940,
+   "seconds": 811.9
+  },
+  {
+   "codim": 4,
+   "children_tested_with_dups": 10112180,
+   "failing": 0,
+   "seconds": 248.2
+  }
+ ],
+ "failing_at_target": [],
+ "certified_no_failing_flat": true
+}

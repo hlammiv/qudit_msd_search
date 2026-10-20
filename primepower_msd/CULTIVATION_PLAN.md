@@ -290,3 +290,101 @@ Then continue with §6 TODOs 4 (check) → 6 (anti-collapse output) → 7 (overh
 *End of briefing. A fresh session: read §1–5 and §9, then execute §9.E (substrate → injection → escape).
 The crux is the ESCAPE stage = Z₄ distance-growing (grafting/lattice surgery); injection & checks reuse
 the verified ω=i gate and the small-code assets.*
+
+---
+
+## 10. 2026-10-20 — target corrected; the T-CHECK is transversal on Z_{2^k} colour codes (verified)
+
+**Target correction (supersedes §3/§9.C).** Since 2026-10-19 we know (UNIVERSALITY_CHECK.md) that ring-CCZ and
+every mod-4 phase are non-universalizing, and the `[[8,2,2]]₄` carrier's *logical* gate is non-escaping. So the
+cultivation target is the single-qudit **escaping** T-like state |T⟩ = T|+⟩ with T a strict level-3 diagonal
+that escapes all Pauli sectors (d=4: q = [0,1,4,13] mod 16; general 2^k: `cultivation.escaping_carrier(d)`).
+`[[8,2,2]]₄` is no longer the seed.
+
+**Check-operator theorem (verified exhaustively, d = 4, 8, 16).** For every strict level-3 diagonal T on Z_d,
+T X T† = X·diag(ζ^g) with g a Clifford table c + 2(a x² + 2bx), and
+**T escapes ⇔ a is odd.** (48/448/3840 strict level-3 tables at d = 4/8/16: every escaper has a odd and every
+non-escaper has a even.) So the ququart analogue of H_XY ∝ SX is the Clifford **X·S_{2d}^{odd}**, and its
++1 eigenstate is |T⟩.
+
+**Substrate (verified).** Signed triangular 6.6.6 colour code over Z_d: X rows = 0/1 plaquettes, Z rows =
+plaquettes × τ (τ = ±1 honeycomb bipartition). This gives [[ (3D²+1)/4, 1, D ]]_d (ring distance certified D = 3, 5
+for d = 4, 8), with X^{⊗n} = X_L. The transversal product **∏ᵢ T^{τᵢ} X T^{−τᵢ}** (T on one sublattice, T† on
+the other, exactly the qubit S/S† pattern) is hosted exactly (symbolic, CSS support mode: D ≤ 9 at d = 4, 8, 16)
+and acts as **T_L X_L T_L†** with the *same* carrier. A dense state-vector check on n = 7, d = 4 gives zero
+leakage, logical g = [1,3,9,3] (= physical), and T_L|+_L⟩ as a +1 eigenvector. The argument is purely
+algebraic: balanced plaquettes and ± overlaps cancel, and the logical exponent is Στ = ±1. It should therefore
+hold for any qudit dimension, including odd prime powers, but only 2^k has been verified numerically.
+Code: `cultivation.py`; tests: `tests/test_cultivation.py`.
+
+**Consequence.** GSJ's cultivation check transfers verbatim to every 2^k. The check is T† on data, a
+controlled-SUM from a Z_d cat state, then T. That needs physical T (a native single-qudit level-3 gate), CSUM, the
+Fourier gate, and Z_d cat states. The check has d outcomes (eigenvalues ω^j), so it detects every logical Z^j error,
+not just a sign flip. No transversal non-Clifford gate on a large code is ever needed: the
+rate-vs-transversality wall and the γ ≈ 2 MSD saturation are both irrelevant here.
+
+**Next steps (replace §9.E):**
+1. Z_d stabilizer / Pauli-frame circuit simulator (qudit Gottesman–Knill: CSUM, F, S_{2d}, Pauli noise),
+   plus a Clifford proxy for T as in GSJ (replace T by a Clifford whose check is X·S^{odd}; the proxy state is a
+   stabilizer state). Validate the proxy against exact state vectors at n = 7.
+2. Injection (T in the middle, protected by a Z stabilizer) and the double-check on D = 3, then growth to D = 5.
+   Measure the discard rate and post-selected logical error vs p, and compare with qubit cultivation at equal p.
+3. Escape: graft the Z_d colour code into a Z_d surface code (both CSS, so the operation is Clifford). Decoding
+   uses Z_d matching (qudit surface-code charges).
+4. Overhead: spacetime volume vs output error; compare with the γ-based MSD, where the best certified option is
+   now γ_T = 1.995 (Sidon-82 [[8110,82,10]]₄, d_Z certified 2026-10-20; HAILMARY_FINDINGS §3b).
+
+## 11. Stage-1 simulations (2026-10-20)
+
+**Tools.** `zdsim.py`: vectorised Z_d Pauli-frame simulator (R, F, F†, S_{2d}^a, CSUM, M; DEP1/DEP2/X/Z noise;
+detectors; fault injection; determinism check), dense-validated for d = 2, 3, 4, 8. `cult_circuit.ColorCult`:
+unitary encoder → [stabilizer round, 2 T-checks (n-qudit cat, flags)] × rounds → final stabilizer round, with all
+detectors post-selected and ideal min-weight decoding at the end. T is replaced by the Clifford proxy S^σ (GSJ);
+detectors are deterministic iff inj = σ. Sweep: `cult_sweep.py`; data in `runs/cultivation/`.
+
+**Single faults.** No undetected harmful single fault for D = 3, 5 and d = 2, 4 (up to 194k faults each).
+
+**Monte Carlo, D = 3** (20 qudits, 100 noise locations, rounds = 2, 10⁷ shots per point, uniform depolarizing p):
+
+| d | p = 5e-4: accept / p_L | 1e-3 | 2e-3 |
+|---|---|---|---|
+| 2 | 0.865 / 5.8e-6 (50) | 0.748 / 1.9e-5 (144) | 0.560 / 7.0e-5 (392) |
+| 4 | 0.853 / 5.7e-6 (49) | 0.727 / 2.3e-5 (170) | 0.528 / 8.7e-5 (460) |
+| 8 | 0.848 / 4.0e-6 (34) | 0.719 / 2.1e-5 (154) | 0.516 / 7.7e-5 (395) |
+
+p_L ∝ p² (fault distance 2 for this naive stage-1 circuit). Ququarts and quoctits match qubits within statistics;
+acceptance is 1–4 points lower (more non-trivial Pauli outcomes per location).
+
+**Monte Carlo, D = 5, direct encoding** (56 qudits, 292 noise locations, 10⁶ shots): accept 0.65 / 0.42 / 0.18
+(d = 2), 0.62 / 0.39 / 0.15 (d = 4), 0.61 / 0.37 / 0.14 (d = 8) at p = 5e-4 / 1e-3 / 2e-3. There were 0 logical
+failures at p ≤ 1e-3 (p_L ≲ 8e-6 at 95%) and 1–3 failures at 2e-3. Direct D = 5 encoding discards too much, so
+GSJ-style growth from D = 3 is needed.
+
+**Proxy validation (exact T vs Clifford proxy, dense, D = 3, n = 7).** Data-level model: an ideal measurement of
+C = A†X^{⊗n}A, A = ∏ G^{−τᵢ}, with Pauli faults in 4 slots per data qudit (before A, after A, after the controlled
+X, after A†), then post-selection on the check and on the trivial syndrome. Scripts: `scripts/cult_proxy/`; data:
+`runs/cultivation/proxy_validate_d2.json`, `proxy_slots_d4.json`.
+
+The results:
+- **Low fault weights.** Single faults (84 / 420) and all fault pairs (d = 2) are undetected with weight 0 in both
+  models.
+- **Logical errors before the check.** The exact check accepts a logical X error with probability 1/2 and *projects
+  it back onto |T_L⟩*. The proxy rejects it. Both give zero undetected error; the proxy is pessimistic in
+  acceptance.
+- **Weight-3 faults.** Only faults on logical supports matter: by cleaning, any other weight-3 fault is trivial on
+  the code. Summing u over all Paulis and slot patterns gives:
+
+| d | Σu exact T | Σu proxy | Σaccept exact | Σaccept proxy |
+|---|---|---|---|---|
+| 2 | 448 | 448 | 728 | 896 |
+| 4 | 1704 | 1984 | 2280 | 3200 |
+
+The distribution differs. The exact check is worse when two of the three faults lie after the controlled X
+(e.g. d = 4 pattern (0,2,2): 36 vs 0), and better when exactly one does (102 vs 174). Under uniform depolarizing
+data noise the totals agree exactly at d = 2 and the proxy over-estimates by 16% at d = 4. So the Clifford proxy is
+a sound (conservative) estimate for qudits too. Caveats: data-level only (cat/ancilla faults are Clifford and
+already exact in the frame sim), a single check, uniform slot weights.
+
+**Next:** T-in-the-middle injection; D = 3 → 5 growth (code deformation, which is not MSD-style code switching,
+but flagged against the user's "avoid code switching" preference); grafting into a Z_d surface code; spacetime
+overhead.

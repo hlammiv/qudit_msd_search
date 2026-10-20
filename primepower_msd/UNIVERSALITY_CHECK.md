@@ -151,3 +151,14 @@ violate (C4) even after dropping to one logical (triple intersections 2 mod 4). 
 **The Phase-5 γ<1 values are existence statements about codes, not protocols**: no FT ring-CCZ code with
 γ<1 is known, and the residue bound ties lifted ring codes to binary codes with 4-divisible triple
 intersections, which at n ≤ 10⁴ reach γ ≈ 1.2–1.3 at best.
+
+
+## 9. Step 1 — Galois-ring evaluation codes (full alphabet): negative at m ≤ 3
+
+`galoisring/evalcodes.py`: Reed–Solomon-type CSS codes over GR(4,2), GR(4,3) (Teichmüller points, all
+stabilizer/logical degree bands, optional 2-torsion X layers, per-qudit sign choice {q, q∘neg} optimized
+on the S1–S3 violation count, all 32 escaping single-ququart tables).  54 codes, **0 hosting hits**.  The
+component-wise carrier conditions are not ring-algebraic (q acts on Z₄-components, not on GR elements),
+so the Teichmüller structure that gives RS triorthogonality over F_p does not transfer.  Larger-alphabet
+ring codes would need a q-compatible structure (e.g. codes whose symmetrized weight enumerators satisfy
+the weighted mod-16 conditions — Type-II-like Z₄ codes) rather than Galois-ring evaluation.
