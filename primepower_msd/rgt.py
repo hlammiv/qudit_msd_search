@@ -399,6 +399,29 @@ def layer_from_poly_mod4(coeffs, mons, n: int) -> TransversalLayer:
     return TransversalLayer(n, 4, qt, pairs, trips, "poly_mod4")
 
 
+def escape_rank(code: Z4Code, layer: TransversalLayer, k_max: int = 8) -> dict:
+    """Number of universality-enabling LOGICAL outputs of a hosted layer.  For the induced logical table F
+    on Z_d^k (d = 4) the sector-mixing content is the symmetric F_2 bilinear form
+        B[i,l] = [ Delta_{2 e_i} Delta_{2 e_l} F  !=  0 ]   (values are 0 or 8 mod 16 for a level-3 F),
+    and its F_2-rank r is the number of logical qudits that receive an escaping (T-like) gate after a logical
+    Clifford change of basis (diagonal part = single-qudit escapers, hyperbolic pairs = 2-body escapers, both
+    universality-enabling).  The universality-enabling overhead exponent is gamma_T = log(n / r) / log(d),
+    NOT log(n / k) / log(d): a code whose k logical outputs carry only r escaping gates yields r T-like states
+    per round (the other k - r outputs are non-universalizing level-3 magic).  Requires k <= k_max (dense F)."""
+    from .lifts import binary_rank
+    F = induced_logical(code, layer, k_max)
+    k = F.ndim
+    if k == 0:
+        return {"k": 0, "rank": 0, "B": []}
+    B = np.zeros((k, k), dtype=np.int64)
+    for i in range(k):
+        for l in range(k):
+            D = PT.iterated_delta(F, [PT.unit(k, i, 2), PT.unit(k, l, 2)], code.d) % modulus(code.d)
+            B[i, l] = int(np.any(D != 0))
+    r = binary_rank(B) if k else 0
+    return {"k": k, "rank": r, "B": B.tolist(), "escapes": bool(r > 0)}
+
+
 # --------------------------------------------------------------------------- convenience
 def carrier_layers(n: int, d: int = 4, strict_all: bool = False) -> list[TransversalLayer]:
     """Uniform layers for each strict level-3 single-qudit table (12 canonical carriers, or all 48)."""
