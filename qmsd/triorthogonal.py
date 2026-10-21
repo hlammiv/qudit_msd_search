@@ -57,6 +57,47 @@ def is_triorthogonal(basis, p) -> bool:
     return True
 
 
+def logical_lambdas(H, k, p) -> list[int]:
+    """lambda_i = sum_l h_il^3 mod p for the first ``k`` (logical) rows of ``H`` (arXiv:2610.08012 Def 5).
+
+    The transversal cubic gate implements ``U^{lambda_i}`` on logical qudit i.  For p = 1 mod 3
+    a non-cube lambda_i puts the output in a different Clifford class from U|+> (paper sec 8).
+    """
+    M = np.asarray(H, dtype=np.int64) % p
+    return [int(np.sum(M[i] ** 3) % p) for i in range(k)]
+
+
+def is_cube_mod_p(a, p) -> bool:
+    """True iff ``a`` is a nonzero cube in F_p (every unit is a cube unless p = 1 mod 3)."""
+    a %= p
+    return a != 0 and any(pow(x, 3, p) == a for x in range(1, p))
+
+
+def is_triorthogonal_cubic(H, k, p) -> bool:
+    """Triorthogonality of a matrix in the sense of arXiv:2610.08012 Def 5 (odd p, unit weights).
+
+    Rows 0..k-1 of ``H`` are logical, the rest stabilizers.  Requires
+    sum_l h_al h_bl h_cl == 0 mod p for every multiset {a,b,c} EXCEPT a == b == c < k, and
+    lambda_i = sum_l h_il^3 != 0 for each logical row.  Unlike ``is_triorthogonal`` there is
+    NO pairwise (self-orthogonality) condition -- e.g. the cyclic [[19,1,3]]_3 code passes
+    here but not there.
+    """
+    assert isinstance(p, int) and p >= 3, "Def 5 is stated for odd primes p"
+    M = np.asarray(H, dtype=np.int64) % p
+    K = M.shape[0]
+    for a in range(K):
+        for b in range(a, K):
+            ab = (M[a] * M[b]) % p
+            for c in range(b, K):
+                s = int(np.sum(ab * M[c]) % p)
+                if a == b == c and a < k:
+                    if s == 0:
+                        return False
+                elif s != 0:
+                    return False
+    return True
+
+
 def puncture_matrix(G, columns0, p):
     """Delete the given 0-indexed columns from G -> punctured generator Gp (NOTES sec 3, eq 1).
 

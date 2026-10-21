@@ -22,7 +22,7 @@ The **deterministic math core** reproduces the paper's published results:
 | **All 10 oracle codes** rebuilt from puncture columns → `n, k, full_rank` | ✅ exact (10/10) |
 | **Oracle distance `d`** (meet-in-the-middle, certified) | ✅ **10/10** |
 | Oracle **A_d** | ✅ 3/3 attempted (small codes); large ones raise rather than guess |
-| Distillation example `[[519,106,5]]₅`: `δ_out≈8e-18`, `C≈7.4` | ✅ reproduced |
+| Distillation example `[[519,106,5]]₅`: `δ_out≈8e-18`, `C≈7.4` | ✅ reproduced (paper's eq 39, A_d/k convention; the exact per-output error is ~85× larger — see `PERFORMANCE.md`) |
 | CLI `search` / `reconstruct` / `asymptotic` | ✅ smoke-tested |
 
 **The minimum-distance upgrade.** `qmsd/mindist.py` implements an exact, certified

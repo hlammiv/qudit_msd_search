@@ -1,0 +1,26 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "18be38c",
+ "artifact_id": "paper-table3-p3-m6-n667-k62",
+ "label": "[[667,62,4]]_3",
+ "p": 3,
+ "n": 667,
+ "k": 62,
+ "tier": 2,
+ "dim_A": 16,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "engine_avg": "distributed (dwq_coset on lenore, 16 threads)",
+ "engine_block": "infeasible",
+ "avg": {
+  "d": 4,
+  "L_d": "65662/31",
+  "c_eps": 132.38306451612902,
+  "c_delta": 39.224611708482676,
+  "threshold_eps": 0.020994191024586252,
+  "threshold_delta": 0.03149128653687938,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "P_acc_eps_0.01": 0.0012265422244720223,
+ "status": "exact (all outputs)"
+}

@@ -29,10 +29,12 @@ arXiv:2510.10852, this toolkit establishes:
   distance d = r_max − k + 2, giving an exactly-enumerable γ<1 family from γ=0.924
   (p=23) down to **γ≈0.506** (p=97) — no search needed.
 - **A_d (output-error) optimizations** strictly beating the paper: qutrit
-  `[[206,37,4]]₃` with **A_d=572 vs the paper's 880** (~1.54× lower δ_out/round),
-  plus ququint optimizations.
+  `[[206,37,4]]₃` with **A_d=572 vs the paper's 880** (~1.54× lower *block* δ_out/round;
+  per output only 1.16× — exact ε_out ≈ 17.6ε⁴ → 15.2ε⁴ — and the threshold is unchanged,
+  ε\*=0.0616; see `PERFORMANCE.md`), plus ququint optimizations.
 - A full **distillation/threshold characterization** of the p=17 flagship
-  (A₆=147856, δ_th=2.74>1), and a **refuted** candidate (the qutrit m=7 cap code,
+  (A₆=147856; the earlier "δ_th=2.74>1" is a leading-order extrapolation, refuted as a
+  threshold — rigorous bound ε\*≥0.0462, see §6), and a **refuted** candidate (the qutrit m=7 cap code,
   whose true distance collapses to 1).
 
 ---
@@ -188,7 +190,13 @@ A_d, and δ_out ladder all reproduced).
 **Qutrit `[[206,37,4]]₃`: A_d = 572 vs the paper's 880 (CONFIRMED).** Puncture
 RM₃(r=3, m=5) at the 37 columns in `qutrit_Ad572.json`. Same n,k,d,cost as the
 paper, but A_d=572 (vs 880) ⇒ ~1.54× lower δ_out/round, compounding to ~8.6× (2
-rounds) / ~8500× (3 rounds) through the d=4 recursion. A_d=572 confirmed **three
+rounds) / ~8500× (3 rounds) through the d=4 recursion.
+**Correction (2026-10-20, `PERFORMANCE.md`):** 1.54× is the ratio of the TOTAL weight-4
+logical counts, i.e. the block error. Per output qudit — what a recursion consumes — the
+exact leading coefficient is 17.6ε⁴ (paper) vs 15.2ε⁴ (ours): **1.16×**, because one
+weight-4 error hits many outputs and the 572 set's errors hit more of them per error. The
+exact single-round threshold is the same for both (ε\*=0.06160), and the exact per-output
+recursion from δ_in=0.01 gives 1.12× / 1.85× / 13× after 1/2/3 rounds (not 1.5× / 8.6× / 8500×); A_d optimization helps only deep in the suppression regime. A_d=572 confirmed **three
 ways**: MacWilliams B₄=572, an independent from-scratch MITM (=572), and the
 logical filter (Gp weight-4 count = 0, G0⊂Gp verified ⇒ all 572 are logical). The
 880 baseline reproduced two ways from the repo's representative set. **Mechanism
@@ -231,6 +239,18 @@ monomial so no Gp column can vanish). The "≥10" was only a minimum-weight-*cla
 ---
 
 ## 6. Distillation / threshold analysis — `[[237,52,6]]₁₇`
+
+> **CORRECTION (2026-10-20, see `PERFORMANCE.md`): the "threshold δ_th = 2.74 > 1" below is
+> REFUTED as a threshold.** It extrapolates the leading-order term A₆δ⁶ to all δ, which is
+> only valid far below threshold. The exact single-round output error saturates at the
+> fully-depolarized fixed point (ε_out → (p−1)/p, the same value as the input), so every code
+> has a finite threshold below that point. δ ≤ 1 by definition, so "δ_th > 1" cannot be a
+> statement about real inputs. The exact threshold for this code is out of reach (17¹⁴
+> stabilizer words). The rigorous Lemma-17 subcode bound (arXiv:2610.08012) gives
+> **ε\* ≥ 0.0462 (δ\* ≥ 0.0491) per output**. For comparison, the exactly computed γ<1 flagship
+> `[[519,106,5]]₅` has ε\* = 0.0431, and its subcode bound was 2.5× below that.
+> Also, δ_out = 6.5e-3·δ⁶ uses the TOTAL A₆; per output the coefficient is larger, by
+> 2.6–85× on the codes where it has been computed exactly. A₆, d and γ are unaffected.
 
 Using the repo's `qmsd/distillation.py` (NOTES eq 38/39), reproduced two ways
 (hand arithmetic + the module):
@@ -297,7 +317,7 @@ buried.**
 | `[[237,52,6]]₁₇` params (n,k,dim G0,γ) | **CONFIRMED** | full re-run |
 | `[[237,52,6]]₁₇` d=6 exact | **CONFIRMED** | d≤6 explicit wt-6 witness (re-run); d≥6 lower-half engine-validated, `d_max=5` MITM **timed out** (not personally re-run) |
 | A₆ = 147,856 (the value) | **PLAUSIBLE** | engine validated vs brute+MacWilliams at exact p=17 d=6; value integer-consistent; **5 h stream not re-run** |
-| `[[237,52,6]]` threshold δ_th=2.74, δ_out=6.5e-15 | **CONFIRMED** | arithmetic + `distillation.py`, two ways |
+| `[[237,52,6]]` threshold δ_th=2.74, δ_out=6.5e-15 | **REFUTED (threshold)** | arithmetic is right but it extrapolates the leading order; exact theory saturates at ε=(p−1)/p. Rigorous ε\*≥0.0462 per output (Lemma-17 subcode bound, 2026-10-20); δ_out uses total A₆, per-output is larger |
 | `[[237,52,6]]` vs `[[14,3,4]]` comparison | **CONFIRMED** | A₄=16016=C(14,4)·16; eq 38 |
 | `[[293,68,5]]₁₉` d=5 exact + γ | **CONFIRMED** | both directions fully re-run (two engines) |
 | d+1 line-spread refuted (p17 & p19) | **CONFIRMED** | p19 leg fully re-run (`min_dep` → 5); p17 leg engine-validated (57-min stream not re-run) |

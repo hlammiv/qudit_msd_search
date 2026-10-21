@@ -1,0 +1,21 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "18be38c",
+ "artifact_id": "new-p17-d6",
+ "label": "[[237,52,6]]_17",
+ "p": 17,
+ "n": 237,
+ "k": 52,
+ "tier": 3,
+ "dim_A": 14,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "engine_avg": "bounds",
+ "engine_block": "infeasible",
+ "avg": {
+  "threshold_eps_lower": 0.04616988103985073,
+  "threshold_delta_lower": 0.0490554986048414,
+  "subcode_dim": 5,
+  "method": "Lemma 17 subcode bound (rigorous)"
+ },
+ "status": "rigorous lower bound only"
+}

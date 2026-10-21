@@ -1,0 +1,39 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "18be38c",
+ "artifact_id": "paper-table3-p5-m2-n20-k5",
+ "label": "[[20,5,2]]_5",
+ "p": 5,
+ "n": 20,
+ "k": 5,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "dim_A": 1,
+ "log10_cost_avg": 1.3979400086720377,
+ "log10_cost_block": 4.1938200260161125,
+ "engine_avg": "exact",
+ "engine_block": "exact",
+ "tier": 1,
+ "avg": {
+  "d": 2,
+  "L_d": "612",
+  "c_eps": 38.25,
+  "c_delta": 30.6,
+  "threshold_eps": 0.022981503508512448,
+  "threshold_delta": 0.028726879385640558,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "block": {
+  "d": 2,
+  "L_d": "760",
+  "c_eps": 47.5,
+  "c_delta": 38.0,
+  "threshold_eps": 0.0188688190640301,
+  "threshold_delta": 0.023586023830037623,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "P_acc_eps_0.01": 0.8220597091380595,
+ "status": "exact",
+ "seconds": 0.0
+}

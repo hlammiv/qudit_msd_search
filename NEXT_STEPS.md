@@ -12,8 +12,8 @@ Caveat: one candidate set tested each; the 2D cap is structural (matches p=11/13
 
 ## B. Fully characterize the headline codes (A_d)
 - ✅ **EXACT A₆ for `[[237,52,6]]₁₇` = 147,856 — DONE 2026-06-30** via the rebalanced counter
-  `qmsd/weightcount_balanced.py` (8.97e9 stream, ~5 h lenore). Threshold δ_th=2.74>1 (suppresses any input
-  error; A₆ = 0.0065× the 2.27e7 crossover). The flagship is now fully characterized. *(history below:)* The blocker:
+  `qmsd/weightcount_balanced.py` (8.97e9 stream, ~5 h lenore). [Former "threshold δ_th=2.74>1" was a
+  leading-order extrapolation — REFUTED 2026-10-20; rigorous ε\*≥0.0462 per output, see `PERFORMANCE.md`.] The flagship is now fully characterized. *(history below:)* The blocker:
   `count_weight_d` splits d=6 as d1=3 ⇒ left table `C(237,3)·16³ ≈ 9e9` entries (~72 GB) ⇒ **OOM**; and
   `structured_ad(jmax=1)` gives a *wrong* 0 at p=17 m=2 (contradicts the verified line-supported d=6 witness —
   not validated there). FIX = the count-analog of `mindist_balanced`: fix the left block's leading coefficient
@@ -50,7 +50,7 @@ it DOES cross at m=4 — the flagship `[[519,106,5]]` γ=0.987, A₅=1904 — ju
 
 ---
 ## Settled this session (context for the above)
-- Distillation/threshold for `[[237,52,6]]₁₇`: protocol threshold is generous (δ_th>1 — suppresses any input
-  error — unless A₆>2.3e7; RM-sparsity ⇒ A₆~10³–10⁴). Beats `[[14,3,4]]₁₇` (same C≈4.6, higher d ⇒ γ<1 vs >1)
+- Distillation/threshold for `[[237,52,6]]₁₇`: [the "δ_th>1" leading-order argument is REFUTED 2026-10-20 —
+  exact thresholds are finite; rigorous ε\*≥0.0462 per output, see `PERFORMANCE.md`]. Beats `[[14,3,4]]₁₇` (same C≈4.6, higher d ⇒ γ<1 vs >1)
   and the paper's analytic `[[77540,5981,15]]` (smaller + lower γ). Only real size cost is circuit-level
   (noisy-Clifford), outside the standard model.

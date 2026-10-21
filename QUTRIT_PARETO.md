@@ -58,6 +58,21 @@ representative per point and did not minimize `A_d`.
 | 2 | 1.8e-34 | 2.1e-35 | **8.6×** |
 | 3 | 5.1e-136 | 6.0e-140 | **8500×** |
 
+> **Correction (2026-10-20, `PERFORMANCE.md`).** The table above uses eq 39, which spreads the
+> TOTAL A_d over the outputs (A_d/k). The exact per-output output error (exact ε_out(ε) curve
+> from `qmsd.performance`, iterated from δ_in = 0.01; each round feeds the per-output marginal
+> into the next, ignoring correlations between outputs) is:
+>
+> | round | paper δ_out | ours δ_out | advantage |
+> |---|---|---|---|
+> | 1 | 6.5e-8 | 5.8e-8 | 1.12× |
+> | 2 | 9.3e-29 | 5.1e-29 | 1.85× |
+> | 3 | 4.0e-112 | 3.0e-113 | 13× |
+>
+> The 572 code is still strictly better, but by 1.1× / 1.9× / 13×, not 1.5× / 8.6× / 8500×.
+> Both codes' absolute per-output errors are ~14× above eq 39, and their exact thresholds are
+> identical (ε\* = 0.0616).
+
 **Why (the general insight):** a cap (no 3 collinear punctures) avoids the affine lines that spawn
 low-weight codewords, so **cap-set sampling simultaneously maximizes `d` and minimizes `A_d`** — which
 is *why* all three of our codes beat the paper. This generalizes to all primes.
@@ -103,6 +118,7 @@ the high-d `A_d` (matching the paper) even though we can't cap-*optimize* those 
 
 - Same parameters and cost as the paper's `[[206,37,4]]₃` (n=206, k=37, d=4, C=22.1), but **A_d=572
   vs 880** ⇒ ~1.54× lower output error per round, **compounding** to 8.6× (2 rounds) / ~8500× (3 rounds).
+  [Corrected 2026-10-20: exact per-output advantage is 1.12× / 1.85× / 13× — see the correction above.]
 - Found by a deep cap-set search at m=5, k=37 (the cap structure minimizes low-weight codewords, so
   cap-set sampling lowers A_d while keeping d maximal — all 3 d=4 codes found beat 880).
 - A_d certified by the MacWilliams engine (`qmsd.weightdist`) and the independent `A_d_logical_Z`.

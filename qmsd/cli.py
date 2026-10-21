@@ -8,6 +8,8 @@ Examples
   python -m qmsd search --p 3 --m 4 --sampler capset_climb --target-k 9   # -> [[72,9,3]]_3
   python -m qmsd reconstruct --label "[[20,5,2]]_5"
   python -m qmsd asymptotic --p 5
+  python -m qmsd perf --all                       # leading order + threshold, every catalog code
+  python -m qmsd perf paper-table3-p3-m4-n72-k9
 """
 from __future__ import annotations
 
@@ -149,6 +151,37 @@ def _cmd_best(args) -> int:
     return 0
 
 
+def _cmd_perf(args) -> int:
+    import json
+    import time
+
+    from .performance import PERF_DIR, evaluate, write_performance
+    from .results import load_result_catalog
+
+    records = [r for r in load_result_catalog() if r.status != "refuted"]
+    if not args.all:
+        records = [r for r in records if r.artifact_id in set(args.ids)]
+        if not records:
+            print("no matching artifact ids", file=sys.stderr)
+            return 1
+    for rec in records:
+        t0 = time.time()
+        res = evaluate(rec, tier_max=args.tier_max)
+        res["seconds"] = round(time.time() - t0, 1)
+        line = f"{rec.label:<24} tier {res['tier']}  {res['status']}"
+        for kind in ("avg", "block"):
+            s = res.get(kind)
+            if isinstance(s, dict):
+                line += (f"  {kind}: {s['c_eps']:.4g}*eps^{s['d']}"
+                         f"  eps*={s['threshold_eps'] if s['threshold_eps'] is None else round(s['threshold_eps'], 5)}")
+        print(line, flush=True)
+        if res["status"] == "exact" and not args.dry_run:
+            write_performance(res)
+    if not args.dry_run:
+        print(f"results in {PERF_DIR}")
+    return 0
+
+
 def main(argv=None) -> int:
     """Argparse entry point with search, catalog, reconstruct, asymptotic, and best."""
     parser = argparse.ArgumentParser(
@@ -209,6 +242,14 @@ def main(argv=None) -> int:
     pa = sub.add_parser("asymptotic", help="asymptotic optimal yield gamma_0(p)")
     pa.add_argument("--p", type=int, required=True)
     pa.set_defaults(func=_cmd_asymptotic)
+
+    pp = sub.add_parser("perf", help="exact leading order eps_out ~ c eps^d and threshold "
+                        "(arXiv:2610.08012 sec 8) for catalog codes")
+    pp.add_argument("ids", nargs="*", help="catalog artifact ids")
+    pp.add_argument("--all", action="store_true", help="every non-refuted catalog record")
+    pp.add_argument("--tier-max", type=int, default=1, help="highest engine tier to run (1 = local exact)")
+    pp.add_argument("--dry-run", action="store_true", help="print only; do not write the store")
+    pp.set_defaults(func=_cmd_perf)
 
     pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
                                      "search, lower-gamma wins (the one-liner)")

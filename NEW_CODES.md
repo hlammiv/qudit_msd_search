@@ -52,8 +52,9 @@ assert min_dependent_columns(b["X_stab"], 17, d_max=7) == 5   # certified distan
 - **A₆ = 147,856** (EXACT, 2026-06-30) — computed via the rebalanced counter `qmsd/weightcount_balanced.py`
   (the full 8.97e9 stream, ~5 h on lenore; defeats the 72 GB OOM wall of `weightcount`). This is the first exact
   suppression coefficient for a γ<1 *search* code at p≥17. **Distillation:** δ_out ≈ (A₆/((p−1)p⁵))·δ_in⁶ =
-  6.5e-3·δ_in⁶, so the protocol threshold δ_th = 2.74 > 1 (suppresses *any* input error — A₆ is only 0.0065× the
-  crossover 2.27e7); one round takes δ_in=0.01 → 6.5e-15, vs `[[14,3,4]]₁₇` (A₄=16016, d=4) → 2e-9. Fully
+  6.5e-3·δ_in⁶ (leading order, total A₆; the per-output coefficient is larger). [The former claim "threshold
+  δ_th = 2.74 > 1" extrapolated the leading order and is REFUTED (2026-10-20): the exact output error saturates, and
+  the rigorous Lemma-17 bound is ε\*≥0.0462 per output — see `PERFORMANCE.md`.] one round takes δ_in=0.01 → 6.5e-15, vs `[[14,3,4]]₁₇` (A₄=16016, d=4) → 2e-9. Fully
   characterized: γ=0.847, d=6 (2D-capped ceiling), A₆=147856, threshold generous.
 - **Insight, TESTED + REFUTED** (2026-06-30): d = `d_RM − max_ℓ|S∩ℓ|` gives a *line* bound; a 52-set with
   `max_line=5` (`d_lines=7`) exists, but `mindist_balanced(d_max=6)` (full 8.97e9 stream, 57 min on lenore)
@@ -128,6 +129,8 @@ sub-cap of a rank-deficient 236-cap); the min-weight (weight-18 = 2 parallel 2-f
 - Same parameters and cost as the paper's `[[206,37,4]]₃` (n=206, k=37, d=4, C=22.1 at δ_in=0.01),
   but **A_d = 572 vs 880** ⇒ ~1.54× lower output error per round, **compounding** to 8.6× (2 rounds)
   / ~8500× (3 rounds) through the d=4 recursion. Strictly better: same n, k, d, C; lower δ_out.
+  **Correction (2026-10-20, `PERFORMANCE.md`):** that is the block (total) count. Per output the
+  exact coefficient is 17.6ε⁴ → 15.2ε⁴ (only 1.16×) and the exact threshold is unchanged (ε\*=0.0616).
 - Found by deep cap-set search at m=5, k=37: a cap (no 3 collinear punctures) minimizes the affine
   lines that spawn low-weight codewords, so cap-set sampling lowers A_d while keeping d maximal —
   **all 3 d=4 codes found beat 880**.

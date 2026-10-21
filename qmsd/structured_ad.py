@@ -454,7 +454,7 @@ def structured_ad(p, m, r, puncture_columns, jmax=None, distance=None, return_co
     dim_hist = Counter()
     found = [] if return_codewords else None
 
-    for j in range(2, jmax + 1):
+    for j in range(1, jmax + 1):
         rr = rtilde - (m - j) * (p - 1)
         if rr < 0:
             continue

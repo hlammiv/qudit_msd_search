@@ -13,7 +13,7 @@ from qmsd.asymptotics import optimal_gamma
 from qmsd.puncture import column_to_point
 from qmsd.results import (
     affine_line_profile, code_structure, distillation_series, load_result_catalog,
-    pareto_front, puncture_points, record_dict,
+    pareto_front, performance, puncture_points, record_dict,
 )
 
 STATUS_COLORS = {"confirmed": "#36d399", "partial": "#fbbf24",
@@ -30,11 +30,22 @@ def figure(fig):
     st.plotly_chart(fig, width="stretch", config=FIGURE_CONFIG)
 
 
+def _perf_cols(r):
+    avg = (performance(r) or {}).get("avg")
+    if not isinstance(avg, dict):
+        return {"eps* per output": None, "eps_out per output": None}
+    if "c_eps" not in avg:  # rigorous lower bound only (tier 3)
+        return {"eps* per output": f">= {avg['threshold_eps_lower']:.4f}", "eps_out per output": None}
+    return {"eps* per output": f"{avg['threshold_eps']:.4f}",
+            "eps_out per output": f"{avg['c_eps']:.3g} eps^{avg['d']}"}
+
+
 def catalog_frame(records):
     return pd.DataFrame([{
         "artifact_id": r.artifact_id, "code": r.label, "status": r.status,
         "family": r.family, "p": r.p, "m": r.m, "n": r.n, "k": r.k,
         "d": r.d, "A_d": r.A_d, "gamma": r.gamma, "rate k/n": r.rate,
+        **_perf_cols(r),
         "sublogarithmic": r.sublogarithmic, "provenance": r.provenance,
     } for r in records])
 
@@ -292,10 +303,30 @@ def distillation(record):
     fig.update_yaxes(type="log", title="inputs per accepted output")
     fig.update_layout(title="Single-round cost")
     figure(fig)
+    perf = performance(record)
+    avg = perf.get("avg") if perf else None
+    if isinstance(avg, dict) and "c_eps" not in avg:
+        st.metric("threshold delta* (per output), rigorous lower bound",
+                  f">= {avg['threshold_delta_lower']:.4g}")
+        st.caption(f"{avg.get('method', '')}; exact enumeration is out of reach for this code.")
+        avg = None
+    if isinstance(avg, dict):
+        blk = perf.get("block") if isinstance(perf.get("block"), dict) else {}
+        c1, c2, c3 = st.columns(3)
+        c1.metric("threshold delta* (per output)", metric(avg.get("threshold_delta")))
+        c2.metric("threshold delta* (any output)", metric(blk.get("threshold_delta")))
+        c3.metric("per-output leading order", f"{avg['c_delta']:.3g} delta^{avg['d']}")
+        st.caption(f"Exact single-round performance ({perf.get('status', '')}); twirled "
+                   "depolarizing noise, arXiv:2610.08012 sec 8. eps = (p-1)/p delta.")
+        df["delta_out exact leading order (per output)"] = avg["c_delta"] * df.delta_in ** avg["d"]
     if df.delta_out.notna().any():
-        fig = px.line(df, x="delta_in", y="delta_out", log_x=True, log_y=True,
+        cols = ["delta_out"] + [c for c in df.columns if c.startswith("delta_out exact")]
+        fig = px.line(df.rename(columns={"delta_out": "delta_out A_d/k (eq 39)"}), x="delta_in",
+                      y=["delta_out A_d/k (eq 39)"] + cols[1:], log_x=True, log_y=True,
                       title="Leading-order output error")
-        fig.update_traces(line={"color": "#36d399", "width": 3})
+        if isinstance(avg, dict) and avg.get("threshold_delta"):
+            fig.add_vline(x=avg["threshold_delta"], line_dash="dot",
+                          annotation_text="threshold (per output)")
         figure(fig)
     else:
         st.info("Output-error curve requires confirmed distance and a known A_d.")

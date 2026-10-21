@@ -1,0 +1,29 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "18be38c",
+ "artifact_id": "optimized-p5-m3-ad396",
+ "label": "[[112,13,3]]_5",
+ "p": 5,
+ "n": 112,
+ "k": 13,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "dim_A": 7,
+ "log10_cost_avg": 6.006733382658968,
+ "log10_cost_block": 13.979400086720377,
+ "engine_avg": "exact",
+ "engine_block": "bounds",
+ "tier": 1,
+ "avg": {
+  "d": 3,
+  "L_d": "1512/13",
+  "c_eps": 1.8173076923076923,
+  "c_delta": 1.1630769230769231,
+  "threshold_eps": 0.07764543467451573,
+  "threshold_delta": 0.09705679334314467,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "P_acc_eps_0.01": 0.32444798528856195,
+ "status": "exact",
+ "seconds": 0.9
+}

@@ -163,6 +163,8 @@ def _artifact_records() -> list[ResultRecord]:
         family="A_d-optimized puncture set",
         distance_evidence="d=5 exact by meet-in-the-middle certification",
         ad_evidence="A_5 exact by streamed weight-5 enumeration")
+    add("p7_2093_308_5.json", "new-p7-m4-n2093-k308",
+        distance_evidence="d=5 exact by numba MITM (d_max=5), commit ab88d22")
     add("cap_qutrit_code.json", "refuted-qutrit-cap", status="refuted",
         family="refuted cap construction", label_key="code_label",
         distance_evidence="Refuted: later validation found true distance d=1",
@@ -302,8 +304,16 @@ def affine_line_profile(record: ResultRecord, max_ambient: int = 700) -> dict | 
     }
 
 
+def performance(record: ResultRecord) -> dict | None:
+    """Stored exact distillation performance (``qmsd perf``; schema qmsd.performance.v1), if any."""
+    from .performance import load_performance
+
+    return load_performance(record.artifact_id)
+
+
 def record_dict(record: ResultRecord) -> dict:
     data = asdict(record)
+    data["performance"] = performance(record)
     data["gamma"] = record.gamma
     data["rate"] = record.rate
     data["sublogarithmic"] = record.sublogarithmic

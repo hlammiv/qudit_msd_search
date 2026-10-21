@@ -15,6 +15,12 @@ higher-fidelity magic states.  The single-round figures of merit are:
 
 Load-bearing correction (NOTES sec 7, "Critical correction"): the nbar_T
 exponent is **n**, not n/k; the in-eq39 survival factor exponent is **(n-d)**.
+
+These are LEADING-ORDER formulas.  ``delta_out_avg`` spreads the total A_d evenly over the
+k outputs (A_d/k), which under-counts when one weight-d logical error hits several outputs,
+and ``nbar_T`` uses P(no error) rather than the true acceptance probability.  Exact
+eps_out(eps), P_acc, per-output vs block errors and the threshold live in
+``qmsd.performance`` (eps = (p-1)/p * delta, the arXiv:2610.08012 convention).
 """
 from __future__ import annotations
 

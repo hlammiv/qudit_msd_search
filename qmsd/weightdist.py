@@ -132,9 +132,23 @@ def weight_enumerator(G, q: int, max_words: int = 5_000_000) -> list:
     A is a uniform multiple of the true enumerator; the MacWilliams transform divides by
     ``|C| = sum(A)`` and is invariant to that scaling.)
     """
+    return coset_weight_enumerators(G, [None], q, max_words=max_words)[0]
+
+
+def coset_weight_enumerators(G, offsets, q: int, max_words: int = 5_000_000) -> list:
+    """Weight histograms of the cosets ``rowspan(G) + t`` for each offset ``t`` in ``offsets``.
+
+    Returns one length-(n+1) exact-int histogram per offset (``None`` = the code itself).
+    The messages and ``messages @ G`` are generated once per chunk and shared by every
+    offset, so k cosets cost one enumeration of the code plus k cheap weight counts.
+    Raises ``ValueError`` if ``q**r > max_words``.
+    """
     assert isinstance(q, int) and q >= 2, "q must be an integer >= 2"
     Gi = _as_int_matrix(G, q)
     r, n = Gi.shape
+    offs = [None if t is None else (np.asarray(t, dtype=np.int64).reshape(-1) % q)
+            for t in offsets]
+    assert all(t is None or t.shape == (n,) for t in offs), "offset length must equal n"
 
     total_words = q ** r
     if total_words > max_words:
@@ -143,31 +157,33 @@ def weight_enumerator(G, q: int, max_words: int = 5_000_000) -> list:
             f"{max_words}; code dual too large to enumerate"
         )
 
-    hist = np.zeros(n + 1, dtype=object)  # exact big-int accumulation
+    acc64 = [np.zeros(n + 1, dtype=np.int64) for _ in offs]
     if r == 0:
-        hist[0] = 1  # only the zero codeword
-        return [int(v) for v in hist]
+        base = np.zeros((1, n), dtype=np.int64)
+        for acc, t in zip(acc64, offs):
+            w = np.count_nonzero(base if t is None else (base + t) % q, axis=1)
+            acc += np.bincount(w, minlength=n + 1).astype(np.int64)
+        return [[int(v) for v in acc] for acc in acc64]
 
     # Chunk so that (chunk x n) stays modest in memory.
     chunk = max(1, 4_000_000 // (n + 1))
     qpows = q ** np.arange(r, dtype=np.int64)  # for digit extraction (r small)
 
     start = 0
-    acc64 = np.zeros(n + 1, dtype=np.int64)
     while start < total_words:
         end = min(start + chunk, total_words)
         idx = np.arange(start, end, dtype=np.int64)
         # base-q digits of idx -> message matrix (csize, r)
         messages = (idx[:, None] // qpows[None, :]) % q
         codewords = (messages @ Gi) % q
-        weights = np.count_nonzero(codewords, axis=1)
-        acc64 += np.bincount(weights, minlength=n + 1).astype(np.int64)
+        for acc, t in zip(acc64, offs):
+            words = codewords if t is None else (codewords + t[None, :]) % q
+            weights = np.count_nonzero(words, axis=1)
+            acc += np.bincount(weights, minlength=n + 1).astype(np.int64)
         start = end
 
-    for w in range(n + 1):
-        hist[w] = int(acc64[w])
-    out = [int(v) for v in hist]
-    assert sum(out) == total_words, "weight_enumerator: histogram lost words"
+    out = [[int(v) for v in acc] for acc in acc64]
+    assert all(sum(h) == total_words for h in out), "weight_enumerator: histogram lost words"
     return out
 
 
