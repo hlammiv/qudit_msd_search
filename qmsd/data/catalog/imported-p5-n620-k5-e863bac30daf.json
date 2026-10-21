@@ -1,0 +1,22 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p5-n620-k5-e863bac30daf",
+  "d": 12,
+  "distance_evidence": "Certified by the qmsd search engine",
+  "family": "imported analytic Manhattan",
+  "gamma_value": 1.9398240034555339,
+  "k": 5,
+  "label": "[[620,5,12]]_5",
+  "m": 4,
+  "n": 620,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 4, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 5, \"sampler\": \"capset_climb\", \"seed\": 0, \"target_k\": 106, \"top\": 10, \"trials\": 25}",
+  "p": 5,
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": null,
+  "r": 5,
+  "schema": "qmsd.catalog-record.v1",
+  "source": "results_p5_m4_capsetclimb.json",
+  "status": "confirmed",
+  "w": 1
+}
