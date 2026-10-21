@@ -398,14 +398,14 @@ gauge-fixed by feed-forward destabilisers that commute with x̄ and z̄ (new `zd
 Tests (`tests/test_cult_growth.py`): determinism at d = 2, 4, 8; controls (no FF, injection mismatch); an infeasible
 split; all single faults handled (d = 2: 7815 faults; d = 4: 117 375).
 
-Sweeps (lenore; `runs/cultivation/sweep_grow35.json`, `sweep_D5_r1.json`), d = 4:
+Sweeps (lenore; `runs/cultivation/sweep_grow35.json`, `sweep_grow35_d4_long.json` (10⁸ shots), `sweep_D5_r1.json`), d = 4:
 
 | p | growth 3→5: accept, p_L | direct D5 (1 round): accept, p_L |
 |---|---|---|
-| 5e-4 | 0.672, 0 / 6.7M | 0.752, 0 / 2.3M |
-| 1e-3 | 0.452, 8.8e-7 (4 events) | 0.565, 2.4e-6 (4 events) |
+| 5e-4 | 0.672, 1.5e-7 (10 / 67M) | 0.752, 0 / 2.3M |
+| 1e-3 | 0.452, 9.1e-7 (41 / 45M) | 0.565, 2.4e-6 (4 events) |
 | 2e-3 | 0.204, 7.3e-6 | 0.320, 1.4e-5 |
 
-Growth has ≈ 2–3× lower p_L at ≈ 20 % lower acceptance (low-count statistics; a 10× longer d = 4 run is going on lenore,
-`runs/cultivation/sweep_grow35_d4_long.json`).  The grown states feed the distillation stages of
+Growth has ≈ 2–3× lower p_L at ≈ 20 % lower acceptance.  The 10⁸-shot growth run confirms the 1e-3 point
+(9.1e-7 ± 16 %) and resolves 5e-4 at 1.5e-7 ± 32 % (p_L ∝ p^2.6 between the two points).  The grown states feed the distillation stages of
 `MEAS_DISTILL.md` §5d.

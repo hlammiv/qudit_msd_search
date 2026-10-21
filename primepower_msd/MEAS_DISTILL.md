@@ -113,6 +113,7 @@ fault only stays on the data.  Bookkeeping is linear over Z_d (outcome, X-syndro
 |---|---|---|---|---|
 | [[63,21]] + 1470 | 1 102 707 270 | 39 942 | 970 064 | ≈ 343 p⁷ |
 | [[64,26]] + 2600 | 2 044 723 200 | 66 688 | 825 192 | ≈ 360 p⁷ |
+| [[64,26]] + 2080 | 1 635 778 560 | 108 288 | 598 328 | ≈ 360 p⁷ (MC at 1e-6, 1e-5: 0 fails, acceptance 96.8 %, 72 %) |
 
   Dominant term = N·(d−1)·n³ (one bad input hidden in each of its 3 checks by a layer-1/layer-2 pair Z^a, Z^{−a} on
   one inner qudit), so p_out ≈ n³ p⁷/(d−1)⁶ (d = 8: ≈ 2 p⁷).
@@ -155,11 +156,12 @@ here: the order-3 stages (γ 1.65–2.0) win on cost per output at realistic tar
 
 | target | raw injection | D3 cultivation (20 q) | 3→5 growth (56 q) |
 |---|---|---|---|
-| 1e-10 | 69 | 9.8 | 12.5 |
-| 1e-15 | 69 | 47 | **12.5** ([[127,113,3]]) |
+| 1e-10 | 69 | 9.8 | 12.6 |
+| 1e-15 | 69 | 47 | **12.6** ([[127,113,3]]) |
 | 1e-20 | 69 | 47 | 36 ([[64,26,7]]) |
 
-At physical p = 5×10⁻⁴: 1e-15 costs 7.3 (D3) / 8.9 (growth) attempts per output.
+At physical p = 5×10⁻⁴: 1e-15 costs 7.3 (D3) / 8.2 (growth) attempts per output.  Growth inputs from the 10⁸-shot
+run (`runs/cultivation/sweep_grow35_d4_long.json`: 9.1e-7 at 1e-3, 1.5e-7 at 5e-4).
 
 Clifford noise: see §5e.  The earlier proxy (adding g·p_C to the fault rate) missed a first-order term and is superseded.
 
