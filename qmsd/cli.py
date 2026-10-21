@@ -10,6 +10,7 @@ Examples
   python -m qmsd asymptotic --p 5
   python -m qmsd perf --all                       # leading order + threshold, every catalog code
   python -m qmsd perf paper-table3-p3-m4-n72-k9
+  python -m qmsd protocol --p 5 --eps0 1e-2 --target 1e-15 1e-30
 """
 from __future__ import annotations
 
@@ -182,6 +183,16 @@ def _cmd_perf(args) -> int:
     return 0
 
 
+def _cmd_protocol(args) -> int:
+    from .protocol import best_protocol, library
+
+    lib = library(args.p)
+    for tgt in args.target:
+        best = best_protocol(lib, args.eps0, tgt, max_depth=args.max_depth)
+        print(f"eps0={args.eps0:g} -> {tgt:g}:  " + (best.describe() if best else "unreachable"))
+    return 0
+
+
 def main(argv=None) -> int:
     """Argparse entry point with search, catalog, reconstruct, asymptotic, and best."""
     parser = argparse.ArgumentParser(
@@ -250,6 +261,14 @@ def main(argv=None) -> int:
     pp.add_argument("--tier-max", type=int, default=1, help="highest engine tier to run (1 = local exact)")
     pp.add_argument("--dry-run", action="store_true", help="print only; do not write the store")
     pp.set_defaults(func=_cmd_perf)
+
+    pq = sub.add_parser("protocol", help="cheapest multi-round protocol (raw states per output) "
+                        "from exact per-output curves")
+    pq.add_argument("--p", type=int, required=True)
+    pq.add_argument("--eps0", type=float, default=1e-2, help="input per-qudit error (paper eps)")
+    pq.add_argument("--target", type=float, nargs="+", default=[1e-10, 1e-15])
+    pq.add_argument("--max-depth", type=int, default=6)
+    pq.set_defaults(func=_cmd_protocol)
 
     pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
                                      "search, lower-gamma wins (the one-liner)")

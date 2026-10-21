@@ -1,0 +1,21 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "c90af2c",
+ "artifact_id": "paper-table3-p3-m6-n690-k39",
+ "label": "[[690,39,5]]_3",
+ "p": 3,
+ "n": 690,
+ "k": 39,
+ "tier": 3,
+ "dim_A": 39,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "engine_avg": "bounds",
+ "engine_block": "infeasible",
+ "avg": {
+  "threshold_eps_lower": 0.013391380718251689,
+  "threshold_delta_lower": 0.020087071077377533,
+  "subcode_dim": 12,
+  "method": "Lemma 17 subcode bound (rigorous)"
+ },
+ "status": "rigorous lower bound only"
+}

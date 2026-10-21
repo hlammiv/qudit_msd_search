@@ -1,0 +1,21 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "c90af2c",
+ "artifact_id": "new-p19-d5",
+ "label": "[[293,68,5]]_19",
+ "p": 19,
+ "n": 293,
+ "k": 68,
+ "tier": 3,
+ "dim_A": 10,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "engine_avg": "bounds",
+ "engine_block": "infeasible",
+ "avg": {
+  "threshold_eps_lower": 0.02790633489622514,
+  "threshold_delta_lower": 0.029456686834904315,
+  "subcode_dim": 4,
+  "method": "Lemma 17 subcode bound (rigorous)"
+ },
+ "status": "rigorous lower bound only"
+}

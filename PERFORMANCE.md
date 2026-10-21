@@ -55,7 +55,11 @@ integer polynomial before it is evaluated, which avoids cancellation.
 | **[[519,106,5]]₅ ours (A_d=1904), γ<1** | **1.49 ε⁵** | **0.04314** | — | exact on 16 of 106 outputs (spread 1e-9) |
 | [[44,5,3]]₇ (10 codes, A_d=600/606) | 1.11–1.14 ε³ | 0.1732 | 0.1672 | exact |
 | [[237,52,6]]₁₇, γ<1 | — | **≥ 0.0462** (subcode dim 5 of 14) | — | rigorous bound (Lemma 17) |
-| [[519,106,5]]₅ paper (A_d=2180) | — | ≥ 0.0173 | — | rigorous bound |
+| [[519,106,5]]₅ paper (A_d=2180) | 1.62 ε⁵ | 0.04314 | — | exact on 16 of 106 outputs (B₅ = 2180 reproduced) |
+| [[230,13,6]]₃ | — | ≥ 0.0499 | — | rigorous bound (subcode dim 13 of 38) |
+| [[690,39,5]]₃ | — | ≥ 0.0134 | — | rigorous bound (dim 12 of 39) |
+| [[293,68,5]]₁₉, γ<1 | — | ≥ 0.0279 | — | rigorous bound (dim 4 of 10) |
+| [[2093,308,5]]₇ | — | ≥ 0.0018 | — | rigorous bound (dim 5 of 18; weak) |
 
 ## Findings
 
@@ -67,8 +71,8 @@ integer polynomial before it is evaluated, which avoids cancellation.
    per output. The STATUS.md "δ_out≈8e-18" example is one such figure. γ, d and A_d are
    unaffected.
 2. **A_d optimization does not move the threshold.** Our A_d-optimized codes lower the
-   leading coefficient (per output: 1.16× for [[206,37,4]]₃, 1.89× for [[112,13,3]]₅), but ε\*
-   agrees to 3–4 digits. ε\* is set by the high-weight part of the weight distribution. The
+   leading coefficient (per output: 1.16× for [[206,37,4]]₃, 1.89× for [[112,13,3]]₅, 1.09× for
+   the [[519,106,5]]₅ flagship), but ε\* agrees to 3–4 digits (flagship: 0.043139 for both). ε\* is set by the high-weight part of the weight distribution. The
    "1.54× / 8.6× / 8500×" compounding in QUTRIT_PARETO.md and NEW_CODES.md used the total
    (block) count. The exact per-output recursion from δ_in = 0.01 gives 1.12× / 1.85× / 13×
    (rounds 1/2/3), with absolute errors ~14× above eq 39; see the corrections there.
@@ -84,6 +88,61 @@ integer polynomial before it is evaluated, which avoids cancellation.
    0.104, the small k = 1 codes 0.16–0.26, and the paper's cyclic codes up to 0.45. The
    low-threshold codes need pre-distillation by a small high-threshold code before they pay off.
 
+## Multi-round protocols: what the codes actually cost
+
+`qmsd/protocol.py` / `python -m qmsd protocol --p P --eps0 E --target T...` searches every code
+sequence of depth ≤ 6 drawn from a library of codes with exact per-output curves:
+- **Catalog codes.** Our tier-1/2 codes.
+- **The paper's codes.** Its cyclic codes (App. C), plus the shortest RS and RM codes.
+- **Excluded:** codes with a non-cube λ, e.g. [[12,1,3]]₇, whose output is in another Clifford class.
+
+**Cost model.** The cost is the expected number of raw states per final output,
+Π nᵢ/(kᵢ·P_acc,ᵢ). Each round takes its inputs from distinct blocks of the previous round, so
+the per-output marginal is the correct input.
+
+| p | ε₀ → target | best protocol (cost) | best with k=1 codes only | recursive smallest code |
+|---|---|---|---|---|
+| 3 | 1e-2 → 1e-15 | [[8,1,2]] → [[215,28,5]] (**70**) | 437 | 4,445 ([[8,1,2]]⁴) |
+| 3 | 1e-2 → 1e-30 | [[8,1,2]] → [[200,43,3]] → [[206,37,4]] (**234**) | 1,818 | 35,560 |
+| 3 | 1e-3 → 1e-10 | [[206,37,4]] (**6.8**) | 42 | 65 |
+| 3 | 1e-3 → 1e-30 | [[206,37,4]] → [[200,43,3]] (**32**) | 637 | 4,129 |
+| 5 | 1e-2 → 1e-15 | [[4,1,2]] → [[519,106,5]] (**22**) | 106 ([[11,1,3]] → [[112,13,3]], no 519) | 267 ([[4,1,2]]⁴) |
+| 5 | 1e-2 → 1e-30 | [[4,1,2]]² → [[519,106,5]] (**82**) | 314 (no 519) | 1,066 |
+| 5 | 1e-3 → 1e-10 | [[519,106,5]] (**8.2**) | 16 | 16 |
+| 5 | 1e-3 → 1e-30 | [[519,106,5]]² (**40**) | 138 (no 519) | 257 |
+| 7 | 1e-2 → 1e-10 | [[28,1,5]] cyc (**37**) | same | 230 ([[6,1,2]]³) |
+| 7 | 1e-2 → 1e-30 | [[7,1,3]] cyc → [[28,1,5]] cyc (**210**) | same | 8,270 |
+| 7 | 1e-3 → 1e-30 | [[6,1,2]] → [[29,1,6]] cyc (**175**) | same | 1,304 |
+
+For p = 5, the "k=1 only" column is the best protocol without the flagship; it may use k>1
+codes such as [[112,13,3]]₅.
+
+**Findings:**
+- **High-rate search codes win, even though their thresholds are low.** One round of a small
+  high-threshold code ([[8,1,2]]₃, [[4,1,2]]₅, [[11,1,3]]₅) brings ε from 1e-2 to about 1e-4.
+  A high-rate code then finishes the job.
+  - At p = 3 these protocols are 3–20× cheaper than the best k=1 (cyclic) protocol, and
+    10–150× cheaper than recursion of the smallest code.
+  - At p = 5 the γ<1 flagship [[519,106,5]]₅ gives the cheapest protocol at every target:
+    3–13× below recursive RS. This holds with its exact per-output error, which is ~85×
+    worse than A_d/k.
+- **γ is not a good proxy for cost at these targets.** The p = 3 winners have γ>1. What matters
+  is n/k together with how far one round pushes ε past the target.
+- **At p = 7 the paper's cyclic codes dominate.** Our [[44,5,3]]₇ codes never appear in an
+  optimal protocol. A high-rate p = 7 search code with a threshold of at least ~0.05 would be
+  the target.
+- **Pre-distillation is forced by the thresholds.** The ε\* ≈ 0.02–0.06 codes never appear
+  as the first round at ε₀ = 1e-2.
+
+**Caveats:**
+- The cost counts magic states only. It ignores Clifford/encoder circuit cost, footprint and
+  latency. It also ignores batch granularity: a 519-qudit block yielding 106 outputs, fed
+  from distinct blocks, implies large factories.
+- The flagship curve is averaged over 16 sampled outputs. Its threshold is exact to 1e-9; its
+  leading coefficient is good to about ±3%.
+- Below ε = 1e-7 the leading order c·ε^d is used, with relative error about n·ε.
+- p = 17/19 are not in the study, because their exact curves are out of reach (bounds only).
+
 ## Engines / tiers (`performance.assign_tier`)
 
 | tier | when | engine |
@@ -97,9 +156,11 @@ The block error needs p^{dim A + k} words, so it is feasible only for small k.
 
 ## Not yet done
 
-- [[293,68,5]]₁₉ (19¹⁰ ≈ 6e12 words per output; ~20 h on lenore even with 4 outputs).
-  [[230,13,6]]₃, [[690,39,5]]₃ and [[2093,308,5]]₇ are beyond exact reach; they get bounds
-  only.
+- [[293,68,5]]₁₉ exactly (19¹⁰ ≈ 6e12 words per output; ~20 h on lenore with 4 outputs).
+  [[230,13,6]]₃, [[690,39,5]]₃ and [[2093,308,5]]₇ are beyond exact reach (bounds above). Two
+  shortcuts were tested and fail: uniform codeword sampling misses the rare low-weight
+  elements that carry the logical signal, and truncating the error-weight series converges
+  only once weights ~d+14 are included.
 - Exact per-output leading order for the large-p codes (needs the explicit min-weight codewords).
-- A multi-round cost model that uses the per-output curves and accounts for correlated output
-  errors.
+- Protocol costs that include Clifford circuit cost and factory footprint (the current model
+  counts magic states only).
