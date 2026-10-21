@@ -8,6 +8,8 @@ tests/test_zdsim.py):
     CSUM(c -> t, w)  |a,b> -> |a, b + w a>: x_t += w x_c,  z_c -= w z_t
     M   (Z-basis measurement):             record x (outcome shift); then z += uniform (gauge)
     R   (reset to |0>):                    x = z = 0; z = uniform (gauge)
+    FF  (classically controlled Pauli):    x_q / z_q += coef * m_i  (feed-forward on a recorded outcome; the
+                                           reference run has all outcomes 0, so only the flip enters the frame)
 Gauge randomisation (stim's trick) makes every non-deterministic measurement uniformly random, so a declared
 detector that fires in a noiseless run is NOT deterministic -> `check_determinism`.
 
@@ -50,6 +52,9 @@ class Circuit:
     def M(self, qs) -> list[int]:
         qs = list(qs); idx = list(range(self.n_meas, self.n_meas + len(qs))); self.n_meas += len(qs)
         self._add("M", qs, idx); return idx
+    def FF(self, terms):
+        """terms: [(meas_index, qudit, 'x'|'z', coef)] -- Pauli feed-forward (gauge fixing / frame updates)."""
+        self._add("FF", [(int(i), int(q), ax, int(c)) for i, q, ax, c in terms])
     # noise
     def DEP1(self, qs, p): self._add("DEP1", list(qs), p)
     def DEP2(self, pairs, p): self._add("DEP2", list(pairs), p)
@@ -101,6 +106,10 @@ class FrameSim:
                 self.meas[:, idx] = x[:, q]
                 if self.gauge:
                     z[:, q] = (z[:, q] + self.rng.integers(0, d, size=(self.shots, len(q)))) % d
+            elif name == "FF":
+                for i, qq, ax, cf in op[1]:
+                    arr = x if ax == "x" else z
+                    arr[:, qq] = (arr[:, qq] + cf * self.meas[:, i]) % d
             elif name in ("DEP1", "XERR", "ZERR"):
                 q, p = op[1], op[2] * scale
                 if p > 0:

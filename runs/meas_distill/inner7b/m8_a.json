@@ -1,0 +1,1 @@
+{"m": 8, "seed": 9, "args": {"m": 8, "kmin": 35, "kmax": 50, "cmax": 4, "cprobs": [0.0, 1.0, 2.0, 2.0], "steps": 4000, "restarts": 2, "start": "thin", "alpha": 0.5, "T0": 1.0, "seed": 9, "out": "runs/meas_distill/inner7b/m8_a.json"}, "found": {}}

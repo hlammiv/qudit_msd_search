@@ -1,0 +1,8 @@
+n 64 k 26 inputs 2600 checks 300 locations 41000 T/out 15.76923076923077
+no inner logical below 7 0 s
+inner W7 825192
+input W<=6 sets {}
+input W7 {1: 2044723200, 5: 66688}
+{"d": 4, "inner": "[[64,26,7]]", "outer": "runs/meas_distill/outer7_w26_n2600_s0.json", "C7": 2045615080, "per_output_coef": 359.7508142520488}
+1e-06 {'shots': 1000000, 'accepted': 959828, 'fail_shots': 0, 'bad_outputs': 0}
+1e-05 {'shots': 1000000, 'accepted': 663676, 'fail_shots': 0, 'bad_outputs': 0}

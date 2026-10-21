@@ -1,0 +1,1 @@
+{"m": 7, "seed": 26, "args": {"m": 7, "kmin": 35, "kmax": 50, "cmax": 4, "cprobs": null, "steps": 40000, "restarts": 3, "start": "rm", "alpha": 0.3, "T0": 2.0, "forbid": 3, "aligned": true, "forbid_extra": 6, "seed": 26, "out": "runs/meas_distill/inner7b/a3x4_t2.json"}, "found": {}}

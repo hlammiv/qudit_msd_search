@@ -1,0 +1,4 @@
+n 64 k 26 inputs 2080 checks 240 locations 32800 T/out 15.76923076923077
+no inner logical below 7 1 s
+inner W7 598328
+input W<=6 sets {}

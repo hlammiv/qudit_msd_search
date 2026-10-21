@@ -1,0 +1,6 @@
+k 44 n 128 r 42 T/out 18.455 gamma 1.4982  step 1724 t 60s
+k 42 n 128 r 43 T/out 19.286 gamma 1.5208  step 1727 t 60s
+k 40 n 128 r 44 T/out 20.200 gamma 1.5446  step 2939 t 101s
+restart 0 best score 18.455 {'n': 128, 'k': 44, 'r': 42, 'nbad': 0, 'normal': True}
+k 43 n 127 r 42 T/out 18.721 gamma 1.5055  step 6532 t 847s
+k 45 n 127 r 41 T/out 17.933 gamma 1.4835  step 6544 t 847s

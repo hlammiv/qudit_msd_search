@@ -1,0 +1,1 @@
+{"m": 7, "seed": 34, "args": {"m": 7, "kmin": 28, "kmax": 45, "cmax": 4, "cprobs": null, "steps": 40000, "restarts": 3, "start": "rm", "alpha": 0.5, "T0": 1.0, "forbid": 2, "aligned": true, "forbid_extra": 8, "seed": 34, "out": "runs/meas_distill/inner7b/a2x8_s34.json"}, "found": {}}

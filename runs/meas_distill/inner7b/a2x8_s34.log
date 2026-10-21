@@ -1,0 +1,3 @@
+restart 0 best score 82.609 {'n': 12, 'k': 8, 'r': 2, 'nbad': 11071, 'normal': True}
+restart 1 best score 75.607 {'n': 8, 'k': 6, 'r': 1, 'nbad': 2422, 'normal': False}
+restart 2 best score 82.609 {'n': 12, 'k': 8, 'r': 2, 'nbad': 11071, 'normal': True}

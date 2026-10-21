@@ -1,0 +1,11 @@
+k 38 n 112 r 37 T/out 18.684 gamma 1.5045  step 4661 t 243s
+k 40 n 112 r 36 T/out 17.800 gamma 1.4796  step 4670 t 244s
+k 42 n 112 r 35 T/out 17.000 gamma 1.4560  step 4674 t 244s
+k 44 n 112 r 34 T/out 16.273 gamma 1.4335  step 4792 t 249s
+k 36 n 112 r 38 T/out 19.667 gamma 1.5309  step 5256 t 271s
+k 46 n 112 r 33 T/out 15.609 gamma 1.4121  step 7863 t 404s
+k 41 n 111 r 35 T/out 17.244 gamma 1.4633  step 10698 t 546s
+k 43 n 111 r 34 T/out 16.488 gamma 1.4403  step 10699 t 546s
+k 48 n 112 r 32 T/out 15.000 gamma 1.3917  step 23078 t 1067s
+k 50 n 112 r 31 T/out 14.440 gamma 1.3721  step 31423 t 1427s
+restart 0 best score 14.44 {'n': 112, 'k': 50, 'r': 31, 'nbad': 0, 'normal': True}

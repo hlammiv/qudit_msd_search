@@ -388,3 +388,24 @@ already exact in the frame sim), a single check, uniform slot weights.
 **Next:** T-in-the-middle injection; D = 3 → 5 growth (code deformation, which is not MSD-style code switching,
 but flagged against the user's "avoid code switching" preference); grafting into a Z_d surface code; spacetime
 overhead.
+
+## 12. D = 3 → 5 growth by code deformation (2026-10-20, `cult_growth.py`)
+The D=3 colour code sits in a corner of the D=5 lattice.  New qudits are prepared in a |0⟩/|+⟩ split chosen so that
+the D=5 logical representatives restrict correctly (2280 of 4096 splits feasible; default zset [17,18]).  The D=5
+plaquettes are then measured.  Deterministic outcomes become detectors.  The 10 random ones (3 X, 7 Z) are
+gauge-fixed by feed-forward destabilisers that commute with x̄ and z̄ (new `zdsim` op `FF`).
+
+Tests (`tests/test_cult_growth.py`): determinism at d = 2, 4, 8; controls (no FF, injection mismatch); an infeasible
+split; all single faults handled (d = 2: 7815 faults; d = 4: 117 375).
+
+Sweeps (lenore; `runs/cultivation/sweep_grow35.json`, `sweep_D5_r1.json`), d = 4:
+
+| p | growth 3→5: accept, p_L | direct D5 (1 round): accept, p_L |
+|---|---|---|
+| 5e-4 | 0.672, 0 / 6.7M | 0.752, 0 / 2.3M |
+| 1e-3 | 0.452, 8.8e-7 (4 events) | 0.565, 2.4e-6 (4 events) |
+| 2e-3 | 0.204, 7.3e-6 | 0.320, 1.4e-5 |
+
+Growth has ≈ 2–3× lower p_L at ≈ 20 % lower acceptance (low-count statistics; a 10× longer d = 4 run is going on lenore,
+`runs/cultivation/sweep_grow35_d4_long.json`).  The grown states feed the distillation stages of
+`MEAS_DISTILL.md` §5d.

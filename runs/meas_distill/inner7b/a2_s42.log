@@ -1,0 +1,2 @@
+k 40 n 96 r 28 T/out 15.400 gamma 1.4052  step 15052 t 540s
+restart 0 best score 15.4 {'n': 96, 'k': 40, 'r': 28, 'nbad': 0, 'normal': True}
