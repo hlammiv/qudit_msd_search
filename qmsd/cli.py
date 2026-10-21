@@ -12,6 +12,7 @@ Examples
   python -m qmsd perf paper-table3-p3-m4-n72-k9
   python -m qmsd protocol --p 5 --eps0 1e-2 --target 1e-15 1e-30
   python -m qmsd protocol --p 17 --bounded new-p17-d6      # [lower, upper] cost bracket
+  python -m qmsd assess optimized-p5-flagship-ad1904       # one code: threshold + cost, exact or bounds
 """
 from __future__ import annotations
 
@@ -208,6 +209,19 @@ def _cmd_protocol(args) -> int:
     return 0
 
 
+def _cmd_assess(args) -> int:
+    from .protocol import assess, format_assessment
+    from .results import load_result_catalog
+
+    recs = {r.artifact_id: r for r in load_result_catalog()}
+    for aid in args.ids:
+        if aid not in recs:
+            print(f"unknown artifact id {aid}", file=sys.stderr)
+            return 1
+        print(format_assessment(assess(recs[aid], tuple(args.eps0), tuple(args.target))), flush=True)
+    return 0
+
+
 def main(argv=None) -> int:
     """Argparse entry point with search, catalog, reconstruct, asymptotic, and best."""
     parser = argparse.ArgumentParser(
@@ -286,6 +300,13 @@ def main(argv=None) -> int:
     pq.add_argument("--bounded", nargs="*", default=[],
                     help="catalog artifact ids to add via rigorous bounds (codes too large for exact curves)")
     pq.set_defaults(func=_cmd_protocol)
+
+    pa2 = sub.add_parser("assess", help="one code: leading order, threshold, P_acc and protocol "
+                         "cost (exact where computable, rigorous bounds otherwise)")
+    pa2.add_argument("ids", nargs="+", help="catalog artifact ids")
+    pa2.add_argument("--eps0", type=float, nargs="+", default=[1e-2, 1e-3])
+    pa2.add_argument("--target", type=float, nargs="+", default=[1e-10, 1e-15, 1e-30])
+    pa2.set_defaults(func=_cmd_assess)
 
     pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
                                      "search, lower-gamma wins (the one-liner)")

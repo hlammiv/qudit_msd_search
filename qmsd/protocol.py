@@ -178,7 +178,7 @@ def _rm_k1(p, m):
     return G0, canonical_logical_rows(G, [0], p)
 
 
-def library(p, include_catalog=True, verbose=False) -> list[CodeCurve]:
+def library(p, include_catalog=True, verbose=False, dedupe=True) -> list[CodeCurve]:
     """All codes with an exact per-output curve for prime p (built once, histograms cached)."""
     from .cyclic import construction_A, construction_B
 
@@ -221,6 +221,8 @@ def library(p, include_catalog=True, verbose=False) -> list[CodeCurve]:
                 continue
             seen.add(sig)
             add(curve_from_record(r))
+    if not dedupe:
+        return out
     # keep only the best curve per (n, k, d): near-duplicate codes only slow the search
     best = {}
     for c in out:
@@ -358,7 +360,8 @@ class Protocol:
         return f"cost {self.cost:.4g}  [{steps}]  eps: " + ", ".join(mpmath.nstr(e, 3) for e in self.eps)
 
 
-def best_protocol(curves, eps0, target, max_depth=6, only=None, mode="exact") -> Protocol | None:
+def best_protocol(curves, eps0, target, max_depth=6, only=None, mode="exact",
+                  require=None) -> Protocol | None:
     """Cheapest sequence of codes taking per-output error eps0 to <= target.
 
     ``only`` restricts the search to codes whose name contains one of the given substrings.
@@ -368,6 +371,7 @@ def best_protocol(curves, eps0, target, max_depth=6, only=None, mode="exact") ->
       * "lower": optimistic curves (f_lo, pacc_hi) -> a lower bound on the optimal cost.
     Both assume each true eps_out is increasing in eps (checked on every exact curve);
     P_acc decreasing in eps is a theorem.
+    ``require``: a curve that must appear in the sequence (cheapest protocol USING that code).
     """
     assert mode in ("exact", "upper", "lower")
     pool = [c for c in curves if only is None or any(s in c.name for s in only)]
@@ -378,7 +382,7 @@ def best_protocol(curves, eps0, target, max_depth=6, only=None, mode="exact") ->
     best = [None]
 
     def dfs(eps, cost, seq, traj):
-        if eps <= target:
+        if eps <= target and (require is None or any(c is require for c in seq)):
             if best[0] is None or cost < best[0].cost:
                 best[0] = Protocol(list(seq), cost, list(traj))
             return
@@ -404,8 +408,100 @@ def best_protocol(curves, eps0, target, max_depth=6, only=None, mode="exact") ->
     return best[0]
 
 
-def protocol_bounds(curves, eps0, target, max_depth=6, only=None) -> dict:
+def protocol_bounds(curves, eps0, target, max_depth=6, only=None, require=None) -> dict:
     """Rigorous [lower, upper] bracket on the optimal protocol cost (see ``best_protocol``)."""
-    lo = best_protocol(curves, eps0, target, max_depth, only, mode="lower")
-    hi = best_protocol(curves, eps0, target, max_depth, only, mode="upper")
+    lo = best_protocol(curves, eps0, target, max_depth, only, mode="lower", require=require)
+    hi = best_protocol(curves, eps0, target, max_depth, only, mode="upper", require=require)
     return {"lower": lo, "upper": hi}
+
+
+# ---------------------------------------------------------------------------
+# One-code assessment: exact where possible, rigorous bounds otherwise
+# ---------------------------------------------------------------------------
+def code_curve(record, exact_words=3e8):
+    """Exact curve if histograms are stored or the code is tier 1, else a BoundedCurve."""
+    from .performance import assign_tier
+
+    if (HIST_DIR / f"{record.artifact_id}.json").exists() or (
+            assign_tier(record)["tier"] == 1
+            and record.p ** assign_tier(record)["dim_A"] * max(1, record.k) <= exact_words):
+        return curve_from_record(record)
+    return bounded_curve_from_record(record)
+
+
+def assess(record, eps0s=(1e-2, 1e-3), targets=(1e-10, 1e-15, 1e-30), max_depth=6) -> dict:
+    """Leading order, threshold, P_acc and protocol cost of one catalog code.
+
+    Cost = cheapest protocol that USES the code (other rounds drawn from ``library(p)``),
+    compared with the cheapest protocol without it.  Exact when the code's curve is
+    computable; otherwise every figure is a rigorous bound (see ``BoundedCurve``).
+    """
+    me = code_curve(record)
+    def same(c):  # the code itself (an exact twin), not a different code with equal n, k, d
+        return (c.n, c.k, c.d) == (me.n, me.k, me.d) and (
+            not me.exact or abs(c.c_eps - me.c_eps) <= 1e-9 * me.c_eps)
+
+    lib = [c for c in library(record.p, dedupe=False) if not same(c)]
+    out = {"artifact_id": record.artifact_id, "label": record.label, "p": record.p,
+           "exact": me.exact, "d": me.d, "note": me.note}
+    if me.exact:
+        out.update(c_eps=me.c_eps, threshold_eps=me.threshold_eps, P_acc_1e_3=me.pacc(1e-3))
+    else:
+        out.update(c_eps_bounds=(me.c_eps, me.c_eps_hi), threshold_eps_bounds=me.threshold_bounds,
+                   P_acc_1e_3_bounds=(me.pacc_lo(1e-3), me.pacc_hi(1e-3)))
+    rows = []
+    for eps0 in eps0s:
+        for tgt in targets:
+            base = best_protocol(lib, eps0, tgt, max_depth)
+            row = {"eps0": eps0, "target": tgt,
+                   "without": base.cost if base else None,
+                   "without_protocol": base.describe() if base else None}
+            if me.exact:
+                w = best_protocol(lib + [me], eps0, tgt, max_depth, require=me)
+                row.update(with_cost=(w.cost, w.cost) if w else None,
+                           with_protocol=w.describe() if w else None)
+            else:
+                b = protocol_bounds(lib + [me], eps0, tgt, max_depth, require=me)
+                lo, hi = b["lower"], b["upper"]
+                row.update(with_cost=(lo.cost if lo else None, hi.cost if hi else None),
+                           with_protocol=hi.describe() if hi else None)
+            rows.append(row)
+    out["protocols"] = rows
+    return out
+
+
+def format_assessment(a) -> str:
+    def rng(x, y, fmt="{:.4g}"):
+        if x is None and y is None:
+            return "n/a"
+        if y is None:
+            return ">= " + fmt.format(x)
+        if x is not None and abs(y - x) <= 1e-6 * abs(y):
+            return fmt.format(y)
+        return f"[{fmt.format(x)}, {fmt.format(y)}]"
+
+    lines = [f"{a['label']}  ({'exact' if a['exact'] else 'rigorous bounds: ' + a['note']})"]
+    if a["exact"]:
+        lines.append(f"  per-output eps_out ~ {a['c_eps']:.4g} eps^{a['d']}   threshold eps* = "
+                     f"{a['threshold_eps']:.5g}   P_acc(1e-3) = {a['P_acc_1e_3']:.4g}")
+    else:
+        c_lo, c_hi = a["c_eps_bounds"]
+        lines.append(f"  per-output eps_out ~ c eps^{a['d']}, c in {rng(c_lo, c_hi)}   threshold eps* "
+                     f"{rng(*a['threshold_eps_bounds'], fmt='{:.4g}')}   P_acc(1e-3) in "
+                     f"{rng(*a['P_acc_1e_3_bounds'])}")
+    lines.append("  cost = raw magic states per output (cheapest protocol using this code vs without it)")
+    for r in a["protocols"]:
+        w = r["with_cost"]
+        wtxt = rng(*w) if w else "unreachable"
+        gain = ""
+        if w and r["without"] and w[1] is not None:
+            lo_c, hi_c, wo = w[0], w[1], r["without"]
+            if wo > 1.005 * hi_c:
+                tight = lo_c is not None and abs(hi_c - lo_c) <= 1e-6 * hi_c
+                gain = f"   saving {'' if tight else '>= '}{wo / hi_c:.2f}x"
+            elif lo_c is not None and wo > lo_c:
+                gain = f"   undetermined (saving up to {wo / lo_c:.2f}x, or a loss)"
+        lines.append(f"  {r['eps0']:g} -> {r['target']:g}:  with {wtxt}   without {r['without']:.4g}{gain}")
+        if r["with_protocol"]:
+            lines.append(f"      {r['with_protocol']}")
+    return "\n".join(lines)

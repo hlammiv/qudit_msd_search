@@ -81,3 +81,11 @@ def test_exact_curves_are_monotone(p7):
         es = np.logspace(-8, np.log10(1.5 * c.threshold_eps), 120)
         fs = [float(c.f(e)) for e in es]
         assert all(b >= a for a, b in zip(fs, fs[1:]))
+
+
+def test_require_forces_code_into_protocol(p7):
+    rs, cyc = p7
+    free = best_protocol([rs, cyc], 1e-2, 1e-15)
+    forced = best_protocol([rs, cyc], 1e-2, 1e-15, require=rs)
+    assert any(c is rs for c in forced.codes)
+    assert forced.cost >= free.cost

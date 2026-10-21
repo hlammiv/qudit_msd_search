@@ -187,6 +187,30 @@ library.
 At 1e-2/1e-3 → 1e-15 the p = 17/19 codes are not needed: a single RS or cyclic round
 overshoots the target anyway.
 
+## Assessing one code: `python -m qmsd assess <artifact_id> [...]`
+
+For each catalog code this reports:
+- the per-output leading order and the threshold;
+- P_acc at ε = 1e-3;
+- the cheapest protocol that **uses** the code, against the cheapest protocol **without** it.
+  The other rounds come from `library(p)`. The baseline keeps the code's twins, e.g. the paper
+  version of an A_d-optimized code.
+
+**Exact or bounds.** The figures are exact when the curve is computable: the histograms are
+stored, or the code is tier 1. Otherwise every figure is a rigorous bound or bracket, from
+`BoundedCurve`. A code needs a stored puncture set and an exact distance; A_d is optional.
+
+**Saving column.** For exact codes it is a number. For bounded codes it reads "≥" when the whole
+bracket beats the baseline, and "undetermined" when the bracket straddles it.
+
+Examples:
+- [[519,106,5]]₅ saves 1.65–4.8× across the targets tried.
+- [[237,52,6]]₁₇ saves ≥ 3.5× (rigorous) at 1e-15/1e-30. At 1e-3 → 1e-15 the result is
+  undetermined.
+- [[206,37,4]]₃ costs the same as the paper's A_d=880 version, so A_d optimization does not
+  change protocol cost.
+- [[215,28,5]]₃ helps only at 1e-2 → 1e-15 (1.33×).
+
 ## Engines / tiers (`performance.assign_tier`)
 
 | tier | when | engine |
