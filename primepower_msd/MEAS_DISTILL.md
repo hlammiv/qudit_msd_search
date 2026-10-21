@@ -161,12 +161,38 @@ here: the order-3 stages (γ 1.65–2.0) win on cost per output at realistic tar
 
 At physical p = 5×10⁻⁴: 1e-15 costs 7.3 (D3) / 8.9 (growth) attempts per output.
 
-Clifford-noise proxy (each location also fails at g·p_C, g = 10): no change for p_C ≤ 10⁻⁷; costs rise from
-p_C ≈ 3×10⁻⁷ (for example 3→5 growth at 1e-15: 13.3 → 50 at p_C = 10⁻⁶).  So the logical Cliffords hosting distillation
-need p_C ≲ 10⁻⁷.
+Clifford noise: see §5e.  The earlier proxy (adding g·p_C to the fault rate) missed a first-order term and is superseded.
+
+## 5e. Circuit-level validation (`meas_circuit.py`)
+Explicit Clifford circuit for the zdsim Pauli-frame simulator.  T is replaced by identity: twirled T faults are Z^a,
+which commute with T, so the Z statistics are exact.  X-type errors are treated conservatively.  Inputs are |+⟩.
+Each check has a CSUM-network CSS encoder (an invertible L whose pivot rows are S and the normal logical basis N,
+with the check's inputs as the slot pivots), the controlled transversal X¹ from a |+⟩ control read out in the X
+basis, the inverse network, and syndrome readout (S-pivots in X, ancillas in Z).  Every detector is deterministic
+(checked at d = 4, 8, 16).
+
+* **The fault model is validated exactly.**  Injecting identical fault patterns into the circuit and the linear model
+  gives identical verdicts on all ≤ 3-fault patterns of [[7,1,3]] (13 275 at d = 4, 161 315 at d = 8; 85 / 185 failures
+  = the exact enumeration).  On [[15,7,3]] + K₈ it gives identical verdicts on all single faults, 120k random 2-
+  and 3-fault patterns, and every planted inner-logical and input-triangle structure (632 failures at d = 4 = C₃;
+  1184 at d = 8).
+* **Clifford noise is first order** (DEP1/DEP2 on every gate, measurement and reset errors; p_in = p_T = 0;
+  `runs/meas_distill/circuit_clifford_d4.json`):
+
+| protocol | per-output error / p_C (Z only) | (Z or X, conservative) | Clifford locations per run |
+|---|---|---|---|
+| [[7,1,3]] | 0.4 | 2.9–3.1 | 58 |
+| [[15,7,3]] + K₈ | 1.1 | 5.0–5.4 | 1979 |
+
+  Faults in the final decoder land on outputs, so the last stage's logical Cliffords need **p_C ≲ target / 5**,
+  as in qubit distillation.  Earlier stages only need p_C below their own output error.  Clifford locations (dense
+  CSUM encoders, ~n² gates per block) outnumber T locations by about 7× and dominate rejection at equal rates.
+  Structured (RM butterfly) encoders would cut this.
+* Planner (`msd_planner.py`): per-output error c·p^W + 5·p_C and acceptance exp(−L p − L_C p_C).  With
+  p_C ≤ target/6 the §5d costs are unchanged; with larger p_C the target cannot be reached.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. w = 50 outer (≤ 10k) for [[112,50]] (γ 1.372); smaller w = 26 outer (< 2080).
-3. Clifford noise: currently a proxy (§5d); an explicit encoder/decoder circuit model would sharpen the p_C ≲ 10⁻⁷ requirement.
+3. Done (§5e): circuit-level model; p_C ≲ target/5 for the final stage.  Open: cheaper structured encoders (fewer Clifford locations).
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
