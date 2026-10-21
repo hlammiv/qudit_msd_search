@@ -13,7 +13,7 @@ from qmsd.asymptotics import optimal_gamma
 from qmsd.puncture import column_to_point
 from qmsd.results import (
     affine_line_profile, code_structure, distillation_series, load_result_catalog,
-    pareto_front, performance, puncture_points, record_dict,
+    assessment, pareto_front, performance, puncture_points, record_dict,
 )
 
 STATUS_COLORS = {"confirmed": "#36d399", "partial": "#fbbf24",
@@ -40,12 +40,35 @@ def _perf_cols(r):
             "eps_out per output": f"{avg['c_eps']:.3g} eps^{avg['d']}"}
 
 
+def _saving(r):
+    """Best rigorous/exact saving over the standard RS/RM/cyclic codes across stored targets."""
+    a = assessment(r)
+    best, undetermined = None, False
+    for x in (a or {}).get("protocols", []):
+        if not x.get("with_cost") or not x.get("standard") or x["with_cost"][1] is None:
+            continue
+        lo, hi = x["with_cost"]
+        if x["standard"] > 1.005 * hi:
+            g = x["standard"] / hi
+            if best is None or g > best[0]:
+                best = (g, x["eps0"], x["target"], lo is not None and abs(hi - lo) <= 1e-6 * hi)
+        elif lo is not None and x["standard"] > lo:
+            undetermined = True
+    if best:
+        g, e0, t, exact = best
+        return f"{'' if exact else '>='}{g:.2f}x ({e0:g}->{t:g})"
+    if a is None:
+        return None
+    return "undetermined" if undetermined else "none"
+
+
 def catalog_frame(records):
     return pd.DataFrame([{
         "artifact_id": r.artifact_id, "code": r.label, "status": r.status,
         "family": r.family, "p": r.p, "m": r.m, "n": r.n, "k": r.k,
         "d": r.d, "A_d": r.A_d, "gamma": r.gamma, "rate k/n": r.rate,
         **_perf_cols(r),
+        "best saving vs RS/RM/cyclic": _saving(r),
         "sublogarithmic": r.sublogarithmic, "provenance": r.provenance,
     } for r in records])
 
@@ -319,6 +342,22 @@ def distillation(record):
         st.caption(f"Exact single-round performance ({perf.get('status', '')}); twirled "
                    "depolarizing noise, arXiv:2610.08012 sec 8. eps = (p-1)/p delta.")
         df["delta_out exact leading order (per output)"] = avg["c_delta"] * df.delta_in ** avg["d"]
+    assess_ = assessment(record)
+    if assess_:
+        st.subheader("Protocol cost (raw magic states per output)")
+        st.caption("Cheapest multi-round protocol USING this code vs the cheapest without it "
+                   "(other rounds from the RS/RM/cyclic/catalog library; eps = paper convention). "
+                   + ("Exact." if assess_["exact"] else "Rigorous bounds: " + assess_["note"] + "."))
+        rows = []
+        for x in assess_["protocols"]:
+            lo, hi = x["with_cost"] or (None, None)
+            rows.append({"eps0": x["eps0"], "target": x["target"],
+                         "with this code": None if hi is None else (
+                             f"{hi:.4g}" if lo is not None and abs(hi - lo) <= 1e-6 * hi
+                             else f"[{lo:.4g}, {hi:.4g}]"),
+                         "without (all other codes)": x["without"],
+                         "standard RS/RM/cyclic only": x.get("standard"), "protocol": x["with_protocol"]})
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
     if df.delta_out.notna().any():
         cols = ["delta_out"] + [c for c in df.columns if c.startswith("delta_out exact")]
         fig = px.line(df.rename(columns={"delta_out": "delta_out A_d/k (eq 39)"}), x="delta_in",

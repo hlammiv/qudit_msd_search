@@ -213,12 +213,27 @@ def _cmd_assess(args) -> int:
     from .protocol import assess, format_assessment
     from .results import load_result_catalog
 
+    from .protocol import assessable, load_assessment, write_assessment
+
     recs = {r.artifact_id: r for r in load_result_catalog()}
-    for aid in args.ids:
+    ids = list(recs) if args.all else args.ids
+    for aid in ids:
         if aid not in recs:
             print(f"unknown artifact id {aid}", file=sys.stderr)
             return 1
-        print(format_assessment(assess(recs[aid], tuple(args.eps0), tuple(args.target))), flush=True)
+        why = assessable(recs[aid])
+        if why:
+            if not args.all:
+                print(f"{recs[aid].label}: cannot assess ({why})", file=sys.stderr)
+            else:
+                print(f"skip {recs[aid].label} [{aid}]: {why}", flush=True)
+            continue
+        if args.all and args.skip_existing and load_assessment(aid):
+            continue
+        a = assess(recs[aid], tuple(args.eps0), tuple(args.target), max_depth=args.max_depth)
+        print(format_assessment(a), flush=True)
+        if args.store:
+            write_assessment(a)
     return 0
 
 
@@ -303,7 +318,12 @@ def main(argv=None) -> int:
 
     pa2 = sub.add_parser("assess", help="one code: leading order, threshold, P_acc and protocol "
                          "cost (exact where computable, rigorous bounds otherwise)")
-    pa2.add_argument("ids", nargs="+", help="catalog artifact ids")
+    pa2.add_argument("ids", nargs="*", help="catalog artifact ids")
+    pa2.add_argument("--all", action="store_true", help="every assessable catalog record")
+    pa2.add_argument("--store", action="store_true",
+                     help="save to qmsd/data/performance/assess/ (shown in the explorer)")
+    pa2.add_argument("--skip-existing", action="store_true")
+    pa2.add_argument("--max-depth", type=int, default=6)
     pa2.add_argument("--eps0", type=float, nargs="+", default=[1e-2, 1e-3])
     pa2.add_argument("--target", type=float, nargs="+", default=[1e-10, 1e-15, 1e-30])
     pa2.set_defaults(func=_cmd_assess)

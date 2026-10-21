@@ -27,6 +27,7 @@ from .performance import (PERF_DIR, DistillationProfile, leading_order, profile_
                           threshold)
 
 HIST_DIR = PERF_DIR / "hist"
+STANDARD = "standard construction (RS / RM / arXiv:2610.08012 cyclic)"
 LOCAL_NUMPY_WORDS = 3e8   # above this, histograms come from the local dwq_coset C kernel
 LOCAL_C_THREADS = 4
 EXACT_BELOW = 1e-7        # below this eps, use the leading order (relative error ~ n*eps)
@@ -198,14 +199,15 @@ def library(p, include_catalog=True, verbose=False, dedupe=True) -> list[CodeCur
             continue
         n = p ** m - 1
         tag = "RS" if m == 1 else "RM"
-        add(curve(f"[[{n},1,?]]_{p} {tag}", *_rm_k1(p, m), p, key=f"rm-k1-p{p}-m{m}"))
+        add(curve(f"[[{n},1,?]]_{p} {tag}", *_rm_k1(p, m), p, key=f"rm-k1-p{p}-m{m}",
+                  note=STANDARD))
     if p >= 7 and p not in CYCLIC:          # [[p,1,2*floor(p/6)+1]] family (paper Prop 15.2)
         nu, r = (p + 1) // 2, p // 6
         add(curve(f"[[{p},1,{2 * r + 1}]]_{p} cyc-B", *construction_B(p, p + 1, set(range(nu - r, nu + r + 1))),
-                  p, key=f"cyclic-p{p}-B-n{p + 1}"))
+                  p, key=f"cyclic-p{p}-B-n{p + 1}", note=STANDARD))
     for label, cons, n, S in CYCLIC.get(p, []):
         G0, H1 = (construction_A if cons == "A" else construction_B)(p, n, S)
-        add(curve(label, G0, H1, p, key=f"cyclic-p{p}-{cons}-n{n}"))
+        add(curve(label, G0, H1, p, key=f"cyclic-p{p}-{cons}-n{n}", note=STANDARD))
     if include_catalog:
         from .performance import assign_tier
         from .results import load_result_catalog
@@ -453,9 +455,12 @@ def assess(record, eps0s=(1e-2, 1e-3), targets=(1e-10, 1e-15, 1e-30), max_depth=
     for eps0 in eps0s:
         for tgt in targets:
             base = best_protocol(lib, eps0, tgt, max_depth)
+            std = best_protocol([c for c in lib if c.note == STANDARD], eps0, tgt, max_depth)
             row = {"eps0": eps0, "target": tgt,
                    "without": base.cost if base else None,
-                   "without_protocol": base.describe() if base else None}
+                   "without_protocol": base.describe() if base else None,
+                   "standard": std.cost if std else None,
+                   "standard_protocol": std.describe() if std else None}
             if me.exact:
                 w = best_protocol(lib + [me], eps0, tgt, max_depth, require=me)
                 row.update(with_cost=(w.cost, w.cost) if w else None,
@@ -489,7 +494,8 @@ def format_assessment(a) -> str:
         lines.append(f"  per-output eps_out ~ c eps^{a['d']}, c in {rng(c_lo, c_hi)}   threshold eps* "
                      f"{rng(*a['threshold_eps_bounds'], fmt='{:.4g}')}   P_acc(1e-3) in "
                      f"{rng(*a['P_acc_1e_3_bounds'])}")
-    lines.append("  cost = raw magic states per output (cheapest protocol using this code vs without it)")
+    lines.append("  cost = raw magic states per output: cheapest protocol using this code, vs without it "
+                 "(all other codes), vs standard RS/RM/cyclic codes only")
     for r in a["protocols"]:
         w = r["with_cost"]
         wtxt = rng(*w) if w else "unreachable"
@@ -501,7 +507,38 @@ def format_assessment(a) -> str:
                 gain = f"   saving {'' if tight else '>= '}{wo / hi_c:.2f}x"
             elif lo_c is not None and wo > lo_c:
                 gain = f"   undetermined (saving up to {wo / lo_c:.2f}x, or a loss)"
-        lines.append(f"  {r['eps0']:g} -> {r['target']:g}:  with {wtxt}   without {r['without']:.4g}{gain}")
+        std = r.get("standard")
+        sg = ""
+        if w and std and w[1] is not None and std > 1.005 * w[1]:
+            sg = f" (saving {'' if w[0] is not None and abs(w[1] - w[0]) <= 1e-6 * w[1] else '>= '}{std / w[1]:.2f}x)"
+        lines.append(f"  {r['eps0']:g} -> {r['target']:g}:  with {wtxt}   without {r['without']:.4g}{gain}"
+                     f"   standard codes only {std:.4g}{sg}" if std else "")
         if r["with_protocol"]:
             lines.append(f"      {r['with_protocol']}")
     return "\n".join(lines)
+
+
+ASSESS_DIR = PERF_DIR / "assess"
+
+
+def assessable(record) -> str | None:
+    """None if ``assess`` can handle the record, else the reason it cannot."""
+    if record.status != "confirmed":
+        return f"status {record.status}"
+    if record.m is None or (record.puncture_columns is None and record.k > 2):
+        return "no stored puncture set (analytic family)"
+    if record.d is None:
+        return "distance not certified"
+    return None
+
+
+def write_assessment(a: dict):
+    ASSESS_DIR.mkdir(parents=True, exist_ok=True)
+    path = ASSESS_DIR / f"{a['artifact_id']}.json"
+    path.write_text(json.dumps(a, indent=1, default=float) + "\n")
+    return path
+
+
+def load_assessment(artifact_id: str) -> dict | None:
+    path = ASSESS_DIR / f"{artifact_id}.json"
+    return json.loads(path.read_text()) if path.exists() else None

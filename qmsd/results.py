@@ -311,9 +311,17 @@ def performance(record: ResultRecord) -> dict | None:
     return load_performance(record.artifact_id)
 
 
+def assessment(record: ResultRecord) -> dict | None:
+    """Stored protocol-cost assessment (``qmsd assess --store``), if any."""
+    from .protocol import load_assessment
+
+    return load_assessment(record.artifact_id)
+
+
 def record_dict(record: ResultRecord) -> dict:
     data = asdict(record)
     data["performance"] = performance(record)
+    data["assessment"] = assessment(record)
     data["gamma"] = record.gamma
     data["rate"] = record.rate
     data["sublogarithmic"] = record.sublogarithmic

@@ -203,13 +203,38 @@ stored, or the code is tier 1. Otherwise every figure is a rigorous bound or bra
 **Saving column.** For exact codes it is a number. For bounded codes it reads "≥" when the whole
 bracket beats the baseline, and "undetermined" when the bracket straddles it.
 
-Examples:
-- [[519,106,5]]₅ saves 1.65–4.8× across the targets tried.
-- [[237,52,6]]₁₇ saves ≥ 3.5× (rigorous) at 1e-15/1e-30. At 1e-3 → 1e-15 the result is
-  undetermined.
-- [[206,37,4]]₃ costs the same as the paper's A_d=880 version, so A_d optimization does not
-  change protocol cost.
-- [[215,28,5]]₃ helps only at 1e-2 → 1e-15 (1.33×).
+`--all --store` writes every assessable catalog code to `qmsd/data/performance/assess/`.
+The explorer shows each code's best saving over the standard codes in a column, and the
+full table in its Distillation tab.
+
+**Two baselines.** The tables use two:
+- "without": all other codes, twins included. This answers whether this exact code is needed.
+- "standard": RS / RM / cyclic codes only. This answers how much the code beats the published
+  constructions.
+
+**Catalog run (2026-10-20).** 30 codes; the analytic Manhattan family, the refuted cap code and
+the candidates are skipped. The table gives the best saving vs standard codes, over ε₀ ∈
+{1e-2, 1e-3} × target ∈ {1e-10, 1e-15, 1e-30}, depth ≤ 5; "≥" marks a rigorous bound.
+
+| code | ε\* per output | best saving vs RS/RM/cyclic |
+|---|---|---|
+| [[206,37,4]]₃ (both A_d versions), [[200,43,3]]₃ | 0.062 / 0.028 | 20× (1e-3 → 1e-30) |
+| [[215,28,5]]₃ | 0.104 | 14.6× |
+| [[72,9,3]]₃ | 0.062 | 11.6× |
+| [[667,62,4]]₃ | 0.021 | 8.7× |
+| [[230,13,6]]₃ / [[690,39,5]]₃ | ≥ 0.050 / ≥ 0.013 | ≥ 6.2× / ≥ 5.3× |
+| [[519,106,5]]₅ (both) | 0.043 | 6.2× (1e-2 → 1e-30) |
+| [[20,5,2]]₅ | 0.023 | 6.2× |
+| [[293,68,5]]₁₉ | ≥ 0.028 | ≥ 4.2× |
+| [[112,13,3]]₅ (both) | 0.077 | 3.7× |
+| [[237,52,6]]₁₇ | ≥ 0.046 | ≥ 3.5× |
+| [[79,2,4]]₃, [[80,1,5]]₃, [[24,1,3]]₅ | 0.15 / 0.16 / 0.26 | 3.2× / 1.8× / 1.5× |
+| [[2093,308,5]]₇ | ≥ 0.0018 | undetermined (bounds too loose) |
+| [[44,5,3]]₇ (all 10), [[124,1,4]]₅ | 0.173 / — | none |
+
+Reading: almost every search code beats the standard constructions at some target. The p = 7
+codes in the catalog are the exception: the paper's cyclic codes are better there. Twins such
+as the A_d-optimized versions give the same saving, so A_d optimization does not show up in cost.
 
 ## Engines / tiers (`performance.assign_tier`)
 
