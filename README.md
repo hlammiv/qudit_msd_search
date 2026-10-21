@@ -17,7 +17,15 @@ and by single-round distillation cost `C`.
   engine for searching arbitrary puncture sets. Includes `mindist.py`, a meet-in-the-middle
   exact minimum-distance routine, and `data/puncture_locations.json`, the machine-validated
   puncture columns of the paper's 10 search codes (the correctness oracle).
-- **`tests/`** — 161 tests anchored to the paper's published results.
+- **Distillation performance** (following
+  [arXiv:2610.08012](https://arxiv.org/abs/2610.08012), Prakash, *Cyclic triorthogonal codes in
+  prime dimension*): `performance.py` (exact output error `eps_out(eps)`, acceptance
+  probability, leading order `c·eps^d` and single-round threshold, per output and per block),
+  `protocol.py` (multi-round protocol cost and rigorous bounds when exact enumeration is out of
+  reach), `cyclic.py` (the paper's cyclic constructions A/B), `mc_distill.py` (Monte Carlo
+  cross-check), and `dist_weightdist/core_c/dwq_coset.c` (multithreaded C enumerator for large
+  codes). See **`PERFORMANCE.md`** for the model, validation and results.
+- **`tests/`** — 375 tests anchored to the published results of both papers.
 - **`IMPLEMENTATION_BLUEPRINT.md`**, **`STATUS.md`** — design and honest build status.
 
 ## Highlights
@@ -28,7 +36,10 @@ and by single-round distillation cost `C`.
   codes**, including the headline `[[519,106,5]]_5` (`d=5` in ~10 s) — distances the original
   authors' search was compute-limited to obtain. Independently adversarially verified
   (2,937 fuzz cases vs. null-space ground truth).
-- **161 tests pass** (`python -m pytest -q`).
+- Reproduces arXiv:2610.08012 **Table 2** (leading order, threshold, acceptance) to the printed
+  digits, and gives exact thresholds or rigorous threshold lower bounds for the catalog codes
+  (`PERFORMANCE.md`).
+- **375 tests pass** (`python -m pytest -q`).
 
 ## Quickstart
 
@@ -60,6 +71,26 @@ by a command-line flag. The running explorer notices catalog changes on its next
 
 Use `--status candidate` to deliberately keep a certified result provisional, or
 `--catalog-dir PATH` (equivalently `QMSD_CATALOG_DIR`) for a separate catalog.
+
+## Distillation performance and protocol cost
+
+Beyond `gamma`, each catalog code can be scored by how it actually distills under twirled
+depolarizing noise (paper convention `eps = (p-1)/p · delta`):
+
+```bash
+python -m qmsd perf <artifact_id>                    # leading order + exact threshold for one code
+python -m qmsd perf --all --dry-run                  # which codes are exact locally (tier 1)
+python -m qmsd assess <artifact_id>                  # threshold, P_acc, multi-round cost vs RS/RM/cyclic
+python -m qmsd assess --all --store --skip-existing  # assess every new catalog code; shown in the explorer
+python -m qmsd protocol --p 5 --eps0 1e-2 --target 1e-15  # cheapest multi-round protocol for p
+```
+
+`assess` prints the cost (raw magic states per output) of the cheapest protocol with and
+without the code, compared with the standard Reed–Solomon, Reed–Muller and cyclic codes.
+Small codes get exact numbers. Larger codes get rigorous bounds, with `≥` marking a bound,
+from an enumerable subcode (Lemma 17 of arXiv:2610.08012). Results are stored under
+`qmsd/data/performance/` and appear in the explorer's Distillation tab and the "best saving"
+column.
 
 ## Convention note
 
