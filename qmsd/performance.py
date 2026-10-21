@@ -418,4 +418,5 @@ def threshold_lower_bound_subcode(G0, H1, p, kind="avg", max_words=2e7, pool=24,
     return {"threshold_eps_lower": best_thr or None,
             "threshold_delta_lower": delta_from_eps(best_thr, p) if best_thr else None,
             "subcode_dim": len(rows), "dim_A": int(G0.shape[0]), "history": history,
+            "subcode": [r.tolist() for r in rows],
             "method": "Lemma 17 subcode bound (rigorous)"}

@@ -51,3 +51,33 @@ def test_non_cube_lambda_excluded():
     from qmsd.cyclic import construction_A
 
     assert curve("[[12,1,3]]_7", *construction_A(7, 12, {1, 2, 7}), 7, key="test-12-7") is None
+
+
+def test_bounded_curve_brackets_exact():
+    import numpy as np
+
+    from qmsd.performance import record_matrices
+    from qmsd.protocol import bounded_curve_from_record, protocol_bounds
+    from qmsd.results import load_result_catalog
+
+    rec = {r.artifact_id: r for r in load_result_catalog()}["paper-table3-p3-m4-n72-k9"]
+    ex = curve(rec.label, *record_matrices(rec), 3, key="test-72-exact")
+    bc = bounded_curve_from_record(rec, max_words=3 ** 3 * 9, pool=6)
+    for e in np.logspace(-9, np.log10(0.4), 25):
+        assert bc.f_lo(e) <= ex.f(e) * (1 + 1e-9) and ex.f(e) <= bc.f_hi(e) * (1 + 1e-9)
+        assert bc.pacc_lo(e) <= ex.pacc(e) * (1 + 1e-9) <= bc.pacc_hi(e) * (1 + 1e-9) ** 2
+    lo, hi = bc.threshold_bounds
+    assert lo <= ex.threshold_eps and (hi is None or ex.threshold_eps <= hi)
+    for eps0, tgt in [(1e-2, 1e-15), (1e-3, 1e-30)]:
+        exact = best_protocol([ex], eps0, tgt).cost
+        b = protocol_bounds([bc], eps0, tgt)
+        assert b["lower"].cost <= exact * (1 + 1e-9) and exact <= b["upper"].cost * (1 + 1e-9)
+
+
+def test_exact_curves_are_monotone(p7):
+    import numpy as np
+
+    for c in p7:
+        es = np.logspace(-8, np.log10(1.5 * c.threshold_eps), 120)
+        fs = [float(c.f(e)) for e in es]
+        assert all(b >= a for a, b in zip(fs, fs[1:]))

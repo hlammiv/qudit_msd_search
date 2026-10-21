@@ -143,6 +143,50 @@ codes such as [[112,13,3]]₅.
 - Below ε = 1e-7 the leading order c·ε^d is used, with relative error about n·ε.
 - p = 17/19 are not in the study, because their exact curves are out of reach (bounds only).
 
+## Large p: rigorous cost bounds without exact curves
+
+When a code's exact curve is out of reach (p^{dim A} too large), `protocol.BoundedCurve` gives
+rigorous two-sided bounds on its per-output map. The inputs are a small enumerable subcode
+A′ ⊆ A, the exact d, and A_d if it is known:
+
+| quantity | lower bound | upper bound |
+|---|---|---|
+| ε_out(ε) | (A_d/k)·q^d(1−ε)^{n−d} / P_acc(A′) | min(Lemma-17 curve of A′, [A_d q^d(1−ε)^{n−d} + P(A′ accepts wt ≥ d+1)] / P_acc,lo) |
+| P_acc(ε) | (1−ε)^n + A_d q^d(1−ε)^{n−d} | P_acc(A′) |
+
+Notation: q = ε/(p−1). If A_d is unknown, p−1 replaces it in the lower bound and the
+truncation term of the upper bound is dropped.
+
+**From curves to costs.** Running the protocol search on the pessimistic curves gives an upper
+bound on the optimal cost; running it on the optimistic curves gives a lower bound
+(`protocol_bounds`, or `python -m qmsd protocol --p P --bounded <artifact_id>`). Two facts
+make this valid:
+- P_acc decreasing in ε is a theorem.
+- ε_out increasing in ε is assumed. It holds on every exact curve we checked.
+
+**Validation.** On [[72,9,3]]₃, [[112,13,3]]₅ and [[200,43,3]]₃, deliberately small subcodes
+gave bounds that bracket the exact curves everywhere tested. The cost brackets contain the
+exact optimum, and are tight to 0.01% when the code enters at ε ≲ 1e-3
+(`tests/test_protocol.py`).
+
+**Limitation.** The threshold gets only a lower bound. The optimistic curve keeps just the
+weight-d term, so it never crosses ε.
+
+**Results.** All bounds are rigorous. The libraries are RS plus the [[p,1,2⌊p/6⌋+1]] cyclic
+family at p = 17 and 19 (the paper searched cyclic codes only up to p = 7), and the full p = 3
+library.
+
+| code | ε₀ → target | best without it | optimal cost with it | proven saving |
+|---|---|---|---|---|
+| [[237,52,6]]₁₇ | 1e-2 → 1e-30 | 301 ([[16,1,6]]²) | **[85.6, 85.6]** ([[16,1,6]] → [[237,52,6]]) | 3.5× |
+| [[237,52,6]]₁₇ | 1e-3 → 1e-30 | 260 | [26.3, 74.1] | ≥ 3.5× |
+| [[293,68,5]]₁₉ (A_d unknown) | 1e-2 → 1e-30 | 388 | [92.9, 99.1] ([[19,1,7]] → [[293,68,5]]) | ≥ 3.9× |
+| [[293,68,5]]₁₉ | 1e-3 → 1e-30 | 330 | [24.9, 79.0] | ≥ 4.2× |
+| [[230,13,6]]₃ | four cases | 26–234 | lower bound = best without it, or at most 16% below | none proven: not needed at p = 3 |
+
+At 1e-2/1e-3 → 1e-15 the p = 17/19 codes are not needed: a single RS or cyclic round
+overshoots the target anyway.
+
 ## Engines / tiers (`performance.assign_tier`)
 
 | tier | when | engine |

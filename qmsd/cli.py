@@ -11,6 +11,7 @@ Examples
   python -m qmsd perf --all                       # leading order + threshold, every catalog code
   python -m qmsd perf paper-table3-p3-m4-n72-k9
   python -m qmsd protocol --p 5 --eps0 1e-2 --target 1e-15 1e-30
+  python -m qmsd protocol --p 17 --bounded new-p17-d6      # [lower, upper] cost bracket
 """
 from __future__ import annotations
 
@@ -186,10 +187,24 @@ def _cmd_perf(args) -> int:
 def _cmd_protocol(args) -> int:
     from .protocol import best_protocol, library
 
+    from .protocol import bounded_curve_from_record, protocol_bounds
+    from .results import load_result_catalog
+
     lib = library(args.p)
+    if args.bounded:
+        recs = {r.artifact_id: r for r in load_result_catalog()}
+        extra = [bounded_curve_from_record(recs[a]) for a in args.bounded]
+        for c in extra:
+            print(f"{c.name}: {c.note}; threshold in {c.threshold_bounds}")
     for tgt in args.target:
-        best = best_protocol(lib, args.eps0, tgt, max_depth=args.max_depth)
-        print(f"eps0={args.eps0:g} -> {tgt:g}:  " + (best.describe() if best else "unreachable"))
+        if args.bounded:
+            b = protocol_bounds(lib + extra, args.eps0, tgt, max_depth=args.max_depth)
+            for side in ("lower", "upper"):
+                pr = b[side]
+                print(f"eps0={args.eps0:g} -> {tgt:g} [{side} bound]:  " + (pr.describe() if pr else "unreachable"))
+        else:
+            best = best_protocol(lib, args.eps0, tgt, max_depth=args.max_depth)
+            print(f"eps0={args.eps0:g} -> {tgt:g}:  " + (best.describe() if best else "unreachable"))
     return 0
 
 
@@ -268,6 +283,8 @@ def main(argv=None) -> int:
     pq.add_argument("--eps0", type=float, default=1e-2, help="input per-qudit error (paper eps)")
     pq.add_argument("--target", type=float, nargs="+", default=[1e-10, 1e-15])
     pq.add_argument("--max-depth", type=int, default=6)
+    pq.add_argument("--bounded", nargs="*", default=[],
+                    help="catalog artifact ids to add via rigorous bounds (codes too large for exact curves)")
     pq.set_defaults(func=_cmd_protocol)
 
     pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
