@@ -57,14 +57,16 @@ def is_triorthogonal(basis, p) -> bool:
     return True
 
 
-def logical_lambdas(H, k, p) -> list[int]:
-    """lambda_i = sum_l h_il^3 mod p for the first ``k`` (logical) rows of ``H`` (arXiv:2610.08012 Def 5).
+def logical_lambdas(H, k, p, coeffs=None) -> list[int]:
+    """lambda_i = sum_l c_l h_il^3 mod p for the first ``k`` (logical) rows of ``H`` (arXiv:2610.08012 Def 5).
 
-    The transversal cubic gate implements ``U^{lambda_i}`` on logical qudit i.  For p = 1 mod 3
-    a non-cube lambda_i puts the output in a different Clifford class from U|+> (paper sec 8).
+    The transversal gate prod_l U^{c_l} implements ``U^{lambda_i}`` on logical qudit i.  For
+    p = 1 mod 3 a non-cube lambda_i puts the output in a different Clifford class from U|+>
+    (paper sec 8).  ``coeffs`` defaults to all ones (arXiv:2610.29457 Def 1 allows others).
     """
     M = np.asarray(H, dtype=np.int64) % p
-    return [int(np.sum(M[i] ** 3) % p) for i in range(k)]
+    c = np.ones(M.shape[1], dtype=np.int64) if coeffs is None else np.asarray(coeffs, dtype=np.int64) % p
+    return [int(np.sum(c * M[i] ** 3) % p) for i in range(k)]
 
 
 def is_cube_mod_p(a, p) -> bool:
@@ -73,21 +75,22 @@ def is_cube_mod_p(a, p) -> bool:
     return a != 0 and any(pow(x, 3, p) == a for x in range(1, p))
 
 
-def is_triorthogonal_cubic(H, k, p) -> bool:
+def is_triorthogonal_cubic(H, k, p, coeffs=None) -> bool:
     """Triorthogonality of a matrix in the sense of arXiv:2610.08012 Def 5 (odd p, unit weights).
 
     Rows 0..k-1 of ``H`` are logical, the rest stabilizers.  Requires
     sum_l h_al h_bl h_cl == 0 mod p for every multiset {a,b,c} EXCEPT a == b == c < k, and
     lambda_i = sum_l h_il^3 != 0 for each logical row.  Unlike ``is_triorthogonal`` there is
     NO pairwise (self-orthogonality) condition -- e.g. the cyclic [[19,1,3]]_3 code passes
-    here but not there.
+    here but not there.  ``coeffs`` (default all ones) weights the cube sums (arXiv:2610.29457 Def 1).
     """
     assert isinstance(p, int) and p >= 3, "Def 5 is stated for odd primes p"
     M = np.asarray(H, dtype=np.int64) % p
     K = M.shape[0]
+    w = np.ones(M.shape[1], dtype=np.int64) if coeffs is None else np.asarray(coeffs, dtype=np.int64) % p
     for a in range(K):
         for b in range(a, K):
-            ab = (M[a] * M[b]) % p
+            ab = (w * M[a] * M[b]) % p
             for c in range(b, K):
                 s = int(np.sum(ab * M[c]) % p)
                 if a == b == c and a < k:

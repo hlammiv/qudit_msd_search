@@ -237,6 +237,32 @@ def _cmd_assess(args) -> int:
     return 0
 
 
+def _cmd_value(args) -> int:
+    """Marginal protocol-cost saving of catalog codes over the standard library (search objective)."""
+    from .objective import DEFAULT_GRID, marginal_saving, standard_library, surrogate_from_structured_ad
+    from .protocol import curve_from_record, HIST_DIR
+    from .results import load_result_catalog
+
+    recs = {r.artifact_id: r for r in load_result_catalog()}
+    bases = {}
+    for aid in args.ids:
+        r = recs.get(aid)
+        if r is None:
+            print(f"unknown artifact id {aid}", file=sys.stderr)
+            return 1
+        if args.surrogate or not (HIST_DIR / f"{aid}.json").exists():
+            c, how = surrogate_from_structured_ad(r.p, r.m, r.r, r.puncture_columns, r.label), "surrogate"
+        else:
+            c, how = curve_from_record(r), "exact"
+        base = bases.setdefault(r.p, standard_library(r.p))
+        v = marginal_saving(c, base, DEFAULT_GRID, max_depth=args.max_depth)
+        print(f"{r.label:20s} [{how}]  best saving over standard codes: {v['best']:.3f}x", flush=True)
+        for row in v["rows"]:
+            print(f"   {row['eps0']:g} -> {row['target']:g}: {row['base']:.4g} -> {row['with']:.4g}"
+                  f"  ({row['saving']:.3f}x{', used' if row['uses'] else ''})")
+    return 0
+
+
 def main(argv=None) -> int:
     """Argparse entry point with search, catalog, reconstruct, asymptotic, and best."""
     parser = argparse.ArgumentParser(
@@ -327,6 +353,13 @@ def main(argv=None) -> int:
     pa2.add_argument("--eps0", type=float, nargs="+", default=[1e-2, 1e-3])
     pa2.add_argument("--target", type=float, nargs="+", default=[1e-10, 1e-15, 1e-30])
     pa2.set_defaults(func=_cmd_assess)
+
+    pv = sub.add_parser("value", help="search objective: how much each code lowers protocol cost "
+                        "over the standard library (exact curve if cached, else leading-order surrogate)")
+    pv.add_argument("ids", nargs="+", help="catalog artifact ids")
+    pv.add_argument("--surrogate", action="store_true", help="force the leading-order surrogate")
+    pv.add_argument("--max-depth", type=int, default=5)
+    pv.set_defaults(func=_cmd_value)
 
     pb = sub.add_parser("best", help="best code for a declared (p,m): analytic Manhattan + explicit "
                                      "search, lower-gamma wins (the one-liner)")

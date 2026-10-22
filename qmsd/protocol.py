@@ -27,7 +27,8 @@ from .performance import (PERF_DIR, puncture_columns_of, DistillationProfile, le
                           threshold)
 
 HIST_DIR = PERF_DIR / "hist"
-STANDARD = "standard construction (RS / RM / arXiv:2610.08012 cyclic)"
+STANDARD = "standard construction (RS / RM / cyclic / doubled / Prakash-Saha d=2)"
+PS_M_MAX = 12   # [[6m+2,3m-2,2]]_3 codes used, as in arXiv:2610.29457 sec 7
 LOCAL_NUMPY_WORDS = 3e8   # above this, histograms come from the local dwq_coset C kernel
 LOCAL_C_THREADS = 4
 EXACT_BELOW = 1e-7        # below this eps, use the leading order (relative error ~ n*eps)
@@ -110,16 +111,20 @@ def _histograms(key, G0, H1, p):
     return dA, A, cosets
 
 
-def _lambda_ok(H1, G0, p) -> bool:
+def _lambda_ok(H1, G0, p, coeffs=None) -> bool:
     from .triorthogonal import is_cube_mod_p, logical_lambdas
 
-    return all(is_cube_mod_p(l, p) for l in logical_lambdas(H1, len(H1), p))
+    return all(is_cube_mod_p(l, p) for l in logical_lambdas(H1, len(H1), p, coeffs))
 
 
-def curve(name, G0, H1, p, key=None, note="") -> CodeCurve | None:
-    """Curve for a code given (G0, H1); None if its logical gate is in another Clifford class."""
+def curve(name, G0, H1, p, key=None, note="", coeffs=None) -> CodeCurve | None:
+    """Curve for a code given (G0, H1); None if its logical gate is in another Clifford class.
+
+    ``coeffs`` (per-qudit exponents c_l of the transversal gate) only enter the lambda check:
+    under twirled noise the acceptance and logical-error events depend on G0, H1 alone.
+    """
     H1 = np.atleast_2d(np.asarray(H1, dtype=np.int64) % p)
-    if not _lambda_ok(H1, G0, p):
+    if not _lambda_ok(H1, G0, p, coeffs):
         return None
     dA, A, cosets = _histograms(key or name, G0, H1, p)
     prof = profile_from_histograms(p, dA, A, cosets)
@@ -208,6 +213,14 @@ def library(p, include_catalog=True, verbose=False, dedupe=True) -> list[CodeCur
     for label, cons, n, S in CYCLIC.get(p, []):
         G0, H1 = (construction_A if cons == "A" else construction_B)(p, n, S)
         add(curve(label, G0, H1, p, key=f"cyclic-p{p}-{cons}-n{n}", note=STANDARD))
+    from .doubling import paper_codes, prakash_saha_d2
+
+    for label, G0, H1, coeffs in paper_codes(p):   # doubled codes, arXiv:2610.29457 Table 3
+        add(curve(label, G0, H1, p, key=f"doubled-{label.split()[0]}", note=STANDARD, coeffs=coeffs))
+    if p == 3:                                     # high-rate d=2 codes, arXiv:2403.06228 (m=1 is RM)
+        for m in range(2, PS_M_MAX + 1):
+            add(curve(f"[[{6 * m + 2},{3 * m - 2},2]]_3 PS", *prakash_saha_d2(m), 3,
+                      key=f"ps-d2-m{m}", note=STANDARD))
     if include_catalog:
         from .performance import assign_tier
         from .results import load_result_catalog
@@ -495,7 +508,7 @@ def format_assessment(a) -> str:
                      f"{rng(*a['threshold_eps_bounds'], fmt='{:.4g}')}   P_acc(1e-3) in "
                      f"{rng(*a['P_acc_1e_3_bounds'])}")
     lines.append("  cost = raw magic states per output: cheapest protocol using this code, vs without it "
-                 "(all other codes), vs standard RS/RM/cyclic codes only")
+                 "(all other codes), vs standard codes only (RS/RM/cyclic/doubled/Prakash-Saha)")
     for r in a["protocols"]:
         w = r["with_cost"]
         wtxt = rng(*w) if w else "unreachable"

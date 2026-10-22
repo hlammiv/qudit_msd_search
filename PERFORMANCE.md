@@ -94,6 +94,8 @@ integer polynomial before it is evaluated, which avoids cancellation.
 sequence of depth ≤ 6 drawn from a library of codes with exact per-output curves:
 - **Catalog codes.** Our tier-1/2 codes.
 - **The paper's codes.** Its cyclic codes (App. C), plus the shortest RS and RM codes.
+- **arXiv:2610.29457 codes (added 2026-10-22).** The doubled codes of its Table 3, and for p = 3
+  the Prakash–Saha [[6m+2, 3m−2, 2]]₃ codes, m ≤ 12 (`qmsd/doubling.py`).
 - **Excluded:** codes with a non-cube λ, e.g. [[12,1,3]]₇, whose output is in another Clifford class.
 
 **Cost model.** The cost is the expected number of raw states per final output,
@@ -102,17 +104,28 @@ the per-output marginal is the correct input.
 
 | p | ε₀ → target | best protocol (cost) | best with k=1 codes only | recursive smallest code |
 |---|---|---|---|---|
-| 3 | 1e-2 → 1e-15 | [[8,1,2]] → [[215,28,5]] (**70**) | 437 | 4,445 ([[8,1,2]]⁴) |
-| 3 | 1e-2 → 1e-30 | [[8,1,2]] → [[200,43,3]] → [[206,37,4]] (**234**) | 1,818 | 35,560 |
-| 3 | 1e-3 → 1e-10 | [[206,37,4]] (**6.8**) | 42 | 65 |
-| 3 | 1e-3 → 1e-30 | [[206,37,4]] → [[200,43,3]] (**32**) | 637 | 4,129 |
 | 5 | 1e-2 → 1e-15 | [[4,1,2]] → [[519,106,5]] (**22**) | 106 ([[11,1,3]] → [[112,13,3]], no 519) | 267 ([[4,1,2]]⁴) |
 | 5 | 1e-2 → 1e-30 | [[4,1,2]]² → [[519,106,5]] (**82**) | 314 (no 519) | 1,066 |
 | 5 | 1e-3 → 1e-10 | [[519,106,5]] (**8.2**) | 16 | 16 |
 | 5 | 1e-3 → 1e-30 | [[519,106,5]]² (**40**) | 138 (no 519) | 257 |
 | 7 | 1e-2 → 1e-10 | [[28,1,5]] cyc (**37**) | same | 230 ([[6,1,2]]³) |
 | 7 | 1e-2 → 1e-30 | [[7,1,3]] cyc → [[28,1,5]] cyc (**210**) | same | 8,270 |
-| 7 | 1e-3 → 1e-30 | [[6,1,2]] → [[29,1,6]] cyc (**175**) | same | 1,304 |
+| 7 | 1e-3 → 1e-10 | [[20,1,4]] doubled (**20.4**) | same | |
+| 7 | 1e-3 → 1e-30 | [[7,1,3]] cyc → [[20,1,4]] doubled (**141**; 175 before the doubled code) | same | 1,304 |
+
+**p = 3 after adding the Prakash–Saha codes (2026-10-22).** These d = 2 codes have rate up to
+~1/2, so they replace both the recursive and the k = 1 baselines. The earlier p = 3 rows
+(e.g. 1,818 → 234 at 1e-2 → 1e-30) compared against a baseline without them and overstated the
+gain about 10×.
+
+| ε₀ → target | best protocol (cost) | standard codes only | before PS codes were in the library |
+|---|---|---|---|
+| 1e-2 → 1e-10 | [[20,7,2]] PS → [[206,37,4]] (**26.3**) | 40.3 | |
+| 1e-2 → 1e-15 | [[20,7,2]] → [[44,19,2]] → [[206,37,4]] (**48.7**) | 58.9 | 70 |
+| 1e-2 → 1e-30 | [[14,4,2]] → [[74,34,2]] → [[206,37,4]] → [[74,34,2]] (**113.9**) | 155.8 | 234 |
+| 1e-3 → 1e-10 | [[206,37,4]] (**6.8**) | 11.2 | 6.8 |
+| 1e-3 → 1e-15 | [[74,34,2]] → [[206,37,4]] (**13.2**) | 16.6 | |
+| 1e-3 → 1e-30 | [[56,25,2]] → [[206,37,4]] → [[74,34,2]] (**29.0**) | 43.6 | 32 |
 
 For p = 5, the "k=1 only" column is the best protocol without the flagship; it may use k>1
 codes such as [[112,13,3]]₅.
@@ -121,15 +134,16 @@ codes such as [[112,13,3]]₅.
 - **High-rate search codes win, even though their thresholds are low.** One round of a small
   high-threshold code ([[8,1,2]]₃, [[4,1,2]]₅, [[11,1,3]]₅) brings ε from 1e-2 to about 1e-4.
   A high-rate code then finishes the job.
-  - At p = 3 these protocols are 3–20× cheaper than the best k=1 (cyclic) protocol, and
-    10–150× cheaper than recursion of the smallest code.
+  - At p = 3 the Prakash–Saha d = 2 codes do most of the work. [[206,37,4]]₃ is the only
+    search code in the optimal protocols, and it lowers cost 1.2–1.6× below the standard codes.
   - At p = 5 the γ<1 flagship [[519,106,5]]₅ gives the cheapest protocol at every target:
     3–13× below recursive RS. This holds with its exact per-output error, which is ~85×
     worse than A_d/k.
 - **γ is not a good proxy for cost at these targets.** The p = 3 winners have γ>1. What matters
   is n/k together with how far one round pushes ε past the target.
-- **At p = 7 the paper's cyclic codes dominate.** Our [[44,5,3]]₇ codes never appear in an
-  optimal protocol. A high-rate p = 7 search code with a threshold of at least ~0.05 would be
+- **At p = 7 the paper's cyclic codes and the doubled [[20,1,4]]₇ dominate.** [[20,1,4]]₇ has
+  non-cube coefficients, so its inputs include U^η states, which (as in arXiv:2610.29457) we
+  count as one raw state each. Our [[44,5,3]]₇ codes never appear in an optimal protocol. A high-rate p = 7 search code with a threshold of at least ~0.05 would be
   the target.
 - **Pre-distillation is forced by the thresholds.** The ε\* ≈ 0.02–0.06 codes never appear
   as the first round at ε₀ = 1e-2.
@@ -209,32 +223,42 @@ full table in its Distillation tab.
 
 **Two baselines.** The tables use two:
 - "without": all other codes, twins included. This answers whether this exact code is needed.
-- "standard": RS / RM / cyclic codes only. This answers how much the code beats the published
+- "standard": RS / RM / cyclic codes, plus (since 2026-10-22) the doubled codes and, for p = 3,
+  the Prakash–Saha [[6m+2, 3m−2, 2]]₃ codes. This answers how much the code beats the published
   constructions.
 
-**Catalog run (2026-10-20).** 30 codes; the analytic Manhattan family, the refuted cap code and
-the candidates are skipped. The table gives the best saving vs standard codes, over ε₀ ∈
+**Catalog run (re-assessed 2026-10-22 against the corrected baseline).** 84 codes: the 31
+catalog codes and Aanha's 53. The analytic Manhattan family, the refuted cap code and the
+candidates are skipped. The table gives the best saving vs standard codes, over ε₀ ∈
 {1e-2, 1e-3} × target ∈ {1e-10, 1e-15, 1e-30}, depth ≤ 5; "≥" marks a rigorous bound.
 
-| code | ε\* per output | best saving vs RS/RM/cyclic |
-|---|---|---|
-| [[206,37,4]]₃ (both A_d versions), [[200,43,3]]₃ | 0.062 / 0.028 | 20× (1e-3 → 1e-30) |
-| [[215,28,5]]₃ | 0.104 | 14.6× |
-| [[72,9,3]]₃ | 0.062 | 11.6× |
-| [[667,62,4]]₃ | 0.021 | 8.7× |
-| [[230,13,6]]₃ / [[690,39,5]]₃ | ≥ 0.050 / ≥ 0.013 | ≥ 6.2× / ≥ 5.3× |
-| [[519,106,5]]₅ (both) | 0.043 | 6.2× (1e-2 → 1e-30) |
-| [[20,5,2]]₅ | 0.023 | 6.2× |
-| [[293,68,5]]₁₉ | ≥ 0.028 | ≥ 4.2× |
-| [[112,13,3]]₅ (both) | 0.077 | 3.7× |
-| [[237,52,6]]₁₇ | ≥ 0.046 | ≥ 3.5× |
-| [[79,2,4]]₃, [[80,1,5]]₃, [[24,1,3]]₅ | 0.15 / 0.16 / 0.26 | 3.2× / 1.8× / 1.5× |
-| [[2093,308,5]]₇ | ≥ 0.0018 | undetermined (bounds too loose) |
-| [[44,5,3]]₇ (all 10), [[124,1,4]]₅ | 0.173 / — | none |
+| code | ε\* per output | best saving vs standard | before PS codes (2026-10-20) |
+|---|---|---|---|
+| [[206,37,4]]₃ (both A_d versions) | 0.062 | 1.63× (1e-3 → 1e-10) | 20× |
+| [[200,43,3]]₃ | 0.028 | 1.37× (1e-3 → 1e-30) | 20× |
+| [[215,28,5]]₃ | 0.104 | 1.17× | 14.6× |
+| [[72,9,3]]₃, [[667,62,4]]₃, [[79,2,4]]₃, [[80,1,5]]₃ | 0.062 / 0.021 / 0.15 / 0.16 | none | 11.6× / 8.7× / 3.2× / 1.8× |
+| [[230,13,6]]₃ / [[690,39,5]]₃ | ≥ 0.045 / ≥ 0.012 | none | ≥ 6.2× / ≥ 5.3× |
+| [[519,106,5]]₅ (both) | 0.043 | 6.2× (1e-2 → 1e-30) | same |
+| [[20,5,2]]₅ | 0.023 | 6.2× | same |
+| [[293,68,5]]₁₉ | ≥ 0.028 | ≥ 4.2× | same |
+| [[112,13,3]]₅ (both) | 0.077 | 3.7× | same |
+| [[237,52,6]]₁₇ | ≥ 0.034 | ≥ 3.5× | same |
+| [[24,1,3]]₅ | 0.26 | 1.5× | same |
+| [[2093,308,5]]₇ | ≥ 0.0018 | undetermined (bounds too loose) | same |
+| [[44,5,3]]₇ (all 10), [[124,1,4]]₅ | 0.173 / ≥ 0.11 | none | same |
 
-Reading: almost every search code beats the standard constructions at some target. The p = 7
-codes in the catalog are the exception: the paper's cyclic codes are better there. Twins such
-as the A_d-optimized versions give the same saving, so A_d optimization does not show up in cost.
+Reading:
+- At p = 3 the Prakash–Saha codes remove almost all of the gain. Only [[206,37,4]]₃,
+  [[200,43,3]]₃ and [[215,28,5]]₃ still lower cost, by 1.2–1.6×, as middle or late rounds after
+  d = 2 front ends. The earlier 3–20× figures came from a baseline without these codes.
+- p = 5 and the large-p codes are unchanged. The only new p = 5 standard code, the doubled
+  [[33,1,5]]₅, never enters an optimal protocol.
+- At p = 7 the paper's cyclic codes and the doubled [[20,1,4]]₇ are better than our codes.
+- Twins, such as the A_d-optimized versions, give the same saving, so A_d optimization does not
+  show up in cost.
+- The p = 23 Manhattan [[17,6,3]]₂₃ shows 24.7×. This is an artifact of a thin baseline: the
+  p = 23 standard library has only [[23,1,7]] and no multi-output RS codes.
 
 **Aanha's imported codes (2026-10-21).** The 53 records merged from `aanha/results` were
 independently re-certified:
@@ -244,27 +268,37 @@ independently re-certified:
   Manhattan codes with d ≥ 9.
 - Exact A_d (`structured_ad`) was written into the 24 d ≤ 4 records that lacked it. It agrees
   with all 10 values she had stored.
-- 8 of her 12 seeded searches rerun to identical output (50 of 53 records). The `arc_climb` run
-  and the three m = 6 runs need more than this box's 4 GB and 4 h, and are being rerun on lenore.
+- 10 of her 12 seeded searches rerun to identical output: 8 locally, and m6_flatspread and
+  m6_seed1 on lenore. The 1000-trial m = 6 run timed out at 12 h, and `arc_climb` was still
+  running on lenore at last check.
 
-| her codes | ε\* per output | best saving vs RS/RM/cyclic |
-|---|---|---|
-| [[202,41,3]]₃ … [[204,39,3]]₃ (5 codes, exact) | 0.040 – 0.051 | 17.8 – 18.9× (1e-3 → 1e-30) |
-| [[214,29,4]]₃ … [[217,26,4]]₃ (14, incl. 10 × [[215,28,4]]₃) | ≥ 0.048 | 13.2 – 15.0× |
-| [[223,20,5]]₃ | ≥ 0.046 | ≥ 8.4× |
-| [[668,61,4]]₃ … [[679,50,4]]₃ (12) | ≥ 0.012 | ≥ 7.6 – 9.4× |
-| [[689,40,5]]₃ … [[696,33,5]]₃ (6) | ≥ 0.013 | ≥ 4.4 – 5.4× |
-| [[555,70,3]]₅ / [[590,35,6]]₅ (Manhattan) | ≥ 0.013 / ≥ 0.015 | 2.9× / ≥ 1.4× |
-| [[610,15,9]]₅, [[620,5,12]]₅, [[624,1,14]]₅ (Manhattan) | ≥ 0.014 – 0.020 | undetermined / none |
-| p = 7: [[322,21,5]]₇ (2), [[325,18,5]]₇, [[323,20,3]]₇, [[333,10,4]]₇, [[339,4,5]]₇ (5) | ≥ 0.030 – 0.032 | undetermined or none |
+| her codes | ε\* per output | best saving vs standard (2026-10-22) | before PS codes |
+|---|---|---|---|
+| [[202,41,3]]₃ … [[204,39,3]]₃ (5 codes, exact) | 0.040 – 0.051 | 1.22 – 1.29× (1e-3 → 1e-30) | 17.8 – 18.9× |
+| [[214,29,4]]₃ … [[217,26,4]]₃ (14, incl. 10 × [[215,28,4]]₃) | ≥ 0.048 | ≥ 1.07 – 1.22× (1e-3 → 1e-10) | 13.2 – 15.0× |
+| [[223,20,5]]₃ | ≥ 0.046 | none | ≥ 8.4× |
+| [[668,61,4]]₃ … [[679,50,4]]₃ (12) | ≥ 0.012 | none | ≥ 7.6 – 9.4× |
+| [[689,40,5]]₃ … [[696,33,5]]₃ (6) | ≥ 0.012 | none | ≥ 4.4 – 5.4× |
+| [[555,70,3]]₅ / [[590,35,6]]₅ (Manhattan) | ≥ 0.013 / ≥ 0.015 | ≥ 2.9× / ≥ 1.4× | same |
+| [[610,15,9]]₅, [[620,5,12]]₅, [[624,1,14]]₅ (Manhattan) | ≥ 0.014 – 0.020 | none | undetermined / none |
+| p = 7: [[322,21,5]]₇ (2), [[325,18,5]]₇, [[323,20,3]]₇, [[333,10,4]]₇, [[339,4,5]]₇ (5) | ≥ 0.030 – 0.032 | none | undetermined or none |
 
 Reading:
-- Her qutrit codes beat the standard constructions by 4–19×.
-- None of them beats the paper's [[206,37,4]]₃ → [[200,43,3]]₃ pair. For example, requiring
-  [[215,28,4]]₃ costs 44.3 at 1e-3 → 1e-30 against 31.8 without it, so they are not needed in
-  the cheapest catalog protocol.
-- At p = 7 the bounds from small subcodes (dim 7 of 35–52) are too loose to decide. This is
-  consistent with the paper's cyclic codes dominating at p = 7.
+- Her m = 5 qutrit codes save 1.1–1.3×, in the same range as the paper's [[206,37,4]]₃ and
+  [[200,43,3]]₃. Her m = 6 qutrit codes save nothing against the corrected baseline.
+- None of them beats the paper's [[206,37,4]]₃. For example, requiring [[215,28,4]]₃ costs
+  39.7 at 1e-3 → 1e-30 against 29.0 without it, so they are not needed in the cheapest catalog
+  protocol.
+- At p = 7 her codes do not enter any optimal protocol.
+
+**Search objective (Option C, `qmsd/objective.py`).** Because γ does not predict these savings,
+`marginal_saving(candidate, standard_library(p))` scores a code by cost(standard) /
+cost(standard + candidate). Candidates use a leading-order surrogate built from `structured_ad`
+(per-output L_d = Σ_w (w − d)·hist[w] / k). On the 10 qutrit catalog codes the surrogate matches
+the exact saving to ≤ 3%: [[206,37,4]]₃ 1.503 / 1.503, [[215,28,5]]₃ 1.108 / 1.108,
+[[204,39,3]]₃ 1.091 / 1.119, [[203,40,3]]₃ 1.000 / 1.025, and the other six 1.000 / 1.000.
+The figures here are lower than the catalog table because the library holds only the
+standard codes plus the candidate. CLI: `python -m qmsd value <ids> [--surrogate]`.
 
 ## Engines / tiers (`performance.assign_tier`)
 

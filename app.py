@@ -41,7 +41,7 @@ def _perf_cols(r):
 
 
 def _saving(r):
-    """Best rigorous/exact saving over the standard RS/RM/cyclic codes across stored targets."""
+    """Best rigorous/exact saving over the standard codes (RS/RM/cyclic/doubled/Prakash-Saha) across stored targets."""
     a = assessment(r)
     best, undetermined = None, False
     for x in (a or {}).get("protocols", []):
@@ -68,7 +68,7 @@ def catalog_frame(records):
         "family": r.family, "p": r.p, "m": r.m, "n": r.n, "k": r.k,
         "d": r.d, "A_d": r.A_d, "gamma": r.gamma, "rate k/n": r.rate,
         **_perf_cols(r),
-        "best saving vs RS/RM/cyclic": _saving(r),
+        "best saving vs standard codes": _saving(r),
         "sublogarithmic": r.sublogarithmic, "provenance": r.provenance,
     } for r in records])
 
@@ -346,7 +346,7 @@ def distillation(record):
     if assess_:
         st.subheader("Protocol cost (raw magic states per output)")
         st.caption("Cheapest multi-round protocol USING this code vs the cheapest without it "
-                   "(other rounds from the RS/RM/cyclic/catalog library; eps = paper convention). "
+                   "(other rounds from the standard + catalog library; eps = paper convention). "
                    + ("Exact." if assess_["exact"] else "Rigorous bounds: " + assess_["note"] + "."))
         rows = []
         for x in assess_["protocols"]:
@@ -356,7 +356,7 @@ def distillation(record):
                              f"{hi:.4g}" if lo is not None and abs(hi - lo) <= 1e-6 * hi
                              else f"[{lo:.4g}, {hi:.4g}]"),
                          "without (all other codes)": x["without"],
-                         "standard RS/RM/cyclic only": x.get("standard"), "protocol": x["with_protocol"]})
+                         "standard codes only": x.get("standard"), "protocol": x["with_protocol"]})
         st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
     if df.delta_out.notna().any():
         cols = ["delta_out"] + [c for c in df.columns if c.startswith("delta_out exact")]

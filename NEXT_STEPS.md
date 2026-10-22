@@ -48,6 +48,38 @@ is loose — binding weight-21 2-flat words cost only ~k/114 per hyperplane). So
 non-RM target — see D_PLAN.md §2.3). **p=11, 13 closures are airtight** (fully validated). (p=5 is the exception:
 it DOES cross at m=4 — the flagship `[[519,106,5]]` γ=0.987, A₅=1904 — just no *smaller* code.)
 
+## G. 🔄 Protocol-cost search objective (Option C; started 2026-10-22, project for Aanha)
+After arXiv:2610.29457 the qutrit standard library includes the Prakash–Saha [[6m+2,3m−2,2]]₃ codes. Against
+it, our codes help only as **middle/late rounds after d=2 first rounds**: [[206,37,4]]₃ saves 1.2–1.5×,
+[[215,28,5]]₃ 1.1× and [[204,39,3]]₃ 1.09×, while 7 of 10 qutrit catalog codes save nothing. So γ is the
+wrong search target. **Objective:** `qmsd/objective.py` `marginal_saving(candidate, standard_library(p))`.
+Candidates use `LeadingOrderCurve` from `structured_ad` (per-output L_d = Σ_w (w−d)·hist[w]/k), which matches
+exact curves to ≲3% on the 10 qutrit catalog codes (`validate`). CLI: `python -m qmsd value <ids> [--surrogate]`.
+**Next:** plug `marginal_saving` into the search ranking (cheap screen: d, k/n, then the surrogate on the top
+few), and target d=3–4 at k/n ≈ 0.15–0.2, where [[206,37,4]] sits.
+
+## H. 🔭 Weighted RM supports (p=7 lever; started 2026-10-22)
+Charge picture (arXiv:2610.29457 §4): any codeword μ of RM(3r,m)^⊥ = RM(m(p−1)−1−3r, m) gives a weighted
+triorthogonal support X = supp μ, which is shorter than F_p^m whenever 3r < m(p−1)−1. At p=7, m=3 (r=5) the budget is
+degree 2: μ = x₁ (294 pts) or x₁(x₁−1) (245 pts, vs 343), full rank 55–56 (`qmsd/weighted.py`,
+`tests/test_weighted.py`). Outputs must sit at cube-charge points (a third of them at p=7). Inputs at non-cube
+charges consume U^μ magic states (counted as one input each, as for the paper's [[20,1,4]]₇).
+**First data (flat_spread sampler, 10 trials each, d certified):**
+
+| k | unit F₇³ | weighted μ = x₁(x₁−1) |
+|---|---|---|
+| 4 | [[339,4,5]], γ = 2.76 | [[241,4,5]], γ = 2.55 |
+| 10 | [[333,10,5]], γ = 2.18 | **[[235,10,5]], γ = 1.96** |
+| 18 / 21 | [[325,18,5]] / [[322,21,5]], γ = 1.80 / 1.70 | sampler finds no cap |
+
+Same distance, ~100 fewer qudits. It stalls at k ≥ 18 because the cube-charge points (μ ∈ {1, 6}) lie on only
+2 parallel planes (98 points), and caps inside two planes are small.
+**Next:** choose charge polynomials whose cube-valued points are spread across F₇³, e.g. irreducible quadrics,
+or allow non-cube outputs and track their Clifford class. Then derive a distance law for weighted supports
+(flats ∩ X), and try m=4, where the degree budget is larger.
+
+## I. ⏸ Multi-output doubling (arXiv:2610.29457 open problem) — deferred by request 2026-10-22.
+
 ---
 ## Settled this session (context for the above)
 - Distillation/threshold for `[[237,52,6]]₁₇`: [the "δ_th>1" leading-order argument is REFUTED 2026-10-20 —

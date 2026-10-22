@@ -25,7 +25,15 @@ and by single-round distillation cost `C`.
   reach), `cyclic.py` (the paper's cyclic constructions A/B), `mc_distill.py` (Monte Carlo
   cross-check), and `dist_weightdist/core_c/dwq_coset.c` (multithreaded C enumerator for large
   codes). See **`PERFORMANCE.md`** for the model, validation and results.
-- **`tests/`** — 375 tests anchored to the published results of both papers.
+- **Doubled codes and weighted supports** (following
+  [arXiv:2610.29457](https://arxiv.org/abs/2610.29457), Prakash & Ramya, *Short qudit
+  triorthogonal codes from doubling*): `doubling.py` (P-codes, Theorem 4 doubling, the paper's
+  Table 3 codes and the Prakash–Saha [[6m+2,3m−2,2]]₃ family, all in the standard protocol
+  library), `objective.py` (search objective: a code's protocol-cost saving over the standard
+  codes, with a fast leading-order surrogate) and `weighted.py` (weighted Reed–Muller supports,
+  i.e. shorter triorthogonal spaces with charge coefficients). Notes:
+  `literature/2610.29457_NOTES.md`.
+- **`tests/`** — 377 tests anchored to the published results of the papers.
 - **`IMPLEMENTATION_BLUEPRINT.md`**, **`STATUS.md`** — design and honest build status.
 
 ## Highlights
@@ -39,7 +47,7 @@ and by single-round distillation cost `C`.
 - Reproduces arXiv:2610.08012 **Table 2** (leading order, threshold, acceptance) to the printed
   digits, and gives exact thresholds or rigorous threshold lower bounds for the catalog codes
   (`PERFORMANCE.md`).
-- **375 tests pass** (`python -m pytest -q`).
+- **377 tests pass** (`python -m pytest -q`).
 
 ## Quickstart
 
@@ -80,13 +88,15 @@ depolarizing noise (paper convention `eps = (p-1)/p · delta`):
 ```bash
 python -m qmsd perf <artifact_id>                    # leading order + exact threshold for one code
 python -m qmsd perf --all --dry-run                  # which codes are exact locally (tier 1)
-python -m qmsd assess <artifact_id>                  # threshold, P_acc, multi-round cost vs RS/RM/cyclic
+python -m qmsd assess <artifact_id>                  # threshold, P_acc, multi-round cost vs standard codes
+python -m qmsd value <artifact_id> [--surrogate]     # search objective: cost saving over the standard library
 python -m qmsd assess --all --store --skip-existing  # assess every new catalog code; shown in the explorer
 python -m qmsd protocol --p 5 --eps0 1e-2 --target 1e-15  # cheapest multi-round protocol for p
 ```
 
 `assess` prints the cost (raw magic states per output) of the cheapest protocol with and
-without the code, compared with the standard Reed–Solomon, Reed–Muller and cyclic codes.
+without the code, compared with the standard codes: Reed–Solomon, Reed–Muller, cyclic, doubled,
+and (p = 3) Prakash–Saha. Against the Prakash–Saha codes our qutrit codes save 1.0–1.6×.
 Small codes get exact numbers. Larger codes get rigorous bounds, with `≥` marking a bound,
 from an enumerable subcode (Lemma 17 of arXiv:2610.08012). Results are stored under
 `qmsd/data/performance/` and appear in the explorer's Distillation tab and the "best saving"
