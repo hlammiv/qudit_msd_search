@@ -268,9 +268,9 @@ independently re-certified:
   Manhattan codes with d ≥ 9.
 - Exact A_d (`structured_ad`) was written into the 24 d ≤ 4 records that lacked it. It agrees
   with all 10 values she had stored.
-- 10 of her 12 seeded searches rerun to identical output: 8 locally, and m6_flatspread and
-  m6_seed1 on lenore. The 1000-trial m = 6 run timed out at 12 h, and `arc_climb` was still
-  running on lenore at last check.
+- 11 of her 12 seeded searches rerun to identical output: 8 locally, and m6_flatspread,
+  m6_seed1 and `arc_climb` (~29 h) on lenore. The 1000-trial m = 6 run timed out at 12 h
+  without output and is not reproduced.
 
 | her codes | ε\* per output | best saving vs standard (2026-10-22) | before PS codes |
 |---|---|---|---|
