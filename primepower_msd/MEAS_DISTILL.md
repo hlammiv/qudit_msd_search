@@ -78,9 +78,12 @@ edge switching until no root has a violator).  Certified (3, w) codes, lenore, `
 | 26 | **2080 (240)**, 2340, 2600, 3120, 3640 | — |
 | 35 | 4900 | 3500 (running) |
 | 40 | 5200, 6400 | — |
-| 50 / 71 | — | 9500 / 7100, 9940 (round 0 only) |
+| 50 | **9500 (570)**, seeds 1 and 2 (`--no4`: 4-cycle pre-pass first, then 1134 / 1163 switches, 9.3 / 13 h) | 9500 without the pre-pass (2694 violating roots at round 0) |
+| 71 | — | 7100, 9940 (round 0 only) |
 
-Minimum size grows ≈ 3–4 w², so w ≲ 50 under 10k inputs.
+Minimum size grows ≈ 3–4 w², so w ≲ 50 under 10k inputs.  At w ≥ 40 the dominant violators are Tanner 4-cycles
+(two inputs sharing two checks: U = 2, t = 2 → 2U + t = 6 < 7), ≈ 18 n²/(2 m²) of them; `remove_4cycles` switches
+them out first (rejecting switches that create new ones), after which the certifier repair converges in ~10 rounds.
 
 **Inner codes with D ≥ 7** (`inner_search2.py`: anneal on signed flat collections, objective = number of
 ≤ 3 + ≤ 3 syndrome collisions, which is 0 iff d_bin(S^⊥) ≥ 7; aligned forbidden flats cap n):
@@ -91,7 +94,7 @@ Minimum size grows ≈ 3–4 w², so w ≲ 50 under 10k inputs.
 | [[63,21,7]] signed RM(2,6) | 19.00 | 1.513 | 21 | 1470 inputs |
 | **[[64,26,≥7]]** | **15.77** | **1.417** | 26 | **2080 inputs** |
 | [[96,40,≥7]] | 15.40 | 1.405 | 40 | 5200 inputs |
-| [[112,50,≥7]] | 14.44 | 1.372 | 50 | open |
+| [[112,50,≥7]] | 14.44 | 1.372 | 50 | **9500 inputs** (fault distance 7 confirmed; §5c count running) |
 
 [[63,21,7]] hosting re-verified at d = 4, 8 (with distance), 16, 32, 64 (balance, normal basis, all logical S
 exponents odd): `runs/meas_distill/rm63_alld.log`.
@@ -189,12 +192,31 @@ basis, the inverse network, and syndrome readout (S-pivots in X, ancillas in Z).
   Faults in the final decoder land on outputs, so the last stage's logical Cliffords need **p_C ≲ target / 5**,
   as in qubit distillation.  Earlier stages only need p_C below their own output error.  Clifford locations (dense
   CSUM encoders, ~n² gates per block) outnumber T locations by about 7× and dominate rejection at equal rates.
-  Structured (RM butterfly) encoders would cut this.
+* **Sparse encoders** (`sparse_encoder.py`).  The dense cost is a k×k mixing of the input qudits forced by the dense
+  Gram–Schmidt normal basis.  A sparse normal basis is grown vector by vector (lightest odd-norm solution orthogonal
+  to the vectors so far, by random information sets) with pivots chosen so the encoder matrix is nearly triangular,
+  then synthesised in Markowitz order.  CSUMs per encoder (`runs/meas_distill/sparse_encoders.json`):
+
+| inner code | dense (d = 4) | sparse d = 4 | sparse d = 8 | Σ basis weight (d = 4) | T per check |
+|---|---|---|---|---|---|
+| [[7,1,3]] | 19 | 12 | 12 | 3 | 14 |
+| [[15,7,3]] | 111 | 68 | 68 | 41 | 30 |
+| [[31,21,3]] | 565 | 273 | 340 | 158 | 62 |
+| [[63,51,3]] | 2552 | 1142 | 1415 | 606 | 126 |
+| [[64,26,7]] | 2010 | 1345 | 1580 | 479 | 128 |
+| [[127,113,3]] | 10554 | 3998 | 5371 | 1902 | 254 |
+
+  Validated like the dense circuit (determinism; all ≤ 3-fault patterns of [[7,1,3]] at d = 4, 8, 16 and
+  66–89k random + planted patterns of [[15,7,3]] + K₈ at d = 4, 8, 16 agree exactly with the linear model run on
+  the same basis).  The logical basis enters the failure count: [[15,7,3]] + K₈ C₃ = 656 vs 632 (d = 4), so the
+  sparse basis trades ≈ 4 % in c for 1.6× fewer Cliffords.  Orthogonality is mod d, so the basis is per-d.
+  An exact search on [[15,7,3]] shows a fully sparse normal basis needs weights up to 7 (≤ 5 gives at most 5 of 7);
+  the sequential weights grow to ≈ n/2 for the last vectors, which is what remains of the k² term.
 * Planner (`msd_planner.py`): per-output error c·p^W + 5·p_C and acceptance exp(−L p − L_C p_C).  With
   p_C ≤ target/6 the §5d costs are unchanged; with larger p_C the target cannot be reached.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
-2. w = 50 outer (≤ 10k) for [[112,50]] (γ 1.372); smaller w = 26 outer (< 2080).
-3. Done (§5e): circuit-level model; p_C ≲ target/5 for the final stage.  Open: cheaper structured encoders (fewer Clifford locations).
+2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
+3. Done (§5e): circuit-level model; p_C ≲ target/5 for the final stage; sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.

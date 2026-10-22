@@ -112,11 +112,17 @@ def _apply_network(net, n, d):
     return M
 
 
-def build(P: Protocol, p_in: float, p_T: float, p_C: float):
+def build(P: Protocol, p_in: float, p_T: float, p_C: float, encoder=None):
+    """encoder: optional (piv, L, net) with piv = S-pivots then one pivot per row of P.N, L[piv] = (S basis; P.N)
+    (e.g. sparse_encoder.sparse_protocol); default: dense completion of (S; N)."""
     d, n, k, r = P.d, P.n, P.k, P.S.shape[0]
-    G = np.vstack([P.S, P.N]) % d
-    piv, L = completion(G, d)
-    net = csum_network(L, d)
+    if encoder is None:
+        G = np.vstack([P.S, P.N]) % d
+        piv, L = completion(G, d)
+        net = csum_network(L, d)
+    else:
+        piv, L, net = encoder
+        assert np.array_equal(L[list(piv[r:])] % d, P.N % d)
     assert np.array_equal(_apply_network(net, n, d), L % d)
     s_piv, n_piv = piv[:r], piv[r:]
     anc_cols = [c for c in range(n) if c not in piv]
@@ -170,11 +176,11 @@ def build(P: Protocol, p_in: float, p_T: float, p_C: float):
     return C, inputs
 
 
-def forced_verdicts(P: Protocol, configs):
+def forced_verdicts(P: Protocol, configs, encoder=None):
     """configs: list of fault lists [(location, value)] in meas_sim location order (inputs, then per scheduled
     check 2n T locations).  Returns a bool array: accepted with a Z error on some output (circuit, noiseless
     otherwise)."""
-    C, inputs = build(P, 0.0, 0.0, 0.0)
+    C, inputs = build(P, 0.0, 0.0, 0.0, encoder)
     n, N, d = P.n, P.n_in, P.d
     S = len(configs)
     forced = {}
@@ -198,8 +204,8 @@ def forced_verdicts(P: Protocol, configs):
     return ok & np.any(sim.z[:, inputs] % d != 0, axis=1)
 
 
-def run(P: Protocol, p_in, p_T, p_C, shots, seed=0, chunk=20000):
-    C, inputs = build(P, p_in, p_T, p_C)
+def run(P: Protocol, p_in, p_T, p_C, shots, seed=0, chunk=20000, encoder=None):
+    C, inputs = build(P, p_in, p_T, p_C, encoder)
     rng = np.random.default_rng(seed)
     acc = failZ = failXZ = badZ = badXZ = 0
     done = 0

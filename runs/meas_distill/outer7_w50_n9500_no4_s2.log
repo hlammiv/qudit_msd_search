@@ -1,0 +1,13 @@
+  4-cycle switches 5000 bad 261
+4-cycle pre-pass: 5488 switches, 0 left
+round 0: violating roots 464, switches so far 0
+round 1: violating roots 190, switches so far 471
+round 2: violating roots 78, switches so far 735
+round 3: violating roots 54, switches so far 874
+round 4: violating roots 38, switches so far 992
+round 5: violating roots 29, switches so far 1057
+round 6: violating roots 20, switches so far 1096
+round 7: violating roots 14, switches so far 1120
+round 8: violating roots 1, switches so far 1133
+round 9: violating roots 0, switches so far 1134
+certified 33503 s

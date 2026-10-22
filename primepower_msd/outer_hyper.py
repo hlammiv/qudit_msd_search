@@ -267,7 +267,7 @@ def scan_roots(bit_checks, check_bits, D):
     return bad
 
 
-def construct2(n_bits, s, w, D, seed=0, max_rounds=200, verbose=False):
+def construct2(n_bits, s, w, D, seed=0, max_rounds=200, verbose=False, no4=False):
     """Random (s,w) graph; repeat: parallel scan -> for every violating root, switch an edge of a bit in its
     violator until that root is clean (local re-check of the two touched bits); stop when a scan is clean."""
     rng = np.random.default_rng(seed)
@@ -276,6 +276,10 @@ def construct2(n_bits, s, w, D, seed=0, max_rounds=200, verbose=False):
         while len(set(bc[b])) < s:
             j = rng.integers(s); b2 = rng.integers(n_bits); j2 = rng.integers(s)
             bc[b, j], bc[b2, j2] = bc[b2, j2], bc[b, j]
+    if no4:
+        bc, sw4, left = remove_4cycles(bc, m, w, rng, verbose=verbose)
+        if verbose:
+            print(f"4-cycle pre-pass: {sw4} switches, {left} left", flush=True)
     cb = check_bits_from(bc, m, w)
     switches = 0
     for rnd in range(max_rounds):
@@ -300,3 +304,62 @@ def construct2(n_bits, s, w, D, seed=0, max_rounds=200, verbose=False):
                 if violator_at(b2, bc, cb, D, False)[D - 1] > 0:     # do not create a violator at b2
                     swap_edges(bc, cb, b, j, b2, j2); switches -= 1
     return None
+
+
+@njit
+def four_cycle_bit(b, bit_checks, check_bits):
+    """True if bit b shares >= 2 checks with another bit (a Tanner 4-cycle; for s = 3, D = 7 this pair alone is a
+    violator: U = 2, |V| = 2)."""
+    s = bit_checks.shape[1]; w = check_bits.shape[1]
+    for j1 in range(s):
+        c1 = bit_checks[b, j1]
+        for k1 in range(w):
+            x = check_bits[c1, k1]
+            if x < 0 or x == b:
+                continue
+            for j in range(s):
+                cx = bit_checks[x, j]
+                if cx != c1:
+                    for jj in range(s):
+                        if bit_checks[b, jj] == cx:
+                            return True
+    return False
+
+
+@njit(parallel=True)
+def scan_4cycles(bit_checks, check_bits):
+    n = bit_checks.shape[0]
+    bad = np.zeros(n, np.bool_)
+    for b in prange(n):
+        bad[b] = four_cycle_bit(b, bit_checks, check_bits)
+    return bad
+
+
+def remove_4cycles(bc, m, w, rng, max_switch=10_000_000, verbose=False):
+    """Edge switches until no two bits share two checks (cheap pre-pass before construct2's violator search)."""
+    n, s = bc.shape
+    cb = check_bits_from(bc, m, w)
+    bad = set(np.nonzero(scan_4cycles(bc, cb))[0].tolist())
+    sw = 0
+    while bad and sw < max_switch:
+        b = rng.choice(list(bad)) if len(bad) < 64 else next(iter(bad))
+        if not four_cycle_bit(b, bc, cb):
+            bad.discard(b); continue
+        j = int(rng.integers(s)); b2 = int(rng.integers(n)); j2 = int(rng.integers(s))
+        c, c2 = bc[b, j], bc[b2, j2]
+        if c == c2 or c2 in bc[b] or c in bc[b2]:
+            continue
+        old = four_cycle_bit(b2, bc, cb)
+        swap_edges(bc, cb, b, j, b2, j2)
+        sw += 1
+        if four_cycle_bit(b2, bc, cb) and not old:
+            swap_edges(bc, cb, b, j, b2, j2)             # reject: created a new one at b2
+            continue
+        for x in set([b, b2] + [int(v) for v in cb[c] if v >= 0] + [int(v) for v in cb[c2] if v >= 0]):
+            if four_cycle_bit(x, bc, cb):
+                bad.add(x)
+            else:
+                bad.discard(x)
+        if verbose and sw % 5000 == 0:
+            print("  4-cycle switches", sw, "bad", len(bad), flush=True)
+    return bc, sw, len(bad)

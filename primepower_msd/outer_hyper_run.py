@@ -19,11 +19,12 @@ def main(argv=None):
     ap.add_argument("--D", type=int, default=7)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--max_switch", type=int, default=3_000_000)
+    ap.add_argument("--no4", action="store_true", help="remove Tanner 4-cycles first")
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     t0 = time.time()
-    r = construct2(a.n, a.s, a.w, a.D, seed=a.seed, verbose=True)
-    rec = {"n": a.n, "w": a.w, "s": a.s, "D": a.D, "seed": a.seed, "seconds": round(time.time() - t0)}
+    r = construct2(a.n, a.s, a.w, a.D, seed=a.seed, verbose=True, no4=a.no4)
+    rec = {"no4": a.no4, "n": a.n, "w": a.w, "s": a.s, "D": a.D, "seed": a.seed, "seconds": round(time.time() - t0)}
     if r is None:
         rec["status"] = "failed"
     else:

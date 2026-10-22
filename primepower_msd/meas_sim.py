@@ -30,13 +30,15 @@ from .ringlinalg import right_kernel_howell
 
 
 class Protocol:
-    def __init__(self, S, tau, d, bit_checks, order=None):
+    def __init__(self, S, tau, d, bit_checks, order=None, N=None):
         S = np.asarray(S, dtype=np.int64) % d
         tau = np.asarray(tau, dtype=np.int64)
         self.S, self.tau, self.d = S, tau, d
         self.n = S.shape[1]
-        N = normal_basis(logical_x_basis(S, tau, d), tau, d)
+        if N is None:                                  # default: Gram-Schmidt normal basis (dense)
+            N = normal_basis(logical_x_basis(S, tau, d), tau, d)
         assert N is not None
+        N = np.asarray(N, dtype=np.int64) % d
         self.N = N % d
         self.k = len(N)
         g = ((N * tau) * N).sum(1) % d
