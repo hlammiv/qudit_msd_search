@@ -4,7 +4,7 @@ import pytest
 from qmsd.cyclic import construction_A, construction_B
 from qmsd.mc_distill import simulate
 from qmsd.performance import (canonical_logical_rows, leading_order, profile_exact,
-                              record_matrices, threshold)
+                              puncture_columns_of, record_matrices, threshold)
 from qmsd.reedmuller import r_max, rm_generator
 from qmsd.results import load_result_catalog
 from qmsd.triorthogonal import build_triorthogonal_code
@@ -59,6 +59,16 @@ def test_block_leading_order_reproduces_catalog_Ad(aid):
     assert (lo.d, lo.L_d) == (rec.d, rec.A_d)
     # per-output count sums over outputs, so each output sees at least A_d/k
     assert leading_order(prof, "avg").L_d >= lo.L_d / rec.k
+
+
+def test_small_manhattan_records_rebuild_explicitly():
+    # the [[17,6,3]]_23 Table-2 code is small enough to rebuild from its weight-<=w point set
+    rec = _record("manhattan-table2-p23-m1-w5")
+    assert len(puncture_columns_of(rec)) == rec.k
+    lo = leading_order(profile_exact(*record_matrices(rec), rec.p, kinds=("avg",)), "avg")
+    assert lo.d == rec.d
+    # astronomically large Manhattan codes stay analytic-only
+    assert puncture_columns_of(_record("manhattan-table2-p5-m16-w16")) is None
 
 
 def test_monte_carlo_agrees():

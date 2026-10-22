@@ -264,19 +264,40 @@ TIER1_WORDS = 3e8    # local numpy budget, in (codewords x cosets)
 TIER2_WORDS = 1e13   # distributed C core (dist_weightdist) budget
 
 
+MANHATTAN_EXPLICIT_MAX = 10 ** 4   # largest p^m for which a Manhattan record is rebuilt explicitly
+
+
+def puncture_columns_of(record):
+    """1-indexed puncture columns of a catalog record, or None if it has no explicit form.
+
+    Stored columns win.  A small Manhattan record (``w`` set, p^m <= MANHATTAN_EXPLICIT_MAX) uses
+    its weight-<=w point set.  Otherwise k <= 2 records use columns 1..k: AGL(m, p) is
+    2-transitive on points, so any k <= 2 points are equivalent.
+    """
+    from .puncture import manhattan_puncture_columns
+
+    if record.puncture_columns is not None:
+        return tuple(record.puncture_columns)
+    if record.m is None:
+        return None
+    if record.w is not None and record.p ** record.m <= MANHATTAN_EXPLICIT_MAX:
+        cols = tuple(manhattan_puncture_columns(record.m, record.w, record.p))
+        return cols if len(cols) == record.k else None
+    if record.k <= 2:
+        return tuple(range(1, record.k + 1))
+    return None
+
+
 def record_matrices(record):
-    """(G0, H1) for a punctured-RM catalog record (k <= 2 records without a stored puncture set
-    use columns 1..k: AGL(m, p) is 2-transitive on points, so any k <= 2 points are equivalent)."""
+    """(G0, H1) for a punctured-RM catalog record (columns from ``puncture_columns_of``)."""
     from .reedmuller import r_max, rm_generator
     from .triorthogonal import build_triorthogonal_code
 
     p, m = record.p, record.m
     assert m is not None, "record has no RM parameters"
     r = record.r if record.r is not None else r_max(m, p)
-    cols = record.puncture_columns
-    if cols is None:
-        assert record.k <= 2, "no puncture set stored for k > 2"
-        cols = tuple(range(1, record.k + 1))
+    cols = puncture_columns_of(record)
+    assert cols is not None, "no explicit puncture set for this record"
     G = rm_generator(r, m, p)
     built = build_triorthogonal_code(p, m, r, list(cols), G=G)
     assert built["full_rank"], "puncture columns not full rank"
@@ -296,7 +317,7 @@ def dim_stabilizer(record) -> int | None:
 
 def assign_tier(record) -> dict:
     """Which engine can handle each output-error kind for this record (see plan tiers 1-4)."""
-    if record.m is None or (record.puncture_columns is None and record.k > 2):
+    if puncture_columns_of(record) is None:
         return {"tier": 4, "dim_A": None, "engine_avg": "analytic", "engine_block": "analytic"}
     dA = dim_stabilizer(record)
     sizeA = record.p ** dA

@@ -236,6 +236,36 @@ Reading: almost every search code beats the standard constructions at some targe
 codes in the catalog are the exception: the paper's cyclic codes are better there. Twins such
 as the A_d-optimized versions give the same saving, so A_d optimization does not show up in cost.
 
+**Aanha's imported codes (2026-10-21).** The 53 records merged from `aanha/results` were
+independently re-certified:
+- Every code was rebuilt from its puncture set, or from its weight-≤w point set for the small
+  Manhattan codes, which `performance.puncture_columns_of` now rebuilds explicitly. n, k, full
+  rank, γ and d all match. d comes from the certified MITM search, or from Theorem 4 for the
+  Manhattan codes with d ≥ 9.
+- Exact A_d (`structured_ad`) was written into the 24 d ≤ 4 records that lacked it. It agrees
+  with all 10 values she had stored.
+- 8 of her 12 seeded searches rerun to identical output (50 of 53 records). The `arc_climb` run
+  and the three m = 6 runs need more than this box's 4 GB and 4 h, and are being rerun on lenore.
+
+| her codes | ε\* per output | best saving vs RS/RM/cyclic |
+|---|---|---|
+| [[202,41,3]]₃ … [[204,39,3]]₃ (5 codes, exact) | 0.040 – 0.051 | 17.8 – 18.9× (1e-3 → 1e-30) |
+| [[214,29,4]]₃ … [[217,26,4]]₃ (14, incl. 10 × [[215,28,4]]₃) | ≥ 0.048 | 13.2 – 15.0× |
+| [[223,20,5]]₃ | ≥ 0.046 | ≥ 8.4× |
+| [[668,61,4]]₃ … [[679,50,4]]₃ (12) | ≥ 0.012 | ≥ 7.6 – 9.4× |
+| [[689,40,5]]₃ … [[696,33,5]]₃ (6) | ≥ 0.013 | ≥ 4.4 – 5.4× |
+| [[555,70,3]]₅ / [[590,35,6]]₅ (Manhattan) | ≥ 0.013 / ≥ 0.015 | 2.9× / ≥ 1.4× |
+| [[610,15,9]]₅, [[620,5,12]]₅, [[624,1,14]]₅ (Manhattan) | ≥ 0.014 – 0.020 | undetermined / none |
+| p = 7: [[322,21,5]]₇ (2), [[325,18,5]]₇, [[323,20,3]]₇, [[333,10,4]]₇, [[339,4,5]]₇ (5) | ≥ 0.030 – 0.032 | undetermined or none |
+
+Reading:
+- Her qutrit codes beat the standard constructions by 4–19×.
+- None of them beats the paper's [[206,37,4]]₃ → [[200,43,3]]₃ pair. For example, requiring
+  [[215,28,4]]₃ costs 44.3 at 1e-3 → 1e-30 against 31.8 without it, so they are not needed in
+  the cheapest catalog protocol.
+- At p = 7 the bounds from small subcodes (dim 7 of 35–52) are too loose to decide. This is
+  consistent with the paper's cyclic codes dominating at p = 7.
+
 ## Engines / tiers (`performance.assign_tier`)
 
 | tier | when | engine |

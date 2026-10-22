@@ -23,7 +23,7 @@ from pathlib import Path
 import mpmath
 import numpy as np
 
-from .performance import (PERF_DIR, DistillationProfile, leading_order, profile_from_histograms,
+from .performance import (PERF_DIR, puncture_columns_of, DistillationProfile, leading_order, profile_from_histograms,
                           threshold)
 
 HIST_DIR = PERF_DIR / "hist"
@@ -525,8 +525,8 @@ def assessable(record) -> str | None:
     """None if ``assess`` can handle the record, else the reason it cannot."""
     if record.status != "confirmed":
         return f"status {record.status}"
-    if record.m is None or (record.puncture_columns is None and record.k > 2):
-        return "no stored puncture set (analytic family)"
+    if puncture_columns_of(record) is None:
+        return "no explicit puncture set (large analytic family)"
     if record.d is None:
         return "distance not certified"
     return None

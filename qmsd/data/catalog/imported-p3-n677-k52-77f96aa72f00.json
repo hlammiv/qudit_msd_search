@@ -1,6 +1,6 @@
 {
-  "A_d": null,
-  "Ad_evidence": "Not computed",
+  "A_d": 50,
+  "Ad_evidence": "Exact structured A_d (qmsd.structured_ad, jmax=m) from independent re-certification, 2026-10-21",
   "artifact_id": "imported-p3-n677-k52-77f96aa72f00",
   "d": 4,
   "distance_evidence": "Certified by the qmsd search engine",
