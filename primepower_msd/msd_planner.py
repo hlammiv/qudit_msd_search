@@ -20,7 +20,10 @@ STAGES_D4 = [
     ("O3 [[127,113,3]]+K114",     5.496,  35397,  3, 5.076,  6441, 127, 2550408),
     ("O7 [[63,21,7]]+1470",       19.0,   27930,  7, 343.3,  1470, 63,  534450),
     ("O7 [[64,26,7]]+2080",       15.769, 32800,  7, 360.0,  2080, 64,  1013120),
+    ("O7 [[112,50,7]]+9500",      14.44,  137180, 7, 1927.2, 9500, 112, 6314080),
 ]
+# L_C = 2 N + M (2 net + 4 n - 3 k + 6) with net = CSUMs per dense encoder (sparse_encoder.py cuts net to
+# 1384 / 4721 for [[64,26]] / [[112,50]], i.e. L_C 712640 / 5574220; order-3 stages 1.5-2.6x fewer, see MEAS_DISTILL 5e).
 # First-order Clifford term: per-output error a * p_C (circuit-level, d = 4: a ~ 3-5 counting X and Z output errors,
 # 0.4-1.1 for Z only; runs/meas_distill/circuit_clifford_d4.json).  A_CLIFF is the conservative value.
 A_CLIFF = 5.0

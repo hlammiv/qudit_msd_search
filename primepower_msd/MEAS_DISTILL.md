@@ -94,13 +94,16 @@ them out first (rejecting switches that create new ones), after which the certif
 | [[63,21,7]] signed RM(2,6) | 19.00 | 1.513 | 21 | 1470 inputs |
 | **[[64,26,≥7]]** | **15.77** | **1.417** | 26 | **2080 inputs** |
 | [[96,40,≥7]] | 15.40 | 1.405 | 40 | 5200 inputs |
-| [[112,50,≥7]] | 14.44 | 1.372 | 50 | **9500 inputs** (fault distance 7 confirmed; §5c count running) |
+| [[112,50,≥7]] | 14.44 | 1.372 | 50 | **9500 inputs** (fault distance 7 confirmed; ≈ 1927 p⁷, §5c) |
 
 [[63,21,7]] hosting re-verified at d = 4, 8 (with distance), 16, 32, 64 (balance, normal basis, all logical S
 exponents odd): `runs/meas_distill/rm63_alld.log`.
 
 **Recommended protocol: [[64,26,≥7]] inner + (3,26) outer on 2080 inputs (240 checks).**  Order 7, 15.77 T per
 output, γ = 1.417, ≈ 2080 + 64 + ancillas ≈ 2.2k qudits, valid for every d = 2^k.
+[[112,50]] + 9500 reaches γ = 1.372 under 10k qudits, but γ counts T gates per output at acceptance 1; with its larger
+leading coefficient and acceptance it is never cheaper per accepted output above p ≈ 10⁻⁶ (§5c), so the 2080 protocol stays
+the recommendation.
 
 ## 5c. Fault model, exact leading order, Monte Carlo (`meas_sim.py`)
 Twirled model, Cliffords perfect: inputs carry Z^e (prob p_in), each T gate is followed by Z^a (prob p_T), values
@@ -117,9 +120,14 @@ fault only stays on the data.  Bookkeeping is linear over Z_d (outcome, X-syndro
 | [[63,21]] + 1470 | 1 102 707 270 | 39 942 | 970 064 | ≈ 343 p⁷ |
 | [[64,26]] + 2600 | 2 044 723 200 | 66 688 | 825 192 | ≈ 360 p⁷ |
 | [[64,26]] + 2080 | 1 635 778 560 | 108 288 | 598 328 | ≈ 360 p⁷ (MC at 1e-6, 1e-5: 0 fails, acceptance 96.8 %, 72 %) |
+| [[112,50]] + 9500 | 40 040 448 000 | 942 256 | 98 304 | ≈ 1927 p⁷ (MC at 1e-6, 1e-5: 0 fails, acceptance 87.2 %, 25.4 %) |
 
   Dominant term = N·(d−1)·n³ (one bad input hidden in each of its 3 checks by a layer-1/layer-2 pair Z^a, Z^{−a} on
   one inner qudit), so p_out ≈ n³ p⁷/(d−1)⁶ (d = 8: ≈ 2 p⁷).
+  This is why the lower-γ [[112,50]] + 9500 protocol (`runs/meas_distill/count_112_50_n9500_d4.log`, enumeration
+  parallel over root inputs, 24 cores, 1.2 h) is not actually cheaper: its coefficient is 5.4× larger (112³ vs 64³)
+  and its 4.2× more fault locations (L = 137 180) cost acceptance — at p = 10⁻⁵ it is 57 T per accepted output vs 22 for
+  [[64,26]] + 2080; the two tie only below p ≈ 10⁻⁶ (16.6 vs 16.3), where both are far past any fidelity need.
 * **Acceptance = exp(−L p)** with L = N(1 + 2sn/k) fault locations (every fault is detected; MC agrees to 3 digits).
   [[64,26]] + 2600: 96 % at p = 10⁻⁶, 66 % at 10⁻⁵.  The protocol wants inputs at ≲ 10⁻⁵ (for example cultivated T
   states); at p = 10⁻⁴ acceptance collapses (6 % for [[63,21]] + 1470).  At such inputs, output fidelity (≈ 10⁻³³) is far
@@ -205,6 +213,7 @@ basis, the inverse network, and syndrome readout (S-pivots in X, ancillas in Z).
 | [[63,51,3]] | 2552 | 1142 | 1415 | 606 | 126 |
 | [[64,26,7]] | 2010 | 1345 | 1580 | 479 | 128 |
 | [[127,113,3]] | 10554 | 3998 | 5371 | 1902 | 254 |
+| [[112,50,7]] | 5370 | 4721 | 5407 | 1647 | 224 |
 
   Validated like the dense circuit (determinism; all ≤ 3-fault patterns of [[7,1,3]] at d = 4, 8, 16 and
   66–89k random + planted patterns of [[15,7,3]] + K₈ at d = 4, 8, 16 agree exactly with the linear model run on

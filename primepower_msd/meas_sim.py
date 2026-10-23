@@ -361,13 +361,14 @@ def _enum(b0, V, t, deg, frozen, nfrozen, bit_checks, check_bits, W, buf, nbuf):
 
 
 @njit
-def _enum_all(bit_checks, check_bits, M, W, cap):
+def _enum_range(bit_checks, check_bits, M, W, cap, lo, hi):
+    """Closed sets whose minimum input lies in [lo, hi); every set is found exactly once from its minimum."""
     buf = -np.ones((cap, W + 1), np.int64)
     nbuf = np.zeros(1, np.int64)
     V = np.zeros(W + 1, np.int64)
     deg = np.zeros(M, np.int64)
     frozen = np.zeros(M, np.int64)
-    for b0 in range(bit_checks.shape[0]):
+    for b0 in range(lo, hi):
         V[0] = b0
         for j in range(bit_checks.shape[1]):
             deg[bit_checks[b0, j]] += 1
@@ -377,19 +378,31 @@ def _enum_all(bit_checks, check_bits, M, W, cap):
     return buf[: nbuf[0]], nbuf[0] >= cap
 
 
-def closed_sets_fast(P: Protocol, W: int, cap: int = 2_000_000):
-    """Same sets as _closed_sets (|v| >= 2 only; singletons are handled analytically)."""
-    buf, overflow = _enum_all(P.bit_checks, P.check_inputs, P.M, W, cap)
-    assert not overflow, "enumeration buffer overflow"
-    return {frozenset(int(x) for x in row[: row[W]]) for row in buf}
+def _enum_all(bit_checks, check_bits, M, W, cap, lo=0, hi=None):
+    # plain-Python wrapper: picklable for joblib workers (a jitted dispatcher is not)
+    return _enum_range(bit_checks, check_bits, M, W, cap, lo, bit_checks.shape[0] if hi is None else hi)
 
 
-def count_input_failures_fast(P: Protocol, W: int):
+def closed_sets_fast(P: Protocol, W: int, cap: int = 2_000_000, jobs: int = 1):
+    """Same sets as _closed_sets (|v| >= 2 only; singletons are handled analytically).
+    jobs > 1 splits the root range over processes (roots are disjoint work; late roots are cheaper)."""
+    if jobs <= 1:
+        parts = [_enum_all(P.bit_checks, P.check_inputs, P.M, W, cap)]
+    else:
+        from joblib import Parallel, delayed
+        edges = np.linspace(0, P.n_in, 8 * jobs + 1).astype(int)
+        parts = Parallel(n_jobs=jobs)(delayed(_enum_all)(P.bit_checks, P.check_inputs, P.M, W, cap, int(lo), int(hi))
+                                      for lo, hi in zip(edges[:-1], edges[1:]))
+    assert not any(ov for _, ov in parts), "enumeration buffer overflow"
+    return {frozenset(int(x) for x in row[: row[W]]) for buf, _ in parts for row in buf}
+
+
+def count_input_failures_fast(P: Protocol, W: int, jobs: int = 1):
     d, n = P.d, P.n
     res = {}
     if W == 1 + 2 * P.s:                                   # singletons: every check unique and nonzero
         res[1] = P.n_in * (d - 1) * n ** P.s
-    for v in closed_sets_fast(P, W):
+    for v in closed_sets_fast(P, W, jobs=jobs):
         v = sorted(v)
         checks = sorted({int(c) for b in v for c in P.bit_checks[b]})
         coef = np.array([[(int(P.u[list(P.check_inputs[c]).index(b)]) if b in P.check_inputs[c] else 0) for b in v]
