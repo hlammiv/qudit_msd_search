@@ -269,8 +269,10 @@ independently re-certified:
 - Exact A_d (`structured_ad`) was written into the 24 d ≤ 4 records that lacked it. It agrees
   with all 10 values she had stored.
 - 11 of her 12 seeded searches rerun to identical output: 8 locally, and m6_flatspread,
-  m6_seed1 and `arc_climb` (~29 h) on lenore. The 1000-trial m = 6 run timed out at 12 h
-  without output and is not reproduced.
+  m6_seed1 and `arc_climb` (~29 h) on lenore. The 1000-trial m = 6 run needs ~22 h serially
+  and timed out at 12 h; a 4-process rerun (6 h, different random stream, so not bit-identical)
+  gives codes of the same quality: 6 of its top 10 (n, k, d) match hers, best γ 1.721
+  ([[686,43,5]]₃) against her 1.727 ([[668,61,4]]₃).
 
 | her codes | ε\* per output | best saving vs standard (2026-10-22) | before PS codes |
 |---|---|---|---|
