@@ -1,0 +1,30 @@
+# single Clifford fault census (primepower_msd/cliff_census.py), first-order per-output coefficients
+## [[7,1,3]] s=2 d=4
+total bad 191 of 23292 Z-type 91
+first-order expected bad outputs per run: any 4.278, Z 0.357; per output: any 4.278, Z 0.357
+## [[15,7,3]]+K8 d=4
+first-order expected bad outputs per run: any 146.043, Z 28.498; per output: any 5.216, Z 1.018
+
+## [[7,1,3]] s=1 d=4,8
+== [[7,1,3]] s=1 d=4
+first-order expected bad outputs per run: any 2.918, Z 0.357; per output: any 2.918, Z 0.357
+== [[7,1,3]] s=1 d=8
+first-order expected bad outputs per run: any 2.406, Z 0.147; per output: any 2.406, Z 0.147
+
+## [[7,1,3]] s=2 d=8 (unweighted census)
+total bad 943 of 386204 Z-type 603
+first-order per-run coefficient: any 3.553, Z 0.147; per output: any 3.553, Z 0.147
+
+
+# exact statevector (primepower_msd/dense_gadget.py), [[7,1,3]] s=1 d=4
+d=4: reference acceptance from |+> 0.4810, output purity 1.000000, outcomes [0, 0, 0, 0, 0, 0, 3]
+noiseless with psi_T input: acceptance 1.000000, output fidelity 1.000000
+faults 11655
+d=4: exact first-order per-output error coefficient a = 0.3593; rejection coefficient (locations-equivalent) 64.15
+  ('ctrl', 'DEP2'): 0.0025
+  ('dec', 'DEP2'): 0.3569
+
+
+## [[15,7,3]]+K8 d=8 (weighted census, 8427328 faults)
+total bad 28280 of 8427328 Z-type 21256
+first-order expected bad outputs per run: any 107.994, Z 11.796; per output: any 3.857, Z 0.421

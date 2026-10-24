@@ -1,0 +1,7 @@
+n 63 k 21 inputs 1470 checks 210 locations 27930 T/out 19.0
+no inner logical below 7
+inner W7 741188
+input W<=6 sets {}
+input W7 {1: 5513536350, 5: 46242}
+{"d": 16, "inner": "[[63,21,7]]", "outer": "runs/meas_distill/outer7_w21_n1470_s0.json", "C7": 5514323780, "per_output_coef": 0.021955135131839658}
+# input 5-set terms at d=4/8 with the current normal basis: 44730 / 45234 (input_count_d{4,8}.log have 39942 / 40950 from an earlier basis); coefficients unchanged to 4 digits: 343.3 / 2.126

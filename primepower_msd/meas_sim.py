@@ -222,11 +222,16 @@ def count_input_failures(P: Protocol, W: int):
             row = list(P.check_inputs[c])
             coef.append([(int(P.u[row.index(b)]) if b in row else 0) for b in v])
         coef = np.array(coef, dtype=np.int64)
+        # nonzero value assignments in chunks (the last <= 4 coordinates vectorised, the rest looped):
+        # K = number of checks with a nonzero outcome shift
+        h = max(0, len(v) - 4)
+        tails = np.array(list(it.product(range(1, d), repeat=len(v) - h)), dtype=np.int64)
+        s_tail = (tails @ coef[:, h:].T) % d
         tot = 0
-        for vals in it.product(range(1, d), repeat=len(v)):
-            K = int(np.count_nonzero((coef @ np.array(vals)) % d))
-            if len(v) + 2 * K == W:
-                tot += n ** K
+        for head in it.product(range(1, d), repeat=h):
+            s_head = (coef[:, :h] @ np.array(head, dtype=np.int64)) % d if h else 0
+            K = np.count_nonzero((s_tail + s_head) % d, axis=1)
+            tot += int(sum(n ** int(kk) for kk in K[len(v) + 2 * K == W]))
         if tot:
             res[len(v)] = res.get(len(v), 0) + tot
     return res
@@ -397,23 +402,42 @@ def closed_sets_fast(P: Protocol, W: int, cap: int = 2_000_000, jobs: int = 1):
     return {frozenset(int(x) for x in row[: row[W]]) for buf, _ in parts for row in buf}
 
 
+def _count_set(coef, lv, n, d, W):
+    """Sum of n^K over nonzero value assignments of a closed set with lv inputs and |v| + 2K = W, where K is the
+    number of checks with a nonzero outcome shift (coef: checks x lv).  Vectorised over the last t coordinates
+    ((d-1)^t <= 1e6), looped over the rest."""
+    t = max(1, min(lv, int(math.floor(math.log(1e6) / math.log(d - 1)))))
+    h = lv - t
+    tails = np.array(list(it.product(range(1, d), repeat=t)), dtype=np.int64)
+    s_tail = (tails @ coef[:, h:].T) % d
+    tot = 0
+    for head in it.product(range(1, d), repeat=h):
+        s_head = (coef[:, :h] @ np.array(head, dtype=np.int64)) % d if h else 0
+        K = np.count_nonzero((s_tail + s_head) % d, axis=1)
+        tot += int(sum(n ** int(kk) for kk in K[lv + 2 * K == W]))
+    return tot
+
+
 def count_input_failures_fast(P: Protocol, W: int, jobs: int = 1):
     d, n = P.d, P.n
     res = {}
     if W == 1 + 2 * P.s:                                   # singletons: every check unique and nonzero
         res[1] = P.n_in * (d - 1) * n ** P.s
+    tasks = []
     for v in closed_sets_fast(P, W, jobs=jobs):
         v = sorted(v)
         checks = sorted({int(c) for b in v for c in P.bit_checks[b]})
         coef = np.array([[(int(P.u[list(P.check_inputs[c]).index(b)]) if b in P.check_inputs[c] else 0) for b in v]
                          for c in checks], dtype=np.int64)
-        tot = 0
-        for vals in it.product(range(1, d), repeat=len(v)):
-            K = int(np.count_nonzero((coef @ np.array(vals)) % d))
-            if len(v) + 2 * K == W:
-                tot += n ** K
+        tasks.append((coef, len(v)))
+    if jobs > 1 and len(tasks) > 1:
+        from joblib import Parallel, delayed
+        tots = Parallel(n_jobs=jobs)(delayed(_count_set)(coef, lv, n, d, W) for coef, lv in tasks)
+    else:
+        tots = [_count_set(coef, lv, n, d, W) for coef, lv in tasks]
+    for (coef, lv), tot in zip(tasks, tots):
         if tot:
-            res[len(v)] = res.get(len(v), 0) + tot
+            res[lv] = res.get(lv, 0) + tot
     return res
 
 

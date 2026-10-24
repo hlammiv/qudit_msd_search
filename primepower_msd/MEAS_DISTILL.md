@@ -133,6 +133,24 @@ fault only stays on the data.  Bookkeeping is linear over Z_d (outcome, X-syndro
   states); at p = 10⁻⁴ acceptance collapses (6 % for [[63,21]] + 1470).  At such inputs, output fidelity (≈ 10⁻³³) is far
   beyond need, so the binding constraint is acceptance, not order.
 
+**Other dimensions (exact counts, same circuits).**  The dominant term scales as (d−1)⁻⁶ at order 7 and the order-3
+coefficients as roughly (d−1)⁻³, so every protocol improves with d at fixed p (the T-count, L and L_C do not change):
+
+| protocol | c at d = 4 | d = 8 | d = 16 | source |
+|---|---|---|---|---|
+| O7 [[63,21,7]] + 1470 | 343.3 | 2.126 | 0.0220 | `count_63_21_n1470_d16.log`, `input_count_d8.log` |
+| O7 [[64,26,7]] + 2080 | 360.0 | 2.229 | 0.0230 | `count_64_26_n2080_d{8,16}.log` |
+| O3 [[7,1,3]] single check | 3.148 | 0.539 | 0.114 | §5d |
+| O3 [[7,1,3]] two checks | 2.370 | 0.397 | 0.083 | `order3_d{8,16}.json` |
+| O3 [[15,7,3]] + K₈ | 0.836 | 0.123 | 0.0237 | |
+| O3 [[31,21,3]] + K₂₂ | 1.242 | 0.168 | 0.0297 | |
+| O3 [[63,51,3]] + K₅₂ | 2.465 | 0.336 | 0.0582 | |
+| O3 [[127,113,3]] + K₁₁₄ | 5.076 | 0.637 | 0.1020 | |
+
+`msd_planner.stages_for_d(d)` builds the d = 8, 16 stage tables (`python -m primepower_msd.msd_planner 8`); the
+optimal order-3 plans are acceptance-bound, so their T-per-output is the same at d = 8 as at d = 4 (68.8 at
+p = 10⁻³ → 10⁻¹⁵) while reaching lower error.  Cultivation data (§5d, 5f) exist for d = 4 only.
+
 ## 5d. Noisy inputs: concatenation, not big outer codes (`msd_planner.py`)
 Big order-7 rounds have L ≈ 16·N fault locations, so above p ≈ 10⁻⁵ their acceptance exp(−Lp) collapses.
 **Order-3 stages** fix this: inner signed RM(1,m) [[2^m−1, 2^m−1−2m, 3]], outer = complete graph K_{k+1} (inputs = edges,
@@ -140,6 +158,7 @@ s = 2; order 3 needs only a simple graph).  Exact d = 4 leading-order coefficien
 
 | stage | inputs | T/out | L | p_out per output |
 |---|---|---|---|---|
+| [[7,1,3]] single check (s = 1) | 1 | 15.0 | 15 | 3.15 p³ |
 | [[7,1,3]] | 1 | 29.0 | 29 | 2.37 p³ |
 | [[15,7,3]] + K₈ | 28 | 9.57 | 268 | 0.84 p³ |
 | [[31,21,3]] + K₂₂ | 231 | 6.90 | 1595 | 1.24 p³ |
@@ -221,11 +240,58 @@ basis, the inverse network, and syndrome readout (S-pivots in X, ancillas in Z).
   sparse basis trades ≈ 4 % in c for 1.6× fewer Cliffords.  Orthogonality is mod d, so the basis is per-d.
   An exact search on [[15,7,3]] shows a fully sparse normal basis needs weights up to 7 (≤ 5 gives at most 5 of 7);
   the sequential weights grow to ≈ n/2 for the last vectors, which is what remains of the k² term.
-* Planner (`msd_planner.py`): per-output error c·p^W + 5·p_C and acceptance exp(−L p − L_C p_C).  With
+* **The first-order term cannot be removed, but it is 14× smaller than the conservative value.**  Single-fault
+  census of the circuit (`cliff_census.py`: every Pauli at every DEP1/DEP2/XERR site, weighted by the number of
+  bad outputs; reproduces the Monte Carlo coefficients) and an exact statevector simulation of the [[7,1,3]]
+  gadget with real T gates on 8 qudits (`dense_gadget.py`: inputs = the +1 eigenstate of the logical check,
+  a = Σ_f w_f P(accept | f)(1 − F_out | f)):
+
+| gadget | d | frame model, Z-type a | frame model, any (conservative) | exact statevector |
+|---|---|---|---|---|
+| [[7,1,3]] single check | 4 | 0.357 | 2.92 | **0.359** |
+| [[7,1,3]] single check | 8 | 0.147 | 2.41 | — |
+| [[7,1,3]] two checks | 4 | 0.357 | 4.28 | — |
+| [[15,7,3]] + K₈ | 4 | 1.02 | 5.22 | — (MC: 1.06–1.10 / 5.0–5.4) |
+| [[15,7,3]] + K₈ | 8 | 0.42 | 3.86 | — |
+
+  The exact value equals the Z-type one: every X-type fault counted by the frame model is either detected or
+  projected back onto the magic state by the check (the check is a projective measurement onto the correct
+  eigenspace, so a single input error is caught or undone), and only Z-type faults survive.  Those all sit in the
+  **final decoder of an output's last check**: DEP2 faults on the output wire, or on block qudits whose Z
+  propagates onto it through the remaining CSUMs — 91 of the 255 Paulis of one CSUM for [[7,1,3]], i.e. one
+  gate's worth.  Any gadget that hands over a *decoded* output has this floor (its last gate can fail), so the term
+  is second order only if outputs are consumed while still encoded, which is code switching.  The planner now
+  carries a_C per stage (0.36 for [[7,1,3]], 1.02 for K₈, 5 where no census exists).
+* Planner (`msd_planner.py`): per-output error c·p^W + a_C·p_C and acceptance exp(−L p − L_C p_C).  With
   p_C ≤ target/6 the §5d costs are unchanged; with larger p_C the target cannot be reached.
+
+## 5f. Physical footprint: cultivation → one small round on a host code (`footprint.py`)
+γ and T-per-output ignore where the Cliffords run.  The first-order term forces the last stage's Cliffords onto
+logical qudits of a host code with p_L(D) ≲ target / a_C, and at ~2D² physical qudits per logical qudit a
+2080-input round is ~10⁵–10⁶ physical qudits.  What fits under 10k is **cultivation (56 physical qudits, p_cult ≈
+9×10⁻⁷ at p = 10⁻³) → one single-check [[7,1,3]] round on 8 logical qudits** (1 input + 6 block + 1 control):
+its output 3.15 p_cult³ ≈ 2×10⁻¹⁸ is far below any target, so the host distance is set entirely by the Clifford
+floor 0.36 p_L(D) < target.  Model: p_L(D) = 0.1 (p/p_th)^{(D+1)/2}, F(D) = 2D², escape of the cultivated state
+into the host costs one p_L(D) (assumptions; the ring Z_{2^k} surface code has no measured threshold yet).
+
+| p | target | p_th = 5×10⁻³: D, physical qudits | p_th = 10⁻²: D, physical qudits | cultivation attempts / output |
+|---|---|---|---|---|
+| 10⁻³ | 10⁻¹⁰ | 25, **10 056** | 17, **4 680** | 33 |
+| 10⁻³ | 10⁻¹² | 31, 15 432 | 21, 7 112 | 33 |
+| 10⁻³ | 10⁻¹⁵ | 39, 24 392 | 27, 11 720 | 33 |
+| 5×10⁻⁴ | 10⁻¹⁰ | 17, 4 680 | 13, 2 760 | 22 |
+| 5×10⁻⁴ | 10⁻¹² | 21, 7 112 | 17, 4 680 | 22 |
+| 5×10⁻⁴ | 10⁻¹⁵ | 27, 11 720 | 21, 7 112 | 22 |
+
+(With the conservative a_C = 5 the first row is D = 27, 11 720 qudits.)  Every other pipeline is larger: the
+order-3 K₈ round needs 37 logical qudits, [[127,113,3]] + K₁₁₄ 6513, the order-7 rounds thousands.  The levers,
+in order: the host code's threshold (a factor 2 in p_th is 4 steps of D, i.e. 2× in qudits), the physical error
+rate, then cultivation acceptance (attempts only, 0.45 → more would cut the 33).  Cultivation alone cannot reach
+10⁻¹⁰ at these p (9×10⁻⁷ after 3→5 growth, ~25× per growth step), so one distillation round is needed.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
-3. Done (§5e): circuit-level model; p_C ≲ target/5 for the final stage; sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
+3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
+5. §5f footprint: the binding unknown is the ring Z_{2^k} surface-code threshold and logical-error scaling (decoder needed), then the escape step (cultivated colour-code state → host code), which is not simulated.

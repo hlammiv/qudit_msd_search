@@ -7,3 +7,4 @@ real W 5 sets 0 by size {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0} 2.2 s
 real W 6 sets 0 by size {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0} 61.8 s
 real W 7 sets 690 by size {2: 0, 3: 0, 4: 0, 5: 572, 6: 0, 7: 118} 1219.9 s
 W 7 input failures {1: 1102707270, 5: 39942}
+# note 2026-10-23: the 5-set term above predates commit fd0279f; every committed version of meas_sim gives {5: 44730} for this protocol (closed sets identical, 690); the coefficient is unchanged to 4 digits. See count_63_21_n1470_d16.log.
