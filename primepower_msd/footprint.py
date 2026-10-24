@@ -23,6 +23,11 @@ from dataclasses import dataclass
 from .msd_planner import A_CLIFF, CULT_D4, STAGES_D4, plan
 
 CULT_KEY = "grow3->5 (56 q)"
+
+# Measured on the signed Z_4 rotated surface code with the 2-adic matching decoder (surface_zd, runs/surface/zd_d4.jsonl):
+# circuit-level threshold ~0.8% (D=7/9 and 9/11 crossings 7.7-8.3e-3, same at d=8), fit of p_fail(D rounds) =
+# A (p/p_th)^((D+1)/2) over the 129 sub-threshold points of d=4 and d=8, both bases: A ~ 0.053, p_th ~ 0.0076.
+HOST_Z4 = dict(p_th=7.55e-3, A=0.053, name="Z4/Z8 rotated surface (measured)")
 CULT_QUDITS = 56
 
 
@@ -95,7 +100,10 @@ def table(ps=(1e-3, 5e-4), targets=(1e-10, 1e-12, 1e-15), **kw):
 
 if __name__ == "__main__":
     import sys
-    host = Host(p_th=float(sys.argv[1])) if len(sys.argv) > 1 else Host()
+    if len(sys.argv) > 1 and sys.argv[1] == "measured":
+        host = Host(**HOST_Z4)
+    else:
+        host = Host(p_th=float(sys.argv[1]), A=float(sys.argv[2]) if len(sys.argv) > 2 else 0.1) if len(sys.argv) > 1 else Host()
     print(f"host: p_th {host.p_th:.0e}, A {host.A}, F(D) = 2 D^2; cultivation {CULT_KEY}; a_cliff {A_CLIFF}")
     for p, tg, r, r2 in table(host=host):
         if r is None:

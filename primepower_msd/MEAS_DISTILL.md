@@ -272,16 +272,17 @@ logical qudits of a host code with p_L(D) ≲ target / a_C, and at ~2D² physica
 9×10⁻⁷ at p = 10⁻³) → one single-check [[7,1,3]] round on 8 logical qudits** (1 input + 6 block + 1 control):
 its output 3.15 p_cult³ ≈ 2×10⁻¹⁸ is far below any target, so the host distance is set entirely by the Clifford
 floor 0.36 p_L(D) < target.  Model: p_L(D) = 0.1 (p/p_th)^{(D+1)/2}, F(D) = 2D², escape of the cultivated state
-into the host costs one p_L(D) (assumptions; the ring Z_{2^k} surface code has no measured threshold yet).
+into the host costs one p_L(D) (the host parameters were assumptions when this section was written; §5g measures
+them: p_th ≈ 7.6×10⁻³, A ≈ 0.053, which is the "measured" column).
 
-| p | target | p_th = 5×10⁻³: D, physical qudits | p_th = 10⁻²: D, physical qudits | cultivation attempts / output |
-|---|---|---|---|---|
-| 10⁻³ | 10⁻¹⁰ | 25, **10 056** | 17, **4 680** | 33 |
-| 10⁻³ | 10⁻¹² | 31, 15 432 | 21, 7 112 | 33 |
-| 10⁻³ | 10⁻¹⁵ | 39, 24 392 | 27, 11 720 | 33 |
-| 5×10⁻⁴ | 10⁻¹⁰ | 17, 4 680 | 13, 2 760 | 22 |
-| 5×10⁻⁴ | 10⁻¹² | 21, 7 112 | 17, 4 680 | 22 |
-| 5×10⁻⁴ | 10⁻¹⁵ | 27, 11 720 | 21, 7 112 | 22 |
+| p | target | p_th = 5×10⁻³, A = 0.1: D, physical | p_th = 10⁻², A = 0.1: D, physical | **measured Z₄ host (§5g)**: D, physical | cultivation attempts / output |
+|---|---|---|---|---|---|
+| 10⁻³ | 10⁻¹⁰ | 25, 10 056 | 17, 4 680 | **19  5 832** | 33 |
+| 10⁻³ | 10⁻¹² | 31, 15 432 | 21, 7 112 | **23  8 520** | 33 |
+| 10⁻³ | 10⁻¹⁵ | 39, 24 392 | 27, 11 720 | 31  15 432 | 33 |
+| 5×10⁻⁴ | 10⁻¹⁰ | 17, 4 680 | 13, 2 760 | 15  3 656 | 22 |
+| 5×10⁻⁴ | 10⁻¹² | 21, 7 112 | 17, 4 680 | 17  4 680 | 22 |
+| 5×10⁻⁴ | 10⁻¹⁵ | 27, 11 720 | 21, 7 112 | 23  8 520 | 22 |
 
 (With the conservative a_C = 5 the first row is D = 27, 11 720 qudits.)  Every other pipeline is larger: the
 order-3 K₈ round needs 37 logical qudits, [[127,113,3]] + K₁₁₄ 6513, the order-7 rounds thousands.  The levers,
@@ -289,9 +290,69 @@ in order: the host code's threshold (a factor 2 in p_th is 4 steps of D, i.e. 2�
 rate, then cultivation acceptance (attempts only, 0.45 → more would cut the 33).  Cultivation alone cannot reach
 10⁻¹⁰ at these p (9×10⁻⁷ after 3→5 growth, ~25× per growth step), so one distillation round is needed.
 
+## 5g. The ring Z_{2^k} surface code: threshold and p_L(D) measured (`surface_zd.py`, `surface_sweep.py`, `surface_fit.py`)
+**Code.** Signed Z_d rotated planar surface code, distance D: D² data qudits on a grid, checks on the faces
+(checkerboard), weight-2 X checks on the left/right boundary and Z checks on the top/bottom.  Signs X^{(−1)^row} for
+X checks and Z^{(−1)^col} for Z checks: any two overlapping checks share one row-pair or one column-pair, so the
+signs cancel and the group is abelian over every Z_d (verified d = 4, 8; k = 1; logical Z = a column, logical X = a
+row with constant sign, overlapping in one qudit, so the logical is a genuine Z_d qudit).  Syndrome extraction with
+one ancilla per check: Z checks by CSUM(data → ancilla, w), X checks by F · CSUM(ancilla → data, w) · F†.  Schedule
+X: NW SW NE SE, Z: NW NE SW SE — overlapping checks touch their shared pair in the same order (the interleaved
+rounds measure the right operators; checked by gauge-randomised determinism), and each ancilla's hook error (its last
+two legs) is perpendicular to the error chains that flip a logical (X chains run left–right, Z chains top–bottom).
+The first schedule I tried (the N/Z pattern transposed) had the hooks parallel and gave a D = 3 code with fault
+distance 2 (5.6% failure at p = 3×10⁻³ instead of 0.7%) — a useful reminder that the rotated code's schedule is tied
+to the boundary assignment.
+
+**Noise** (same convention as §5c/§5e: one "p" per location, uniform over the non-identity Paulis): DEP1 on the data
+while the ancillas reset, XERR after every reset and before every measurement, DEP1 after F / F†, DEP2 after every
+CSUM.  Memory experiment: D rounds, data prepared and measured in the memory basis, detectors = consecutive
+differences (first-round and final-round detectors in the memory basis), failure = any nonzero Z_d shift of the
+logical (an X² logical error counts).
+
+**Decoder: 2-adic peeling MWPM.**  The detector-error model is built from the circuit by propagating one basis fault
+(X¹ or Z¹ on one qudit) per noise location through the frame simulator; every non-identity Pauli at a location is a
+Z_d combination of its basis faults.  Faults with ≤ 2 detectors in a sector are edges carrying the Z_d pattern
+(c_a, c_b, o) of a unit flow (charges deposited at the two ends, logical shift); faults with more detectors are
+decomposed into their single-generator components (stim's decompose_errors; no probability is dropped: hyperedge
+share 0 for every D).  Where two fault classes share an edge with incompatible patterns (boundary degeneracies, e.g.
+a data error on the logical column vs. a hook on the far side with the same single detector) the more probable
+class fixes the pattern.  Decoding level j = 0..k−1 (d = 2^k): binary MWPM (PyMatching) on the detectors whose charge
+has 2-adic valuation j, with weights from the probability of a valuation-j fault on each edge; each matched pair is
+walked along a shortest path carrying the Z_d charge (flow w with w·c_a = −q at each step, logical shift += w·o),
+leaving at the far end a residue divisible by 2^{j+1} for the next level.  After k levels every charge is zero
+(no "leftover" in any run).  Sanity check at code capacity (data noise only, perfect syndrome, d = 4): the D =
+7/11/15 curves cross at p ≈ 0.17, i.e. an X-error rate of ≈ 13.6% (12/15 of the depolarising Paulis carry an X
+part), above the qubit MWPM value 10.3%, as expected for a qudit code.
+
+**Results** (`runs/surface/zd_d4.jsonl`, `zd_d8.jsonl`; 10⁵ shots at p ≤ 2×10⁻³, 4×10⁴ above; p_fail after D rounds).
+
+| d | basis | crossings (3,5) (5,7) (7,9) | fit A, p_th (sub-threshold, p_fail < 0.1, fails ≥ 5) |
+|---|---|---|---|
+| 4 | Z (X errors) | 6.6, 8.0, 8.3, (9,11) > 8 ×10⁻³ | 0.046, 7.8×10⁻³ |
+| 4 | X (Z errors) | 6.3, 7.6, 8.1, (9,11) 7.7 ×10⁻³ | 0.049, 7.2×10⁻³ |
+| 8 | Z | 6.9, 7.5, (7,9) > 8 ×10⁻³ | 0.050, 7.6×10⁻³ |
+| 8 | X | 6.7, 7.5, (7,9) > 8 ×10⁻³ | 0.051, 7.0×10⁻³ |
+
+Selected points at d = 4 (Z memory): p = 10⁻³: D = 3 9.3×10⁻⁴, D = 5 1.7×10⁻⁴, D = 7 4×10⁻⁵, D = 9 < 10⁻⁵;
+p = 3×10⁻³: 7.1×10⁻³, 4.0×10⁻³, 1.3×10⁻³, 4.5×10⁻⁴; p = 6×10⁻³: 2.7, 2.4, 1.9, 1.3 ×10⁻².  The crossings drift up
+with D as usual; the asymptotic circuit-level threshold is **≈ 0.8–0.85%** for this noise model, and **d = 8 behaves
+like d = 4** (the 2-adic decoder reduces every level to binary matching, and the 2-torsion sector dominates).  This is
+on par with the qubit rotated surface code under the equivalent circuit model (≈ 0.7–1% depending on the idle/reset
+details), so **the ring qudit surface code costs nothing in threshold**.  The fit p_L(D) = A (p/p_th)^{(D+1)/2}
+with A ≈ 0.053, p_th ≈ 7.6×10⁻³ (all 129 sub-threshold points of d = 4 and 8, both bases; rms 0.2 in log) replaces
+the §5f assumptions (0.1, 5×10⁻³): `footprint.HOST_Z4`, `python -m primepower_msd.footprint measured`:
+**19  5 832 physical qudits** (D, count) for 10⁻¹⁰ and 23  8 520 for 10⁻¹² at p = 10⁻³ — the whole
+cultivation + one-round pipeline is under 10k with margin.  D = 11 (d = 4) and D = 9 (d = 8) points at
+5–8×10⁻³ confirm the crossings keep rising towards ≈ 0.8%.
+
+Caveats: the decoder is a heuristic (a level-j graph with weights from the valuation-j faults only; a joint Z_d
+decoder would do better, so the threshold is a lower bound); no idle noise during the CSUM steps; the fit's A and
+p_th are effective parameters over 3 ≤ D ≤ 9 (the per-pair crossings say p_th is a little higher).
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
 3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
-5. §5f footprint: the binding unknown is the ring Z_{2^k} surface-code threshold and logical-error scaling (decoder needed), then the escape step (cultivated colour-code state → host code), which is not simulated.
+5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: the escape step (cultivated colour-code state → surface code) is still charged as one p_L(D) without simulation; idle noise during CSUM steps; a joint Z_d decoder.
