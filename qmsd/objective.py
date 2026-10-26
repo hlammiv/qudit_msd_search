@@ -16,6 +16,8 @@ The surrogate keeps only the leading order, eps_out ~ c eps^d / (1 - eps)^d with
 from __future__ import annotations
 
 import math
+
+import numpy as np
 from dataclasses import dataclass
 
 import mpmath
@@ -79,6 +81,42 @@ def surrogate_from_structured_ad(p, m, r, puncture_columns, name=None) -> Leadin
     k, d = len(puncture_columns), s["distance"]
     return LeadingOrderCurve(name or f"[[{p ** m - k},{k},{d}]]_{p}", p, p ** m - k, k, d,
                              per_output_Ld(s["low_weight_histogram"], d, k))
+
+
+def surrogate_from_matrices(G0, H1, p, d=None, name=None, method="mitm",
+                            note="leading-order surrogate (matrices)"):
+    """Per-output leading order for any code given by its stabilizer space ``G0`` and logical
+    rows ``H1`` (e.g. weighted supports, where ``structured_ad`` does not apply).
+
+    Weight-d accepted errors are the weight-d codewords of ker(G0); output i fails on those with
+    h_i . e != 0.  ``method="mitm"`` enumerates them once up to scalars
+    (``structured_ad.mitm_streamed``, memory-frugal) and classifies per output; ``method="balanced"`` streams k + 1
+    counts with ``count_weight_d_balanced`` (slow, small memory): N_acc - #codewords of
+    ker([G0; h_i]).
+    """
+    from .mindist import min_dependent_columns
+
+    G0 = np.asarray(G0, dtype=np.int64) % p
+    H1 = np.asarray(H1, dtype=np.int64) % p
+    k, n = H1.shape
+    if d is None:
+        d = min_dependent_columns(G0, p)
+    if method == "mitm":
+        from .structured_ad import mitm_streamed
+
+        fails = np.zeros(k, dtype=np.int64)
+        for supp, vals in mitm_streamed(G0, d, p):          # one per scalar class
+            fails += (H1[:, list(supp)] @ np.asarray(vals, dtype=np.int64)) % p != 0
+        L_d = float(fails.sum()) * (p - 1) / k
+    elif method == "balanced":
+        from .weightcount_balanced import count_weight_d_balanced
+
+        n_acc = count_weight_d_balanced(G0, d, p)
+        n_inv = [count_weight_d_balanced(np.vstack([G0, H1[i:i + 1]]), d, p) for i in range(k)]
+        L_d = sum(n_acc - x for x in n_inv) / k
+    else:
+        raise ValueError(method)
+    return LeadingOrderCurve(name or f"[[{n},{k},{d}]]_{p}", p, n, k, d, L_d, note=note)
 
 
 DEFAULT_GRID = ((1e-2, 1e-15), (1e-2, 1e-30), (1e-3, 1e-15), (1e-3, 1e-30))

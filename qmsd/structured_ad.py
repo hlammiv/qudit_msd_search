@@ -337,6 +337,67 @@ def _mitm(H, d, p):
     return list(out)
 
 
+def mitm_streamed(H, d, p, block=200_000):
+    """Weight-d codewords of ker(H) up to scalar multiples, memory-frugal.
+
+    Same split as ``_mitm`` (left d//2, right d - d//2) but the right half is streamed in
+    ``block``-sized blocks of supports, one coefficient pattern at a time, with the right half's
+    leading coefficient fixed to 1 (every codeword has exactly one scalar multiple with that
+    property for each of its splits).  Yields (support_tuple, values_tuple); multiply counts by
+    p - 1 for all scalar multiples.  Memory ~ rows * block * d2 words instead of
+    rows * C(n, d2) * (p-1)^d2.
+    """
+    rows, n = H.shape
+    if d > n or n == 0 or rows == 0:
+        return
+    H = np.asarray(H, dtype=np.int64) % p
+    basepows = _base_powers(rows)
+    d1, d2 = d // 2, d - d // 2
+    Lcode, Lsupp, Lcoef = _half_sums(H, basepows, d1, p)
+    if Lcode.size == 0:
+        return
+    order = np.argsort(Lcode, kind="stable")
+    Lcode, Lsupp, Lcoef = Lcode[order], Lsupp[order], Lcoef[order]
+    seen = set()
+    patterns = [np.array((1,) + cf, dtype=np.int64)
+                for cf in itertools.product(range(1, p), repeat=d2 - 1)]
+    it = itertools.combinations(range(n), d2)
+    while True:
+        combos = np.fromiter(itertools.chain.from_iterable(itertools.islice(it, block)),
+                             dtype=np.int64).reshape(-1, d2)
+        if combos.size == 0:
+            return
+        Hsel = H[:, combos]                                    # (rows, NB, d2)
+        for cfa in patterns:
+            s = (p - (Hsel * cfa[None, None, :]).sum(axis=2) % p) % p
+            target = _hash_cols(s, basepows)
+            pos = np.searchsorted(Lcode, target, side="left")
+            valid = pos < Lcode.size
+            hit = np.zeros(target.shape, dtype=bool)
+            hit[valid] = Lcode[pos[valid]] == target[valid]
+            for ri in np.nonzero(hit)[0]:
+                t = target[ri]
+                lo, hi = np.searchsorted(Lcode, t, side="left"), np.searchsorted(Lcode, t, side="right")
+                rsupp = combos[ri]
+                rset = set(int(x) for x in rsupp)
+                for li in range(lo, hi):
+                    lsupp = Lsupp[li]
+                    if not rset.isdisjoint(int(x) for x in lsupp):
+                        continue
+                    vals = {int(c): int(a) for c, a in zip(lsupp, Lcoef[li])}
+                    vals.update({int(c): int(a) for c, a in zip(rsupp, cfa)})
+                    keys = tuple(sorted(vals))
+                    coef = np.array([vals[k] for k in keys], dtype=np.int64)
+                    if np.any((H[:, np.array(keys)] @ coef) % p):
+                        continue
+                    # canonical representative: scale so the first nonzero entry is 1
+                    inv = pow(int(coef[0]), -1, p)
+                    rep = (keys, tuple(int(a) * inv % p for a in coef))
+                    if rep not in seen:
+                        seen.add(rep)
+                        yield rep
+
+
 def _full_space_weight_d(n, d, p, budget=5_000_000):
     """Weight-d full-support codewords when the restricted code is the whole space F_p^n.
 

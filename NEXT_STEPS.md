@@ -64,19 +64,55 @@ triorthogonal support X = supp μ, which is shorter than F_p^m whenever 3r < m(p
 degree 2: μ = x₁ (294 pts) or x₁(x₁−1) (245 pts, vs 343), full rank 55–56 (`qmsd/weighted.py`,
 `tests/test_weighted.py`). Outputs must sit at cube-charge points (a third of them at p=7). Inputs at non-cube
 charges consume U^μ magic states (counted as one input each, as for the paper's [[20,1,4]]₇).
-**First data (flat_spread sampler, 10 trials each, d certified):**
+**Charge census (2026-10-25, `qmsd/weighted.py: quadric, class_points`).** Up to affine equivalence
+every degree-2 charge is a diagonal quadric plus a linear term or constant (39 forms at p = 7, m = 3).
+The three charge classes (cubes, 2·cubes, 4·cubes) are interchangeable by rescaling g, so outputs can
+sit in any one class. x₁(x₁−1) puts its 98 cube points on 2 planes (49 per plane); the parabolic
+quadric x₁²+x₂²+x₃ (|X| = 294, 98 points per class) and x₁²+x₂²+x₃²+1 (|X| = 287, 84 points in the
+2·cube class) spread them to ≤ 16 per plane and ≤ 4 per line.
 
-| k | unit F₇³ | weighted μ = x₁(x₁−1) |
-|---|---|---|
-| 4 | [[339,4,5]], γ = 2.76 | [[241,4,5]], γ = 2.55 |
-| 10 | [[333,10,5]], γ = 2.18 | **[[235,10,5]], γ = 1.96** |
-| 18 / 21 | [[325,18,5]] / [[322,21,5]], γ = 1.80 / 1.70 | sampler finds no cap |
+**Cap search on them (flat_spread, 10–12 trials, d certified by MITM):**
 
-Same distance, ~100 fewer qudits. It stalls at k ≥ 18 because the cube-charge points (μ ∈ {1, 6}) lie on only
-2 parallel planes (98 points), and caps inside two planes are small.
-**Next:** choose charge polynomials whose cube-valued points are spread across F₇³, e.g. irreducible quadrics,
-or allow non-cube outputs and track their Clifford class. Then derive a distance law for weighted supports
-(flats ∩ X), and try m=4, where the degree budget is larger.
+| k | unit F₇³ (343) | x₁(x₁−1) (245) | x₁²+x₂²+x₃ (294) | x₁²+x₂²+x₃²+1 (287) |
+|---|---|---|---|---|
+| 10 | [[333,10,5]] γ 2.18 | [[235,10,5]] γ 1.96 | [[284,10,5]] γ 2.08 | [[277,10,5]] γ 2.06 |
+| 18 | [[325,18,5]] γ 1.80 | none | [[276,18,5]] γ 1.70 | [[269,18,5]] γ 1.68 |
+| 21 | [[322,21,5]] γ 1.70 | none | [[273,21,5]] γ 1.59 | [[266,21,5]] γ 1.58 |
+| 24 | [[319,24,5]] γ 1.61 | — | [[270,24,5]] γ 1.50 | **[[263,24,5]] γ 1.49** |
+| 25–28 | d = 3–4 | d ≤ 2 | d = 3–4 | d = 3–4 |
+
+The spread charges remove the stall: d = 5 now reaches the same k = 24 ceiling as the unit space
+(the cap bound of the sampler, not the weighting), with ~56 fewer qudits. [[263,24,5]]₇ γ 1.49 is
+the best p = 7 d = 5 code of this size (paper: [[322,21,5]]-type unit codes, γ ≥ 1.70).
+**Scored against the p = 7 standard library (2026-10-26, lenore; `objective.surrogate_from_matrices`,
+streamed MITM, 90–170 s per code).** Library: RS [[6,1]], RM [[48,1]], cyclic [[7,1,3]] / [[28,1,5]] /
+[[29,1,6]] / [[49,1,7]], doubled [[20,1,4]]₇. Saving = cost(library) / cost(library + code):
+
+| code | L_d (per output) | c_ε | 1e-2→1e-30 | 1e-3→1e-15 | 1e-3→1e-30 | protocol it enters |
+|---|---|---|---|---|---|---|
+| **[[263,24,5]]₇** ellipsoid (2·cube) | 49 | 0.0063 | **2.55×** (210 → 82) | **2.02×** (28.8 → 14.3) | **2.13×** (141 → 66) | [[7,1,3]] → code; code alone; RS → code |
+| [[270,24,5]]₇ parabolic | 75 | 0.0096 | 2.49× | 1.95× | 2.07× | same |
+| [[266,21,5]]₇ ellipsoid | 48 | 0.0062 | 2.21× | 1.74× | 1.84× | same |
+| [[319,24,5]]₇ unit | 138 | 0.0177 | 2.11× | 1.57× | 1.50× | same |
+| [[235,10,5]]₇ x₁(x₁−1) | 24 | 0.0031 | 1.19× | none | none | [[7,1,3]] → code |
+
+No code enters at 1e-2 → 1e-15 (two rounds of [[7,1,3]]₇, cost 52.6, are already cheap). This is the
+first p = 7 search code that beats the cyclic + doubled library, and by ~2×, not the 1.1–1.6× of the
+qutrit codes. The weighting itself is worth ~1.2× over the unit-space code of the same k and d
+(2.13× vs 1.50× at 1e-3 → 1e-30), on top of the 56 fewer qudits.
+
+Caveats: (i) the surrogate is leading-order only. In every protocol the code is applied at input
+noise ≤ 1e-3 (n·ε ≤ 0.26), where on the exact [[44,5,3]]₇ curves the leading order is within 4% of
+the exact ε_out and P_acc matches (1−ε)ⁿ to four digits; the margins (6e-18 vs 1e-15, 6e-31/6e-33 vs
+1e-30) are ≥ 150×. An exact per-output curve needs 7^{dim G0 ≈ 32} words, out of reach; a tighter
+Lemma-17 bound than the dim-5 one that left Aanha's [[322,21,5]]₇ undetermined would be the way to
+make this rigorous. (ii) The leading-order "threshold" 0.72 is meaningless. (iii) The ellipsoid
+code's outputs sit in the 2·cube class; rescaling g by 4 (4·2 = 1 mod 7) makes them cube-class
+(ordinary magic outputs), after which the inputs at non-cube charges are U^μ states, counted as
+one raw state each as for [[20,1,4]]₇.
+**Next:** m = 4 (|F₇⁴| = 2401; deg g ≤ 23 − 3r, so r = 7 allows degree 2 again and r = 6 allows
+degree 5 with many more supports; the d = 5 cap ceiling there is unknown); plug `marginal_saving`
+into the cap search as the ranking so the sampler optimizes cost, not γ; try the other affine forms.
 
 ## I. ⏸ Multi-output doubling (arXiv:2610.29457 open problem) — deferred by request 2026-10-22.
 

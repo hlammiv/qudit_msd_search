@@ -62,6 +62,28 @@ def cube_points(mu, p):
     return [l for l, u in enumerate(np.asarray(mu) % p) if is_cube_mod_p(int(u), p)]
 
 
+def quadric(p, m, diag, lin=(), const=0):
+    """g(x) = sum_i diag[i] x_i^2 + sum_i lin[i] x_i + const at all points.  Up to affine
+    equivalence every degree-2 charge is one of these (diagonalise the quadratic part).
+
+    At p = 7, m = 3 the best-spread output classes come from the parabolic quadric
+    ``quadric(7, 3, (1, 1, 0), (0, 0, 1))`` and from ``quadric(7, 3, (1, 1, 1), const=1)``:
+    at most 16 class points on a plane and 4 on a line, against 49 on a plane for x1(x1-1).
+    """
+    P = np.asarray(points(m, p), dtype=np.int64)
+    diag = np.asarray(diag, dtype=np.int64)
+    lin = np.asarray(list(lin) + [0] * (m - len(lin)), dtype=np.int64)
+    return (P * P @ diag + P @ lin + const) % p
+
+
+def class_points(mu, p, unit):
+    """Indices (into X) whose charge is ``unit`` times a cube; ``unit=1`` is ``cube_points``.
+    Multiplying g by a non-cube unit relabels the classes, so outputs may be placed in any one
+    class and the whole code rescaled afterwards."""
+    inv = pow(int(unit), -1, p)
+    return [l for l, u in enumerate(np.asarray(mu) % p) if is_cube_mod_p(int(u) * inv % p, p)]
+
+
 def product_of_linear(p, m, factors):
     """g(x) = prod (a . x - b) over ``factors`` [(a, b), ...], evaluated at all points."""
     P = np.asarray(points(m, p), dtype=np.int64)

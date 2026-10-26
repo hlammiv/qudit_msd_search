@@ -143,8 +143,9 @@ codes such as [[112,13,3]]₅.
   is n/k together with how far one round pushes ε past the target.
 - **At p = 7 the paper's cyclic codes and the doubled [[20,1,4]]₇ dominate.** [[20,1,4]]₇ has
   non-cube coefficients, so its inputs include U^η states, which (as in arXiv:2610.29457) we
-  count as one raw state each. Our [[44,5,3]]₇ codes never appear in an optimal protocol. A high-rate p = 7 search code with a threshold of at least ~0.05 would be
-  the target.
+  count as one raw state each. Our [[44,5,3]]₇ codes never appear in an optimal protocol. The
+  weighted-support cap codes below ([[263,24,5]]₇) are the first p = 7 search codes that beat this
+  library, by ~2× in the leading-order surrogate.
 - **Pre-distillation is forced by the thresholds.** The ε\* ≈ 0.02–0.06 codes never appear
   as the first round at ε₀ = 1e-2.
 
@@ -254,7 +255,8 @@ Reading:
   d = 2 front ends. The earlier 3–20× figures came from a baseline without these codes.
 - p = 5 and the large-p codes are unchanged. The only new p = 5 standard code, the doubled
   [[33,1,5]]₅, never enters an optimal protocol.
-- At p = 7 the paper's cyclic codes and the doubled [[20,1,4]]₇ are better than our codes.
+- At p = 7 the paper's cyclic codes and the doubled [[20,1,4]]₇ are better than our catalog
+  codes; the weighted-support caps (next section but one) change this.
 - Twins, such as the A_d-optimized versions, give the same saving, so A_d optimization does not
   show up in cost.
 - The p = 23 Manhattan [[17,6,3]]₂₃ shows 24.7×. This is an artifact of a thin baseline: the
@@ -305,6 +307,30 @@ the exact saving to ≤ 3%: [[206,37,4]]₃ 1.503 / 1.503, [[215,28,5]]₃ 1.108
 [[204,39,3]]₃ 1.091 / 1.119, [[203,40,3]]₃ 1.000 / 1.025, and the other six 1.000 / 1.000.
 The figures here are lower than the catalog table because the library holds only the
 standard codes plus the candidate. CLI: `python -m qmsd value <ids> [--surrogate]`.
+`surrogate_from_matrices(G0, H1, p)` gives the same surrogate for any code from its matrices
+(weight-d accepted errors enumerated once by the streamed MITM in `structured_ad`, then classified
+per output); it reproduces `structured_ad` on the catalog codes and the slow streaming count on
+[[235,10,5]]₇ (L_d = 25.2) in 89 s instead of 66 min.
+
+**Weighted-support caps at p = 7 (2026-10-26, surrogate; see NEXT_STEPS.md §H).** Caps on the
+support of a degree-2 charge polynomial (arXiv:2610.29457 §4) shorten F₇³ from 343 to 287 points
+and keep d = 5 up to k = 24. Scored with the surrogate against the p = 7 standard library:
+
+| code | charge | c_ε | 1e-2 → 1e-30 | 1e-3 → 1e-15 | 1e-3 → 1e-30 |
+|---|---|---|---|---|---|
+| **[[263,24,5]]₇** | x₁²+x₂²+x₃²+1, outputs in the 2·cube class | 0.0063 | **2.55×** (210 → 82) | **2.02×** (28.8 → 14.3) | **2.13×** (141 → 66) |
+| [[270,24,5]]₇ | x₁²+x₂²+x₃ | 0.0096 | 2.49× | 1.95× | 2.07× |
+| [[266,21,5]]₇ | x₁²+x₂²+x₃²+1 | 0.0062 | 2.21× | 1.74× | 1.84× |
+| [[319,24,5]]₇ | unit (unweighted) | 0.0177 | 2.11× | 1.57× | 1.50× |
+| [[235,10,5]]₇ | x₁(x₁−1) | 0.0031 | 1.19× | none | none |
+
+Typical protocols: [[7,1,3]]₇ → [[263,24,5]]₇ (1e-2 → 1e-30) and [[263,24,5]]₇ alone
+(1e-3 → 1e-15). The code is always applied at input noise ≤ 1e-3, i.e. n·ε ≤ 0.26, where the
+leading order is within 4% of the exact ε_out on the [[44,5,3]]₇ codes and the margins to the
+targets are ≥ 150×. This is a surrogate result, not an exact or rigorously bounded one: the exact
+per-output curve needs 7^{~32} words, and the dim-5 Lemma-17 bound used for Aanha's
+[[322,21,5]]₇ was too loose to decide. Still, it is the first p = 7 search code that enters an
+optimal protocol, and the weighting is worth ~1.2–1.4× over the unit-space code of the same k and d.
 
 ## Engines / tiers (`performance.assign_tier`)
 
