@@ -87,6 +87,8 @@ def surrogate_from_matrices(G0, H1, p, d=None, name=None, method="mitm",
                             note="leading-order surrogate (matrices)"):
     """Per-output leading order for any code given by its stabilizer space ``G0`` and logical
     rows ``H1`` (e.g. weighted supports, where ``structured_ad`` does not apply).
+    ``method="numba5"`` (d = 5 only) is the thread-parallel numba census
+    (``mindist_nb.count_weight5_per_output``), the one that scales to n ~ 2000.
 
     Weight-d accepted errors are the weight-d codewords of ker(G0); output i fails on those with
     h_i . e != 0.  ``method="mitm"`` enumerates them once up to scalars
@@ -108,6 +110,11 @@ def surrogate_from_matrices(G0, H1, p, d=None, name=None, method="mitm",
         for supp, vals in mitm_streamed(G0, d, p):          # one per scalar class
             fails += (H1[:, list(supp)] @ np.asarray(vals, dtype=np.int64)) % p != 0
         L_d = float(fails.sum()) * (p - 1) / k
+    elif method == "numba5":
+        from .mindist_nb import count_weight5_per_output
+
+        assert d == 5, "numba5 is the 2+3 census, d = 5 only"
+        L_d, _, _ = count_weight5_per_output(G0, H1, p)
     elif method == "balanced":
         from .weightcount_balanced import count_weight_d_balanced
 

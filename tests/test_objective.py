@@ -39,6 +39,15 @@ def test_matrix_surrogate_matches_structured_ad(aid):
         assert gen.L_d == pytest.approx(sur.L_d)
 
 
+def test_numba_weight5_census_matches_mitm():
+    """The thread-parallel 2+3 census (the n ~ 2000 engine) agrees with the streamed MITM."""
+    rec = {r.artifact_id: r for r in load_result_catalog()}["paper-table3-p3-m5-n215-k28"]
+    G0, H1 = record_matrices(rec)
+    a = surrogate_from_matrices(G0, H1, rec.p, d=5, method="mitm")
+    b = surrogate_from_matrices(G0, H1, rec.p, d=5, method="numba5")
+    assert a.d == b.d == 5 and a.L_d == b.L_d == 218.0
+
+
 def test_surrogate_marginal_saving_tracks_exact():
     base = [curve("[[6,1,2]]_7 RS", *_rm_k1(7, 1), 7, key="obj-rs7")]
     exact = curve("[[7,1,3]]_7 cyc-B", *construction_B(7, 8, {1, 4, 7}), 7, key="obj-cyc7")

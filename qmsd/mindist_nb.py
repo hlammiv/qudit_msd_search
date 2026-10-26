@@ -416,3 +416,103 @@ def weight_d_exists_fast(H, p, d):
     if lcodes.shape[0] == 0:
         return False
     return bool(_scan_right(H, p, b, powers, lcodes, lsupp))
+
+
+# ----------------------------------------------------------------------------------------------
+# Weight-5 census with per-output classification (leading-order surrogate at n ~ 2000)
+# ----------------------------------------------------------------------------------------------
+
+@njit(cache=True)
+def _build_left2_coef(H, p, powers):
+    """All 2-subsets x all nonzero coefficient pairs, WITH the coefficients kept, sorted by hash:
+    (codes uint64[N], supp int32[N,2], coef int8[N,2])."""
+    r, n = H.shape
+    N = (n * (n - 1) // 2) * (p - 1) * (p - 1)
+    codes = np.empty(N, dtype=np.uint64)
+    supp = np.empty((N, 2), dtype=np.int32)
+    coef = np.empty((N, 2), dtype=np.int8)
+    idx = 0
+    for l1 in range(n):
+        for l2 in range(l1 + 1, n):
+            for a1 in range(1, p):
+                for a2 in range(1, p):
+                    h = np.uint64(0)
+                    for t in range(r):
+                        v = (a1 * H[t, l1] + a2 * H[t, l2]) % p
+                        h = h + powers[t] * np.uint64(v)
+                    codes[idx] = h
+                    supp[idx, 0] = l1
+                    supp[idx, 1] = l2
+                    coef[idx, 0] = a1
+                    coef[idx, 1] = a2
+                    idx += 1
+    order = np.argsort(codes)
+    return codes[order], supp[order], coef[order]
+
+
+@njit(cache=True, parallel=True)
+def _census_weight5_per_output(H, H1, p, powers, lcodes, lsupp, lcoef):
+    """Full 2+3 scan; every hash hit is verified EXACTLY (the stored left pair + coefficients
+    together with (i, j, kk; 1, c2, c3) must sum to zero), then classified against the logical
+    rows H1.  Returns (fails int64[n, k] by leading right column, found int64[n]).  Each scalar
+    class of a weight-5 vector is found exactly once per 3-subset of its support, i.e. 10 times
+    (the coefficient of the smallest right column is normalised to 1), when no weight <= 4
+    dependency exists."""
+    r, n = H.shape
+    k = H1.shape[0]
+    N = lcodes.shape[0]
+    fails = np.zeros((n, k), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for i in prange(n):
+        for j in range(i + 1, n):
+            for kk in range(j + 1, n):
+                for c2 in range(1, p):
+                    for c3 in range(1, p):
+                        target = np.uint64(0)
+                        for t in range(r):
+                            v = (H[t, i] + c2 * H[t, j] + c3 * H[t, kk]) % p
+                            target = target + powers[t] * np.uint64((p - v) % p)
+                        ii = np.searchsorted(lcodes, target)
+                        while ii < N and lcodes[ii] == target:
+                            l1 = lsupp[ii, 0]
+                            l2 = lsupp[ii, 1]
+                            if (l1 != i and l1 != j and l1 != kk and l2 != i and l2 != j
+                                    and l2 != kk):
+                                a1 = lcoef[ii, 0]
+                                a2 = lcoef[ii, 1]
+                                ok = True
+                                for t in range(r):
+                                    if (a1 * H[t, l1] + a2 * H[t, l2] + H[t, i] + c2 * H[t, j]
+                                            + c3 * H[t, kk]) % p != 0:
+                                        ok = False
+                                        break
+                                if ok:
+                                    found[i] += 1
+                                    for o in range(k):
+                                        if (a1 * H1[o, l1] + a2 * H1[o, l2] + H1[o, i]
+                                                + c2 * H1[o, j] + c3 * H1[o, kk]) % p != 0:
+                                            fails[i, o] += 1
+                            ii += 1
+    return fails, found
+
+
+def count_weight5_per_output(G0, H1, p):
+    """Per-output census of the weight-5 vectors of ker(G0) (the accepted weight-5 errors of a
+    d = 5 code): returns (L_d, n_classes, fails) where ``fails[o]`` is the number of weight-5
+    vectors e with h_o . e != 0, ``L_d = mean_o fails[o]`` is the per-output leading-order count
+    used by ``objective.LeadingOrderCurve`` and ``n_classes`` the number of scalar classes
+    (A_5 = (p-1) n_classes).  Requires d(G0) >= 5 (no weight <= 4 dependency), which makes every
+    class appear exactly 10 times in the 2+3 scan; that divisibility is asserted.  Thread-parallel
+    (NUMBA_NUM_THREADS); the left table is C(n,2)(p-1)^2 entries (~2 GB at n ~ 2100, p = 7)."""
+    H = np.ascontiguousarray(np.asarray(G0, dtype=np.int64) % p)
+    H1 = np.ascontiguousarray(np.asarray(H1, dtype=np.int64) % p)
+    r, n = H.shape
+    powers = _powers_u64(p, r)
+    lcodes, lsupp, lcoef = _build_left2_coef(H, p, powers)
+    fails, found = _census_weight5_per_output(H, H1, p, powers, lcodes, lsupp, lcoef)
+    total = int(found.sum())
+    per_output = fails.sum(axis=0)
+    assert total % 10 == 0 and (per_output % 10 == 0).all(), \
+        "weight-5 hits not in groups of 10: a weight <= 4 dependency exists (d < 5)"
+    per_output = per_output // 10 * (p - 1)
+    return float(per_output.mean()), total // 10, per_output
