@@ -259,6 +259,72 @@ def _scan_right_b4(H, p, powers, lcodes, lsupp, i_max):
     return False
 
 
+@njit(cache=True, parallel=True)
+def _scan_right_b4_parallel(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witness):
+    """Thread-parallel b=4 stream over leading columns i in [i_lo, i_hi) against an a=2 left
+    table.  ``found`` (int64[1]) is a shared stop flag: once a witness is verified every thread
+    skips the rest of its work; ``witness`` (int32[6]) receives the 6 columns.  Same verdict as
+    ``_scan_right_b4`` restricted to that range of leading columns."""
+    r, n = H.shape
+    N = lcodes.shape[0]
+    for i in prange(i_lo, min(i_hi, n)):
+        rcols = np.empty(4, dtype=np.int32)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for k in range(j + 1, n):
+                for l in range(k + 1, n):
+                    for c2 in range(1, p):
+                        for c3 in range(1, p):
+                            for c4 in range(1, p):
+                                target = np.uint64(0)
+                                for t in range(r):
+                                    v = (H[t, i] + c2 * H[t, j] + c3 * H[t, k] + c4 * H[t, l]) % p
+                                    target = target + powers[t] * np.uint64((p - v) % p)
+                                ii = np.searchsorted(lcodes, target)
+                                while ii < N and lcodes[ii] == target:
+                                    l1 = lsupp[ii, 0]
+                                    l2 = lsupp[ii, 1]
+                                    if (l1 != i and l1 != j and l1 != k and l1 != l and l2 != i
+                                            and l2 != j and l2 != k and l2 != l):
+                                        rcols[0] = i; rcols[1] = j; rcols[2] = k; rcols[3] = l
+                                        if _fp_dependent(H, p, lsupp[ii], rcols, 2, 4):
+                                            found[0] = 1
+                                            witness[0] = l1; witness[1] = l2; witness[2] = i
+                                            witness[3] = j; witness[4] = k; witness[5] = l
+                                    ii += 1
+    return found[0] != 0
+
+
+def weight6_witness_parallel(H, p, i_max=None, block=16, log=None):
+    """Weight-6 witness via the 2+4 split with the b=4 stream thread-parallel over leading
+    columns, in blocks of ``block`` columns (early exit at the first witness).  Returns the 6
+    witness columns (list) or None if no weight-6 word has leading column < i_max.  Assumes no
+    weight < 6.  ``log`` is an optional callable(i_lo, i_hi, seconds)."""
+    import time as _time
+
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if n < 6:
+        return None
+    powers = _powers_u64(p, r)
+    lcodes, lsupp = _build_left(H, p, 2, powers)
+    if lcodes.shape[0] == 0:
+        return None
+    found = np.zeros(1, dtype=np.int64)
+    witness = np.full(6, -1, dtype=np.int32)
+    i_max = n if i_max is None else int(i_max)
+    for i_lo in range(0, i_max, block):
+        t0 = _time.time()
+        hit = _scan_right_b4_parallel(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max),
+                                      found, witness)
+        if log is not None:
+            log(i_lo, min(i_lo + block, i_max), _time.time() - t0)
+        if hit:
+            return [int(c) for c in witness]
+    return None
+
+
 def weight6_exists_via_2_4(H, p, i_max=None):
     """True iff H has 6 F_p-dependent columns, found via a 2+4 split (a=2 left table + b=4 stream).
     Memory = the a=2 left table only, so this certifies d=6 at n~2000 where the standard a=3,b=3

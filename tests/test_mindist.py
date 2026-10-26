@@ -152,3 +152,27 @@ def test_hash_encoder_handles_overflow_redundancy():
         return None
 
     assert min_dependent_columns(H, p, d_max=6) == brute() == 3
+
+
+def test_weight6_witness_parallel_matches_serial():
+    """The thread-parallel 2+4 weight-6 scan agrees with the serial kernel and returns a genuine
+    weight-6 dependency, on random F_7 codes with and without weight-6 words."""
+    import numpy as np
+    from qmsd.mindist_nb import weight6_exists_via_2_4, weight6_witness_parallel, weight_d_exists_fast
+    from qmsd.structured_ad import _rank
+    rng = np.random.default_rng(11)
+    p, seen = 7, {True: 0, False: 0}
+    for _ in range(120):
+        r, n = int(rng.integers(12, 20)), int(rng.integers(24, 32))
+        H = rng.integers(0, p, size=(r, n))
+        if any(weight_d_exists_fast(H, p, d) for d in (2, 3, 4, 5)):
+            continue
+        a = weight6_exists_via_2_4(H, p)
+        w = weight6_witness_parallel(H, p, block=4)
+        assert (w is not None) == a
+        if w is not None:
+            assert len(set(w)) == 6 and _rank(H[:, w].T.copy(), p) < 6
+        seen[a] += 1
+        if seen[True] >= 2 and seen[False] >= 5:
+            break
+    assert seen[True] >= 1 and seen[False] >= 1
