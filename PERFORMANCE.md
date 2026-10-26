@@ -246,7 +246,7 @@ candidates are skipped. The table gives the best saving vs standard codes, over 
 | [[112,13,3]]₅ (both) | 0.077 | 3.7× | same |
 | [[237,52,6]]₁₇ | ≥ 0.034 | ≥ 3.5× | same |
 | [[24,1,3]]₅ | 0.26 | 1.5× | same |
-| [[2093,308,5]]₇ | ≥ 0.0018 | undetermined (bounds too loose) | same |
+| [[2093,308,5]]₇ | ≥ 0.0018 | **4.1× (1e-2 → 1e-30), surrogate** (weight-5 census below) | same |
 | [[44,5,3]]₇ (all 10), [[124,1,4]]₅ | 0.173 / ≥ 0.11 | none | same |
 
 Reading:
@@ -323,6 +323,15 @@ and keep d = 5 up to k = 24. Scored with the surrogate against the p = 7 standar
 | [[266,21,5]]₇ | x₁²+x₂²+x₃²+1 | 0.0062 | 2.21× | 1.74× | 1.84× |
 | [[319,24,5]]₇ | unit (unweighted) | 0.0177 | 2.11× | 1.57× | 1.50× |
 | [[235,10,5]]₇ | x₁(x₁−1) | 0.0031 | 1.19× | none | none |
+| **[[2093,308,5]]₇** (m = 4, unit, free-form) | — | 0.172 | **4.11×** (210 → 51) | none | **2.94×** (141 → 48) |
+
+The last row is the m = 4 free-form code from the γ hunt (γ 1.19), scored with the thread-parallel
+weight-5 census (`mindist_nb.count_weight5_per_output`, 3.1 h on lenore under load): it has only
+A_5 = 1560 accepted weight-5 errors (260 scalar classes), but each hits 86% of the 308 outputs,
+so L_d = 1338 per output and c_ε = 0.17. Its protocols are [[7,1,3]]₇ → [[2093,308,5]]₇ from both
+1e-2 and 1e-3, i.e. the code is applied at ε ≈ 1e-6 to 1e-9 (n·ε ≤ 0.002, leading order
+essentially exact); at 1e-2 → 1e-30 the output is 1.8e-31, a 5.6× margin. It is not used at
+1e-3 → 1e-15 because P_acc(1e-3) = 0.12 makes a direct round cost 55 against 28.8.
 
 Typical protocols: [[7,1,3]]₇ → [[263,24,5]]₇ (1e-2 → 1e-30) and [[263,24,5]]₇ alone
 (1e-3 → 1e-15). The code is always applied at input noise ≤ 1e-3, i.e. n·ε ≤ 0.26, where the

@@ -110,9 +110,23 @@ make this rigorous. (ii) The leading-order "threshold" 0.72 is meaningless. (iii
 code's outputs sit in the 2·cube class; rescaling g by 4 (4·2 = 1 mod 7) makes them cube-class
 (ordinary magic outputs), after which the inputs at non-cube charges are U^μ states, counted as
 one raw state each as for [[20,1,4]]₇.
-**Next:** m = 4 (|F₇⁴| = 2401; deg g ≤ 23 − 3r, so r = 7 allows degree 2 again and r = 6 allows
-degree 5 with many more supports; the d = 5 cap ceiling there is unknown); plug `marginal_saving`
-into the cap search as the ranking so the sampler optimizes cost, not γ; try the other affine forms.
+**m = 4 (2026-10-26).** Engine first: `mindist_nb.count_weight5_per_output` (thread-parallel 2+3
+census with per-output classification; exact vs the streamed MITM on three codes) makes the
+surrogate affordable at n ≈ 2000. Scored the free-form unit-space **[[2093,308,5]]₇** (γ 1.19,
+`p7_2093_308_5.json`): A_5 = 1560 only (260 classes) but each weight-5 error hits 86% of the
+outputs, L_d = 1338, c_ε = 0.17 → saving **4.11× at 1e-2 → 1e-30** (210 → 51, via [[7,1,3]]₇ →
+code at ε ≈ 1e-6) and **2.94× at 1e-3 → 1e-30**; none at 1e-3 → 1e-15 (P_acc(1e-3) = 0.12).
+Data: `runs/weighted/p7_m4_unit_2093_308_5_census.json`. So the high-k m = 4 regime beats the
+m = 3 weighted caps (2.5×) on cost, as the rate n/k = 6.8 vs 11 suggests.
+Weighted m = 4 (r = 7, degree-2 charges; census `scratchpad/charge_census_m4.py`): the sphere
+x₁²+x₂²+x₃²+x₄² has |X| = 2016 and 672 class points with ≤ 21 on a plane. But outputs confined to
+one class lie on the degree-4 surface (g−1)(g−6) = 0, so the 35 polynomials (g−1)(g−6)·RM(3,4)
+vanish on every class point: the restricted rank is 291, and near it the non-output class points
+are barely checked (k = 290: d = 2; k = 280: d = 4). k = 270 ([[1746,270]]₇, n/k = 6.5) has no
+weight ≤ 4 error; its weight-5 scan is running (`weighted_m4_cert.py`, lenore). d = 5 there gives
+γ 1.16 and probably a better cost than [[2093,308,5]]₇; d ≥ 6 would be γ ≈ 1.04.
+**Next:** finish k = 270/255/240; census the best; then plug `marginal_saving` into the search as
+the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
 
 ## I. ⏸ Multi-output doubling (arXiv:2610.29457 open problem) — deferred by request 2026-10-22.
 
