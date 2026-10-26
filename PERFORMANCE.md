@@ -272,7 +272,11 @@ independently re-certified:
   m6_seed1 and `arc_climb` (~29 h) on lenore. The 1000-trial m = 6 run needs ~22 h serially
   and timed out at 12 h; a 4-process rerun (6 h, different random stream, so not bit-identical)
   gives codes of the same quality: 6 of its top 10 (n, k, d) match hers, best γ 1.721
-  ([[686,43,5]]₃) against her 1.727 ([[668,61,4]]₃).
+  ([[686,43,5]]₃) against her 1.727 ([[668,61,4]]₃). [[686,43,5]]₃ is now in the catalog
+  (`imported-p3-n686-k43-8881d380242d`), independently re-certified; it is the best-γ qutrit
+  d = 5 code we have (vs the paper's [[690,39,5]]₃, γ 1.785), but like the other m = 6 codes
+  it saves nothing against the standard library (ε\* ≥ 0.012, P_acc(1e-3) ≈ 0.50; cheapest
+  protocol using it ≥ 69 at 1e-3 → 1e-30 vs 43.6 standard). Exact A_5 is out of reach (> 100 GB).
 
 | her codes | ε\* per output | best saving vs standard (2026-10-22) | before PS codes |
 |---|---|---|---|
