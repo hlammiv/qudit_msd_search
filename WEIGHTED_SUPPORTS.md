@@ -158,14 +158,14 @@ would need only d >= 5 at k >= 190.
 First probes on the five-hyperplane charge (random cube-class output sets, full weight <= 5
 certificates, `runs/weighted/p7_m4_r6_hyperplanes_probe.json`):
 
-| k | n | residual checks | d | gamma |
-|---|---|---|---|---|
-| 180 | 930 | 25 | 5 | 1.020 |
-| 185 | 925 | 20 | 5 | 1.000 |
-| 190 | 920 | 15 | 4 | 1.138 |
-| 200 | 910 | 5 | 2 | 2.19 |
+| k | n | residual checks | draws | d | gamma |
+|---|---|---|---|---|---|
+| 180 | 930 | 25 | 1 | 5 | 1.020 |
+| 185 | 925 | 20 | 3 | 5, 5, 5 | 1.000 |
+| 190 | 920 | 15 | 2 | 4, 3 | 1.138, 1.436 |
+| 200 | 910 | 5 | 1 | 2 | 2.19 |
 
-So the r = 6 family reaches gamma = 1.02 at k = 180 and exactly 1.000 at k = 185 (n/k = 5 = d) in single draws but has no block lemma to lean
+So the r = 6 family reaches gamma = 1.02 at k = 180 and exactly 1.000 at k = 185 (n/k = 5 = d, three of three draws) but has no block lemma to lean
 on: with only 205 - k checks over ~930 columns, the distance collapses quickly above k = 180
 (d = 4 at 15 checks, d = 2 at 5 checks). It is a near miss, not a route below the sphere's
 0.982, unless a charge with a vanishing-stabiliser block at r = 6 is found (the sphere * x1 x2 x3
