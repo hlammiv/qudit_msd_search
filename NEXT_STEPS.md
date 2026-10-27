@@ -122,11 +122,22 @@ Weighted m = 4 (r = 7, degree-2 charges; census `scratchpad/charge_census_m4.py`
 x₁²+x₂²+x₃²+x₄² has |X| = 2016 and 672 class points with ≤ 21 on a plane. But outputs confined to
 one class lie on the degree-4 surface (g−1)(g−6) = 0, so the 35 polynomials (g−1)(g−6)·RM(3,4)
 vanish on every class point: the restricted rank is 291, and near it the non-output class points
-are barely checked (k = 290: d = 2; k = 280: d = 4). k = 270 ([[1746,270]]₇, n/k = 6.5) has no
-weight ≤ 4 error; its weight-5 scan is running (`weighted_m4_cert.py`, lenore). d = 5 there gives
-γ 1.16 and probably a better cost than [[2093,308,5]]₇; d ≥ 6 would be γ ≈ 1.04.
-**Next:** finish k = 270/255/240; census the best; then plug `marginal_saving` into the search as
-the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
+are barely checked (k = 290: d = 2; k = 280: d = 4).
+**[[1746,270,6]]₇, γ = 1.042 (2026-10-26)** — the best p = 7 γ so far (free-form unit space:
+1.19). Certificate: no weight ≤ 4 (numba MITM, lenore and local), no weight-5 (thread-parallel
+full 2+3 scan, 9919 s on lenore), weight-6 witness on columns [1657, 1669, 1716, 1584, 1624, 1727]
+of G0 with coefficients (3, 3, 3, 3, 1, 1), all six on class points. Puncture set, charge and
+witness: `runs/weighted/p7_m4_sphere_1746_270_cols.json`. The witness came from the **class
+block**: the 402 non-output class columns see only 21 independent checks (33 nonzero rows of
+G0, rank 21), so low-weight words live there; a 3+3 MITM on that block
+(`mindist_nb.weight6_witness_3x3`, 510 s) found it, where the 2+4 scan on the full code would
+have taken weeks (measured probe rate ~1e6/s/thread under load). Random-code heuristic for the
+block ([402, 381]₇): ~0.5 weight-6 words and ~160 weight-7 words expected, so d = 6 at k = 270
+is "typical"; words mixing in non-class columns face 35 extra checks (expected ~1e-9).
+**Next:** per-output weight-6 census (`count_weight6_per_output`, 3+3) → surrogate → cost vs the
+library and vs [[2093,308,5]]₇; bracket the d = 6 ceiling (k = 275, 265) using the class block
+as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
+search as the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
 
 ## I. ⏸ Multi-output doubling (arXiv:2610.29457 open problem) — deferred by request 2026-10-22.
 

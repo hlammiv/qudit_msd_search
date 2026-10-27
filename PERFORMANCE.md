@@ -333,6 +333,10 @@ so L_d = 1338 per output and c_ε = 0.17. Its protocols are [[7,1,3]]₇ → [[2
 essentially exact); at 1e-2 → 1e-30 the output is 1.8e-31, a 5.6× margin. It is not used at
 1e-3 → 1e-15 because P_acc(1e-3) = 0.12 makes a direct round cost 55 against 28.8.
 
+**[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ to date
+(certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Its cost
+needs the weight-6 census (in progress).
+
 Typical protocols: [[7,1,3]]₇ → [[263,24,5]]₇ (1e-2 → 1e-30) and [[263,24,5]]₇ alone
 (1e-3 → 1e-15). The code is always applied at input noise ≤ 1e-3, i.e. n·ε ≤ 0.26, where the
 leading order is within 4% of the exact ε_out on the [[44,5,3]]₇ codes and the margins to the
