@@ -324,6 +324,7 @@ and keep d = 5 up to k = 24. Scored with the surrogate against the p = 7 standar
 | [[319,24,5]]₇ | unit (unweighted) | 0.0177 | 2.11× | 1.57× | 1.50× |
 | [[235,10,5]]₇ | x₁(x₁−1) | 0.0031 | 1.19× | none | none |
 | **[[2093,308,5]]₇** (m = 4, unit, free-form) | — | 0.172 | **4.11×** (210 → 51) | none | **2.94×** (141 → 48) |
+| **[[1746,270,6]]₇** (m = 4, sphere charge) | x₁²+x₂²+x₃²+x₄² | 2.9e-5 | **4.32×** (210 → 48.7) | none | **3.60×** (141 → 39.2) |
 
 The last row is the m = 4 free-form code from the γ hunt (γ 1.19), scored with the thread-parallel
 weight-5 census (`mindist_nb.count_weight5_per_output`, 3.1 h on lenore under load): it has only
@@ -334,8 +335,14 @@ essentially exact); at 1e-2 → 1e-30 the output is 1.8e-31, a 5.6× margin. It 
 1e-3 → 1e-15 because P_acc(1e-3) = 0.12 makes a direct round cost 55 against 28.8.
 
 **[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ to date
-(certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Its cost
-needs the weight-6 census (in progress).
+(certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Weight-6
+census on its class block (`count_weight6_per_output`, 3+3, 30 min): only A_6 = 24 words
+(4 scalar classes), each hitting ~6% of the outputs, L_6 = 1.33, c_ε = 2.9e-5. Protocols:
+[[7,1,3]]_7 cyc-B → [[1746,270,6]]_7 (1e-2 → 1e-30, cost 48.7) and [[6,1,?]]_7 RS → [[1746,270,6]]_7
+(1e-3 → 1e-30, cost 39.2); the code is applied at ε ≈ 1e-6, output ≈ 3.0e-41. Words that
+mix in non-class columns are assumed absent (35 extra checks; random-model expectation ~1e-9),
+so this is a surrogate on a lower bound of L_6, and at this n·ε the next order is negligible.
+Data: `runs/weighted/p7_m4_sphere_1746_270_6_census.json`.
 
 Typical protocols: [[7,1,3]]₇ → [[263,24,5]]₇ (1e-2 → 1e-30) and [[263,24,5]]₇ alone
 (1e-3 → 1e-15). The code is always applied at input noise ≤ 1e-3, i.e. n·ε ≤ 0.26, where the

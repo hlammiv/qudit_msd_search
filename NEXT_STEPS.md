@@ -134,8 +134,14 @@ G0, rank 21), so low-weight words live there; a 3+3 MITM on that block
 have taken weeks (measured probe rate ~1e6/s/thread under load). Random-code heuristic for the
 block ([402, 381]₇): ~0.5 weight-6 words and ~160 weight-7 words expected, so d = 6 at k = 270
 is "typical"; words mixing in non-class columns face 35 extra checks (expected ~1e-9).
-**Next:** per-output weight-6 census (`count_weight6_per_output`, 3+3) → surrogate → cost vs the
-library and vs [[2093,308,5]]₇; bracket the d = 6 ceiling (k = 275, 265) using the class block
+**Cost (census 2026-10-26):** A_6 = 24 (4 classes) on the class block, L_6 = 1.33, c_ε = 2.9e-5 →
+saving **4.32× at 1e-2 → 1e-30** (210 → 48.7, [[7,1,3]]_7 cyc-B → [[1746,270,6]]_7) and **3.60× at
+1e-3 → 1e-30** (141 → 39.2, [[6,1,?]]_7 RS → [[1746,270,6]]_7); 1.08× at 1e-2 → 1e-15; none at
+1e-3 → 1e-15. Slightly better than [[2093,308,5]]₇ (4.11 / 2.94) with 347 fewer qudits.
+Bracketing (`wm4_bracket.py`, class-block filter): k = 275 samples give d_block 4, 5; k = 265
+samples give 3 and 6 — d depends on the sample as much as on k, so the search at fixed k needs
+many cheap block-filtered draws (or a geometric constraint on the outputs), not one draw.
+**Next:** finish the k = 265 full certificate; bracket further (k = 275, 265) using the class block
 as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
 search as the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
 
