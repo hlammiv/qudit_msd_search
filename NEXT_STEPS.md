@@ -144,7 +144,21 @@ fixed k needs many cheap block-filtered draws (or a geometric constraint on the 
 draw. The k = 265 block-6 sample was fully certified: **[[1751,265,6]]₇, γ = 1.054** (no weight
 ≤ 5 in the full code, 9604 s), confirming that the block distance was the true distance there
 (`runs/weighted/p7_m4_sphere_bracket_2026-10-27.json`, seed 7).
-**Next:** bracket further (k = 275, 265) using the class block
+**[[1756,260,≥7]]₇, γ ≤ 0.982 — the first γ < 1 search code at p = 7 (2026-10-27).** Sphere
+charge, outputs = 260 random class points (`wm4_bracket.py`, seed 7, k = 260 sample 1; set and
+certificate in `runs/weighted/p7_m4_sphere_1756_260_cols.json`). Three-part distance proof:
+(i) no weight ≤ 5 in the full G0 (serial MITM for ≤ 4, thread-parallel full 2+3 scan for 5,
+12243 s); (ii) no weight-6 word on the 412 class columns (3+3 MITM); (iii) no weight-6 word
+touching a non-class column: the 35 kernel rows (g−1)(g−6)·RM(3,4) force the non-class part
+u = (g−1)(g−6)·e_N into RM(3,4)^⊥ = RM(20,4) (d = 5), so u has weight 5 or 6 and the class
+part at most one column; every full-support weight-5/6 word of RM(20,4) is line-supported
+(verified by enumerating point sets up to affine equivalence, 76242 sets of span 2–4, none
+carries a full-support word), and all 1,197,504 line words inside N fail to extend to ker G0
+(`scratchpad/mixed_w6_check.py`, `runs/weighted/p7_m4_sphere_1756_260_mixed_w6_check.json`).
+A weight-7 witness search (3+4 on the class block) has run 3 h without a hit, so d may be ≥ 8
+(γ ≤ 0.92). The random-model prediction of ~160 weight-7 words was wrong in the good direction.
+Cost needs the weight-7 census once a witness fixes d.
+**Next:** finish the weight-7 witness / census; bracket further (k = 255–265) using the class block
 as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
 search as the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
 

@@ -334,7 +334,10 @@ so L_d = 1338 per output and c_ε = 0.17. Its protocols are [[7,1,3]]₇ → [[2
 essentially exact); at 1e-2 → 1e-30 the output is 1.8e-31, a 5.6× margin. It is not used at
 1e-3 → 1e-15 because P_acc(1e-3) = 0.12 makes a direct round cost 55 against 28.8.
 
-**[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ to date
+**[[1756,260,≥7]]₇ (m = 4, sphere charge, 2026-10-27): γ ≤ 0.982, the first γ < 1 search code
+at p = 7** (three-part certificate in NEXT_STEPS.md §H). Cost pending its weight-7 census.
+
+**[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ before that
 (certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Weight-6
 census on its class block (`count_weight6_per_output`, 3+3, 30 min): only A_6 = 24 words
 (4 scalar classes), each hitting ~6% of the outputs, L_6 = 1.33, c_ε = 2.9e-5. Protocols:
