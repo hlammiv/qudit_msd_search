@@ -474,6 +474,66 @@ def count_weight6_per_output(G0, H1, p):
     return float(per_output.mean()), total // 20, per_output
 
 
+@njit(cache=True, parallel=True)
+def _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witness):
+    """Thread-parallel right 4-subsets (leading column in [i_lo, i_hi)) with ALL (p-1)^4 patterns
+    against the normalised left-3 table: weight-7 witness (3+4 split), shared stop flag."""
+    r, n = H.shape
+    N = lcodes.shape[0]
+    for i in prange(i_lo, min(i_hi, n)):
+        rcols = np.empty(4, dtype=np.int32)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for k in range(j + 1, n):
+                for l in range(k + 1, n):
+                    for c1 in range(1, p):
+                        for c2 in range(1, p):
+                            for c3 in range(1, p):
+                                for c4 in range(1, p):
+                                    target = np.uint64(0)
+                                    for t in range(r):
+                                        v = (c1 * H[t, i] + c2 * H[t, j] + c3 * H[t, k] + c4 * H[t, l]) % p
+                                        target = target + powers[t] * np.uint64((p - v) % p)
+                                    ii = np.searchsorted(lcodes, target)
+                                    while ii < N and lcodes[ii] == target:
+                                        l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                        if (l1 != i and l1 != j and l1 != k and l1 != l and l2 != i and l2 != j
+                                                and l2 != k and l2 != l and l3 != i and l3 != j and l3 != k and l3 != l):
+                                            rcols[0] = i; rcols[1] = j; rcols[2] = k; rcols[3] = l
+                                            if _fp_dependent(H, p, lsupp[ii], rcols, 3, 4):
+                                                found[0] = 1
+                                                witness[0] = l1; witness[1] = l2; witness[2] = l3
+                                                witness[3] = i; witness[4] = j; witness[5] = k; witness[6] = l
+                                        ii += 1
+    return found[0] != 0
+
+
+def weight7_witness_3x4(H, p, block=8, i_max=None, log=None):
+    """Weight-7 witness by a 3+4 split: normalised left-3 table, thread-parallel right-4 scan with
+    all (p-1)^4 patterns in blocks of leading columns (early exit).  Returns 7 columns or None
+    (None = no weight-7 word with leading right column < i_max).  Assumes no weight < 7."""
+    import time as _time
+
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if n < 7:
+        return None
+    powers = _powers_u64(p, r)
+    lcodes, lsupp = _build_left3_norm(H, p, powers)
+    found = np.zeros(1, dtype=np.int64)
+    witness = np.full(7, -1, dtype=np.int32)
+    i_max = n if i_max is None else int(i_max)
+    for i_lo in range(0, i_max, block):
+        t0 = _time.time()
+        hit = _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max), found, witness)
+        if log is not None:
+            log(i_lo, min(i_lo + block, i_max), _time.time() - t0)
+        if hit:
+            return [int(c) for c in witness]
+    return None
+
+
 def weight6_witness_3x3(H, p):
     """Weight-6 witness by a 3+3 split: normalised left-3 table (C(n,3)(p-1)^2 entries, 20 B each)
     and a thread-parallel right-3 scan with all (p-1)^3 patterns.  Far fewer probes than the 2+4
