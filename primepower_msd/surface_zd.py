@@ -251,14 +251,17 @@ def _same_class(a, b, d):
     return any(all((lam * x - y) % d == 0 for x, y in zip(a, b)) for lam in range(1, d))
 
 
-def build_dem(mem: Memory, sector: str) -> DEM:
+def build_dem(mem: Memory, sector: str, exclude=None) -> DEM:
     """Project every fault onto the detectors of one sector; group graphlike faults into edges with per-level
     probabilities at unit location probability (scale by p when decoding; uniform over the non-identity Paulis of
     the location).  A fault with > 2 detectors is decomposed into its single-generator components (X^a or Z^b on one qudit); each
     graphlike component's edge receives the fault's probability (stim's decompose_errors).  When several fault
     classes share an edge with patterns that are not scalar multiples (a boundary degeneracy), the most probable
-    class fixes the pattern."""
+    class fixes the pattern.  exclude: detector indices that are postselected; every fault firing one of them is left out
+    of the model (those shots are discarded), and its probability is reported as DEM.discarded_prob."""
     faults, per_loc, V, O = propagate_basis(mem)
+    Vx = V[:, exclude] if exclude is not None and len(exclude) else None
+    discarded = 0.0
     d = mem.d
     k = int(round(math.log2(d)))
     sel = np.nonzero(mem.det_sector == sector)[0]
@@ -298,6 +301,8 @@ def build_dem(mem: Memory, sector: str) -> DEM:
             e["classes"].append([pat, pr])
         return True
 
+    leftover = []                      # hyperedge faults (v, o, pr) for the second pass
+    singles = {}                       # every kept single-fault pattern ((det, value), ...) -> {observable: probability}
     for kind, ids in per_loc:
         m = len(ids)
         combos = np.array(list(it.product(range(d), repeat=m)), dtype=np.int64)[1:]     # non-identity
@@ -306,7 +311,14 @@ def build_dem(mem: Memory, sector: str) -> DEM:
         Vl = combos @ Vs[ids] % d
         Ol = combos @ O[ids] % d
         cnt = (Vl != 0).sum(axis=1)
+        drop = np.any(combos @ Vx[ids] % d != 0, axis=1) if Vx is not None else np.zeros(len(combos), dtype=bool)
         for row in range(len(combos)):
+            if drop[row]:
+                discarded += pr
+                continue
+            if cnt[row]:
+                key = tuple((int(j), int(Vl[row, j])) for j in np.nonzero(Vl[row])[0])
+                sd = singles.setdefault(key, {}); sd[int(Ol[row])] = sd.get(int(Ol[row]), 0.0) + pr
             if cnt[row] <= 2 and add(Vl[row], Ol[row], pr):
                 continue
             # decompose into single-generator components
@@ -316,12 +328,163 @@ def build_dem(mem: Memory, sector: str) -> DEM:
                 for v, o in comps:
                     add(v, o, pr)
             else:
-                hyper += pr
+                for v, o in comps:
+                    if len(np.nonzero(v)[0]) <= 2:
+                        add(v, o, pr)
+                    else:
+                        leftover.append((v, int(o), pr))
+    for e in edges.values():
+        e["classes"].sort(key=lambda cl: -cl[1])
+        e["pat"] = e["classes"][0][0]
+    # second pass (stim's decompose_errors): write each hyperedge as a sum of existing graphlike edges whose supports
+    # partition its detector set, with consistent Z_d coefficients and observable; take the most probable decomposition
+    def partitions(items):
+        if not items:
+            yield []
+            return
+        a, rest = items[0], items[1:]
+        for p_ in partitions(rest):
+            yield [(a, -1)] + p_
+        for k, b in enumerate(rest):
+            for p_ in partitions(rest[:k] + rest[k + 1:]):
+                yield [(a, b)] + p_
+    hyperedges = {}                    # undecomposed: ((det, value), ...) -> [observable, probability]
+    def keep_hyper(v, o, pr, dets):
+        key = tuple((j, int(v[j])) for j in dets)
+        h = hyperedges.setdefault(key, [int(o), 0.0]); h[1] += pr
+    for v, o, pr in leftover:
+        dets = [int(x) for x in np.nonzero(v)[0]]
+        if len(dets) > 4:
+            hyper += pr; keep_hyper(v, o, pr, dets)
+            continue
+        best, best_lp = None, -math.inf
+        for part in partitions(dets):
+            if not all(key in edges for key in part):
+                continue
+            lams, lp, osum, ok = [], 0.0, 0, True
+            for key in part:
+                e = edges[key]; ca, cb, oe = e["pat"]
+                lam = next((l for l in range(1, d) if (l * ca - v[key[0]]) % d == 0 and (key[1] == -1 or (l * cb - v[key[1]]) % d == 0)), None)
+                if lam is None:
+                    ok = False
+                    break
+                lams.append(lam); osum += lam * oe
+                P = sum(e["P"])
+                lp += math.log(P) if P > 0 else -50.0
+            if ok and (osum - o) % d == 0 and lp > best_lp:
+                best, best_lp = part, lp
+        if best is None:
+            hyper += pr; keep_hyper(v, o, pr, dets)
+            continue
+        lev = _val2(int(v[dets[0]]), d)
+        for key in best:
+            edges[key]["P"][lev] += pr
     for e in edges.values():
         e["classes"].sort(key=lambda cl: -cl[1])
         e["pat"] = e["classes"][0][0]
         conflicts += len(e["classes"]) - 1
-    return DEM(d, n_det, edges, hyper, total, undet, conflicts)
+    dem = DEM(d, n_det, edges, hyper, total, undet, conflicts)
+    dem.discarded_prob = discarded
+    dem.hyperedges = [(k, o, pr) for k, (o, pr) in hyperedges.items()]
+    dem.singles = singles
+    return dem
+
+
+def misdecoded_patterns(dem: DEM, dec) -> dict:
+    """First-order check of a decoder on `dem`: every kept single-fault pattern whose most probable observable the
+    decoder does not reproduce (pattern -> probability per unit p).  Discarding shots that contain these patterns
+    (`pattern_mask`) removes every first-order failure."""
+    d, n = dem.d, dem.n_det
+    bad = {}
+    for key, od in getattr(dem, "singles", {}).items():
+        o = max(od, key=od.get)
+        sigma = np.zeros(n, dtype=np.int64)
+        for j, val in key:
+            sigma[j] = val
+        corr, _ = dec.decode(sigma)
+        if (corr + o) % d != 0:
+            bad[key] = sum(od.values())
+    return bad
+
+
+def _pair_worker(dem, p, keys, singles, i_lo, i_hi, keys_b=None):
+    dec = PeelDecoder(dem, p)
+    d, n = dem.d, dem.n_det
+    bad, undet, checked = {}, 0.0, 0
+    obs = {k: max(od, key=od.get) for k, od in singles.items()}
+    mass = {k: sum(od.values()) for k, od in singles.items()}
+    a_index = {k: i for i, k in enumerate(keys)}
+    for i in range(i_lo, i_hi):
+        k1 = keys[i]
+        # partner set: the rest of `keys` after i (triangle), plus every key of keys_b outside `keys`
+        partners = keys[i + 1:] if keys_b is None else (keys[i + 1:] + [k for k in keys_b if k not in a_index])
+        for k2 in partners:
+            sigma = np.zeros(n, dtype=np.int64)
+            for jj, val in k1:
+                sigma[jj] += val
+            for jj, val in k2:
+                sigma[jj] += val
+            sigma %= d
+            o = (obs[k1] + obs[k2]) % d
+            m = mass[k1] * mass[k2]
+            checked += 1
+            nz = np.nonzero(sigma)[0]
+            if len(nz) == 0:
+                if o:
+                    undet += m
+                continue
+            corr, _ = dec.decode(sigma)
+            if (corr + o) % d != 0:
+                key = tuple((int(jj), int(sigma[jj])) for jj in nz)
+                bad[key] = bad.get(key, 0.0) + m
+    return bad, undet, checked
+
+
+def misdecoded_pairs(dem: DEM, p: float, keys, n_jobs: int = 6, keys_b=None, exclude=None):
+    """Second-order check of the peeling decoder: every unordered pair of the single-fault patterns `keys` (subset of
+    dem.singles) — and, if keys_b is given, every pair (a in keys, b in keys_b outside keys) — is summed and decoded;
+    returns (combined pattern -> probability mass per unit p^2 of the pairs that are mis-decoded, undetectable-pair mass,
+    pairs checked).  Discarding shots that contain a bad combined pattern (`pattern_mask`) removes those second-order
+    failures at a p^2 discard cost (plus first-order cost when the combined pattern is itself a single-fault pattern)."""
+    from joblib import Parallel, delayed
+    exclude = set(exclude or ())                  # e.g. the first-order mis-decoded singles (already postselected)
+    keys = [k for k in keys if k not in exclude]
+    keys_b = None if keys_b is None else [k for k in keys_b if k not in set(keys) and k not in exclude]
+    singles = {k: dem.singles[k] for k in keys + (keys_b or [])}
+    N = len(keys)
+    extra = len(keys_b or [])
+    # balance the workload: cut points with equal numbers of pairs
+    cuts = [0]
+    total = N * (N - 1) // 2 + N * extra
+    nchunks = max(1, 4 * n_jobs)
+    acc = 0
+    for i in range(N):
+        acc += N - 1 - i + extra
+        if acc >= total * len(cuts) / nchunks and cuts[-1] < i + 1:
+            cuts.append(i + 1)
+    if cuts[-1] != N:
+        cuts.append(N)
+    res = Parallel(n_jobs=n_jobs)(delayed(_pair_worker)(dem, p, keys, singles, a, b, keys_b) for a, b in zip(cuts[:-1], cuts[1:]))
+    bad, undet, checked = {}, 0.0, 0
+    for b_, u_, c_ in res:
+        for k, m in b_.items():
+            bad[k] = bad.get(k, 0.0) + m
+        undet += u_; checked += c_
+    return bad, undet, checked
+
+
+def pattern_mask(patterns, Dv: np.ndarray) -> np.ndarray:
+    """Shots whose syndrome contains (exactly, on its own detectors) one of `patterns` (((det, value), ...))."""
+    hit = np.zeros(len(Dv), dtype=bool)
+    for key in patterns:
+        idx = [j for j, _ in key]; vals = np.array([v for _, v in key])
+        hit |= np.all(Dv[:, idx] == vals, axis=1)
+    return hit
+
+
+def hyperedge_mask(dem: DEM, Dv: np.ndarray) -> np.ndarray:
+    """Shots containing one of the undecomposed hyperedge patterns of `dem`."""
+    return pattern_mask([k for k, _, _ in getattr(dem, "hyperedges", [])], Dv)
 
 
 # ----------------------------------------------------------------------------------------------------------------

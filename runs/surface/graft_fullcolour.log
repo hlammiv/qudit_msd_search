@@ -1,0 +1,4 @@
+escape-allcolours X 0.001 p_fail 1.0564124234100992e-05 fails 1 kept 94660 discard 0.5267 bad_patterns 0 hyper_share 0.00027040930038987437
+escape-allcolours X 0.002 p_fail 0.00031228391068680153 fails 14 kept 44831 discard 0.7758 bad_patterns 0 hyper_share 0.00027040930038987437
+escape-allcolours Z 0.001 p_fail 1.878234084313928e-05 fails 2 kept 106483 discard 0.4676 bad_patterns 0 hyper_share 0.0
+escape-allcolours Z 0.002 p_fail 0.00026223317774164785 fails 15 kept 57201 discard 0.714 bad_patterns 0 hyper_share 0.0

@@ -1,0 +1,10 @@
+{'kept': 2000, 'fails': 43, 'p_fail': np.float64(0.0215), 'discard': 0.0, 'hyper_share': 0.00622, 'undetectable_share': 0.0, 'conflicts': 296, 'cX': None, 'cZ': None, 'n_post': 0}
+{'kept': 1233, 'fails': 0, 'p_fail': np.float64(0.0), 'discard': 0.3835, 'hyper_share': 0.00028, 'undetectable_share': 0.0, 'conflicts': 282, 'cX': 0, 'cZ': 0, 'n_post': 15}
+{'kept': 1233, 'fails': 0, 'p_fail': np.float64(0.0), 'discard': 0.3835, 'hyper_share': 0.00028, 'undetectable_share': 0.0, 'conflicts': 282, 'cX': 0, 'cZ': 1, 'n_post': 15}
+{'kept': 1233, 'fails': 0, 'p_fail': np.float64(0.0), 'discard': 0.3835, 'hyper_share': 0.00028, 'undetectable_share': 0.0, 'conflicts': 282, 'cX': 0, 'cZ': 2, 'n_post': 15}
+{'kept': 1367, 'fails': 11, 'p_fail': np.float64(0.00805), 'discard': 0.3165, 'hyper_share': 0.00069, 'undetectable_share': 0.0, 'conflicts': 287, 'cX': 1, 'cZ': 0, 'n_post': 15}
+{'kept': 1367, 'fails': 13, 'p_fail': np.float64(0.00951), 'discard': 0.3165, 'hyper_share': 0.00118, 'undetectable_share': 0.0, 'conflicts': 287, 'cX': 1, 'cZ': 1, 'n_post': 15}
+{'kept': 1367, 'fails': 6, 'p_fail': np.float64(0.00439), 'discard': 0.3165, 'hyper_share': 0.00052, 'undetectable_share': 0.0, 'conflicts': 287, 'cX': 1, 'cZ': 2, 'n_post': 15}
+{'kept': 1367, 'fails': 0, 'p_fail': np.float64(0.0), 'discard': 0.3165, 'hyper_share': 0.00046, 'undetectable_share': 0.0, 'conflicts': 279, 'cX': 2, 'cZ': 0, 'n_post': 15}
+{'kept': 1367, 'fails': 2, 'p_fail': np.float64(0.00146), 'discard': 0.3165, 'hyper_share': 0.00048, 'undetectable_share': 0.0, 'conflicts': 279, 'cX': 2, 'cZ': 1, 'n_post': 15}
+{'kept': 1367, 'fails': 0, 'p_fail': np.float64(0.0), 'discard': 0.3165, 'hyper_share': 0.00031, 'undetectable_share': 0.0, 'conflicts': 279, 'cX': 2, 'cZ': 2, 'n_post': 15}

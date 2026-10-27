@@ -1,0 +1,12 @@
+escape Z 0.0005 p_fail 2.3945500041904624e-05 fails 2 kept 83523 discard 0.1648
+final Z 0.0005 p_fail 0.0 fails 0 kept 100000 discard 0.0
+surface15 Z 0.0005 p_fail 0.0 fails 0 kept None discard 0.0
+escape Z 0.001 p_fail 7.153587524143358e-05 fails 5 kept 69895 discard 0.3011
+final Z 0.001 p_fail 0.0 fails 0 kept 100000 discard 0.0
+surface15 Z 0.001 p_fail 0.0 fails 0 kept None discard 0.0
+escape Z 0.002 p_fail 0.0007600657354149548 fails 37 kept 48680 discard 0.5132
+final Z 0.002 p_fail 0.0 fails 0 kept 100000 discard 0.0
+surface15 Z 0.002 p_fail 0.0 fails 0 kept None discard 0.0
+escape Z 0.003 p_fail 0.002254296337500366 fails 77 kept 34157 discard 0.6584
+final Z 0.003 p_fail 1e-05 fails 1 kept 100000 discard 0.0
+surface15 Z 0.003 p_fail 2e-05 fails 2 kept None discard 0.0

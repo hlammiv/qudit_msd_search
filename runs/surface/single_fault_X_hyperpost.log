@@ -1,0 +1,3 @@
+locations 18563.00000077739 discarded share 0.02129853503558713 hyperedge-discard share 0.0005137776707192451 n_hyper 152 distinct kept patterns 52183
+mis-decoded single-fault probability (per unit p): 0.25098039215686274 -> first-order p_fail ~ 0.00025098039215686274 at p 0.001
+0.251 (('p1r0 X(3.0, 1.0)', 'p1r0 X(5.0, 2.0)', 'p1r0 X(7.0, 1.0)'), 0)

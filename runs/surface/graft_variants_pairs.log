@@ -1,0 +1,6 @@
+one+pairs X 0.0005 p_fail 6.8e-06 fails 1 kept 147095 discard 0.2645 bad_mass 0.329 pairs 44719 pair_mass 416.0 qudits 702 s 1374.6
+one+pairs X 0.001 p_fail 4.62e-05 fails 5 kept 108315 discard 0.4584 bad_mass 0.329 pairs 44996 pair_mass 416.7 qudits 702 s 1448.7
+one+pairs X 0.002 p_fail 0.000474 fails 27 kept 56924 discard 0.7154 bad_mass 0.329 pairs 45370 pair_mass 417.4 qudits 702 s 1454.8
+one+pairs Z 0.0005 p_fail 6.72e-06 fails 1 kept 148785 discard 0.2561 bad_mass 0.000 pairs 1455 pair_mass 2.8 qudits 702 s 1446.0
+one+pairs Z 0.001 p_fail 3.63e-05 fails 4 kept 110307 discard 0.4485 bad_mass 0.000 pairs 1459 pair_mass 2.8 qudits 702 s 1456.7
+one+pairs Z 0.002 p_fail 0.000281 fails 17 kept 60518 discard 0.6974 bad_mass 0.000 pairs 1478 pair_mass 2.8 qudits 702 s 1617.2

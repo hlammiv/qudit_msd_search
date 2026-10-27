@@ -273,7 +273,8 @@ logical qudits of a host code with p_L(D) ≲ target / a_C, and at ~2D² physica
 its output 3.15 p_cult³ ≈ 2×10⁻¹⁸ is far below any target, so the host distance is set entirely by the Clifford
 floor 0.36 p_L(D) < target.  Model: p_L(D) = 0.1 (p/p_th)^{(D+1)/2}, F(D) = 2D², escape of the cultivated state
 into the host costs one p_L(D) (the host parameters were assumptions when this section was written; §5g measures
-them: p_th ≈ 7.6×10⁻³, A ≈ 0.053, which is the "measured" column).
+them: p_th ≈ 7.6×10⁻³, A ≈ 0.053, which is the "measured" column; §5h measures the escape itself: 4×10⁻⁴ per
+kept attempt at p = 10⁻³, which supersedes the "one p_L(D)" charge and changes the attempts column, see §5h).
 
 | p | target | p_th = 5×10⁻³, A = 0.1: D, physical | p_th = 10⁻², A = 0.1: D, physical | **measured Z₄ host (§5g)**: D, physical | cultivation attempts / output |
 |---|---|---|---|---|---|
@@ -350,9 +351,137 @@ Caveats: the decoder is a heuristic (a level-j graph with weights from the valua
 decoder would do better, so the threshold is a lower bound); no idle noise during the CSUM steps; the fit's A and
 p_th are effective parameters over 3 ≤ D ≤ 9 (the per-pair crossings say p_th is a little higher).
 
+## 5h. The escape step measured: cultivated colour-code state → surface code (`graft_zd.py`, `graft_run.py`)
+§5f charged the escape as one host logical error p_L(D); this section simulates it.  **Construction** (Gidney et al.
+arXiv:2409.17595, circuits.zip on Zenodo 10.5281/zenodo.13777072, read as data by `graft_extract.py`): the d₁ = 5
+colour code (19 qudits, 9 X + 9 Z plaquettes) is grafted into a D = 15 surface code — 229 data qudits = 19 + 105 fresh
+|0⟩ + 105 fresh |+⟩, 228 checks (14 colour plaquettes kept, boundary plaquettes extended into the surface region,
+interface checks of weight 2/3/5), measured for r₁ = 5 rounds, then the final matchable code (232 checks, the 8
+colour-region Z plaquettes split into weight-2 pairs, k = 2 with the second logical commuting with ours) for r₂ = 5
+rounds.  **Z_{2^k} transfer**: the check signs are a GF(2) linear system (an X/Z overlap of size 2m needs m sign
+disagreements; the colour-code signature τ is fixed; kept/extended/refined checks equal their parents up to a unit;
+the logicals commute) — it is consistent, every one of the 415/399 overlaps sums to exactly 0, so the signed graft is a
+valid code for **all** d = 2^k (`graft_signs_solve.py`, `data/graft_d5_z4.json`; `tests/test_graft_zd.py` checks
+d = 4, 8).  The logicals extend onto one fresh diagonal each (Z_L = Z^τ(19) × Z^v on 14 fresh |0⟩, X_L = X(19) × X^u
+on 14 fresh |+⟩).  Syndrome extraction: one ancilla per check, CSUM schedules from the surface-code study (§5g;
+weight-6 plaquettes in two conflict-free layers), the §5g noise model, idle noise on data during resets; detectors are
+generated automatically (differences, first-round deterministic checks on fresh qudits, parent/child relations,
+extensions) and verified deterministic by the frame simulator.  Decoder: §5g's 2-adic matching with the DEM built on
+the kept shots only.
+
+**Postselection** (the part that makes a matching decoder work on the colour region).  (i) Gidney's recipe: the
+colour-region plaquettes of one colour class per sector are postselected during the r₁ grafted rounds (X: class 2,
+Z: class 0 — chosen from the 9 + 1 combinations by hyperedge share and discard, `graft_run select`).  Without it
+1–2% of the fault probability is hyperedges and the escape fails at the percent level.  (ii) Faults that fire a
+postselected detector are removed from the error model (masking the detector columns instead left a boundary-edge
+class with the wrong observable and a first-order failure equal to the "undetectable" share — found by a
+single-fault test, `scratchpad/single_fault.py`).  (iii) **Decoder-certified first-order postselection**: at build
+time every kept single-fault syndrome (52k patterns) is decoded; the patterns the decoder gets wrong are postselected
+as well (`surface_zd.misdecoded_patterns`, `pattern_mask`).  The Z sector has none.  The X sector had 8 (mass
+0.50 p per attempt): a Z-type fault on a boundary qudit of the colour code during its last round — that qudit sits in
+only two colour plaquettes plus an interface check, so a single postselected colour class misses it, and the
+resulting weight-3 hyperedge (observable 0) is matched with the wrong parity.  Before certification the X escape
+failed at 1.2×10⁻³ with linear scaling in p (half of it this first-order hole); after it the extra discard is
+5×10⁻⁴ per attempt and both sectors scale as p².
+
+**Results** (`runs/surface/graft_variants.jsonl`, `graft_run variants`; 2×10⁵ attempts per sector and point, failures
+per kept attempt, the discard is the joint one — both sectors' postselected detectors applied to every attempt, as the
+error model assumes).  Three recipes: *one* = one colour class per sector (X: 2, Z: 0); *all* = all three classes in
+both sectors; *one+flags* = *one* plus a flag qudit on every check of weight ≥ 5 during the grafted rounds (two
+cancelling CSUMs bracketing the data CSUMs, flag measurement postselected, `build(flag_weight=5)`; 12 flags):
+
+| p | one: X, Z, total, discard | all: X, Z, total, discard | one+flags: X, Z, total, discard |
+|---|---|---|---|
+| 5×10⁻⁴ | 2.0×10⁻⁵ (3), 0 (0), 2×10⁻⁵, 25% | 8×10⁻⁶ (1), 0, 8×10⁻⁶, 39% | 0, 8×10⁻⁶ (1), 8×10⁻⁶, 35% |
+| 10⁻³ | 9.7×10⁻⁵ (11), 7.9×10⁻⁵ (9), 1.8×10⁻⁴, 43% | 4.0×10⁻⁵ (3), 2.7×10⁻⁵ (2), 6.6×10⁻⁵, 62% | 1.2×10⁻⁴ (10), 2.4×10⁻⁵ (2), 1.4×10⁻⁴, 58% |
+| 2×10⁻³ | 5.8×10⁻⁴ (38), 2.6×10⁻⁴ (17), 8.5×10⁻⁴, 67% | 2.8×10⁻⁴ (8), 1.8×10⁻⁴ (5), 4.6×10⁻⁴, 86% | 5.1×10⁻⁴ (18), 3.7×10⁻⁴ (13), 8.8×10⁻⁴, 82% |
+
+The final graft code's own 10-round memory and a plain D = 15 rotated code are 0 failures in 10⁵ at p ≤ 2×10⁻³
+(10⁻⁵ and 2×10⁻⁵ at 3×10⁻³), so every escape failure comes from the five grafted rounds (the colour-code round, phase
+0, is noiseless in this model).  Scaling of *one*: ×5 per ×2 in p at both steps, i.e. **fault distance 2** (≈ p^2.4);
+*all* is ×5 and ×7 on few events.  **Flags do not help**: the X-sector rate (Z errors on data) is unchanged within
+statistics, so the p² failures are not ancilla hooks on the weight-6 plaquettes but pairs of data errors in the colour
+region whose plaquette syndrome (two unpostselected colours, a Z_d hyperedge) the matching decoder resolves wrongly;
+the flags only add 15 points of discard (`flag_weight` stays as an option).  Postselecting all three classes removes
+those pairs' escape routes (×3 lower error) for 19 more points of discard.  (The first version of these runs applied only
+the decoded sector's postselection, giving X 3.0×10⁻⁴ + Z 1.1×10⁻⁴ with an understated 33% discard —
+`graft_d4.jsonl` rows before the `variants` ones; superseded.)  For comparison Gidney's qubit d = 5 escape
+(superdense extraction, full colour-region postselection, decoder-gap postselection) reaches ≈ 10⁻⁹ added error at
+99% total discard.
+
+**Decoder-certified second-order postselection** (`Escape.certify_pairs`, `surface_zd.misdecoded_pairs`; variants
+*one+pairs*, *one+pairs-cap*, *one+pairs2*).  Since the p² failures are decoding failures, the first-order certification
+extends to pairs: every unordered pair of single-fault patterns with at least one member firing a detector of a check
+that touches the colour qudits is summed and decoded at build time, and the mis-decoded combined syndromes are
+postselected like the first-order ones (cached in `runs/surface/cert_pairs_*.json`; 0.05–0.1 ms per pair).  Three
+bookkeeping points that matter: (i) the first-order mis-decoded singles must be *excluded* from the candidates —
+paired with anything they are mis-decoded again, and without the exclusion the X-sector "pair mass" read 417 p²
+(colour × colour, 13M pairs) and 4 472 p² (colour × everything, 254M pairs, 90 min on 5 workers) when the genuine
+numbers are **17.6 p²** (4.6k patterns) and ≈ 20 p²; the Z sector (no first-order bad singles) has 2.8 p² of
+colour × colour pairs and 3.2 p² of colour × everything pairs (288M pairs, 97 min on 5 workers) — the surface and
+interface regions add nothing at second order.  (ii) A postselected combined syndrome also discards every *single* fault whose syndrome
+contains it (`pattern_mask` semantics): 186 of the X patterns carry 75 units of first-order mass (7.5% discard at
+10⁻³, +2.5 points measured) for 1.3 units of second-order gain; `degenerate_cap` keeps such patterns in decreasing
+order of gain/cost up to a first-order budget (2 units = 0.2% discard).  (iii) Genuine pair mass 17.6 + 2.8 ≈ 20 p²
+is only a fifth of the measured p² coefficient (≈ 100 at 10⁻³ for *one*), so after first-order certification the
+escape failures are mostly **third order and higher**: fault distance 3 with a prefactor ≈ 6×10⁴ p³ (5 105 and 5 688
+colour-region patterns, 13.5k kept patterns in all).  Results (2×10⁵ attempts per sector; *one+pairs* = uncapped,
+*one+pairs-cap* = cap 2):
+
+| p | one+pairs-cap: X, Z, total, discard | one+pairs (uncapped) | one | all |
+|---|---|---|---|---|
+| 5×10⁻⁴ | 1.3×10⁻⁵ (2), 0 (0), 1.3×10⁻⁵, 24% | 1.4×10⁻⁵, 26% | 2×10⁻⁵, 25% | 8×10⁻⁶, 39% |
+| 10⁻³ | 4.4×10⁻⁵ (5), 4.4×10⁻⁵ (5), 8.8×10⁻⁵, 43% | 8.2×10⁻⁵, 46% | 1.8×10⁻⁴, 43% | 6.6×10⁻⁵, 62% |
+| 2×10⁻³ | 6.1×10⁻⁴ (39), 3.6×10⁻⁴ (23), 9.7×10⁻⁴, 68% | 7.5×10⁻⁴, 71% | 8.5×10⁻⁴, 67% | 4.6×10⁻⁴, 86% |
+
+Colour × everything certification (*one+pairs2*, 10⁻³ only) gives the same numbers within statistics — X 4.6×10⁻⁵
+(5) / capped 5.3×10⁻⁵ (6), Z 9×10⁻⁶ (1) / capped 4.4×10⁻⁵ (5) — as its genuine extra pair mass predicts, so the
+cheap colour × colour scope is sufficient.  The capped recipe keeps the one-class discard (43% at 10⁻³) and halves the error (1.8×10⁻⁴ → 8.8×10⁻⁵; the X
+improvement 11 → 5 events is more than the 18% the genuine pair mass predicts, so part of it is statistics); it is
+the best recipe at both p and matches *all* in error with 19 points less discard.  Scaling 5×10⁻⁴ → 10⁻³ is ×6–7
+(p^2.8), consistent with a third-order residual.  Beyond this the levers are a decoder that handles the colour-region
+hyperedges (Z_d hypergraph / union-find on the colour plaquettes, or decoder-gap postselection as in the qubit escape)
+— third-order certification (≈ 10¹¹ triples) is out of reach — or a larger colour code (d = 3 → 5 → 7 cultivation).
+
+**Decoder options beyond matching** (`hyperdecoder.py`, variant *one+hyper*).  (a) *Hypergraph decoder*: BP + LSD
+(`ldpc` 2.4) per 2-adic level on the exact single-fault patterns — hyperedges included, nothing decomposed; level j
+decodes ((σ ≫ j) & 1) over the distinct level-j bit patterns (6 056 columns per level at d = 4), subtracts the chosen
+patterns' exact Z_d values (the key whose values match the syndrome), and offers the next level one "unit-flip" column
+per chosen pattern (Z vs Z⁻¹ ambiguity, prior 0.4, set per shot with `update_channel_probs`).  2.7 ms per shot
+(matching: 0.1 ms).  It is better at first order — one mis-decoded colour-region pattern (mass 0.03 p) against the
+matcher's eight (0.33 p) — but **worse in bulk**: X 2.0×10⁻⁴ (23), Z 7.9×10⁻⁵ (9) per kept attempt at p = 10⁻³ against
+4.4×10⁻⁵ / 4.4×10⁻⁵ for the certified matcher (X 4.6×10⁻⁵ / Z 1.3×10⁻⁵ at 5×10⁻⁴; 1.4×10⁻³ / 7.5×10⁻⁴ at 2×10⁻³),
+the usual BP+OSD/LSD deficit against MWPM on circuit-level surface-code noise.  Tuning does not close it: on one
+12.9k-shot kept sample at 2×10⁻³ (X) the matcher fails 7 times, BP+LSD 13–19 for every setting tried (LSD order 0 /
+10 with LSD_CS or LSD_E, min-sum with scaling 0.625 and 100 iterations = best at 13, product-sum 19; `hyper_tune.log`).  (b) *Decoder-gap
+postselection*: with the observable as an extra parity row, decoding with the bit forced to 0 and to 1 gives the
+complementary gap directly in the BP framework, but forcing the unlikely class defeats BP and falls through to LSD on
+the full matrix every time (157 ms per shot, 60× the plain decode), and a pure-BP gap converges for only ≈ 40% of
+shots in either class (uninformative for ¾ of them).  A matching-based gap needs a logical representative on a patch
+boundary so that every observable-flipping edge is a boundary edge; not built.  Net: the certified 2-adic matcher
+(*one+pairs-cap*) stays the decoder of record; a gap would need the matching route or a cheaper complementary decode.
+
+**Footprint** (`footprint.ESCAPE_Z4` = *one*, `ESCAPE_Z4_ALL` = *all*, `ESCAPE_Z4_PAIRS` = *one+pairs-cap*;
+`python -m primepower_msd.footprint escape` / `escape-all` / `escape-pairs`): the escape error adds to p_cult (9×10⁻⁷)
+and dominates it — the cultivated state leaves the escape at 8×10⁻⁵–1.8×10⁻⁴, worse than the 2×10⁻⁵ of a d = 3
+cultivation, so the escape, not the Clifford floor, is now the pipeline's bottleneck:
+
+| p | target | pipeline | physical qudits | cultivation attempts / output: one+pairs, one, all (§5f free escape) |
+|---|---|---|---|---|
+| 10⁻³ | 10⁻¹⁰ | one [[7,1,3]] round, D = 19 | 5 832 | 58, 58, 87 (33) |
+| 10⁻³ | 10⁻¹² | two [[7,1,3]] rounds, D = 23 | 8 520 | 877, 876, 1 311 (33) |
+| 5×10⁻⁴ | 10⁻¹⁰ | one [[7,1,3]] round, D = 15 | 3 656 | 30, 30, 37 (22) |
+| 5×10⁻⁴ | 10⁻¹² | one [[7,1,3]] round, D = 17 | 4 680 | 30, 30, 37 (22) |
+
+The qudit count is unchanged (the 8 logical qudits are reused round after round); the escape costs a factor 1.4–1.9 in
+time through its discard, and at p = 10⁻³ the 10⁻¹² target needs a second round with any of the recipes
+(3.15 × (8.8×10⁻⁵)³ = 2.1×10⁻¹²; an escape below 7×10⁻⁵ would remove it).  Caveats: no idle noise during CSUM layers; the final-code and D = 15
+baselines were run without postselection; the 5×10⁻⁴ points rest on 1–3 events each.
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
 3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
-5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: the escape step (cultivated colour-code state → surface code) is still charged as one p_L(D) without simulation; idle noise during CSUM steps; a joint Z_d decoder.
+5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: idle noise during CSUM steps; a joint Z_d decoder.
+6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification on the colour region with a first-order cost cap: 8.8×10⁻⁵ at 43% — the recipe of record (genuine pair mass is only 1/5 of the p² coefficient; the residual is third order).  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk, tuning included; BP-based gap postselection is too slow / uninformative.  Footprint unchanged in qudits (5 832 at p = 10⁻³ for 10⁻¹⁰), attempts 58 per output instead of 33.  Open: a matching-based decoder gap (logical representative on a boundary); a larger colour code (3 → 5 → 7 cultivation); more statistics at 5×10⁻⁴.

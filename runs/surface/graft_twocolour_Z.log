@@ -1,0 +1,2 @@
+two-colour Z: hyper 0.0 undet 8.705882352941165
+{'mode': 'escape', 'd': 4, 'p': 0.001, 'basis': 'Z', 'shots': 20000, 'kept': 12323, 'fails': 110, 'p_fail': np.float64(0.008926397792745273), 'discard': 0.38385, 'leftover': 0, 'n_det': 1204, 'edges': 6099, 'hyper_share': 0.0, 'undetectable_share': 0.00047484904292250274, 'conflicts': 490, 'locations': 18334, 'n_data': 229}

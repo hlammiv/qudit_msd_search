@@ -1,0 +1,4 @@
+one+pairs2 X 0.001 p_fail 4.6e-05 fails 5 kept 108664 discard 0.4567 bad_mass 0.329 pairs 422882 pair_mass 4471.7 degenerate 186 kept None qudits 702 s 1040.4
+one+pairs2 Z 0.001 p_fail 9.22e-06 fails 1 kept 108442 discard 0.4578 bad_mass 0.000 pairs 1531 pair_mass 3.2 degenerate 80 kept None qudits 702 s 492.3
+one+pairs2-cap X 0.001 p_fail 5.26e-05 fails 6 kept 113975 discard 0.4301 bad_mass 0.329 pairs 422770 pair_mass 4471.5 degenerate 186 kept 74 qudits 702 s 1045.5
+one+pairs2-cap Z 0.001 p_fail 4.39e-05 fails 5 kept 113905 discard 0.4305 bad_mass 0.000 pairs 1495 pair_mass 3.1 degenerate 80 kept 44 qudits 702 s 485.6

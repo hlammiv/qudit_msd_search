@@ -1,0 +1,6 @@
+one+hyper X 0.0005 p_fail 4.63e-05 fails 7 kept 151109 discard 0.2445 bad_mass 0.031 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1202.1
+one+hyper X 0.001 p_fail 0.000202 fails 23 kept 113948 discard 0.4303 bad_mass 0.031 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1219.0
+one+hyper X 0.002 p_fail 0.00138 fails 90 kept 65154 discard 0.6742 bad_mass 0.031 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1166.3
+one+hyper Z 0.0005 p_fail 1.32e-05 fails 2 kept 151090 discard 0.2446 bad_mass 0.000 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1183.4
+one+hyper Z 0.001 p_fail 7.92e-05 fails 9 kept 113617 discard 0.4319 bad_mass 0.000 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1189.5
+one+hyper Z 0.002 p_fail 0.000753 fails 49 kept 65067 discard 0.6747 bad_mass 0.000 pairs 0 pair_mass 0.0 degenerate None kept None qudits 702 s 1141.2

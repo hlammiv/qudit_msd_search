@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/graft_zd.py", line 327, in __init__
+    self.dem = build_dem_masked(self.mem, self.sector, mask)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/graft_zd.py", line 255, in build_dem_masked
+    dem = SZ.build_dem(mem, sector)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/surface_zd.py", line 348, in build_dem
+    e = edges[key]; ca, cb, oe = e["pat"]
+                                 ~^^^^^^^
+KeyError: 'pat'

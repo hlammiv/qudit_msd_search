@@ -1,0 +1,4 @@
+locations 18563.00000077739 discarded share 0.02129853503558713 distinct kept patterns 52269
+mis-decoded single-fault probability (per unit p): 0.5019607843137255 -> first-order p_fail ~ 0.0005019607843137255 at p 0.001
+0.251 (('p1r0 X(1.0, 2.0)', 'p1r0 X(3.0, 1.0)', 'p1r0 X(3.0, 5.0)', 'p1r0 X(5.0, 4.0)'), 0)
+0.251 (('p1r0 X(3.0, 1.0)', 'p1r0 X(5.0, 2.0)', 'p1r0 X(7.0, 1.0)'), 0)

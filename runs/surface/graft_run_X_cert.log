@@ -1,0 +1,4 @@
+escape X 0.0005 p_fail 7.323548259131549e-05 fails 12 kept 163855 discard 0.1807 hyper_discard 0.00027 bad_patterns 8 s 485.3
+escape X 0.001 p_fail 0.0002969870662132664 fails 40 kept 134686 discard 0.3266 hyper_discard 0.000525 bad_patterns 8 s 489.5
+escape X 0.002 p_fail 0.0016325188999671305 fails 149 kept 91270 discard 0.5436 hyper_discard 0.000635 bad_patterns 8 s 490.8
+escape X 0.003 p_fail 0.005105750432211469 fails 316 kept 61891 discard 0.6905 hyper_discard 0.00068 bad_patterns 8 s 489.8

@@ -1,0 +1,6 @@
+config lsd0-ms      X p=0.002 kept 12892  hyper fails 17  peel fails 7  (192s)
+config lsd10-cs     X p=0.002 kept 12892  hyper fails 14  peel fails 7  (196s)
+config lsd10-e      X p=0.002 kept 12892  hyper fails 14  peel fails 7  (197s)
+config ps-100       X p=0.002 kept 12892  hyper fails 19  peel fails 7  (675s)
+config ms0.625-100  X p=0.002 kept 12892  hyper fails 13  peel fails 7  (400s)
+config ps-lsd10     X p=0.002 kept 12892  hyper fails 18  peel fails 7  (686s)

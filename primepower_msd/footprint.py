@@ -30,6 +30,18 @@ CULT_KEY = "grow3->5 (56 q)"
 HOST_Z4 = dict(p_th=7.55e-3, A=0.053, name="Z4/Z8 rotated surface (measured)")
 CULT_QUDITS = 56
 
+# Measured escape (graft_zd / graft_run variants, runs/surface/graft_variants.jsonl; MEAS_DISTILL §5h): colour-code d=5 state
+# grafted into the D=15 surface code with Gidney's d1=5 -> d2=15 graft (229 data qudits), 5 grafted + 5 final rounds,
+# colour-region plaquettes postselected during the grafted rounds (joint over both sectors) plus decoder-certified
+# first-order postselection.  Per physical error rate p: (escape error per kept attempt = X-sector + Z-sector failure
+# rates; joint discard fraction per attempt).  The error is a one-off cost that adds to p_cult; it does not scale with the
+# host distance (the D=15 patch is fixed by the graft).  2e5 attempts per sector and point.
+ESCAPE_Z4 = {1e-3: (1.8e-4, 0.43), 5e-4: (2.5e-5, 0.25)}       # one colour class per sector (X: 2, Z: 0); X 9.7e-5 + Z 7.9e-5 at 1e-3
+ESCAPE_Z4_ALL = {1e-3: (6.6e-5, 0.62), 5e-4: (1.0e-5, 0.39)}   # all three classes, both sectors; X 4.0e-5 + Z 2.7e-5 (5 events) at 1e-3
+# one class + decoder-certified second-order postselection on the colour region (13M/16M fault pairs decoded at build time),
+# first-order cost of the certified patterns capped at 0.2% (degenerate_cap=2): the best recipe measured
+ESCAPE_Z4_PAIRS = {1e-3: (8.8e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 4.4e-5 + Z 4.4e-5 (10 events) at 1e-3; 2 events at 5e-4
+
 
 @dataclass(frozen=True)
 class Host:
@@ -52,14 +64,18 @@ def logical_qudits(stage) -> int:
 
 
 def pipelines(p: float, target: float, host: Host = Host(), stages=STAGES_D4, cult=CULT_D4, a_cliff: float = A_CLIFF,
-              max_levels: int = 2, Dmax: int = 41, valid_Lp: float = 3.0):
+              max_levels: int = 2, Dmax: int = 41, valid_Lp: float = 3.0, escape=None):
     """Every (host distance, stage sequence) reaching `target` at physical error p: dicts with D, pipeline, error,
-    logical and physical qudits, T per accepted output, cultivation attempts per output."""
+    logical and physical qudits, T per accepted output, cultivation attempts per output.  escape: {p: (p_escape, discard)}
+    measured escape (default: one host logical error p_L(D), no discard)."""
     a_cult, p_cult = cult[CULT_KEY][p]
+    if escape is not None:
+        p_esc, disc = escape[p]
+        a_cult = a_cult * (1 - disc)                         # an escape attempt that is discarded costs a cultivation
     out = []
     for D in range(3, Dmax + 1, 2):
         pL = host.p_logical(p, D)
-        p_in = p_cult + pL                                   # escape into the host code
+        p_in = p_cult + (pL if escape is None else p_esc)   # escape into the host code
         if p_in <= target:                                   # cultivation only
             out.append(dict(D=D, pipeline="cultivation only", error=p_in, logical=1, physical=host.qudits(D) + CULT_QUDITS,
                             cult_attempts=1 / a_cult, T_per_out=1.0))
@@ -100,12 +116,16 @@ def table(ps=(1e-3, 5e-4), targets=(1e-10, 1e-12, 1e-15), **kw):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "measured":
+    escape = None
+    if len(sys.argv) > 1 and sys.argv[1] in ("measured", "escape", "escape-all", "escape-pairs"):
         host = Host(**HOST_Z4)
+        escape = {"escape": ESCAPE_Z4, "escape-all": ESCAPE_Z4_ALL, "escape-pairs": ESCAPE_Z4_PAIRS}.get(sys.argv[1])
     else:
         host = Host(p_th=float(sys.argv[1]), A=float(sys.argv[2]) if len(sys.argv) > 2 else 0.1) if len(sys.argv) > 1 else Host()
-    print(f"host: p_th {host.p_th:.0e}, A {host.A}, F(D) = 2 D^2; cultivation {CULT_KEY}; a_cliff {A_CLIFF}")
-    for p, tg, r, r2 in table(host=host):
+    print(f"host: p_th {host.p_th:.0e}, A {host.A}, F(D) = 2 D^2; cultivation {CULT_KEY}; a_cliff {A_CLIFF}; "
+          f"escape {'measured ' + str(escape) if escape else 'one p_L(D)'}")
+    ps = tuple(sorted(escape, reverse=True)) if escape else (1e-3, 5e-4)
+    for p, tg, r, r2 in table(ps=ps, host=host, escape=escape):
         if r is None:
             print(f"p={p:.0e} target={tg:.0e}: unreachable (D <= 41)")
             continue

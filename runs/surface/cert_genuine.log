@@ -1,0 +1,2 @@
+X colour pairs excluding first-order-bad singles 232 s {'candidates': 5105, 'pairs': 12987156, 'bad_patterns': 4638, 'bad_mass': 17.559, 'undetectable_pair_mass': 0.0, 'p': 0.001, 'scope': 'colour', 'degenerate': 169, 'degenerate_m1': 73.761, 'degenerate_m2': 1.042}
+Z colour pairs excluding first-order-bad singles 328 s {'candidates': 5688, 'pairs': 16173828, 'bad_patterns': 1459, 'bad_mass': 2.778, 'undetectable_pair_mass': 0.0, 'p': 0.001, 'scope': 'colour', 'degenerate': 69, 'degenerate_m1': 46.455, 'degenerate_m2': 0.187}

@@ -1,0 +1,6 @@
+one+pairs-cap X 0.0005 p_fail 1.32e-05 fails 2 kept 151118 discard 0.2444 bad_mass 0.329 pairs 44611 pair_mass 415.8 degenerate 182 kept 74 qudits 702 s 608.0
+one+pairs-cap X 0.001 p_fail 4.38e-05 fails 5 kept 114122 discard 0.4294 bad_mass 0.329 pairs 44884 pair_mass 416.4 degenerate 186 kept 74 qudits 702 s 611.8
+one+pairs-cap X 0.002 p_fail 0.000605 fails 39 kept 64457 discard 0.6777 bad_mass 0.329 pairs 45248 pair_mass 417.1 degenerate 196 kept 74 qudits 702 s 608.2
+one+pairs-cap Z 0.0005 p_fail 0 fails 0 kept 150834 discard 0.2458 bad_mass 0.000 pairs 1437 pair_mass 2.7 degenerate 67 kept 49 qudits 702 s 546.8
+one+pairs-cap Z 0.001 p_fail 4.41e-05 fails 5 kept 113483 discard 0.4326 bad_mass 0.000 pairs 1439 pair_mass 2.7 degenerate 69 kept 49 qudits 702 s 550.3
+one+pairs-cap Z 0.002 p_fail 0.000355 fails 23 kept 64869 discard 0.6757 bad_mass 0.000 pairs 1457 pair_mass 2.7 degenerate 70 kept 49 qudits 702 s 549.9
