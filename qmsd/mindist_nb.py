@@ -325,6 +325,85 @@ def weight6_witness_parallel(H, p, i_max=None, block=16, log=None):
     return None
 
 
+@njit(cache=True)
+def _build_left3_norm(H, p, powers):
+    """All 3-subsets x coefficient patterns with the FIRST coefficient fixed to 1 ((p-1)^2 per
+    subset): (codes uint64[N] sorted, supp int32[N,3]).  Scalar classes only, so the table is
+    (p-1)x smaller than the full one; the right side must then carry all (p-1)^3 patterns."""
+    r, n = H.shape
+    N = (n * (n - 1) * (n - 2) // 6) * (p - 1) * (p - 1)
+    codes = np.empty(N, dtype=np.uint64)
+    supp = np.empty((N, 3), dtype=np.int32)
+    idx = 0
+    for a in range(n):
+        for b in range(a + 1, n):
+            for c in range(b + 1, n):
+                for c2 in range(1, p):
+                    for c3 in range(1, p):
+                        h = np.uint64(0)
+                        for t in range(r):
+                            v = (H[t, a] + c2 * H[t, b] + c3 * H[t, c]) % p
+                            h = h + powers[t] * np.uint64(v)
+                        codes[idx] = h
+                        supp[idx, 0] = a
+                        supp[idx, 1] = b
+                        supp[idx, 2] = c
+                        idx += 1
+    order = np.argsort(codes)
+    return codes[order], supp[order]
+
+
+@njit(cache=True, parallel=True)
+def _scan_right3_full(H, p, powers, lcodes, lsupp, found, witness):
+    """Thread-parallel right 3-subsets with ALL (p-1)^3 coefficient patterns against the
+    normalised left-3 table: weight-6 witness (3+3 split).  Shared stop flag as in the b=4 scan."""
+    r, n = H.shape
+    N = lcodes.shape[0]
+    for i in prange(n):
+        rcols = np.empty(3, dtype=np.int32)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for k in range(j + 1, n):
+                for c1 in range(1, p):
+                    for c2 in range(1, p):
+                        for c3 in range(1, p):
+                            target = np.uint64(0)
+                            for t in range(r):
+                                v = (c1 * H[t, i] + c2 * H[t, j] + c3 * H[t, k]) % p
+                                target = target + powers[t] * np.uint64((p - v) % p)
+                            ii = np.searchsorted(lcodes, target)
+                            while ii < N and lcodes[ii] == target:
+                                l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                if (l1 != i and l1 != j and l1 != k and l2 != i and l2 != j
+                                        and l2 != k and l3 != i and l3 != j and l3 != k):
+                                    rcols[0] = i; rcols[1] = j; rcols[2] = k
+                                    if _fp_dependent(H, p, lsupp[ii], rcols, 3, 3):
+                                        found[0] = 1
+                                        witness[0] = l1; witness[1] = l2; witness[2] = l3
+                                        witness[3] = i; witness[4] = j; witness[5] = k
+                                ii += 1
+    return found[0] != 0
+
+
+def weight6_witness_3x3(H, p):
+    """Weight-6 witness by a 3+3 split: normalised left-3 table (C(n,3)(p-1)^2 entries, 20 B each)
+    and a thread-parallel right-3 scan with all (p-1)^3 patterns.  Far fewer probes than the 2+4
+    split (C(n,3)(p-1)^3 vs C(n,4)(p-1)^3) when the table fits (n ~ 400 at p = 7: ~8 GB).
+    Returns the 6 columns or None.  Assumes no weight < 6."""
+    H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
+    r, n = H.shape
+    if n < 6:
+        return None
+    powers = _powers_u64(p, r)
+    lcodes, lsupp = _build_left3_norm(H, p, powers)
+    found = np.zeros(1, dtype=np.int64)
+    witness = np.full(6, -1, dtype=np.int32)
+    if _scan_right3_full(H, p, powers, lcodes, lsupp, found, witness):
+        return [int(c) for c in witness]
+    return None
+
+
 def weight6_exists_via_2_4(H, p, i_max=None):
     """True iff H has 6 F_p-dependent columns, found via a 2+4 split (a=2 left table + b=4 stream).
     Memory = the a=2 left table only, so this certifies d=6 at n~2000 where the standard a=3,b=3
