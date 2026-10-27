@@ -427,6 +427,8 @@ class Escape:
     def make_decoder(self, p: float, decoder: str = "peel", **kw):
         if decoder == "peel":
             return PeelDecoder(self.dem, p)
+        if decoder == "peel-gap":
+            return PeelDecoder(self.dem, p, gap=True)
         from .hyperdecoder import HyperDecoder
         return HyperDecoder(self.dem, p, **kw)
 
@@ -464,12 +466,16 @@ class Escape:
                     leftovers += left
                 fails += f
             kept += int(keep.sum()); done += n
-        gap_curve = None
+        gap_curve = gap_hist = fail_gaps = None
         if gaps:
             g = np.array([x for x, _ in gaps]); fl = np.array([y for _, y in gaps])
-            gap_curve = [(float(t), float(1 - (kept * (g >= t).mean()) / shots), float(fl[g >= t].sum() / max((g >= t).sum(), 1)), int(fl[g >= t].sum()))
-                         for t in np.percentile(g, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90])]
+            grid = [0.0] + [float(t) for t in np.arange(1.0, 30.5, 1.0)]
+            gap_curve = [(t, float(1 - (kept * (g >= t).mean()) / shots), float(fl[g >= t].sum() / max((g >= t).sum(), 1)), int(fl[g >= t].sum()))
+                         for t in grid]
+            gap_hist = np.histogram(g, bins=np.arange(0, 60.5, 0.5))[0].tolist()      # kept shots per 0.5 bin of gap
+            fail_gaps = sorted(float(x) for x in g[fl])
         return dict(mode=self.mode, d=d, p=p, basis=self.basis, shots=shots, kept=kept, fails=int(fails), decoder=decoder, gap_curve=gap_curve,
+                    gap_hist=gap_hist, fail_gaps=fail_gaps,
                     p_fail=fails / max(kept, 1), discard=1 - kept / shots, leftover=int(leftovers), n_det=int(len(self.sel)),
                     edges=len(self.dem.edges), hyper_share=self.dem.hyper_prob / self.dem.total_prob,
                     undetectable_share=self.dem.undetectable_prob / self.dem.total_prob, conflicts=self.dem.conflicts,

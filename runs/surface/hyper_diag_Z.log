@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-hlamm-Desktop-QC-prime-msd/3bbf52d5-6cbb-4d97-88d2-1b491dac67fa/scratchpad/hyper_diag.py", line 5, in <module>
+    ex=Escape(4,basis,post_colours=(cX,cZ),post_phases=phases)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/graft_zd.py", line 327, in __init__
+    self.dem = build_dem_masked(self.mem, self.sector, mask)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/graft_zd.py", line 255, in build_dem_masked
+    dem = SZ.build_dem(mem, sector)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/primepower_msd/surface_zd.py", line 348, in build_dem
+    e = edges[key]; ca, cb, oe = e["pat"]
+                                 ~^^^^^^^
+KeyError: 'pat'

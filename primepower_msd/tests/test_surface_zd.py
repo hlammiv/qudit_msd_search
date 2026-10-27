@@ -43,3 +43,21 @@ def test_low_p_scaling():
         r5 = Experiment(5, 4, basis).run(1e-3, 4000, seed=5)
         assert r3["leftover"] == 0 and r5["leftover"] == 0
         assert r5["p_fail"] < r3["p_fail"] + 2e-3
+
+
+def test_gap_decoder_matches_plain_decoder():
+    """Split-boundary (complementary-gap) matcher: same corrections as the plain matcher, non-negative gaps, zero
+    potential conflicts on a D=5 memory."""
+    import numpy as np
+    from primepower_msd.surface_zd import Experiment, PeelDecoder, P_BUILD
+    from primepower_msd.zdsim import FrameSim
+    ex = Experiment(5, 4, "Z", rounds=3)
+    p = 3e-3
+    plain, gap = PeelDecoder(ex.dem, p), PeelDecoder(ex.dem, p, gap=True)
+    assert gap.conflicts == [0, 0]
+    rng = np.random.default_rng(0)
+    sim = FrameSim(ex.mem.circ, 300, rng).run(scale=p / P_BUILD)
+    Dv = sim.detector_values()[:, ex.sel]
+    for s in range(300):
+        c1, _ = plain.decode(Dv[s]); c2, g = gap.decode(Dv[s])
+        assert c1 == c2 and g >= 0.0

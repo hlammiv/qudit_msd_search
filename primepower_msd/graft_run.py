@@ -48,12 +48,14 @@ VARIANTS = {
     "one+pairs2-cap":  dict(post_colours=(2, 0)),
     "one+hyper":       dict(post_colours=(2, 0)),     # BP+LSD hypergraph decoder (hyperdecoder.py) instead of 2-adic matching
     "all+hyper":       dict(post_colours=({0, 1, 2}, {0, 1, 2})),
+    "one+gap":         dict(post_colours=(2, 0)),     # 2-adic matcher with the complementary gap recorded (gap_curve)
+    "one+pairs-cap+gap": dict(post_colours=(2, 0)),
 }
-DECODER = {"one+hyper": "hyper", "all+hyper": "hyper"}
+DECODER = {"one+hyper": "hyper", "all+hyper": "hyper", "one+gap": "peel-gap", "one+pairs-cap+gap": "peel-gap"}
 CERT = {  # variant -> (scope, cache tag, degenerate cap)
     "one+pairs": ("colour", "one", None), "all+pairs": ("colour", "all", None),
     "one+pairs-cap": ("colour", "one", 2.0), "one+pairs2": ("colour-all", "one_all", None),
-    "one+pairs2-cap": ("colour-all", "one_all", 2.0),
+    "one+pairs2-cap": ("colour-all", "one_all", 2.0), "one+pairs-cap+gap": ("colour", "one", 2.0),
 }
 
 
@@ -86,6 +88,10 @@ def main():
                   "discard %.4f" % r["discard"], "bad_mass %.3f" % r["bad_pattern_mass"], "pairs", r.get("n_pair_patterns"),
                   "pair_mass %.1f" % r.get("pair_mass", 0), "degenerate", r["pair_stats"].get("degenerate"), "kept", r["pair_stats"].get("degenerate_kept"),
                   "qudits", r["n_qudits"], "s", r["seconds"])
+            if r.get("gap_curve"):
+                print("   gap curve (threshold, total discard, p_fail, fails):",
+                      " ".join("%.0f:%.3f:%.2e:%d" % tuple(c) for c in r["gap_curve"]))
+                print("   failing shots' gaps:", [round(x, 1) for x in r["fail_gaps"]])
         return
     if cmd == "select":
         combos = [(None, None)] + [(a, b) for a in range(3) for b in range(3)]

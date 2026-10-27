@@ -461,21 +461,68 @@ shots in either class (uninformative for ¾ of them).  A matching-based gap need
 boundary so that every observable-flipping edge is a boundary edge; not built.  Net: the certified 2-adic matcher
 (*one+pairs-cap*) stays the decoder of record; a gap would need the matching route or a cheaper complementary decode.
 
-**Footprint** (`footprint.ESCAPE_Z4` = *one*, `ESCAPE_Z4_ALL` = *all*, `ESCAPE_Z4_PAIRS` = *one+pairs-cap*;
-`python -m primepower_msd.footprint escape` / `escape-all` / `escape-pairs`): the escape error adds to p_cult (9×10⁻⁷)
-and dominates it — the cultivated state leaves the escape at 8×10⁻⁵–1.8×10⁻⁴, worse than the 2×10⁻⁵ of a d = 3
-cultivation, so the escape, not the Clifford floor, is now the pipeline's bottleneck:
+**Complementary-gap postselection with the 2-adic matcher** (`PeelDecoder(gap=True)`, `boundary_potential`; variants
+*one+gap*, *one+pairs-cap+gap*).  The qubit trick (logical representative on a patch boundary so that every
+observable-flipping edge is a boundary edge) does not transfer directly — signed Z_d hooks flip the observable on
+interior edges — so the class is forced differently: a parity potential x on the detectors with o + x_a + x_b ≡ 0 on
+every interior edge of the level graph (a BFS; zero inconsistent cycles at both levels) absorbs the interior flips,
+the boundary is split into two regular nodes B₀/B₁ (a boundary edge goes to B_{x_a + o}), and a correction's logical
+class is the parity of its edge-set degree at B₁.  Decoding the level syndrome with (B₀, B₁) excited as (|σ|, 0) and
+(|σ|+1, 1) mod 2 gives the two classes exactly; the lighter wins, the weight difference is the level's gap and the
+shot's gap is the minimum over levels; charges are then walked along the edge set the matcher returned (its strings may
+end on either boundary).  0.7 ms per shot, identical decisions to the plain matcher on every shot
+(`tests/test_surface_zd.py::test_gap_decoder_matches_plain_decoder`).  Failing shots have small gaps: at p = 2×10⁻³
+the six failures of a 6.6k-shot sample had gaps 0.3–8 against a median of 21 and a 5th percentile of 12, and in the
+2×10⁵-attempt runs (both bases, 5×10⁻⁴–2×10⁻³) discarding the 5% lowest-gap kept shots removes every failure but one
+(at 2×10⁻³).  With a fine threshold grid (4×10⁵ attempts per sector at
+p = 2×10⁻³, *one+pairs-cap+gap*, `graft_variants_gap_2e-3.log`; total discard without the gap cut 67.7%):
+
+| gap cut | X: fails of 58, p_fail, total discard | Z: fails of 56, p_fail, total discard |
+|---|---|---|
+| none | 58, 4.5×10⁻⁴, 67.7% | 56, 4.3×10⁻⁴, 67.6% |
+| ≥ 3 | 14, 1.1×10⁻⁴, 67.7% | 14, 1.1×10⁻⁴, 67.6% |
+| ≥ 5 | 7, 5.4×10⁻⁵, 67.8% | 8, 6.2×10⁻⁵, 67.7% |
+| ≥ 8 | 3, 2.4×10⁻⁵, 68.1% | 1, 7.8×10⁻⁶, 67.9% |
+| ≥ 10 | 0, < 10⁻⁵, 68.5% | 0, < 10⁻⁵, 68.3% |
+| ≥ 15 | 0, —, 71.6% | 0, —, 70.6% |
+
+The failing shots' gaps are 0–9.5 (median 1.5) while the kept shots' median gap is ≈ 18: **a cut at 10 removes every
+observed failure for 0.8 points of total discard (2.5% of the kept shots)**, a ≥ 50× reduction of the escape error at
+2×10⁻³ for a 1.3% increase in attempts.  At p = 10⁻³ (10⁶ attempts per sector, `graft_variants_gap_1e6.log`; total discard without the cut 43.1%):
+
+| gap cut | X: fails of 38, p_fail, total discard | Z: fails of 14, p_fail, total discard | X + Z |
+|---|---|---|---|
+| none | 38, 6.7×10⁻⁵, 43.1% | 14, 2.5×10⁻⁵, 43.1% | 9.1×10⁻⁵ |
+| ≥ 5 | 4, 7.0×10⁻⁶, 43.2% | 3, 5.3×10⁻⁶, 43.1% | 1.2×10⁻⁵ |
+| ≥ 10 | 2, 3.5×10⁻⁶, 43.4% | 0, —, 43.3% | 3.5×10⁻⁶ |
+| ≥ 13 | 0, < 4×10⁻⁶ (90% CL), 43.7% | 0, < 4×10⁻⁶, 43.6% | < 8×10⁻⁶ |
+| ≥ 15 | 0, —, 44.3% | 0, —, 44.0% | |
+
+(failing shots' gaps 0–12.7, median 1.6; kept shots' median ≈ 24).  **Recipe of record: *one+pairs-cap+gap* with a gap
+cut at 13 — escape error < 8×10⁻⁶ per kept attempt (90% CL, no failure in 1.14M kept attempts; ≥ 25× below the
+uncertified-gap 9.1×10⁻⁵) for 0.6 points of total discard (43.7%, i.e. 1% more attempts).**  This is what the qubit
+escape gets from the complementary gap (Gidney et al.: 6×10⁻¹⁰ → 2×10⁻⁹ end-to-end for the d = 5 state) scaled to our
+noisier single-ancilla circuit and smaller statistics; the escape is no longer the pipeline's bottleneck.
+
+
+
+**Footprint** (`footprint.ESCAPE_Z4` = *one*, `ESCAPE_Z4_ALL` = *all*, `ESCAPE_Z4_PAIRS` = *one+pairs-cap*,
+`ESCAPE_Z4_GAP` = *one+pairs-cap+gap* cut 13; `python -m primepower_msd.footprint escape` / `escape-all` /
+`escape-pairs` / `escape-gap`): without the gap cut the escape error adds to p_cult (9×10⁻⁷) and dominates it — the
+cultivated state leaves the escape at 8×10⁻⁵–1.8×10⁻⁴, worse than the 2×10⁻⁵ of a d = 3 cultivation, and the escape,
+not the Clifford floor, sets the pipeline; with the gap cut (< 8×10⁻⁶, 43.7% discard) the Clifford floor is again the
+binding constraint and one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (D = 23, 8 520 qudits, 59 attempts/output):
 
 | p | target | pipeline | physical qudits | cultivation attempts / output: one+pairs, one, all (§5f free escape) |
 |---|---|---|---|---|
-| 10⁻³ | 10⁻¹⁰ | one [[7,1,3]] round, D = 19 | 5 832 | 58, 58, 87 (33) |
-| 10⁻³ | 10⁻¹² | two [[7,1,3]] rounds, D = 23 | 8 520 | 877, 876, 1 311 (33) |
-| 5×10⁻⁴ | 10⁻¹⁰ | one [[7,1,3]] round, D = 15 | 3 656 | 30, 30, 37 (22) |
-| 5×10⁻⁴ | 10⁻¹² | one [[7,1,3]] round, D = 17 | 4 680 | 30, 30, 37 (22) |
+| 10⁻³ | 10⁻¹⁰ | one [[7,1,3]] round, D = 19 | 5 832 | 59, 58, 58, 87 (33) |
+| 10⁻³ | 10⁻¹² | one round with the gap recipe (two otherwise), D = 23 | 8 520 | 59, 877, 876, 1 311 (33) |
+| 5×10⁻⁴ | 10⁻¹⁰ | one [[7,1,3]] round, D = 15 | 3 656 | —, 30, 30, 37 (22) |
+| 5×10⁻⁴ | 10⁻¹² | one [[7,1,3]] round, D = 17 | 4 680 | —, 30, 30, 37 (22) |
 
 The qudit count is unchanged (the 8 logical qudits are reused round after round); the escape costs a factor 1.4–1.9 in
-time through its discard, and at p = 10⁻³ the 10⁻¹² target needs a second round with any of the recipes
-(3.15 × (8.8×10⁻⁵)³ = 2.1×10⁻¹²; an escape below 7×10⁻⁵ would remove it).  Caveats: no idle noise during CSUM layers; the final-code and D = 15
+time through its discard.  Without the gap cut the 10⁻¹² target at p = 10⁻³ needs a second round
+(3.15 × (9×10⁻⁵)³ = 2.3×10⁻¹²); with it one round suffices (gap recipe not yet run at 5×10⁻⁴).  Caveats: no idle noise during CSUM layers; the final-code and D = 15
 baselines were run without postselection; the 5×10⁻⁴ points rest on 1–3 events each.
 
 ## 6. Open / next
@@ -484,4 +531,4 @@ baselines were run without postselection; the 5×10⁻⁴ points rest on 1–3 e
 3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
 5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: idle noise during CSUM steps; a joint Z_d decoder.
-6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification on the colour region with a first-order cost cap: 8.8×10⁻⁵ at 43% — the recipe of record (genuine pair mass is only 1/5 of the p² coefficient; the residual is third order).  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk, tuning included; BP-based gap postselection is too slow / uninformative.  Footprint unchanged in qudits (5 832 at p = 10⁻³ for 10⁻¹⁰), attempts 58 per output instead of 33.  Open: a matching-based decoder gap (logical representative on a boundary); a larger colour code (3 → 5 → 7 cultivation); more statistics at 5×10⁻⁴.
+6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 1.14M kept attempts at p = 10⁻³ (< 8×10⁻⁶, 90% CL) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Open: gap recipe at 5×10⁻⁴; the final-code and D = 15 memories under postselection; idle noise during CSUM layers.

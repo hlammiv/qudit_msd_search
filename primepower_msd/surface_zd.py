@@ -491,19 +491,59 @@ def hyperedge_mask(dem: DEM, Dv: np.ndarray) -> np.ndarray:
 # 2-adic peeling decoder
 
 
+def boundary_potential(dem: DEM, lev: int):
+    """Split the boundary for the complementary-gap decode at 2-adic level `lev`.  A potential x in {0,1}^n on the
+    detectors with o(a,b) + x_a + x_b = 0 (mod 2) on every interior edge (o = the edge pattern's observable, odd classes
+    taken mod 2) absorbs the interior observable flips; a boundary edge (a, B) then goes to boundary node B_label with
+    label = x_a + o (mod 2), and every correction's logical parity equals the parity of its matchings to B_1 (plus a
+    syndrome-only term common to all corrections).  Returns (x, labels {edge key: 0/1}, conflicts) where conflicts counts
+    edges present at this level (P[lev] > 0) whose constraint cannot be met (undetectable cycles)."""
+    n = dem.n_det
+    adj = [[] for _ in range(n)]
+    for (a, b), e in dem.edges.items():
+        if b != -1 and e["P"][lev] > 0:
+            o = e["pat"][2] & 1
+            adj[a].append((b, o)); adj[b].append((a, o))
+    x = -np.ones(n, dtype=np.int64)
+    conflicts = 0
+    for s0 in range(n):
+        if x[s0] >= 0:
+            continue
+        x[s0] = 0
+        stack = [s0]
+        while stack:
+            a = stack.pop()
+            for b, o in adj[a]:
+                want = (x[a] + o) % 2
+                if x[b] < 0:
+                    x[b] = want; stack.append(b)
+                elif x[b] != want:
+                    conflicts += 1
+    labels = {}
+    for (a, b), e in dem.edges.items():
+        if b == -1:
+            labels[(a, b)] = int((x[a] + (e["pat"][2] & 1)) % 2)
+    return x, labels, conflicts // 2
+
+
 class PeelDecoder:
-    def __init__(self, dem: DEM, p: float):
+    def __init__(self, dem: DEM, p: float, gap: bool = False):
         import pymatching
         self.d, self.n = dem.d, dem.n_det
         self.k = int(round(math.log2(self.d)))
         self.edges = dem.edges
+        self.gap = gap
         B = self.n                                    # boundary node for the shortest-path graph
-        self.matchers, self.pred = [], []
+        self.matchers, self.pred, self.gap_matchers, self.potential, self.conflicts = [], [], [], [], []
         wmax = 0.0
         for lev in range(self.k):
             Ps = [p * e["P"][lev] for e in dem.edges.values() if e["P"][lev] > 0]
             wmax = max([math.log((1 - P) / P) for P in Ps] + [1.0])
             M = pymatching.Matching()
+            MG = pymatching.Matching() if gap else None
+            if gap:
+                x, labels, conf = boundary_potential(dem, lev)
+                self.potential.append(x); self.conflicts.append(conf)
             rows, cols, ws = [], [], []
             for (a, b), e in dem.edges.items():
                 P = p * e["P"][lev]
@@ -511,14 +551,22 @@ class PeelDecoder:
                 if b == -1:
                     M.add_boundary_edge(a, weight=w, merge_strategy="smallest-weight")
                     rows.append(a); cols.append(B); ws.append(w)
+                    if gap:
+                        MG.add_edge(a, self.n + labels[(a, b)], weight=w, merge_strategy="smallest-weight")
                 else:
                     M.add_edge(a, b, weight=w, merge_strategy="smallest-weight")
                     rows.append(a); cols.append(b); ws.append(w)
+                    if gap:
+                        MG.add_edge(a, b, weight=w, merge_strategy="smallest-weight")
             if M.num_nodes < self.n:                   # detectors no edge touches (e.g. code-capacity final round)
                 M.add_boundary_edge(self.n - 1, weight=2 * wmax + 1.0)
+            if gap:
+                for bn in (self.n, self.n + 1):          # make sure both boundary nodes exist
+                    MG.add_edge(bn, self.n + 2, weight=2 * wmax + 1.0, merge_strategy="smallest-weight")
+                MG.add_boundary_edge(self.n + 2, weight=0.0)
             G = coo_matrix((ws, (rows, cols)), shape=(B + 1, B + 1)).tocsr()
             _, pred = dijkstra(G, directed=False, return_predecessors=True)
-            self.matchers.append(M); self.pred.append(pred)
+            self.matchers.append(M); self.pred.append(pred); self.gap_matchers.append(MG)
         # w with w*c + q == 0 mod d (first solution)
         self.solve = {}
         for cc in range(self.d):
@@ -534,14 +582,106 @@ class PeelDecoder:
                 raise RuntimeError("no path")
         return path[::-1]
 
+    def _step(self, a, b, q, obs, d):
+        """Traverse edge a -> b (b may be a boundary node >= n) carrying charge q to cancel at a; returns (w, new q, obs)."""
+        B = self.n
+        if b >= B:
+            key = (a, -1)
+        elif a >= B:
+            key = (b, -1)
+        else:
+            key = (a, b) if a < b else (b, a)
+        ca, cb, o = self.edges[key]["pat"]
+        if key[0] != a and a < B:
+            ca, cb = cb, ca
+        if a >= B:                                   # leaving a boundary: unit fault on the boundary edge
+            return 1, ca % d, obs + o
+        w = self.solve[(ca % d, q % d)]
+        if w is None:
+            return None, q, obs
+        return w, (w * cb) % d, obs + w * o
+
+    def _walk_edges(self, lev, edge_arr, binsyn, sigma, obs):
+        """Charge walk over an explicit edge set (pymatching decode_to_edges_array of the split-boundary graph).
+        Trails start at defects and end at a defect or a boundary node; leftover boundary-to-boundary trails (the
+        forced logical strings) are walked with a unit charge."""
+        d, n = self.d, self.n
+        adj = {}
+        for a, b in edge_arr:
+            a = int(a); b = int(b)
+            if b == -1:
+                b = n + 2
+            adj.setdefault(a, []).append([b, False]); adj.setdefault(b, []).append([a, False])
+
+        def take(cur):
+            for e in adj.get(cur, []):
+                if not e[1]:
+                    e[1] = True
+                    for e2 in adj[e[0]]:
+                        if e2[0] == cur and not e2[1]:
+                            e2[1] = True
+                            break
+                    return e[0]
+            return None
+
+        def trail(start, q):
+            nonlocal obs
+            cur = start
+            while True:
+                nxt = take(cur)
+                if nxt is None:
+                    return cur, q
+                w, q, obs = self._step(cur, nxt, q, obs, d)
+                if w is None:
+                    return None, q
+                cur = nxt
+                if cur >= n:
+                    return cur, q
+        for u in np.nonzero(binsyn)[0]:
+            u = int(u)
+            if not any(not e[1] for e in adj.get(u, [])):
+                continue
+            end, q = trail(u, int(sigma[u]))
+            if end is None:
+                return obs, sigma, False
+            sigma[u] = 0
+            if end < n:
+                sigma[end] = (sigma[end] + q) % d
+        for bnode in (n, n + 1):
+            while any(not e[1] for e in adj.get(bnode, [])):
+                end, q = trail(bnode, 0)
+                if end is None:
+                    return obs, sigma, False
+                if end < n:
+                    sigma[end] = (sigma[end] + q) % d
+        return obs, sigma, True
+
     def decode(self, sigma: np.ndarray):
         """sigma: detector charges in Z_d (one shot).  Returns (observable correction mod d, leftover flag)."""
         d, B = self.d, self.n
         sigma = sigma.copy()
         obs = 0
+        gap_min = math.inf
         for lev in range(self.k):
             binsyn = ((sigma >> lev) & 1).astype(np.uint8)
             if not binsyn.any():
+                continue
+            if self.gap:
+                # force the parity of matchings to boundary node B_1 (node n+1): the two logical classes
+                MG = self.gap_matchers[lev]
+                par = int(binsyn.sum() % 2)
+                sols = []
+                for s1 in (0, 1):
+                    s0 = (par + s1) % 2
+                    syn = np.concatenate([binsyn, [s0, s1, 0]]).astype(np.uint8)
+                    _, w = MG.decode(syn, return_weight=True)
+                    sols.append((w, syn))
+                sols.sort(key=lambda t: t[0])
+                gap_min = min(gap_min, sols[1][0] - sols[0][0])
+                # walk the charges along the edge set the matcher chose (its strings may end on either boundary)
+                obs, sigma, ok = self._walk_edges(lev, MG.decode_to_edges_array(sols[0][1]), binsyn, sigma, obs)
+                if not ok:
+                    return obs % d, 0.0
                 continue
             pairs = self.matchers[lev].decode_to_matched_dets_array(binsyn)
             pred = self.pred[lev]
@@ -567,6 +707,8 @@ class PeelDecoder:
                 sigma[u] = 0
                 if v != -1:
                     sigma[v] = (sigma[v] + q) % d
+        if self.gap:
+            return obs % d, (gap_min if gap_min < math.inf else 0.0)
         return obs % d, bool(sigma.any())
 
 

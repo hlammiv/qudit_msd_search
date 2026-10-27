@@ -40,7 +40,10 @@ ESCAPE_Z4 = {1e-3: (1.8e-4, 0.43), 5e-4: (2.5e-5, 0.25)}       # one colour clas
 ESCAPE_Z4_ALL = {1e-3: (6.6e-5, 0.62), 5e-4: (1.0e-5, 0.39)}   # all three classes, both sectors; X 4.0e-5 + Z 2.7e-5 (5 events) at 1e-3
 # one class + decoder-certified second-order postselection on the colour region (13M/16M fault pairs decoded at build time),
 # first-order cost of the certified patterns capped at 0.2% (degenerate_cap=2): the best recipe measured
-ESCAPE_Z4_PAIRS = {1e-3: (8.8e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 4.4e-5 + Z 4.4e-5 (10 events) at 1e-3; 2 events at 5e-4
+ESCAPE_Z4_PAIRS = {1e-3: (9.1e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 6.7e-5 + Z 2.5e-5 (52 events in 2e6 attempts) at 1e-3; 2 events at 5e-4
+# ... plus complementary-gap postselection (PeelDecoder(gap=True), cut at 13): no failure in 1.14M kept attempts at 1e-3 ->
+# 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  Not yet measured at 5e-4.
+ESCAPE_Z4_GAP = {1e-3: (8e-6, 0.437)}
 
 
 @dataclass(frozen=True)
@@ -117,9 +120,10 @@ def table(ps=(1e-3, 5e-4), targets=(1e-10, 1e-12, 1e-15), **kw):
 if __name__ == "__main__":
     import sys
     escape = None
-    if len(sys.argv) > 1 and sys.argv[1] in ("measured", "escape", "escape-all", "escape-pairs"):
+    if len(sys.argv) > 1 and sys.argv[1] in ("measured", "escape", "escape-all", "escape-pairs", "escape-gap"):
         host = Host(**HOST_Z4)
-        escape = {"escape": ESCAPE_Z4, "escape-all": ESCAPE_Z4_ALL, "escape-pairs": ESCAPE_Z4_PAIRS}.get(sys.argv[1])
+        escape = {"escape": ESCAPE_Z4, "escape-all": ESCAPE_Z4_ALL, "escape-pairs": ESCAPE_Z4_PAIRS,
+                  "escape-gap": ESCAPE_Z4_GAP}.get(sys.argv[1])
     else:
         host = Host(p_th=float(sys.argv[1]), A=float(sys.argv[2]) if len(sys.argv) > 2 else 0.1) if len(sys.argv) > 1 else Host()
     print(f"host: p_th {host.p_th:.0e}, A {host.A}, F(D) = 2 D^2; cultivation {CULT_KEY}; a_cliff {A_CLIFF}; "
