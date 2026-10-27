@@ -122,7 +122,7 @@ Weighted m = 4 (r = 7, degree-2 charges; census `scratchpad/charge_census_m4.py`
 x₁²+x₂²+x₃²+x₄² has |X| = 2016 and 672 class points with ≤ 21 on a plane. But outputs confined to
 one class lie on the degree-4 surface (g−1)(g−6) = 0, so the 35 polynomials (g−1)(g−6)·RM(3,4)
 vanish on every class point: the restricted rank is 291, and near it the non-output class points
-are barely checked (k = 290: d = 2; k = 280: d = 4).
+are barely checked (k = 290: d = 1, 56 class columns with zero residual check; k = 280: d = 4).
 **[[1746,270,6]]₇, γ = 1.042 (2026-10-26)** — the best p = 7 γ so far (free-form unit space:
 1.19). Certificate: no weight ≤ 4 (numba MITM, lenore and local), no weight-5 (thread-parallel
 full 2+3 scan, 9919 s on lenore), weight-6 witness on columns [1657, 1669, 1716, 1584, 1624, 1727]
@@ -159,9 +159,19 @@ A weight-7 witness (3+4 on the class block, 5.8 h; G0 columns [523, 1045, 1117, 
 1556], coefficients (3, 3, 1, 1, 1, 3, 1)) makes d = 7 exact. Weight-7 words are rare: the first
 block of 8 leading columns held none, so the random-model ~160 is an overestimate. The cost needs
 the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current probe rate).
+**Todo (queued 2026-10-27, not started):**
+- [ ] Cost of [[1756,260,7]]₇: (a) rigorous bound now — count every accepted error of weight ≥ 7
+  as a failure (ε_out ≤ Σ_{w≥7} C(n,w) ε^w / P_acc; ≤ 3e-24 behind one [[7,1,3]]₇ round) and
+  run the protocol optimizer on that curve; (b) exact leading order — full weight-7 census on
+  the class block (3+4, ~1.5e12 probes, ~12 h on an idle lenore) → `marginal_saving`.
+- [ ] Multi-seed block-filtered sweep at k = 250–265 on the sphere and the other degree-2
+  forms (plane-distance filter ~2 min/draw, then block filter ~15 min, full certificate only
+  for block-d ≥ 7) to count γ < 1 codes and find d = 8 (γ 0.92). Needs lenore cores.
 **Next:** finish the weight-7 witness / census; bracket further (k = 255–265) using the class block
 as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
-search as the ranking; r = 6 (degree-5 charges) is the other m = 4 lever.
+search as the ranking. r = 6 (degree-5 charges) was probed 2026-10-27: five-hyperplane charge
+(|X| = 1110, no class block) gives d = 5 at k = 180/185 (γ 1.020 / 1.000) and collapses above —
+a near miss, see WEIGHTED_SUPPORTS.md.
 
 ## I. ⏸ Multi-output doubling (arXiv:2610.29457 open problem) — deferred by request 2026-10-22.
 

@@ -699,6 +699,10 @@ def min_distance_upto6_lowmem(H, p):
 def weight_d_exists_fast(H, p, d):
     """True iff H has d columns with a nontrivial zero F_p-combination using all d (assumes no
     weight < d exists -- call with increasing d). Numba MITM; identical result to the numpy path."""
+    if d < 2 or d > 6:
+        # the halves are a <= 3 / b <= 3 only; a larger d would silently scan the wrong weight
+        raise ValueError(f"weight_d_exists_fast certifies 2 <= d <= 6 only (got d={d}); "
+                         "use weight7_witness_3x4 for d = 7")
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if d > n:

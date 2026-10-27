@@ -176,3 +176,65 @@ def test_weight6_witness_parallel_matches_serial():
         if seen[True] >= 2 and seen[False] >= 5:
             break
     assert seen[True] >= 1 and seen[False] >= 1
+
+
+def test_weight6_witness_3x3_and_census_match_brute_force():
+    """3+3 witness and per-output census vs exhaustive 6-subsets on small random F_7 codes."""
+    import itertools
+    import numpy as np
+    from qmsd.mindist_nb import weight6_witness_3x3, count_weight6_per_output, weight_d_exists_fast
+    from qmsd.structured_ad import _rank, _null_space
+    rng = np.random.default_rng(31)
+    p, done = 7, 0
+    while done < 2:
+        r, n = int(rng.integers(9, 11)), int(rng.integers(17, 20))
+        H = rng.integers(0, p, size=(r, n))
+        if any(weight_d_exists_fast(H, p, d) for d in (2, 3, 4, 5)):
+            continue
+        H1 = rng.integers(0, p, size=(2, n))
+        classes, fails = 0, np.zeros(2, dtype=int)
+        for S in itertools.combinations(range(n), 6):
+            M = H[:, S]
+            if _rank(M.T.copy(), p) < 6:
+                v = np.asarray(_null_space(M, p))[0]
+                classes += 1
+                fails += ((H1[:, S] @ v) % p != 0)
+        w = weight6_witness_3x3(H, p)
+        assert (w is not None) == (classes > 0)
+        if w is not None:
+            assert len(set(w)) == 6 and _rank(H[:, w].T.copy(), p) < 6
+        L, ncls, per = count_weight6_per_output(H, H1, p)
+        assert ncls == classes and (per == fails * (p - 1)).all()
+        done += 1
+
+
+def test_weight7_witness_3x4_matches_brute_force():
+    import itertools
+    import numpy as np
+    from qmsd.mindist_nb import weight7_witness_3x4, weight_d_exists_fast, weight6_exists_via_2_4
+    from qmsd.structured_ad import _rank
+    rng = np.random.default_rng(41)
+    p, seen = 7, {True: 0, False: 0}
+    for _ in range(80):
+        r, n = int(rng.integers(10, 13)), int(rng.integers(15, 18))
+        H = rng.integers(0, p, size=(r, n))
+        if any(weight_d_exists_fast(H, p, d) for d in (2, 3, 4, 5)) or weight6_exists_via_2_4(H, p):
+            continue
+        brute = any(_rank(H[:, list(S)].T.copy(), p) < 7 for S in itertools.combinations(range(n), 7))
+        w = weight7_witness_3x4(H, p, block=3)
+        assert (w is not None) == brute
+        if w is not None:
+            assert len(set(w)) == 7 and _rank(H[:, w].T.copy(), p) < 7
+        seen[brute] += 1
+        if seen[True] >= 1 and seen[False] >= 2:
+            break
+    assert seen[True] >= 1 and seen[False] >= 1
+
+
+def test_weight_d_exists_fast_rejects_d_above_six():
+    """The 3+3 split cannot certify d >= 7; the kernel must refuse rather than scan weight 6."""
+    import pytest
+    from qmsd.mindist_nb import weight_d_exists_fast
+    H = np.array([[1, 1, 3, 3, 1, 3, 1]], dtype=np.int64)  # 7 columns, one weight-7 dependency over F_7
+    with pytest.raises(ValueError):
+        weight_d_exists_fast(H, 7, 7)

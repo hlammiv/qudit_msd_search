@@ -32,8 +32,9 @@ and by single-round distillation cost `C`.
   library), `objective.py` (search objective: a code's protocol-cost saving over the standard
   codes, with a fast leading-order surrogate) and `weighted.py` (weighted Reed–Muller supports,
   i.e. shorter triorthogonal spaces with charge coefficients). Notes:
-  `literature/2610.29457_NOTES.md`.
-- **`tests/`** — 377 tests anchored to the published results of the papers.
+  `literature/2610.29457_NOTES.md`; results: **`WEIGHTED_SUPPORTS.md`** (the first γ < 1
+  search code at p = 7, its certificate and the class-block lemma behind it).
+- **`tests/`** — 394 tests anchored to the published results of the papers.
 - **`IMPLEMENTATION_BLUEPRINT.md`**, **`STATUS.md`** — design and honest build status.
 
 ## Highlights
@@ -44,10 +45,15 @@ and by single-round distillation cost `C`.
   codes**, including the headline `[[519,106,5]]_5` (`d=5` in ~10 s) — distances the original
   authors' search was compute-limited to obtain. Independently adversarially verified
   (2,937 fuzz cases vs. null-space ground truth).
+- **The first γ < 1 magic-state distillation code at p = 7: [[1756,260,7]]₇, γ = 0.982**, a
+  weighted Reed–Muller support (sphere charge on F₇⁴) with outputs on one charge class, d = 7
+  certified by a three-part proof plus an explicit weight-7 word (`WEIGHTED_SUPPORTS.md`). The
+  best published p = 7 codes have γ ≥ 1.6; the sibling [[1746,270,6]]₇ cuts distillation cost
+  ~4× below the cyclic and doubled p = 7 codes in the leading-order surrogate.
 - Reproduces arXiv:2610.08012 **Table 2** (leading order, threshold, acceptance) to the printed
   digits, and gives exact thresholds or rigorous threshold lower bounds for the catalog codes
   (`PERFORMANCE.md`).
-- **377 tests pass** (`python -m pytest -q`).
+- **387 tests pass, 7 skipped** (`python -m pytest -q`).
 
 ## Quickstart
 
