@@ -133,6 +133,54 @@ passes it still needs the full certificate. Note the generic MITM kernel `weight
 only certifies d <= 6 (3+3 halves); it now raises for d >= 7 instead of silently scanning
 weight 6, which is how the first version of this check mis-reported the k = 260 draws.
 
+## Multi-seed sweep with the cheap filters (2026-10-28)
+
+The two cheap filters (plane distance, then the class-block weight <= 5 check for draws with
+d_plane >= 7) were run on random cube-class output sets of the sphere charge on a 4-core box
+(`scratchpad/plane_sweep.py`; results `runs/weighted/plane_sweep/`, summary
+`summary.json`). A *survivor* has d_plane >= 7 and no block word of weight <= 5; it is a
+candidate for the full certificate (weight-6 block scan, full weight <= 5 scan, weight-7
+witness), not a certified code.
+
+| k | n | draws | d_plane 3 / 4 / 5 / 6 / 7 / 8 | plane pass, block fail | survivors | rate | CPU h |
+|---|---|---|---|---|---|---|---|
+| 250 | 1766 | 15 | 0 / 1 / 1 / 9 / 4 / 0 | 0 | 4 | 27% | 1.3 |
+| 255 | 1761 | 22 | 0 / 1 / 3 / 14 / 4 / 0 | 0 | 4 | 18% | 1.3 |
+| 260 | 1756 | 23 | 0 / 1 / 5 / 13 / 4 / 0 | 0 | 4 | 17% | 1.2 |
+| 265 | 1751 | 600 | 3 / 14 / 91 / 410 / 82 / 0 | 3 | 79 | 13% | 21.3 |
+| 270 | 1746 | 600 | 6 / 17 / 102 / 424 / 50 / 1 | 0 | 51 | 8% | 15.3 |
+| 275 | 1741 | 63 | 1 / 0 / 9 / 53 / 0 / 0 | 0 | 0 | 0% | 0.5 |
+
+Findings:
+
+- d >= 7 candidates are not rare: one draw in 8 at k = 265 (gamma 0.960 if d = 7) and one in 12
+  at k = 270 (gamma 0.959). The [[1756,260,7]]_7 draw was a 1-in-6 event, not a fluke.
+- The plane filter does almost all the work: only 3 of 1323 draws passed it and then failed the
+  block weight <= 5 check (all at k = 265).
+- One draw, k = 270 seed 407, has d_plane = 8 (no planar word of weight <= 7); if its full
+  distance were 8 it would be [[1746,270,8]]_7 at gamma = 0.898. The random-count model below
+  expects ~27 non-planar weight-7 words at k = 270, so d = 7 is the likely truth.
+- **Two populations of low-weight words.** Planar words (geometric, caught by the plane filter)
+  grow slowly with k: the survival rate 27% -> 13% -> 8% from k = 250 to 270 is a Poisson mean of
+  1.3 -> 2.0 -> 2.5 planar words per draw. *Accidental* non-planar words among the 672 - k class
+  columns in F_7^(291 - k) grow like 7^5 per five outputs: the random-count estimate
+  C(672 - k, w) 6^(w - 1) / 7^(291 - k) of block words of weight w is
+
+  | k | checks | weight 5 | weight 6 | weight 7 |
+  |---|---|---|---|---|
+  | 265 | 26 | 1e-8 | 5e-6 | 2e-3 |
+  | 270 | 21 | 2e-4 | 0.08 | 27 |
+  | 275 | 16 | 3 | 1200 | 4e5 |
+
+  so the window closes between k = 270 and 275. Checked directly (`scratchpad/block_test.py`,
+  `runs/weighted/plane_sweep/block_test_k275.txt`): all six k = 275 draws have a block word of
+  weight <= 5, four of them non-planar weight-5 words (affine span 3 or 4), two planar weight-4
+  words. At k = 275 the plane filter therefore cannot see the words that kill the draw, and the
+  k = 275 sweep was stopped.
+- Consequence for certification: at k = 265 a survivor can go straight to the full weight <= 5
+  scan; at k = 270 the ~8% chance of an accidental weight-6 block word means the 3+3 weight-6
+  block scan (6 GB table, ~10 min on lenore) should come first.
+
 ## Beyond the sphere: degree-5 charges at r = 6
 
 The sphere is the only degree-2 charge at m = 4; the next budget, deg g <= 5, allows r = 6

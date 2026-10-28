@@ -164,9 +164,16 @@ the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current 
   as a failure (ε_out ≤ Σ_{w≥7} C(n,w) ε^w / P_acc; ≤ 3e-24 behind one [[7,1,3]]₇ round) and
   run the protocol optimizer on that curve; (b) exact leading order — full weight-7 census on
   the class block (3+4, ~1.5e12 probes, ~12 h on an idle lenore) → `marginal_saving`.
-- [ ] Multi-seed block-filtered sweep at k = 250–265 on the sphere and the other degree-2
-  forms (plane-distance filter ~2 min/draw, then block filter ~15 min, full certificate only
-  for block-d ≥ 7) to count γ < 1 codes and find d = 8 (γ 0.92). Needs lenore cores.
+- [x] Multi-seed sweep, cheap stages (plane filter + block weight ≤ 5), run on loranne
+  2026-10-27/28: 1323 draws; survivor rate 13% at k = 265, 8% at k = 270, 0 at 275 (accidental
+  non-planar words take over; verified). 79 + 51 candidates in `runs/weighted/plane_sweep/`
+  (`summary.json`); k = 270 seed 407 has d_plane = 8. See WEIGHTED_SUPPORTS.md.
+- [ ] Certify the candidates on lenore (needs ~30 idle cores): order k = 270 seed 407 first
+  (3+3 weight-6 block scan ~10 min, full weight ≤ 5 scan ~2.75 h, then weight-7 witness; no
+  witness after the full 3+4 scan would prove d = 8, γ 0.898), then other k = 270 survivors
+  (γ 0.959 at d = 7), then k = 265 (γ 0.960). Stop after the first success per k.
+- [ ] The other degree-2 charges at m = 4 (non-square coefficient, hyperbolic form): recompute
+  the class-block rank and rerun the cheap sweep; not started.
 **Next:** finish the weight-7 witness / census; bracket further (k = 255–265) using the class block
 as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
 search as the ranking. r = 6 (degree-5 charges) was probed 2026-10-27: five-hyperplane charge
