@@ -1,0 +1,1100 @@
+/usr/lib/python3/dist-packages/scipy/__init__.py:132: UserWarning: A NumPy version >=1.21.6 and <1.28.0 is required for this version of SciPy (detected version 2.5.4)
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.5.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "/home/hlamm/prime_msd_sweep/weighted_census_general.py", line 9, in <module>
+    from qmsd.reedmuller import points
+  File "/home/hlamm/prime_msd_sweep/qmsd/reedmuller.py", line 21, in <module>
+    from .field import GFp
+  File "/home/hlamm/prime_msd_sweep/qmsd/field.py", line 11, in <module>
+    import galois
+  File "/home/hlamm/prime_msd_sweep/deps/galois/__init__.py", line 24, in <module>
+    from ._fields import *
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/__init__.py", line 6, in <module>
+    from ._factory import *
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/_factory.py", line 24, in <module>
+    from ._ufunc import UFuncMixin_2_m, UFuncMixin_p_1, UFuncMixin_p_m
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/_ufunc.py", line 9, in <module>
+    from .._domains import _calculate, _lookup
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_domains/_calculate.py", line 22, in <module>
+    @numba.jit(["int64[:](int64, int64, int64)"], nopython=True, cache=True)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/decorators.py", line 234, in wrapper
+    disp.compile(sig)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/dispatcher.py", line 900, in compile
+    cres = self._cache.load_overload(sig, self.targetctx)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/caching.py", line 749, in load_overload
+    target_context.refresh()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/base.py", line 267, in refresh
+    self.load_additional_registries()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/cpu.py", line 118, in load_additional_registries
+    from numba.np import linalg, arraymath, arrayobj # noqa F401
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/arraymath.py", line 45, in <module>
+    _HAVE_BLAS = _check_blas()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/arraymath.py", line 39, in _check_blas
+    ensure_blas()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/linalg.py", line 115, in ensure_blas
+    import scipy.linalg.cython_blas
+  File "/usr/lib/python3/dist-packages/scipy/linalg/__init__.py", line 206, in <module>
+    from ._misc import *
+  File "/usr/lib/python3/dist-packages/scipy/linalg/_misc.py", line 3, in <module>
+    from .blas import get_blas_funcs
+  File "/usr/lib/python3/dist-packages/scipy/linalg/blas.py", line 213, in <module>
+    from scipy.linalg import _fblas
+Traceback (most recent call last):
+  File "/home/hlamm/prime_msd_sweep/deps/numpy/core/_multiarray_umath.py", line 46, in __getattr__
+    raise ImportError(msg)
+ImportError: 
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.5.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+
+p=13 m=2: grid 169; r_max(unweighted)=7
+-- r=7: budget deg g <= 2, 106 charges
+r=7 lin(0, 1)+0                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+0                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+0                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+1                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+1                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+1                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+2                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+2                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+2                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+3                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+3                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+3                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+4                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+4                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+4                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+5                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+5                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+5                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+6                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+6                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+6                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+7                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+7                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+7                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+8                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+8                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+8                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+9                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+9                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+9                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+10                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+10                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+10                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+11                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+11                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+11                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+12                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+12                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(0, 1)+12                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+0                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+0                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+0                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+1                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+1                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+1                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+2                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+2                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+2                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+3                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+3                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+3                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+4                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+4                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+4                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+5                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+5                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+5                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+6                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+6                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+6                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+7                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+7                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+7                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+8                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+8                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+8                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+9                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+9                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+9                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+10                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+10                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+10                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+11                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+11                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+11                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+12                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+12                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 0)+12                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+0                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+0                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+0                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+1                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+1                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+1                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+2                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+2                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+2                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+3                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+3                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+3                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+4                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+4                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+4                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+5                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+5                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+5                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+6                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+6                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+6                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+7                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+7                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+7                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+8                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+8                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+8                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+9                  |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+9                  |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+9                  |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+10                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+10                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+10                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+11                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+11                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+11                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+12                 |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+12                 |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 lin(1, 1)+12                 |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+0                    |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+0                    |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+0                    |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+1                    |X|=  143 rank=  36 unit=1 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+1                    |X|=  143 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+1                    |X|=  143 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+2                    |X|=  169 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+2                    |X|=  169 rank=  36 unit=2 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+2                    |X|=  169 rank=  36 unit=3 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+3                    |X|=  143 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+3                    |X|=  143 rank=  36 unit=2 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+3                    |X|=  143 rank=  36 unit=3 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+4                    |X|=  143 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+4                    |X|=  143 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+4                    |X|=  143 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+5                    |X|=  169 rank=  36 unit=1 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+5                    |X|=  169 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+5                    |X|=  169 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+6                    |X|=  169 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+6                    |X|=  169 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+6                    |X|=  169 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+7                    |X|=  169 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+7                    |X|=  169 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+7                    |X|=  169 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+8                    |X|=  169 rank=  36 unit=1 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+8                    |X|=  169 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+8                    |X|=  169 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+9                    |X|=  143 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+9                    |X|=  143 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+9                    |X|=  143 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+10                   |X|=  143 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+10                   |X|=  143 rank=  36 unit=2 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+10                   |X|=  143 rank=  36 unit=3 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+11                   |X|=  169 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+11                   |X|=  169 rank=  36 unit=2 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+11                   |X|=  169 rank=  36 unit=3 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+12                   |X|=  143 rank=  36 unit=1 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(1, 0)+12                   |X|=  143 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+12                   |X|=  143 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(1, 0)+x                    |X|=  156 rank=  36 unit=1 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(1, 0)+x                    |X|=  156 rank=  36 unit=2 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(1, 0)+x                    |X|=  156 rank=  36 unit=3 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(1, 1)+0                    |X|=  144 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(1, 1)+0                    |X|=  144 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(1, 1)+0                    |X|=  144 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(1, 1)+1                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+1                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+1                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+2                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+2                    |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+2                    |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+3                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+3                    |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+3                    |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+4                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+4                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+4                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+5                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+5                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+5                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+6                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+6                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+6                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+7                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+7                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+7                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+8                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+8                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+8                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+9                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+9                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+9                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+10                   |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+10                   |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+10                   |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+11                   |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+11                   |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+11                   |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+12                   |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+12                   |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(1, 1)+12                   |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 0)+0                    |X|=  156 rank=  36 unit=1 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+0                    |X|=  156 rank=  36 unit=2 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+0                    |X|=  156 rank=  36 unit=3 N_c=   52 rho=  26 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+1                    |X|=  169 rank=  36 unit=1 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+1                    |X|=  169 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+1                    |X|=  169 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+2                    |X|=  143 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+2                    |X|=  143 rank=  36 unit=2 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+2                    |X|=  143 rank=  36 unit=3 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+3                    |X|=  169 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+3                    |X|=  169 rank=  36 unit=2 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+3                    |X|=  169 rank=  36 unit=3 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+4                    |X|=  169 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+4                    |X|=  169 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+4                    |X|=  169 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+5                    |X|=  143 rank=  36 unit=1 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+5                    |X|=  143 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+5                    |X|=  143 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+6                    |X|=  143 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+6                    |X|=  143 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+6                    |X|=  143 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+7                    |X|=  143 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+7                    |X|=  143 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+7                    |X|=  143 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+8                    |X|=  143 rank=  36 unit=1 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+8                    |X|=  143 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+8                    |X|=  143 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | d=8 k=18 gamma=0.932
+r=7 q(2, 0)+9                    |X|=  169 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+9                    |X|=  169 rank=  36 unit=2 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+9                    |X|=  169 rank=  36 unit=3 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+10                   |X|=  169 rank=  36 unit=1 N_c=   78 rho=  33 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+10                   |X|=  169 rank=  36 unit=2 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+10                   |X|=  169 rank=  36 unit=3 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+11                   |X|=  143 rank=  36 unit=1 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+11                   |X|=  143 rank=  36 unit=2 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+11                   |X|=  143 rank=  36 unit=3 N_c=   39 rho=  21 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+12                   |X|=  169 rank=  36 unit=1 N_c=   65 rho=  30 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+12                   |X|=  169 rank=  36 unit=2 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+12                   |X|=  169 rank=  36 unit=3 N_c=   26 rho=  15 vanish= 21 max_codim2_flat= 13 | no gamma<1 in model
+r=7 q(2, 0)+x                    |X|=  156 rank=  36 unit=1 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(2, 0)+x                    |X|=  156 rank=  36 unit=2 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(2, 0)+x                    |X|=  156 rank=  36 unit=3 N_c=   52 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.950
+r=7 q(2, 1)+0                    |X|=  168 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.990
+r=7 q(2, 1)+0                    |X|=  168 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.990
+r=7 q(2, 1)+0                    |X|=  168 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.990
+r=7 q(2, 1)+1                    |X|=  155 rank=  36 unit=1 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+1                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+1                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+2                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+2                    |X|=  155 rank=  36 unit=2 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+2                    |X|=  155 rank=  36 unit=3 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+3                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+3                    |X|=  155 rank=  36 unit=2 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+3                    |X|=  155 rank=  36 unit=3 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+4                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+4                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+4                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+5                    |X|=  155 rank=  36 unit=1 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+5                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+5                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+6                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+6                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+6                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+7                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+7                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+7                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+8                    |X|=  155 rank=  36 unit=1 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+8                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+8                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+9                    |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+9                    |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+9                    |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+10                   |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+10                   |X|=  155 rank=  36 unit=2 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+10                   |X|=  155 rank=  36 unit=3 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+11                   |X|=  155 rank=  36 unit=1 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+11                   |X|=  155 rank=  36 unit=2 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+11                   |X|=  155 rank=  36 unit=3 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+12                   |X|=  155 rank=  36 unit=1 N_c=   43 rho=  34 vanish=  2 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+12                   |X|=  155 rank=  36 unit=2 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 1)+12                   |X|=  155 rank=  36 unit=3 N_c=   56 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.947
+r=7 q(2, 2)+0                    |X|=  144 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(2, 2)+0                    |X|=  144 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(2, 2)+0                    |X|=  144 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.906
+r=7 q(2, 2)+1                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+1                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+1                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+2                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+2                    |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+2                    |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+3                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+3                    |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+3                    |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+4                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+4                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+4                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+5                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+5                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+5                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+6                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+6                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+6                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+7                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+7                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+7                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+8                    |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+8                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+8                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+9                    |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+9                    |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+9                    |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+10                   |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+10                   |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+10                   |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+11                   |X|=  157 rank=  36 unit=1 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+11                   |X|=  157 rank=  36 unit=2 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+11                   |X|=  157 rank=  36 unit=3 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+12                   |X|=  157 rank=  36 unit=1 N_c=   61 rho=  36 vanish=  0 max_codim2_flat= 13 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+12                   |X|=  157 rank=  36 unit=2 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+r=7 q(2, 2)+12                   |X|=  157 rank=  36 unit=3 N_c=   48 rho=  36 vanish=  0 max_codim2_flat=  6 | d=8 k=19 gamma=0.954
+-- r=6: budget deg g <= 5, 119 charges
+r=6 lin(0, 1)+0                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+0                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+0                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+1                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+1                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+1                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+2                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+2                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+2                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+3                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+3                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+3                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+4                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+4                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+4                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+5                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+5                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+5                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+6                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+6                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+6                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+7                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+7                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+7                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+8                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+8                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+8                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+9                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+9                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+9                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+10                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+10                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+10                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+11                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+11                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+11                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+12                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+12                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(0, 1)+12                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+0                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+0                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+0                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+1                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+1                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+1                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+2                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+2                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+2                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+3                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+3                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+3                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+4                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+4                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+4                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+5                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+5                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+5                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+6                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+6                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+6                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+7                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+7                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+7                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+8                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+8                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+8                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+9                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+9                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+9                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+10                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+10                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+10                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+11                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+11                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+11                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+12                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+12                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 0)+12                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+0                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+0                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+0                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+1                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+1                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+1                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+2                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+2                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+2                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+3                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+3                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+3                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+4                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+4                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+4                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+5                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+5                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+5                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+6                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+6                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+6                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+7                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+7                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+7                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+8                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+8                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+8                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+9                  |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+9                  |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+9                  |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+10                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+10                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+10                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+11                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+11                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+11                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+12                 |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+12                 |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 lin(1, 1)+12                 |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+0                    |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+0                    |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+0                    |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+1                    |X|=  143 rank=  28 unit=1 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+1                    |X|=  143 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+1                    |X|=  143 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+2                    |X|=  169 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+2                    |X|=  169 rank=  28 unit=2 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+2                    |X|=  169 rank=  28 unit=3 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+3                    |X|=  143 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+3                    |X|=  143 rank=  28 unit=2 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+3                    |X|=  143 rank=  28 unit=3 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+4                    |X|=  143 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+4                    |X|=  143 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+4                    |X|=  143 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+5                    |X|=  169 rank=  28 unit=1 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+5                    |X|=  169 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+5                    |X|=  169 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+6                    |X|=  169 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+6                    |X|=  169 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+6                    |X|=  169 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+7                    |X|=  169 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+7                    |X|=  169 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+7                    |X|=  169 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+8                    |X|=  169 rank=  28 unit=1 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+8                    |X|=  169 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+8                    |X|=  169 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+9                    |X|=  143 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+9                    |X|=  143 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+9                    |X|=  143 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+10                   |X|=  143 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+10                   |X|=  143 rank=  28 unit=2 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+10                   |X|=  143 rank=  28 unit=3 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+11                   |X|=  169 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+11                   |X|=  169 rank=  28 unit=2 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+11                   |X|=  169 rank=  28 unit=3 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+12                   |X|=  143 rank=  28 unit=1 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+12                   |X|=  143 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+12                   |X|=  143 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 0)+x                    |X|=  156 rank=  28 unit=1 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 0)+x                    |X|=  156 rank=  28 unit=2 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 0)+x                    |X|=  156 rank=  28 unit=3 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+0                    |X|=  144 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+0                    |X|=  144 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+0                    |X|=  144 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+1                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+1                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+1                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+2                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+2                    |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+2                    |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+3                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+3                    |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+3                    |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+4                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+4                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+4                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+5                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+5                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+5                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+6                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+6                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+6                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+7                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+7                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+7                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+8                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+8                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+8                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+9                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+9                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+9                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+10                   |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+10                   |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+10                   |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+11                   |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+11                   |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+11                   |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+12                   |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(1, 1)+12                   |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(1, 1)+12                   |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 0)+0                    |X|=  156 rank=  28 unit=1 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+0                    |X|=  156 rank=  28 unit=2 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+0                    |X|=  156 rank=  28 unit=3 N_c=   52 rho=  22 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+1                    |X|=  169 rank=  28 unit=1 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+1                    |X|=  169 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+1                    |X|=  169 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+2                    |X|=  143 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+2                    |X|=  143 rank=  28 unit=2 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+2                    |X|=  143 rank=  28 unit=3 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+3                    |X|=  169 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+3                    |X|=  169 rank=  28 unit=2 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+3                    |X|=  169 rank=  28 unit=3 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+4                    |X|=  169 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+4                    |X|=  169 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+4                    |X|=  169 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+5                    |X|=  143 rank=  28 unit=1 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+5                    |X|=  143 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+5                    |X|=  143 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+6                    |X|=  143 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+6                    |X|=  143 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+6                    |X|=  143 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+7                    |X|=  143 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+7                    |X|=  143 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+7                    |X|=  143 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+8                    |X|=  143 rank=  28 unit=1 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+8                    |X|=  143 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+8                    |X|=  143 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+9                    |X|=  169 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+9                    |X|=  169 rank=  28 unit=2 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+9                    |X|=  169 rank=  28 unit=3 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+10                   |X|=  169 rank=  28 unit=1 N_c=   78 rho=  27 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+10                   |X|=  169 rank=  28 unit=2 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+10                   |X|=  169 rank=  28 unit=3 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+11                   |X|=  143 rank=  28 unit=1 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+11                   |X|=  143 rank=  28 unit=2 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+11                   |X|=  143 rank=  28 unit=3 N_c=   39 rho=  18 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+12                   |X|=  169 rank=  28 unit=1 N_c=   65 rho=  25 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+12                   |X|=  169 rank=  28 unit=2 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+12                   |X|=  169 rank=  28 unit=3 N_c=   26 rho=  13 vanish= 15 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 0)+x                    |X|=  156 rank=  28 unit=1 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 0)+x                    |X|=  156 rank=  28 unit=2 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 0)+x                    |X|=  156 rank=  28 unit=3 N_c=   52 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+0                    |X|=  168 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+0                    |X|=  168 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+0                    |X|=  168 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+1                    |X|=  155 rank=  28 unit=1 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+1                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+1                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+2                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+2                    |X|=  155 rank=  28 unit=2 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+2                    |X|=  155 rank=  28 unit=3 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+3                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+3                    |X|=  155 rank=  28 unit=2 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+3                    |X|=  155 rank=  28 unit=3 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+4                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+4                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+4                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+5                    |X|=  155 rank=  28 unit=1 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+5                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+5                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+6                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+6                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+6                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+7                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+7                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+7                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+8                    |X|=  155 rank=  28 unit=1 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+8                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+8                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+9                    |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+9                    |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+9                    |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+10                   |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+10                   |X|=  155 rank=  28 unit=2 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+10                   |X|=  155 rank=  28 unit=3 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+11                   |X|=  155 rank=  28 unit=1 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+11                   |X|=  155 rank=  28 unit=2 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+11                   |X|=  155 rank=  28 unit=3 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+12                   |X|=  155 rank=  28 unit=1 N_c=   43 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+12                   |X|=  155 rank=  28 unit=2 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 1)+12                   |X|=  155 rank=  28 unit=3 N_c=   56 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+0                    |X|=  144 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+0                    |X|=  144 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+0                    |X|=  144 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+1                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+1                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+1                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+2                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+2                    |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+2                    |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+3                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+3                    |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+3                    |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+4                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+4                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+4                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+5                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+5                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+5                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+6                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+6                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+6                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+7                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+7                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+7                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+8                    |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+8                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+8                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+9                    |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+9                    |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+9                    |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+10                   |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+10                   |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+10                   |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+11                   |X|=  157 rank=  28 unit=1 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+11                   |X|=  157 rank=  28 unit=2 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+11                   |X|=  157 rank=  28 unit=3 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+12                   |X|=  157 rank=  28 unit=1 N_c=   61 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 q(2, 2)+12                   |X|=  157 rank=  28 unit=2 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 q(2, 2)+12                   |X|=  157 rank=  28 unit=3 N_c=   48 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+0              |X|=  132 rank=  28 unit=1 N_c=   24 rho=  13 vanish= 15 max_codim2_flat= 12 | no gamma<1 in model
+r=6 cubic sum x^3+0              |X|=  132 rank=  28 unit=2 N_c=   36 rho=  18 vanish= 10 max_codim2_flat= 12 | no gamma<1 in model
+r=6 cubic sum x^3+0              |X|=  132 rank=  28 unit=3 N_c=   36 rho=  18 vanish= 10 max_codim2_flat= 12 | no gamma<1 in model
+r=6 cubic sum x^3+1              |X|=  163 rank=  28 unit=1 N_c=   82 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+1              |X|=  163 rank=  28 unit=2 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+1              |X|=  163 rank=  28 unit=3 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+2              |X|=  160 rank=  28 unit=1 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+2              |X|=  160 rank=  28 unit=2 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+2              |X|=  160 rank=  28 unit=3 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+3              |X|=  160 rank=  28 unit=1 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+3              |X|=  160 rank=  28 unit=2 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+3              |X|=  160 rank=  28 unit=3 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+4              |X|=  151 rank=  28 unit=1 N_c=   39 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+4              |X|=  151 rank=  28 unit=2 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+4              |X|=  151 rank=  28 unit=3 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+5              |X|=  163 rank=  28 unit=1 N_c=   82 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+5              |X|=  163 rank=  28 unit=2 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+5              |X|=  163 rank=  28 unit=3 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+6              |X|=  151 rank=  28 unit=1 N_c=   39 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+6              |X|=  151 rank=  28 unit=2 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+6              |X|=  151 rank=  28 unit=3 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+7              |X|=  151 rank=  28 unit=1 N_c=   39 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+7              |X|=  151 rank=  28 unit=2 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+7              |X|=  151 rank=  28 unit=3 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+8              |X|=  163 rank=  28 unit=1 N_c=   82 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+8              |X|=  163 rank=  28 unit=2 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+8              |X|=  163 rank=  28 unit=3 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+9              |X|=  151 rank=  28 unit=1 N_c=   39 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+9              |X|=  151 rank=  28 unit=2 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+9              |X|=  151 rank=  28 unit=3 N_c=   51 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+10             |X|=  160 rank=  28 unit=1 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+10             |X|=  160 rank=  28 unit=2 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+10             |X|=  160 rank=  28 unit=3 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+11             |X|=  160 rank=  28 unit=1 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=6 cubic sum x^3+11             |X|=  160 rank=  28 unit=2 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+11             |X|=  160 rank=  28 unit=3 N_c=   67 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+12             |X|=  163 rank=  28 unit=1 N_c=   82 rho=  28 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=6 cubic sum x^3+12             |X|=  163 rank=  28 unit=2 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=6 cubic sum x^3+12             |X|=  163 rank=  28 unit=3 N_c=   42 rho=  28 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+-- r=5: budget deg g <= 8, 119 charges
+r=5 lin(0, 1)+0                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+0                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+0                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+1                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+1                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+1                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+2                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+2                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+2                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+3                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+3                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+3                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+4                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+4                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+4                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+5                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+5                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+5                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+6                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+6                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+6                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+7                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+7                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+7                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+8                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+8                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+8                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+9                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+9                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+9                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+10                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+10                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+10                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+11                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+11                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+11                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+12                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+12                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(0, 1)+12                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+0                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+0                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+0                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+1                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+1                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+1                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+2                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+2                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+2                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+3                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+3                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+3                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+4                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+4                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+4                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+5                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+5                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+5                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+6                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+6                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+6                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+7                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+7                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+7                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+8                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+8                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+8                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+9                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+9                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+9                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+10                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+10                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+10                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+11                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+11                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+11                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+12                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+12                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 0)+12                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+0                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+0                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+0                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+1                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+1                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+1                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+2                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+2                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+2                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+3                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+3                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+3                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+4                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+4                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+4                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+5                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+5                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+5                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+6                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+6                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+6                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+7                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+7                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+7                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+8                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+8                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+8                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+9                  |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+9                  |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+9                  |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+10                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+10                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+10                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+11                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+11                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+11                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+12                 |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+12                 |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 lin(1, 1)+12                 |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+0                    |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+0                    |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+0                    |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+1                    |X|=  143 rank=  21 unit=1 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+1                    |X|=  143 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+1                    |X|=  143 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+2                    |X|=  169 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+2                    |X|=  169 rank=  21 unit=2 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+2                    |X|=  169 rank=  21 unit=3 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+3                    |X|=  143 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+3                    |X|=  143 rank=  21 unit=2 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+3                    |X|=  143 rank=  21 unit=3 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+4                    |X|=  143 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+4                    |X|=  143 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+4                    |X|=  143 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+5                    |X|=  169 rank=  21 unit=1 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+5                    |X|=  169 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+5                    |X|=  169 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+6                    |X|=  169 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+6                    |X|=  169 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+6                    |X|=  169 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+7                    |X|=  169 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+7                    |X|=  169 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+7                    |X|=  169 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+8                    |X|=  169 rank=  21 unit=1 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+8                    |X|=  169 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+8                    |X|=  169 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+9                    |X|=  143 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+9                    |X|=  143 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+9                    |X|=  143 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+10                   |X|=  143 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+10                   |X|=  143 rank=  21 unit=2 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+10                   |X|=  143 rank=  21 unit=3 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+11                   |X|=  169 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+11                   |X|=  169 rank=  21 unit=2 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+11                   |X|=  169 rank=  21 unit=3 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+12                   |X|=  143 rank=  21 unit=1 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+12                   |X|=  143 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+12                   |X|=  143 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 0)+x                    |X|=  156 rank=  21 unit=1 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 0)+x                    |X|=  156 rank=  21 unit=2 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 0)+x                    |X|=  156 rank=  21 unit=3 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+0                    |X|=  144 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+0                    |X|=  144 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+0                    |X|=  144 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+1                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+1                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+1                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+2                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+2                    |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+2                    |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+3                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+3                    |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+3                    |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+4                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+4                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+4                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+5                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+5                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+5                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+6                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+6                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+6                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+7                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+7                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+7                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+8                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+8                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+8                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+9                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+9                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+9                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+10                   |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+10                   |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+10                   |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+11                   |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+11                   |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+11                   |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+12                   |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(1, 1)+12                   |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(1, 1)+12                   |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 0)+0                    |X|=  156 rank=  21 unit=1 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+0                    |X|=  156 rank=  21 unit=2 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+0                    |X|=  156 rank=  21 unit=3 N_c=   52 rho=  18 vanish=  3 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+1                    |X|=  169 rank=  21 unit=1 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+1                    |X|=  169 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+1                    |X|=  169 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+2                    |X|=  143 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+2                    |X|=  143 rank=  21 unit=2 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+2                    |X|=  143 rank=  21 unit=3 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+3                    |X|=  169 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+3                    |X|=  169 rank=  21 unit=2 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+3                    |X|=  169 rank=  21 unit=3 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+4                    |X|=  169 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+4                    |X|=  169 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+4                    |X|=  169 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+5                    |X|=  143 rank=  21 unit=1 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+5                    |X|=  143 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+5                    |X|=  143 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+6                    |X|=  143 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+6                    |X|=  143 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+6                    |X|=  143 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+7                    |X|=  143 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+7                    |X|=  143 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+7                    |X|=  143 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+8                    |X|=  143 rank=  21 unit=1 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+8                    |X|=  143 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+8                    |X|=  143 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+9                    |X|=  169 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+9                    |X|=  169 rank=  21 unit=2 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+9                    |X|=  169 rank=  21 unit=3 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+10                   |X|=  169 rank=  21 unit=1 N_c=   78 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+10                   |X|=  169 rank=  21 unit=2 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+10                   |X|=  169 rank=  21 unit=3 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+11                   |X|=  143 rank=  21 unit=1 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+11                   |X|=  143 rank=  21 unit=2 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+11                   |X|=  143 rank=  21 unit=3 N_c=   39 rho=  15 vanish=  6 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+12                   |X|=  169 rank=  21 unit=1 N_c=   65 rho=  20 vanish=  1 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+12                   |X|=  169 rank=  21 unit=2 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+12                   |X|=  169 rank=  21 unit=3 N_c=   26 rho=  11 vanish= 10 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 0)+x                    |X|=  156 rank=  21 unit=1 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 0)+x                    |X|=  156 rank=  21 unit=2 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 0)+x                    |X|=  156 rank=  21 unit=3 N_c=   52 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+0                    |X|=  168 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+0                    |X|=  168 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+0                    |X|=  168 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+1                    |X|=  155 rank=  21 unit=1 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+1                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+1                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+2                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+2                    |X|=  155 rank=  21 unit=2 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+2                    |X|=  155 rank=  21 unit=3 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+3                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+3                    |X|=  155 rank=  21 unit=2 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+3                    |X|=  155 rank=  21 unit=3 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+4                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+4                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+4                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+5                    |X|=  155 rank=  21 unit=1 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+5                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+5                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+6                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+6                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+6                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+7                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+7                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+7                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+8                    |X|=  155 rank=  21 unit=1 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+8                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+8                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+9                    |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+9                    |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+9                    |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+10                   |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+10                   |X|=  155 rank=  21 unit=2 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+10                   |X|=  155 rank=  21 unit=3 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+11                   |X|=  155 rank=  21 unit=1 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+11                   |X|=  155 rank=  21 unit=2 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+11                   |X|=  155 rank=  21 unit=3 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+12                   |X|=  155 rank=  21 unit=1 N_c=   43 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+12                   |X|=  155 rank=  21 unit=2 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 1)+12                   |X|=  155 rank=  21 unit=3 N_c=   56 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+0                    |X|=  144 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+0                    |X|=  144 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+0                    |X|=  144 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+1                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+1                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+1                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+2                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+2                    |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+2                    |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+3                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+3                    |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+3                    |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+4                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+4                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+4                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+5                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+5                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+5                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+6                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+6                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+6                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+7                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+7                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+7                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+8                    |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+8                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+8                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+9                    |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+9                    |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+9                    |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+10                   |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+10                   |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+10                   |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+11                   |X|=  157 rank=  21 unit=1 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+11                   |X|=  157 rank=  21 unit=2 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+11                   |X|=  157 rank=  21 unit=3 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+12                   |X|=  157 rank=  21 unit=1 N_c=   61 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 q(2, 2)+12                   |X|=  157 rank=  21 unit=2 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 q(2, 2)+12                   |X|=  157 rank=  21 unit=3 N_c=   48 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+0              |X|=  132 rank=  21 unit=1 N_c=   24 rho=  11 vanish= 10 max_codim2_flat= 12 | no gamma<1 in model
+r=5 cubic sum x^3+0              |X|=  132 rank=  21 unit=2 N_c=   36 rho=  15 vanish=  6 max_codim2_flat= 12 | no gamma<1 in model
+r=5 cubic sum x^3+0              |X|=  132 rank=  21 unit=3 N_c=   36 rho=  15 vanish=  6 max_codim2_flat= 12 | no gamma<1 in model
+r=5 cubic sum x^3+1              |X|=  163 rank=  21 unit=1 N_c=   82 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+1              |X|=  163 rank=  21 unit=2 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+1              |X|=  163 rank=  21 unit=3 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+2              |X|=  160 rank=  21 unit=1 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+2              |X|=  160 rank=  21 unit=2 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+2              |X|=  160 rank=  21 unit=3 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+3              |X|=  160 rank=  21 unit=1 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+3              |X|=  160 rank=  21 unit=2 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+3              |X|=  160 rank=  21 unit=3 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+4              |X|=  151 rank=  21 unit=1 N_c=   39 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+4              |X|=  151 rank=  21 unit=2 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+4              |X|=  151 rank=  21 unit=3 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+5              |X|=  163 rank=  21 unit=1 N_c=   82 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+5              |X|=  163 rank=  21 unit=2 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+5              |X|=  163 rank=  21 unit=3 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+6              |X|=  151 rank=  21 unit=1 N_c=   39 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+6              |X|=  151 rank=  21 unit=2 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+6              |X|=  151 rank=  21 unit=3 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+7              |X|=  151 rank=  21 unit=1 N_c=   39 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+7              |X|=  151 rank=  21 unit=2 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+7              |X|=  151 rank=  21 unit=3 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+8              |X|=  163 rank=  21 unit=1 N_c=   82 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+8              |X|=  163 rank=  21 unit=2 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+8              |X|=  163 rank=  21 unit=3 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+9              |X|=  151 rank=  21 unit=1 N_c=   39 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+9              |X|=  151 rank=  21 unit=2 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+9              |X|=  151 rank=  21 unit=3 N_c=   51 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+10             |X|=  160 rank=  21 unit=1 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+10             |X|=  160 rank=  21 unit=2 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+10             |X|=  160 rank=  21 unit=3 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+11             |X|=  160 rank=  21 unit=1 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  6 | no gamma<1 in model
+r=5 cubic sum x^3+11             |X|=  160 rank=  21 unit=2 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+11             |X|=  160 rank=  21 unit=3 N_c=   67 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+12             |X|=  163 rank=  21 unit=1 N_c=   82 rho=  21 vanish=  0 max_codim2_flat= 13 | no gamma<1 in model
+r=5 cubic sum x^3+12             |X|=  163 rank=  21 unit=2 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model
+r=5 cubic sum x^3+12             |X|=  163 rank=  21 unit=3 N_c=   42 rho=  21 vanish=  0 max_codim2_flat=  7 | no gamma<1 in model

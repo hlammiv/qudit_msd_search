@@ -177,6 +177,11 @@ Findings:
   weight <= 5, four of them non-planar weight-5 words (affine span 3 or 4), two planar weight-4
   words. At k = 275 the plane filter therefore cannot see the words that kill the draw, and the
   k = 275 sweep was stopped.
+- **Witnesses.** Every survivor with d_plane = 7 contains an explicit planar weight-7 word; these
+  were extracted and verified against the full G0 (`scratchpad/flat_witness.py`, about 2 min
+  per draw; `runs/weighted/plane_sweep/flat_witness_k*.jsonl`: G0 columns, coefficients,
+  points). So d <= 7 is proven for 129 of the 130 survivors at no lenore cost; the remaining
+  one is k = 270 seed 407 (d_plane = 8), whose 3-flat witness scan is still running (2026-10-28; a hit would settle d = 7, a miss leaves d = 8 open).
 - Consequence for certification: at k = 265 a survivor can go straight to the full weight <= 5
   scan; at k = 270 the ~8% chance of an accidental weight-6 block word means the 3+3 weight-6
   block scan (6 GB table, ~10 min on lenore) should come first.
@@ -218,6 +223,39 @@ on: with only 205 - k checks over ~930 columns, the distance collapses quickly a
 (d = 4 at 15 checks, d = 2 at 5 checks). It is a near miss, not a route below the sphere's
 0.982, unless a charge with a vanishing-stabiliser block at r = 6 is found (the sphere * x1 x2 x3
 charge has 2 such stabilisers; sphere (sphere+1) x1 has 16 but a larger support).
+
+## Do weighted supports reopen p = 3, 11, 13? (2026-10-28, exploratory)
+
+The no-go of `D_NEGATIVE_RESULT.md` is for unweighted evaluation codes; the p = 7 code is weighted.
+A first pass at the other small primes (`scratchpad/weighted_census_general.py`,
+`scratchpad/flat_cap_check.py`; logs in `runs/weighted/census_p_le_13/`):
+
+1. **Census + random-count model.** For every (p, m, r) with a non-negative charge budget and
+   every diagonal quadric / linear / diagonal-cubic charge and charge class: |X|, class rank
+   rho, and the largest k at which accidental block words of weight <= w are absent, with the
+   gamma that d = w + 1 would give. The model is necessary, not sufficient: it ignores
+   geometric (flat-supported) words, which are the binding constraint at p <= 13.
+2. **Exact flat check** on random draws at the model's k: minimum weight of a word supported on
+   an affine line / plane (a rigorous upper bound on d).
+
+| p, m | r | best model window | needed d | exact flat words at that k | verdict |
+|---|---|---|---|---|---|
+| 3, 6 | 3 (budget 2) | none (rho = 78, |X| >= 432: n/k >= 4.5 at k = rho) | - | - | no window |
+| 5, 4 | 4 (budget 3; r = 5 has budget 0) | none (rho = 70, |X| >= 475) | - | - | no window; the unweighted r = 5 [[519,106,5]]_5 stands |
+| 13, 2 | 7 | parabola x1^2 + x2, k = 19, gamma 0.95 | 8 | lines: weight 4-5 (5/5 draws) | dead |
+| 11, 3 | 8 | cubic sum x_i^3 + c, k = 138, gamma 0.93 | 9 | lines: weight 5 (2/2 draws) | dead |
+| 13, 3 | 11 | quadric x1^2+x2^2+x3^2+1, k = 221, gamma 0.96 | 9 | lines: weight 5 (1 draw, 5267 dependent lines) | dead |
+| 3, 7 | 4 (budget 1, linear charges) | x7 + c (X = two parallel hyperplanes, 1458 pts, rho = 246), k = 196, gamma 0.957 at d = 7 | 7 | full-code MITM: d = 5, 4 (2/2 draws; `scratchpad/p3m7_probe.py`) | dead |
+
+**Why lines kill p = 11 and 13.** RM(r, m) restricted to a line is RM(r, 1), the full function
+space on the p points only when r >= p - 1. For r < p - 1 every line carries dual words (weight
+p - 1 on a full line, less after removing the outputs and the charge zeros on it), and a
+weighted support leaves lines essentially full. At p = 7, m = 4 we had r = 7 >= 6, so no line
+words; at p = 11 and 13 the condition r >= p - 1 fails at m = 3 (r_max = 9, 11) and holds only at
+m = 4, where n > 10^4 and no exact certificate is in reach. So weighted supports do not reopen
+p = 11, 13 at any size we can certify. At p = 3 and 5 the class ranks are too small for a window
+at m <= 6 / m <= 4 (every unit is a cube at p = 3, 5, 11, so there is a single class and no
+class-block structure either).
 
 ## Caveats
 

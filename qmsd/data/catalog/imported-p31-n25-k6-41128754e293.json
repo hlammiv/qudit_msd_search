@@ -1,0 +1,29 @@
+{
+  "A_d": 1593900,
+  "Ad_evidence": "Exact during qmsd search",
+  "artifact_id": "imported-p31-n25-k6-41128754e293",
+  "d": 5,
+  "distance_evidence": "Certified by the qmsd search engine",
+  "family": "imported explicit search",
+  "gamma_value": 0.8867172474406217,
+  "k": 6,
+  "label": "[[25,6,5]]_31",
+  "m": 1,
+  "n": 25,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 1, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": \"23-97\", \"sampler\": \"reed_solomon_closed_form\", \"seed\": 0, \"target_k\": null, \"top\": 17, \"trials\": 0}",
+  "p": 31,
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "r": 9,
+  "schema": "qmsd.catalog-record.v1",
+  "source": "rs_family_p23_97.json",
+  "status": "confirmed",
+  "w": null
+}
