@@ -24,3 +24,17 @@
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 23, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 198, "tries": 3}
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 24, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 186, "tries": 1}
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 25, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 197, "tries": 6}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 26, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 162, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 27, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 166, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 28, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 168, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 29, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 164, "tries": 2}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 30, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 161, "tries": 5}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 31, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 165, "tries": 4}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 32, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 164, "tries": 2}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 33, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 170, "tries": 3}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 34, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 162, "tries": 2}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 35, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 163, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 36, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 162, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 37, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 154, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 38, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 164, "tries": 4}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 39, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 170, "tries": 1}
