@@ -13,7 +13,7 @@ have one. gamma = ln(n/k)/ln d.*
 | 13 | [[141,28,4]]_13 (ours, m = 2 search; [[147,22,5]]_13 at 1.180) | 1.166 | MITM exact | 2D-cap prediction is [[143,26,5]] (1.059); 150 trials/k found d = 4 at k = 26, d = 5 only at k = 22 |
 | 17 | [[237,52,6]]_17 (ours) | 0.847 | MITM exact, two-way | first small gamma < 1 search code; 330x smaller than the analytic family |
 | 19 | [[299,62,6]]_19 (ours, m = 2 line-spread sweep, 2026-10-28; was [[293,68,5]]_19 at 0.908) | 0.878 | no weight <= 5 (MITM) + explicit weight-6 line word | 3 of 3 draws at k = 62 with <= 7 outputs per line give d = 6; k = 65, 68 running |
-| 23 | [[18,5,4]]_23 (RS) | 0.924 | MITM exact; eps* = 0.396 | Reed-Solomon m = 1 family from here on: closed-form d = r - k + 2, A_d = C(n,d)(p-1) |
+| 23 | [[429,100,6]]_23 (ours, m = 2 line-spread sweep, 2026-10-28); RS [[18,5,4]]_23 at 0.924 | 0.813 | no weight <= 5 (MITM, 1.9 h) + explicit weight-6 line word | first m = 2 code at p = 23: every one of 48 line-spread draws at k = 95-100 has line distance exactly 6; RS m = 1 family (closed form) is the small-n alternative from here on |
 | 29 | [[22,7,4]]_29 | 0.826 | MITM exact; eps* = 0.353 | |
 | 31 | [[25,6,5]]_31 | 0.887 | MITM exact; eps* = 0.416 | |
 | 37 | [[29,8,5]]_37 | 0.800 | MITM exact; eps* = 0.383 | |

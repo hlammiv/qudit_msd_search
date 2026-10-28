@@ -14,3 +14,13 @@
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 13, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 234, "tries": 3}
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 14, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 223, "tries": 1}
 {"p": 23, "m": 2, "r": 14, "k": 100, "seed": 15, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 212, "tries": 15}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 16, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 226, "tries": 9}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 17, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 189, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 18, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 202, "tries": 3}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 19, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 196, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 20, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 197, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 21, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 192, "tries": 2}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 22, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 192, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 23, "n": 429, "checks": 20, "max_line": 9, "d_lines": 6, "t_lines": 198, "tries": 3}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 24, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 186, "tries": 1}
+{"p": 23, "m": 2, "r": 14, "k": 100, "seed": 25, "n": 429, "checks": 20, "max_line": 10, "d_lines": 6, "t_lines": 197, "tries": 6}
