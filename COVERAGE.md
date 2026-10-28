@@ -50,7 +50,10 @@ Notes.
 `runs/coverage/gamma_vs_p.png` (`scratchpad/gamma_vs_p_plot.py`). Top: the paper's asymptotic
 optimum gamma_0(p) (its Figure 6 / Table 1; our `qmsd asymptotic` reproduces every tabulated value
 to 5 digits and extends it to p = 97), the paper's finite codes (Table 2 Manhattan family, Table 3
-search codes), and our catalog's best code per prime. Bottom: block sizes (the paper's Figure 2).
+search codes), the best k = 1 code per prime from the 2026 cyclic (arXiv:2610.08012) and doubling
+(arXiv:2610.29457) papers ([[37,1,5]]_3 2.24, [[16,1,4]]_5 2.00, [[7,1,3]]_7 1.77: those papers optimise
+length and cost at a single output, not gamma), and our catalog's best code per prime. Bottom: block
+sizes (the paper's Figure 2).
 
 | p | paper's best finite code | gamma | n | ours | gamma | n |
 |---|---|---|---|---|---|---|

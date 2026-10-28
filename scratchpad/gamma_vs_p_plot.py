@@ -18,9 +18,9 @@ ours = {3: (206, 1.239, "[[206,37,4]]", "paper puncture set"), 5: (519, 0.987, "
         23: (18, .924, "[[18,5,4]]", "RS"), 29: (22, .826, "", "RS"), 31: (25, .887, "", "RS"), 37: (29, .800, "", "RS"), 41: (31, .703, "", "RS"), 43: (34, .742, "", "RS"),
         47: (36, .662, "", "RS"), 53: (40, .627, "", "RS"), 59: (45, .600, "", "RS"), 61: (47, .622, "", "RS"), 67: (51, .596, "", "RS"), 71: (53, .555, "", "RS"),
         73: (56, .573, "", "RS"), 79: (60, .553, "", "RS"), 83: (62, .521, "", "RS"), 89: (67, .507, "", "RS"), 97: (73, .506, "", "RS")}
-C = {"blue": "#2a78d6", "orange": "#eb6834", "aqua": "#1baf7a", "violet": "#6250d6", "ink": "#2b2b2b", "muted": "#8a8a85", "grid": "#e6e6e3", "surface": "#fcfcfb"}
+C = {"yellow": "#eda100", "blue": "#2a78d6", "orange": "#eb6834", "aqua": "#1baf7a", "violet": "#6250d6", "ink": "#2b2b2b", "muted": "#8a8a85", "grid": "#e6e6e3", "surface": "#fcfcfb"}
 plt.rcParams.update({"font.size": 10, "axes.edgecolor": C["muted"], "axes.labelcolor": C["ink"], "xtick.color": C["ink"], "ytick.color": C["ink"], "figure.facecolor": C["surface"], "axes.facecolor": C["surface"]})
-fig, (a1, a2) = plt.subplots(2, 1, figsize=(8.5, 8), sharex=True, gridspec_kw={"height_ratios": [1.15, 1], "hspace": 0.12})
+fig, (a1, a2) = plt.subplots(2, 1, figsize=(8.5, 8.8), sharex=True, gridspec_kw={"height_ratios": [1.15, 1], "hspace": 0.12})
 for a in (a1, a2):
     a.grid(True, color=C["grid"], linewidth=0.8); a.set_axisbelow(True)
     for s in ("top", "right"): a.spines[s].set_visible(False)
@@ -32,10 +32,13 @@ new = [p for p in primes if ours[p][3].startswith("new")]; rs = [p for p in prim
 a1.plot(rs, [ours[p][1] for p in rs], "D", color=C["aqua"], markersize=7, markeredgecolor=C["surface"], markeredgewidth=1.5, label="our catalog: Reed–Solomon family, min-γ member (p ≥ 23)")
 a1.plot(new, [ours[p][1] for p in new], "D", color=C["violet"], markersize=9, markeredgecolor=C["surface"], markeredgewidth=1.5, label="our catalog: new search codes")
 a1.plot(same, [ours[p][1] for p in same], "D", color=C["muted"], markersize=7, markeredgecolor=C["surface"], markeredgewidth=1.5, label="our catalog = paper's code (p = 3, 5)")
-a1.axhline(1.0, color=C["ink"], linewidth=1, linestyle="--"); a1.text(97, 1.02, "γ = 1", ha="right", va="bottom", color=C["ink"], fontsize=9)
-offs = {7: (-6, 14), 11: (10, 6), 13: (10, 4), 17: (-8, -30), 19: (10, -14)}
-for p in new: a1.annotate(f"{ours[p][2]}  γ={ours[p][1]:.3f}", (p, ours[p][1]), textcoords="offset points", xytext=offs[p], fontsize=7.5, color=C["ink"], ha="left" if offs[p][0] > 0 else "right")
-a1.set_ylabel("γ = ln(n/k) / ln d"); a1.set_ylim(0.15, 1.35); a1.legend(loc="upper right", fontsize=8, frameon=False)
+k1best = {3: (37, 2.242, "[[37,1,5]]₃ doubling"), 5: (16, 2.000, "[[16,1,4]]₅ cyclic"), 7: (7, 1.771, "[[7,1,3]]₇ cyclic")}
+a1.plot(list(k1best), [v[1] for v in k1best.values()], "^", color=C["yellow"], markersize=9, markeredgecolor=C["surface"], markeredgewidth=1.5, label="2026 papers: best k = 1 cyclic / doubling code (arXiv:2610.08012, 2610.29457)")
+for p, v in k1best.items(): a1.annotate(v[2], (p, v[1]), textcoords="offset points", xytext=(9, -4), fontsize=7.5, color=C["ink"])
+a2.plot(list(k1best), [v[0] for v in k1best.values()], "^", color=C["yellow"], markersize=9, markeredgecolor=C["surface"], markeredgewidth=1.5, label="2026 papers: best k = 1 code")
+a1.axhline(1.0, color=C["ink"], linewidth=1, linestyle="--"); a1.text(97, 1.03, "γ = 1", ha="right", va="bottom", color=C["ink"], fontsize=9)
+a1.text(0.985, 0.62, "our new codes\n" + "\n".join(f"p = {p}: {ours[p][2]}  γ = {ours[p][1]:.3f}" for p in new), transform=a1.transAxes, ha="right", va="top", fontsize=8, color=C["ink"], bbox=dict(boxstyle="round,pad=0.4", facecolor=C["surface"], edgecolor=C["grid"]))
+a1.set_ylabel("γ = ln(n/k) / ln d"); a1.set_ylim(0.15, 2.45); a1.legend(loc="upper right", fontsize=8, frameon=False)
 a1.set_title("Overhead exponent γ by qudit dimension p: arXiv:2510.10852 vs our catalog (best certified code per prime)", fontsize=10.5, loc="left", color=C["ink"])
 # --- panel 2: block size vs p (log)
 a2.plot(list(paper_manh), [v[0] for v in paper_manh.values()], "o", color=C["orange"], markersize=8, markeredgecolor=C["surface"], markeredgewidth=1.5, label="paper: Manhattan codes n_min (Fig. 2)")
