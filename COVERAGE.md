@@ -9,8 +9,8 @@ have one. gamma = ln(n/k)/ln d.*
 | 3 | [[206,37,4]]_3 (paper's puncture set, A_d 572 ours) | 1.239 | MITM exact | gamma < 1 impossible for unweighted RM (flat cap); weighted m <= 7 probed, no window (`WEIGHTED_SUPPORTS.md`) |
 | 5 | [[519,106,5]]_5 (paper) | 0.987 | MITM exact (10 s) | the only p <= 13 crossing; Singleton-infeasible at m <= 3 |
 | 7 | [[1756,260,7]]_7 (weighted sphere, ours) | 0.982 | three-part proof + weight-7 witness | first gamma < 1 at p = 7; 130 further d >= 7 candidates at k = 265-270 await certification |
-| 11 | P11_ROW | | | 2D-capped for unweighted RM; weighted supports dead by line words (r < p-1) |
-| 13 | P13_ROW | | | same as p = 11 |
+| 11 | [[100,21,4]]_11 (ours, m = 2 flat-spread search) | 1.126 | MITM exact | equals the 2D-cap prediction of the no-go; weighted supports dead by line words (r < p-1) |
+| 13 | [[141,28,4]]_13 (ours, m = 2 search; [[147,22,5]]_13 at 1.180) | 1.166 | MITM exact | 2D-cap prediction is [[143,26,5]] (1.059); 150 trials/k found d = 4 at k = 26, d = 5 only at k = 22 |
 | 17 | [[237,52,6]]_17 (ours) | 0.847 | MITM exact, two-way | first small gamma < 1 search code; 330x smaller than the analytic family |
 | 19 | [[293,68,5]]_19 (ours) | 0.908 | MITM exact | |
 | 23 | [[18,5,4]]_23 (RS) | 0.924 | MITM exact; eps* = 0.396 | Reed-Solomon m = 1 family from here on: closed-form d = r - k + 2, A_d = C(n,d)(p-1) |
@@ -37,7 +37,37 @@ Notes.
   bundle `runs/coverage/rs_family_p23_97.json`); every k is admissible and the distance does not
   depend on which columns are punctured. Exact single-round thresholds (arXiv:2610.08012 model) are
   stored for p <= 41 (`qmsd/data/performance/`).
-- p = 11 and 13 rows come from the m = 2 flat-spread search on loranne (`runs/coverage/p1[13]_m2_k*.json`),
-  the first cataloged codes at those primes. The no-go (`D_NEGATIVE_RESULT.md`) predicts the 2D cap
-  [[100,21,4]]_11 (gamma 1.126) and [[143,26,5]]_13 (gamma 1.059) as the best RM constructions.
+- p = 11 and 13 rows come from the m = 2 flat-spread search on loranne (`runs/coverage/p1[13]_m2_k*.json`,
+  150 trials at each of 8-9 values of k, all imported), the first cataloged codes at those primes. The no-go
+  (`D_NEGATIVE_RESULT.md`) predicts the 2D cap [[100,21,4]]_11 (gamma 1.126, reached) and [[143,26,5]]_13
+  (gamma 1.059, not reached: d = 4 at k = 26 in 150 trials).
 - The analytic Manhattan family (astronomical n) is cataloged separately and is not a "small code".
+
+## Comparison with arXiv:2510.10852 (Figures 2 and 6)
+
+![gamma vs p](runs/coverage/gamma_vs_p.png)
+
+`runs/coverage/gamma_vs_p.png` (`scratchpad/gamma_vs_p_plot.py`). Top: the paper's asymptotic
+optimum gamma_0(p) (its Figure 6 / Table 1; our `qmsd asymptotic` reproduces every tabulated value
+to 5 digits and extends it to p = 97), the paper's finite codes (Table 2 Manhattan family, Table 3
+search codes), and our catalog's best code per prime. Bottom: block sizes (the paper's Figure 2).
+
+| p | paper's best finite code | gamma | n | ours | gamma | n |
+|---|---|---|---|---|---|---|
+| 3 | [[206,37,4]]_3 (Table 3) / Manhattan | 1.239 / 0.990 | 206 / 1.9e15 | same code (A_d 572 vs 880) | 1.239 | 206 |
+| 5 | [[519,106,5]]_5 (Table 3) / Manhattan | 0.987 / 0.980 | 519 / 1.5e11 | same code | 0.987 | 519 |
+| 7 | Manhattan | 0.990 | 9.6e10 | [[1756,260,7]]_7 | 0.982 | 1756 |
+| 11 | Manhattan | 0.964 | 1.9e7 | [[100,21,4]]_11 | 1.126 | 100 |
+| 13 | Manhattan | 0.975 | 6.1e7 | [[141,28,4]]_13 | 1.166 | 141 |
+| 17 | Manhattan | 0.946 | 77540 | [[237,52,6]]_17 | 0.847 | 237 |
+| 19 | Manhattan | 0.967 | 121470 | [[293,68,5]]_19 | 0.908 | 293 |
+| 23 | [[17,6,3]]_23 (RS) | 0.948 | 17 | [[18,5,4]]_23 (RS) | 0.924 | 18 |
+| 29-97 | (RS family cited, not tabulated) | | | RS min-gamma member | 0.826 -> 0.506 | 22 -> 73 |
+
+Reading. (i) Every finite code, theirs or ours, sits far above gamma_0(p): the asymptotic curve is
+an n -> infinity statement, and at p = 7 the gap is 0.98 vs 0.51. (ii) Where we have new codes
+(p = 7, 17, 19) we beat the paper's Manhattan gamma at block sizes 10^3 to 10^8 times smaller; at
+p = 11 and 13 we do not cross 1 at all (the flat cap), while the paper crosses only with n ~ 10^7.
+(iii) From p = 23 the RS family is the whole story and gamma falls to 0.5 by p = 97 with n <= 73;
+the paper lists only the p = 23 member. (iv) p = 3 is unchanged from the paper in gamma; our
+contribution there is A_d and the exact performance engine.
