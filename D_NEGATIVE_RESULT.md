@@ -24,6 +24,12 @@ small γ<1 code exists for p ≤ 13** — closing the gap below the p=17 boundar
   triorthogonality over a prime field, a degeneracy of shortening to a low-redundancy CSS X-stabilizer,
   not an artifact of Reed–Muller geometry.**
 
+**Scope (added 2026-10-28).** This result is about *unweighted* evaluation codes: every column is a
+grid point with charge 1. It does not cover the *weighted* supports of arXiv:2610.29457 (columns
+x ∈ supp g with charge g(x), triorthogonality as a weighted moment condition), which escape the
+forced-grid argument; those gave the first γ < 1 code at p = 7, [[1756,260,7]]₇ (γ = 0.982, see
+`WEIGHTED_SUPPORTS.md`). Weighted supports at p = 3, 11, 13 are open.
+
 One honest gap remains (§7): a single high-dimensional general-position regime is not constructively
 reachable and not closed by theorem (estimated <5% chance of hiding a survivor).
 
