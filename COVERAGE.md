@@ -8,7 +8,7 @@ have one. gamma = ln(n/k)/ln d.*
 |---|---|---|---|---|
 | 3 | [[206,37,4]]_3 (paper's puncture set, A_d 572 ours) | 1.239 | MITM exact | gamma < 1 impossible for unweighted RM (flat cap); weighted m <= 7 probed, no window (`WEIGHTED_SUPPORTS.md`) |
 | 5 | [[519,106,5]]_5 (paper) | 0.987 | MITM exact (10 s) | the only p <= 13 crossing; Singleton-infeasible at m <= 3 |
-| 7 | [[1756,260,7]]_7 (weighted sphere, ours) | 0.982 | three-part proof + weight-7 witness | first gamma < 1 at p = 7; 130 further d >= 7 candidates at k = 265-270 await certification |
+| 7 | [[1746,270,>=7]]_7 (weighted sphere, sweep seed 407; d = 7 or 8) and [[1756,260,7]]_7 (d = 7 exact) | <= 0.959 (0.898 if d = 8); 0.982 exact | three-part lower bound (block weight-6 scan, full weight-5 scan, mixed-word exclusion); the 260 code also has an explicit weight-7 word | first gamma < 1 at p = 7; two more candidates (k = 270, 265, with stored weight-7 witnesses) in certification, see CERTIFY_P7.md |
 | 11 | [[100,21,4]]_11 (ours, m = 2 flat-spread search) | 1.126 | MITM exact | equals the 2D-cap prediction of the no-go; weighted supports dead by line words (r < p-1) |
 | 13 | [[141,28,4]]_13 (ours, m = 2 search; [[147,22,5]]_13 at 1.180) | 1.166 | MITM exact | 2D-cap prediction is [[143,26,5]] (1.059); 150 trials/k found d = 4 at k = 26, d = 5 only at k = 22 |
 | 17 | [[237,52,6]]_17 (ours) | 0.847 | MITM exact, two-way | first small gamma < 1 search code; 330x smaller than the analytic family |

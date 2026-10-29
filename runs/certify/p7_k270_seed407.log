@@ -1,0 +1,8 @@
+[      2s] k=270 seed=407: n=1746, class block (32, 402) rank 21, d_plane 8
+[    423s] block weight<=5: None
+[   4377s] block weight-6 witness (3+3): None
+[   4486s] full weight<=4: None
+[  40426s] full weight-5 exists: False
+[  40635s] mixed weight-6: kernel dim 35 (expect 35), lines 137200, candidates 1197504, hits 0
+[  40635s] d >= 7 (block6 + full5 + mixed6)
+[  40635s] no stored witness: running the 3+4 scan on the class block (early exit)

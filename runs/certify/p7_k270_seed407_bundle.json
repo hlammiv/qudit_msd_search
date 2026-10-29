@@ -1,0 +1,34 @@
+{
+ "schema": "qmsd.search-results.v1",
+ "search": {
+  "p": 7,
+  "m": 4,
+  "sampler": "weighted sphere-charge sweep (scratchpad/plane_sweep.py) + certify_candidate.py",
+  "trials": 1,
+  "seed": 407,
+  "target_k": 270,
+  "top": 1,
+  "jobs": 1,
+  "max_triples": 0,
+  "min_keep_distance": null
+ },
+ "codes": [
+  {
+   "p": 7,
+   "m": 4,
+   "r": 7,
+   "n": 1746,
+   "k": 270,
+   "d": 7,
+   "gamma": 0.9592738792730929,
+   "A_d": null,
+   "A_d_exact": null,
+   "full_rank": true,
+   "distance_certified": false,
+   "label": "[[1746,270,>=7]]_7",
+   "puncture_columns_1indexed": null,
+   "w": null,
+   "note": "WEIGHTED support (sphere charge x1^2+..+x4^2 on F_7^4, outputs = 270 cube-class points of X, sweep seed 407 = runs/weighted/plane_sweep cols_in_X); NOT a plain punctured RM code: rebuild with qmsd.weighted (cols_in_X in runs/certify/p7_k270_seed407.json). d >= 7 certified (block weight-6 3+3 scan, full weight-5 scan, mixed-word exclusion); plane distance 8, no 3-flat weight-7 word found; d = 8 (gamma 0.898) open."
+  }
+ ]
+}

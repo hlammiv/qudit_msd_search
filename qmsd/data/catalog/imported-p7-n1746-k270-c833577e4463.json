@@ -1,0 +1,22 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p7-n1746-k270-c833577e4463",
+  "d": 7,
+  "distance_evidence": "Not certified by the qmsd search engine",
+  "family": "imported analytic Manhattan",
+  "gamma_value": 0.9592738792730929,
+  "k": 270,
+  "label": "[[1746,270,>=7]]_7",
+  "m": 4,
+  "n": 1746,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 4, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 7, \"sampler\": \"weighted sphere-charge sweep (scratchpad/plane_sweep.py) + certify_candidate.py\", \"seed\": 407, \"target_k\": 270, \"top\": 1, \"trials\": 1}",
+  "p": 7,
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": null,
+  "r": 7,
+  "schema": "qmsd.catalog-record.v1",
+  "source": "p7_k270_seed407_bundle.json",
+  "status": "partial",
+  "w": null
+}

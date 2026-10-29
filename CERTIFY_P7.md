@@ -27,8 +27,8 @@ A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma
 
 | # | candidate | why | status | result |
 |---|---|---|---|---|
-| 1 | k = 270 seed 407 | the only draw with plane distance 8; d = 7 (gamma 0.959) or d = 8 (gamma 0.898) | running (chain started 2026-10-29) | |
-| 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | queued after 1 | |
+| 1 | k = 270 seed 407 | the only draw with plane distance 8; d = 7 (gamma 0.959) or d = 8 (gamma 0.898) | **d >= 7 certified** 2026-10-29 (block6 73 min, full5 10.0 h, mixed6 3.5 min: 1 197 504 line-word candidates, 0 extensions); witness scan deferred | [[1746,270,>=7]]_7, gamma <= 0.959; d = 8 open |
+| 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | running: block6 passed (81 min), in full5 | |
 | 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | queued after 2 | |
 
 **Throttling (2026-10-29/30).** Lenore runs at load 31-39 with the owner's circuit-knitting jobs, so the

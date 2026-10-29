@@ -95,6 +95,7 @@ up the cube class.
 |---|---|---|---|---|---|
 | [[1746,270,6]]_7 weight-6 witness | (3,1,4,6) (1,4,4,6) (2,0,6,6) (0,1,2,6) (5,1,3,6) (3,2,6,6) | 2 | 2 | 6 6 6 6 1 1 | 3 3 3 3 1 1 |
 | [[1756,260,7]]_7 weight-7 witness | (3,4,0,2) (2,1,1,4) (4,0,3,4) (5,3,0,0) (3,4,6,1) (0,2,0,5) (0,2,1,6) | 2 | 5 | 1 1 6 6 6 1 6 | 3 3 1 1 1 3 1 |
+| [[1746,270,>=7]]_7 (sweep k = 270 seed 407, d_plane = 8) | F_7^4 | <= 0.959 (0.898 if d = 8) | d >= 7: block weight-6 scan + full weight-5 scan + mixed-word exclusion (2026-10-29, `CERTIFY_P7.md`); no planar or 3-flat weight-7 word found; d = 8 open |
 | k = 260 sample 0 (d = 4), its unique weight-4 word | (6,3,4,1) (1,6,3,3) (1,2,2,5) (6,4,3,6) | 3 | 0 | 6 6 6 6 | 1 3 3 2 |
 
 Why planes are special: the block checks are the 291 - k residual rows of RM(3,4) restricted
