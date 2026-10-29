@@ -160,7 +160,7 @@ A weight-7 witness (3+4 on the class block, 5.8 h; G0 columns [523, 1045, 1117, 
 block of 8 leading columns held none, so the random-model ~160 is an overestimate. The cost needs
 the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current probe rate).
 **Todo (queued 2026-10-27, not started):**
-- [ ] Cost of [[1756,260,7]]₇: (a) rigorous bound now — count every accepted error of weight ≥ 7
+- [~] Cost of [[1756,260,7]]₇ — weight-7 counting kernel in progress 2026-10-29 (see `CERTIFY_P7.md`). (a) rigorous bound now — count every accepted error of weight ≥ 7
   as a failure (ε_out ≤ Σ_{w≥7} C(n,w) ε^w / P_acc; ≤ 3e-24 behind one [[7,1,3]]₇ round) and
   run the protocol optimizer on that curve; (b) exact leading order — full weight-7 census on
   the class block (3+4, ~1.5e12 probes, ~12 h on an idle lenore) → `marginal_saving`.
@@ -168,7 +168,8 @@ the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current 
   2026-10-27/28: 1323 draws; survivor rate 13% at k = 265, 8% at k = 270, 0 at 275 (accidental
   non-planar words take over; verified). 79 + 51 candidates in `runs/weighted/plane_sweep/`
   (`summary.json`); k = 270 seed 407 has d_plane = 8. See WEIGHTED_SUPPORTS.md.
-- [ ] Certify the candidates on lenore (needs ~30 idle cores): order k = 270 seed 407 first
+- [~] Certify the candidates on lenore — STARTED 2026-10-29 at 8 threads, nice 19 (chain 407 → k270 s19 → k265 s8; driver
+  `scratchpad/certify_candidate.py`, status in `CERTIFY_P7.md`). Original plan: order k = 270 seed 407 first
   (3+3 weight-6 block scan ~10 min, full weight ≤ 5 scan ~2.75 h, then weight-7 witness; no
   witness after the full 3+4 scan would prove d = 8, γ 0.898), then other k = 270 survivors
   (γ 0.959 at d = 7), then k = 265 (γ 0.960). Stop after the first success per k.
