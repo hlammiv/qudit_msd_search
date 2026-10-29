@@ -34,7 +34,10 @@ and by single-round distillation cost `C`.
   i.e. shorter triorthogonal spaces with charge coefficients). Notes:
   `literature/2610.29457_NOTES.md`; results: **`WEIGHTED_SUPPORTS.md`** (the first γ < 1
   search code at p = 7, its certificate and the class-block lemma behind it).
-- **`tests/`** — 394 tests anchored to the published results of the papers.
+- **`CATALOG.md`** — the catalog record schema (v2): every code carries a rebuild recipe, a
+  structured distance certificate (bounds, methods, witness), performance pointers and geometry;
+  `qmsd catalog show <id>` prints them. `CERTIFY_P7.md` tracks the running certification queue.
+- **`tests/`** — 400 tests anchored to the published results of the papers.
 - **`IMPLEMENTATION_BLUEPRINT.md`**, **`STATUS.md`** — design and honest build status.
 
 ## Highlights
@@ -53,7 +56,7 @@ and by single-round distillation cost `C`.
 - Reproduces arXiv:2610.08012 **Table 2** (leading order, threshold, acceptance) to the printed
   digits, and gives exact thresholds or rigorous threshold lower bounds for the catalog codes
   (`PERFORMANCE.md`).
-- **387 tests pass, 7 skipped** (`python -m pytest -q`).
+- **393 tests pass, 7 skipped** (`python -m pytest -q`).
 
 ## Quickstart
 

@@ -289,10 +289,21 @@ def puncture_columns_of(record):
 
 
 def record_matrices(record):
-    """(G0, H1) for a punctured-RM catalog record (columns from ``puncture_columns_of``)."""
+    """(G0, H1) rebuilt from the record's ``construction`` block (CATALOG.md): punctured RM /
+    Reed-Solomon from the puncture columns, weighted supports from the charge polynomial and
+    the outputs in X, small Manhattan records from their weight-w point set."""
     from .reedmuller import r_max, rm_generator
     from .triorthogonal import build_triorthogonal_code
 
+    cons = getattr(record, "construction", None) or {}
+    if cons.get("family") == "weighted_rm":
+        from .weighted import weighted_support, quadric, weighted_code
+        ch = cons["charge"]
+        assert ch.get("kind") == "quadric", "only quadric charges are stored so far"
+        g = quadric(cons["p"], cons["m"], tuple(ch["diag"]), tuple(ch.get("lin") or ()), int(ch.get("const", 0)))
+        GX, X, mu = weighted_support(cons["p"], cons["m"], g, cons["r"])
+        G0, H1, _ = weighted_code(GX, mu, list(cons["outputs_in_X"]), cons["p"])
+        return np.asarray(G0, dtype=np.int64) % cons["p"], np.asarray(H1, dtype=np.int64) % cons["p"]
     p, m = record.p, record.m
     assert m is not None, "record has no RM parameters"
     r = record.r if record.r is not None else r_max(m, p)

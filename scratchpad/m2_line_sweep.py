@@ -55,10 +55,9 @@ for s in range(nseeds):
             coefs = np.array(list(itertools.product(range(p), repeat=ns.shape[0])))[1:]
             w = int((((coefs @ ns) % p) != 0).sum(axis=1).min()); dl = min(dl, w)
         else:        # heavily punctured line: MITM with the cheap a = 2 tables only (d <= 5)
-            for d in range(2, min(dl, 6)):
+            for d in range(2, min(dl, 7)):   # MITM to weight 6 is exact on these small sub-problems
                 if weight_d_exists_fast(M, p, d): dl = d; break
-            else:
-                if dl > 6: dl = 6  # unresolved: treat as <= 6 so the draw is not over-credited
+            # no word of weight <= 6 on this line => its line distance is >= 7 (dl unchanged)
     rec = {"p": p, "m": m, "r": r, "k": k, "seed": s, "n": G0.shape[1], "checks": G0.shape[0], "max_line": ml, "d_lines": dl if dl < 99 else ">=7", "t_lines": round(time.time() - t0), "tries": tries}
     if dl >= 6 and not nofull:
         t1 = time.time(); df = None

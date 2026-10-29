@@ -88,6 +88,40 @@ def _cmd_search(args) -> int:
     return 0
 
 
+def _cmd_catalog_migrate(args) -> int:
+    from .catalog import migrate_catalog
+    res = migrate_catalog(args.catalog_dir)
+    print(f"catalog: {res['directory']}\nupgraded to v2: {len(res['upgraded'])}\nalready v2: {len(res['unchanged'])}")
+    return 0
+
+
+def _cmd_catalog_show(args) -> int:
+    import json as _json
+    from .results import load_result_catalog, record_dict
+    recs = {r.artifact_id: r for r in load_result_catalog()}
+    rc = 0
+    for aid in args.ids:
+        r = recs.get(aid)
+        if r is None:
+            print(f"no such artifact: {aid}", file=sys.stderr); rc = 1; continue
+        d = record_dict(r)
+        if not args.json:
+            cert = d.get("certificate") or {}
+            cons = d.get("construction") or {}
+            print(f"{r.label}  [{r.status}]  artifact {r.artifact_id}")
+            print(f"  p={r.p} n={r.n} k={r.k} d={r.d} gamma={r.gamma if r.gamma is None else round(r.gamma, 4)}  family: {r.family}")
+            print(f"  construction: {cons.get('family')} (m={cons.get('m')}, r={cons.get('r')})" + (f", {len(cons.get('puncture_columns_1indexed', []))} puncture columns" if cons.get('puncture_columns_1indexed') else "") + (f", charge {cons.get('charge')}, {len(cons.get('outputs_in_X', []))} outputs in X" if cons.get('family') == 'weighted_rm' else ""))
+            print(f"  certificate: lower {cert.get('lower_bound')} ({cert.get('lower_method', '')}); upper {cert.get('upper_bound')} ({cert.get('upper_method', '')}); exact={cert.get('exact')}; witness={'yes' if cert.get('witness') else 'no'}; stages={len(cert.get('stages') or [])}; {cert.get('machine', '')} {cert.get('date', '')}")
+            perf = d.get("performance") or {}
+            print(f"  performance: exact_curve={perf.get('exact_curve')} bounds={perf.get('rigorous_bounds')} census={'yes' if perf.get('census') else 'no'} acceptance_mc={'yes' if perf.get('acceptance_mc') else 'no'}; stored perf record: {'yes' if d.get('performance_record') else 'no'}")
+            if d.get("geometry"): print(f"  geometry: {d['geometry']}")
+            print(f"  evidence: {r.distance_evidence} | A_d: {r.Ad_evidence}")
+            if r.note: print(f"  note: {r.note[:300]}")
+        else:
+            print(_json.dumps(d, indent=1, default=str))
+    return rc
+
+
 def _cmd_catalog_import(args) -> int:
     from .catalog import import_search_export
     try:
@@ -315,6 +349,13 @@ def main(argv=None) -> int:
     pci.add_argument("--status", choices=["confirmed", "partial", "candidate"],
                      help="override inferred evidence status; confirmed still requires certification")
     pci.set_defaults(func=_cmd_catalog_import)
+    pcm = pcsub.add_parser("migrate", help="rewrite v1 catalog records as v2 (construction/certificate/performance/geometry blocks)")
+    pcm.add_argument("--catalog-dir", help="override qmsd/data/catalog")
+    pcm.set_defaults(func=_cmd_catalog_migrate)
+    pcs = pcsub.add_parser("show", help="print a catalog record with its construction, certificate and performance blocks")
+    pcs.add_argument("ids", nargs="+", help="artifact ids")
+    pcs.add_argument("--json", action="store_true", help="full JSON instead of the summary")
+    pcs.set_defaults(func=_cmd_catalog_show)
 
     pr = sub.add_parser("reconstruct", help="rebuild a published oracle code from its punctures")
     pr.add_argument("--label", type=str, required=True, help='e.g. "[[20,5,2]]_5"')

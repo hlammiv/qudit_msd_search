@@ -2,16 +2,52 @@
   "A_d": 4275180,
   "Ad_evidence": "Exact during qmsd search",
   "artifact_id": "imported-p37-n29-k8-98fc2b500b10",
+  "certificate": {
+    "date": "2026-10-28",
+    "exact": true,
+    "lower_bound": 5,
+    "lower_method": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4); MITM exact d = r - k + 2 (min_dependent_columns)",
+    "machine": "local",
+    "refuted": false,
+    "stages": [],
+    "upper_bound": 5,
+    "upper_method": "closed-form MDS (any k+... columns) + MITM dependent set",
+    "witness": null
+  },
+  "construction": {
+    "family": "reed_solomon",
+    "m": 1,
+    "p": 37,
+    "puncture_columns_1indexed": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "r": 11
+  },
   "d": 5,
-  "distance_evidence": "Certified by the qmsd search engine",
+  "distance_evidence": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4); MITM exact d = r - k + 2 (min_dependent_columns)",
   "family": "imported explicit search",
   "gamma_value": 0.8001888599473205,
+  "geometry": null,
   "k": 8,
   "label": "[[29,8,5]]_37",
   "m": 1,
   "n": 29,
   "note": "Imported search parameters: {\"jobs\": 1, \"m\": 1, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": \"23-97\", \"sampler\": \"reed_solomon_closed_form\", \"seed\": 0, \"target_k\": null, \"top\": 17, \"trials\": 0}",
   "p": 37,
+  "performance": {
+    "acceptance_mc": null,
+    "census": null,
+    "exact_curve": true,
+    "notes": "exact curve + threshold stored for p <= 41 (qmsd perf)",
+    "rigorous_bounds": false
+  },
   "provenance": "qmsd CLI search import",
   "puncture_columns": [
     1,
@@ -24,7 +60,7 @@
     8
   ],
   "r": 11,
-  "schema": "qmsd.catalog-record.v1",
+  "schema": "qmsd.catalog-record.v2",
   "source": "rs_family_p23_97.json",
   "status": "confirmed",
   "w": null

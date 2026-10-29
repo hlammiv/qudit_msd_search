@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 import numpy as np
 
@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import Iterable, Literal
 
 from .codes import code_from_manhattan
-from .catalog import CATALOG_SCHEMA, catalog_directory
+from .catalog import (ACCEPTED_SCHEMAS, catalog_directory, certificate_block, construction_block,
+                      performance_block, status_from_certificate, upgrade_record)
 from .distillation import cost, delta_out_avg, nbar_T
 from .field import GFp
 from .oracle import load_oracle
@@ -50,6 +51,33 @@ class ResultRecord:
     Ad_evidence: str = "Not recorded"
     source: str = ""
     note: str = ""
+    construction: dict | None = field(default=None, hash=False, compare=False)  # v2: rebuild recipe (CATALOG.md)
+    certificate: dict | None = field(default=None, hash=False, compare=False)   # v2: distance bounds, methods, witness
+    performance: dict | None = field(default=None, hash=False, compare=False)   # v2: which performance data exist
+    geometry: dict | None = field(default=None, hash=False, compare=False)      # v2: search-family descriptors
+
+    def __post_init__(self):
+        # frozen dataclass: fill the structured blocks for records built in code
+        if self.m is None and self.puncture_columns:          # explicit record without m: n + k = p^m
+            total, mm = self.n + self.k, 0
+            while self.p ** mm < total: mm += 1
+            if self.p ** mm == total:
+                object.__setattr__(self, "m", mm)
+                if self.r is None:
+                    object.__setattr__(self, "r", (mm * (self.p - 1) - 1) // 3)
+        if self.construction is None:
+            object.__setattr__(self, "construction", _default_construction(self))
+        if self.certificate is None and self.status == "refuted":
+            object.__setattr__(self, "certificate", certificate_block(None, None, lower_method=self.distance_evidence, refuted=True))
+        if self.certificate is None and self.status != "candidate" and self.d is not None:
+            object.__setattr__(self, "certificate", certificate_block(
+                None if self.status == "refuted" else self.d, None if self.status == "refuted" else self.d,
+                lower_method=self.distance_evidence, upper_method=self.distance_evidence,
+                refuted=self.status == "refuted"))
+            if self.status == "partial":
+                self.certificate["exact"] = False
+        if self.performance is None:
+            object.__setattr__(self, "performance", performance_block())
 
     @property
     def gamma(self) -> float | None:
@@ -69,7 +97,22 @@ class ResultRecord:
 
     @property
     def distance_certified(self) -> bool:
+        if self.certificate is not None:
+            return bool(self.certificate.get("exact")) and self.status == "confirmed"
         return self.status == "confirmed" and self.d is not None
+
+    @property
+    def distance_lower_bound(self) -> int | None:
+        return (self.certificate or {}).get("lower_bound", self.d if self.distance_certified else None)
+
+
+def _default_construction(rec: "ResultRecord") -> dict:
+    if rec.puncture_columns:
+        fam = "reed_solomon" if rec.m == 1 else "punctured_rm"
+        return construction_block(fam, rec.p, rec.m, rec.r, puncture_columns_1indexed=list(rec.puncture_columns))
+    if rec.w is not None and rec.m is not None:
+        return construction_block("manhattan", rec.p, rec.m, rec.r, w=rec.w)
+    return {"family": "none", "p": rec.p, "m": rec.m, "r": rec.r}
 
 
 # Paper Table 3 counts, keyed independently of puncture-set identity.
@@ -192,8 +235,9 @@ def _imported_records(directory: Path,
     rows = []
     for name, _, _ in fingerprint:
         data = json.loads((directory / name).read_text())
-        if data.get("schema") != CATALOG_SCHEMA:
+        if data.get("schema") not in ACCEPTED_SCHEMAS:
             raise ValueError(f"unsupported catalog schema in {name!r}")
+        data = upgrade_record(data)
         rows.append(ResultRecord(
             artifact_id=data["artifact_id"], label=data["label"], p=int(data["p"]),
             m=data.get("m"), r=data.get("r"), w=data.get("w"), n=int(data["n"]),
@@ -207,6 +251,8 @@ def _imported_records(directory: Path,
             distance_evidence=data.get("distance_evidence", "Not recorded"),
             Ad_evidence=data.get("Ad_evidence", "Not recorded"),
             source=data.get("source", name), note=data.get("note", ""),
+            construction=data.get("construction"), certificate=data.get("certificate"),
+            performance=data.get("performance"), geometry=data.get("geometry"),
         ))
     return rows
 
@@ -320,7 +366,7 @@ def assessment(record: ResultRecord) -> dict | None:
 
 def record_dict(record: ResultRecord) -> dict:
     data = asdict(record)
-    data["performance"] = performance(record)
+    data["performance_record"] = performance(record)   # stored exact/bounds record (qmsd perf)
     data["assessment"] = assessment(record)
     data["gamma"] = record.gamma
     data["rate"] = record.rate
