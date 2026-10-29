@@ -42,8 +42,18 @@ ESCAPE_Z4_ALL = {1e-3: (6.6e-5, 0.62), 5e-4: (1.0e-5, 0.39)}   # all three class
 # first-order cost of the certified patterns capped at 0.2% (degenerate_cap=2): the best recipe measured
 ESCAPE_Z4_PAIRS = {1e-3: (9.1e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 6.7e-5 + Z 2.5e-5 (52 events in 2e6 attempts) at 1e-3; 2 events at 5e-4
 # ... plus complementary-gap postselection (PeelDecoder(gap=True), cut at 13): no failure in 1.14M kept attempts at 1e-3 ->
-# 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  Not yet measured at 5e-4.
-ESCAPE_Z4_GAP = {1e-3: (8e-6, 0.437)}
+# 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  At 5e-4: no failure in 0.75M kept attempts
+# per sector (1e6 attempts, 11 events per sector before the cut) -> < 3e-6 per sector, 24.9% discard.
+ESCAPE_Z4_GAP = {1e-3: (8e-6, 0.437), 5e-4: (6e-6, 0.249)}
+
+# Measured logical CSUM (logical_csum.py, runs/surface/csum_d4.jsonl; MEAS_DISTILL §5i): transversal CSUM between two
+# D-patches with D rounds before and after, failure of either logical, Pauli-frame (sequential) decoder; fit
+# p_csum(D) = A (p/p_th)^((D+1)/2).  BASE2_Z4: the same two patches with no gate (two-patch memory over 2D rounds).
+# Fits over 17 sub-threshold points per basis (D = 3..9, p = 1e-3..6e-3, 1e5/4e4 shots): CSUM Z A 0.219 p_th 7.34e-3,
+# X A 0.214 p_th 6.90e-3; two-patch memory Z A 0.190 p_th 7.34e-3, X A 0.193 p_th 6.95e-3 (basis averages below).  The gate
+# costs 1.1-1.2x the idle two-patch memory at the same threshold; the gate's excess over idling is ~0.5 p_L(D) of one patch.
+CSUM_Z4 = dict(p_th=7.1e-3, A=0.216, name="Z4 logical CSUM, Pauli-frame decoder (measured)")
+BASE2_Z4 = dict(p_th=7.15e-3, A=0.19, name="Z4 two-patch memory, 2D rounds (measured)")
 
 
 @dataclass(frozen=True)
@@ -67,10 +77,11 @@ def logical_qudits(stage) -> int:
 
 
 def pipelines(p: float, target: float, host: Host = Host(), stages=STAGES_D4, cult=CULT_D4, a_cliff: float = A_CLIFF,
-              max_levels: int = 2, Dmax: int = 41, valid_Lp: float = 3.0, escape=None):
+              max_levels: int = 2, Dmax: int = 41, valid_Lp: float = 3.0, escape=None, clifford=None):
     """Every (host distance, stage sequence) reaching `target` at physical error p: dicts with D, pipeline, error,
     logical and physical qudits, T per accepted output, cultivation attempts per output.  escape: {p: (p_escape, discard)}
-    measured escape (default: one host logical error p_L(D), no discard)."""
+    measured escape (default: one host logical error p_L(D), no discard).  clifford: Host whose p_logical(p, D) is the
+    error per logical CSUM (the a_C and L_C fault locations are CSUMs); default one host logical error p_L(D)."""
     a_cult, p_cult = cult[CULT_KEY][p]
     if escape is not None:
         p_esc, disc = escape[p]
@@ -78,24 +89,25 @@ def pipelines(p: float, target: float, host: Host = Host(), stages=STAGES_D4, cu
     out = []
     for D in range(3, Dmax + 1, 2):
         pL = host.p_logical(p, D)
+        pC = pL if clifford is None else clifford.p_logical(p, D)   # error per logical CSUM
         p_in = p_cult + (pL if escape is None else p_esc)   # escape into the host code
         if p_in <= target:                                   # cultivation only
             out.append(dict(D=D, pipeline="cultivation only", error=p_in, logical=1, physical=host.qudits(D) + CULT_QUDITS,
                             cult_attempts=1 / a_cult, T_per_out=1.0))
-        if min((s[8] if s[8] is not None else a_cliff) for s in stages) * pL >= target:
+        if min((s[8] if s[8] is not None else a_cliff) for s in stages) * pC >= target:
             continue                                         # first-order Clifford floor: no stage reaches the target
         for depth in range(1, max_levels + 1):
             for seq in it.product(stages, repeat=depth):
                 q, cost, ok = p_in, 1.0, True
                 for name, t, L, W, c, _, _, LC, aC in seq:
-                    if L * q + LC * pL > valid_Lp:
+                    if L * q + LC * pC > valid_Lp:
                         ok = False
                         break
-                    q_out = c * q ** W + (aC if aC is not None else a_cliff) * pL
+                    q_out = c * q ** W + (aC if aC is not None else a_cliff) * pC
                     if q_out >= q:
                         ok = False
                         break
-                    cost *= t * math.exp(L * q + LC * pL)
+                    cost *= t * math.exp(L * q + LC * pC)
                     q = q_out
                 if ok and q <= target:
                     lq = max(logical_qudits(s) for s in seq)
@@ -120,6 +132,16 @@ def table(ps=(1e-3, 5e-4), targets=(1e-10, 1e-12, 1e-15), **kw):
 if __name__ == "__main__":
     import sys
     escape = None
+    clifford = None
+    if "csum" in sys.argv[2:]:                       # conservative: the whole two-patch CSUM experiment error per CSUM location
+        clifford = Host(**CSUM_Z4)
+        sys.argv.remove("csum")
+    if "csum-excess" in sys.argv[2:]:                # the gate's measured excess over idling, on top of one p_L(D) per location
+        class _Excess(Host):
+            def p_logical(self, p, D):
+                return Host(**HOST_Z4).p_logical(p, D) + Host(**CSUM_Z4).p_logical(p, D) - Host(**BASE2_Z4).p_logical(p, D)
+        clifford = _Excess(**{**CSUM_Z4, "name": "p_L(D) + measured CSUM excess"})
+        sys.argv.remove("csum-excess")
     if len(sys.argv) > 1 and sys.argv[1] in ("measured", "escape", "escape-all", "escape-pairs", "escape-gap"):
         host = Host(**HOST_Z4)
         escape = {"escape": ESCAPE_Z4, "escape-all": ESCAPE_Z4_ALL, "escape-pairs": ESCAPE_Z4_PAIRS,
@@ -127,9 +149,10 @@ if __name__ == "__main__":
     else:
         host = Host(p_th=float(sys.argv[1]), A=float(sys.argv[2]) if len(sys.argv) > 2 else 0.1) if len(sys.argv) > 1 else Host()
     print(f"host: p_th {host.p_th:.0e}, A {host.A}, F(D) = 2 D^2; cultivation {CULT_KEY}; a_cliff {A_CLIFF}; "
-          f"escape {'measured ' + str(escape) if escape else 'one p_L(D)'}")
+          f"escape {'measured ' + str(escape) if escape else 'one p_L(D)'}; "
+          f"CSUM {clifford.name if clifford else 'one p_L(D)'}")
     ps = tuple(sorted(escape, reverse=True)) if escape else (1e-3, 5e-4)
-    for p, tg, r, r2 in table(ps=ps, host=host, escape=escape):
+    for p, tg, r, r2 in table(ps=ps, host=host, escape=escape, clifford=clifford):
         if r is None:
             print(f"p={p:.0e} target={tg:.0e}: unreachable (D <= 41)")
             continue

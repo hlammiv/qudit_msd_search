@@ -1,0 +1,44 @@
+/home/hlamm/miniforge3/lib/python3.12/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 8 leaked semlock objects to clean up at shutdown
+  warnings.warn(
+/home/hlamm/miniforge3/lib/python3.12/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 2 leaked folder objects to clean up at shutdown
+  warnings.warn(
+9 Z 0.002 seq csum 38 19 28 100000 hyper 0.0098 s 2659.2
+9 Z 0.001 seq csum 2 2 2 100000 hyper 0.0098 s 2694.7
+9 Z 0.003 seq csum 109 44 82 40000 hyper 0.0098 s 1007.5
+9 Z 0.004 seq csum 404 181 309 40000 hyper 0.0098 s 986.9
+9 Z 0.006 seq csum 2915 1355 2255 40000 hyper 0.0098 s 1015.0
+9 X 0.001 seq csum 5 4 1 100000 hyper 0.0118 s 1313.1
+9 X 0.002 seq csum 36 26 13 100000 hyper 0.0118 s 1235.1
+9 X 0.003 seq csum 139 107 60 40000 hyper 0.0118 s 1021.6
+9 X 0.004 seq csum 589 445 266 40000 hyper 0.0118 s 1031.6
+9 X 0.006 seq csum 3879 2990 1845 40000 hyper 0.0118 s 1089.0
+7 Z 0.001 seq csum 10 5 8 100000 hyper 0.0112 s 463.8
+7 Z 0.002 seq csum 151 62 111 100000 hyper 0.0112 s 482.3
+7 Z 0.003 seq csum 327 144 257 40000 hyper 0.0112 s 375.4
+7 Z 0.004 seq csum 889 416 665 40000 hyper 0.0112 s 380.8
+7 Z 0.006 seq csum 3804 1770 2921 40000 hyper 0.0112 s 385.7
+7 X 0.001 seq csum 9 6 3 100000 hyper 0.0135 s 480.7
+7 X 0.002 seq csum 162 115 85 100000 hyper 0.0135 s 498.9
+7 X 0.003 seq csum 367 291 161 40000 hyper 0.0135 s 354.9
+7 X 0.004 seq csum 1084 834 519 40000 hyper 0.0135 s 385.1
+5 Z 0.001 seq csum 81 37 59 100000 hyper 0.0121 s 130.3
+7 X 0.006 seq csum 4851 3743 2253 40000 hyper 0.0135 s 398.7
+5 Z 0.003 seq csum 757 360 569 40000 hyper 0.0121 s 108.2
+5 Z 0.002 seq csum 508 223 399 100000 hyper 0.0121 s 150.9
+5 Z 0.004 seq csum 1575 762 1174 40000 hyper 0.0121 s 95.7
+5 Z 0.006 seq csum 4676 2334 3530 40000 hyper 0.0121 s 89.3
+5 X 0.001 seq csum 93 66 52 100000 hyper 0.0144 s 150.1
+5 X 0.002 seq csum 625 481 287 100000 hyper 0.0144 s 140.7
+5 X 0.003 seq csum 839 633 393 40000 hyper 0.0144 s 103.8
+5 X 0.004 seq csum 1876 1418 917 40000 hyper 0.0144 s 96.7
+3 Z 0.001 seq csum 431 188 324 100000 hyper 0.0042 s 23.5
+3 Z 0.002 seq csum 1579 746 1215 100000 hyper 0.0042 s 26.9
+3 Z 0.003 seq csum 1374 650 1053 40000 hyper 0.0042 s 18.2
+3 Z 0.004 seq csum 2329 1095 1781 40000 hyper 0.0042 s 19.1
+5 X 0.006 seq csum 5569 4203 2738 40000 hyper 0.0144 s 101.5
+3 Z 0.006 seq csum 4779 2245 3644 40000 hyper 0.0042 s 24.9
+3 X 0.001 seq csum 436 317 218 100000 hyper 0.0040 s 29.3
+3 X 0.003 seq csum 1534 1169 710 40000 hyper 0.0040 s 20.4
+3 X 0.002 seq csum 1731 1293 810 100000 hyper 0.0040 s 35.0
+3 X 0.006 seq csum 5330 4080 2595 40000 hyper 0.0040 s 15.7
+3 X 0.004 seq csum 2599 1930 1273 40000 hyper 0.0040 s 22.0

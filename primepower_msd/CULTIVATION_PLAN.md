@@ -409,3 +409,5 @@ Sweeps (lenore; `runs/cultivation/sweep_grow35.json`, `sweep_grow35_d4_long.json
 Growth has ≈ 2–3× lower p_L at ≈ 20 % lower acceptance.  The 10⁸-shot growth run confirms the 1e-3 point
 (9.1e-7 ± 16 %) and resolves 5e-4 at 1.5e-7 ± 32 % (p_L ∝ p^2.6 between the two points).  The grown states feed the distillation stages of
 `MEAS_DISTILL.md` §5d.
+
+**d = 8** (`sweep_grow35_d8_long.json`, 2×10⁷ shots per point, lenore, 2026-10-29): growth 3→5 acceptance 0.662 / 0.439 at p = 5e-4 / 1e-3, failures 0 / 13.2M accepted (< 1.7e-7) and 3 / 8.8M (3.4e-7, 90% CL 0.9–8.8e-7) — consistent with the d = 4 values above at the available statistics; the growth circuit, checks and signs are the same for every 2^k.

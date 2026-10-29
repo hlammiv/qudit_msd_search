@@ -506,6 +506,20 @@ noisier single-ancilla circuit and smaller statistics; the escape is no longer t
 
 
 
+**d = 8** (`graft_run variants … 8`, `runs/surface/graft_variants_d8.jsonl`, 2×10⁵ attempts per sector and point, lenore):
+the same graft, decoder and recipes run unchanged at d = 8 (Escape(8) builds in 62 min single-threaded, 6 142 edges, no
+undecomposed hyperedge mass, 30 postselected detectors) and reproduce the d = 4 numbers:
+
+| p | recipe | X sector | Z sector | total per kept attempt | joint discard | d = 4 (§5h) |
+|---|---|---|---|---|---|---|
+| 10⁻³ | one class | 1.0×10⁻⁴ (11) | 5.5×10⁻⁵ (6) | 1.6×10⁻⁴ | 0.451 | 1.8×10⁻⁴, 0.43 |
+| 10⁻³ | one class + gap cut 13 | 0 / 1.09×10⁵ kept | 0 / 1.09×10⁵ kept | < 4×10⁻⁵ (90% CL) | 0.454 | < 8×10⁻⁶ (1.14M kept), 0.437 |
+| 2×10⁻³ | one class | 7.4×10⁻⁴ (45) | 4.0×10⁻⁴ (24) | 1.1×10⁻³ | 0.698 | — |
+| 2×10⁻³ | one class + gap cut 13 | 0 / 5.7×10⁴ kept | 0 / 5.7×10⁴ kept | < 8×10⁻⁵ (90% CL) | 0.715 | — |
+
+Every failing shot at 2×10⁻³ had gap ≤ 8.1 (≤ 10.5 at 10⁻³ without the cut), so the cut at 13 removes all of them at the
+same discard as d = 4; the escape, like the host code (§5g) and the cultivation check, is d-independent in practice.
+
 **Footprint** (`footprint.ESCAPE_Z4` = *one*, `ESCAPE_Z4_ALL` = *all*, `ESCAPE_Z4_PAIRS` = *one+pairs-cap*,
 `ESCAPE_Z4_GAP` = *one+pairs-cap+gap* cut 13; `python -m primepower_msd.footprint escape` / `escape-all` /
 `escape-pairs` / `escape-gap`): without the gap cut the escape error adds to p_cult (9×10⁻⁷) and dominates it — the
@@ -517,18 +531,89 @@ binding constraint and one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (D =
 |---|---|---|---|---|
 | 10⁻³ | 10⁻¹⁰ | one [[7,1,3]] round, D = 19 | 5 832 | 59, 58, 58, 87 (33) |
 | 10⁻³ | 10⁻¹² | one round with the gap recipe (two otherwise), D = 23 | 8 520 | 59, 877, 876, 1 311 (33) |
-| 5×10⁻⁴ | 10⁻¹⁰ | one [[7,1,3]] round, D = 15 | 3 656 | —, 30, 30, 37 (22) |
-| 5×10⁻⁴ | 10⁻¹² | one [[7,1,3]] round, D = 17 | 4 680 | —, 30, 30, 37 (22) |
+| 5×10⁻⁴ | 10⁻¹⁰ | one [[7,1,3]] round, D = 15 | 3 656 | 30, 30, 30, 37 (22) |
+| 5×10⁻⁴ | 10⁻¹² | one [[7,1,3]] round, D = 17 | 4 680 | 30, 30, 30, 37 (22) |
 
 The qudit count is unchanged (the 8 logical qudits are reused round after round); the escape costs a factor 1.4–1.9 in
 time through its discard.  Without the gap cut the 10⁻¹² target at p = 10⁻³ needs a second round
-(3.15 × (9×10⁻⁵)³ = 2.3×10⁻¹²); with it one round suffices (gap recipe not yet run at 5×10⁻⁴).  Caveats: no idle noise during CSUM layers; the final-code and D = 15
-baselines were run without postselection; the 5×10⁻⁴ points rest on 1–3 events each.
+(3.15 × (9×10⁻⁵)³ = 2.3×10⁻¹²); with it one round suffices.  The gap recipe at 5×10⁻⁴ (10⁶ attempts per sector, `graft_variants_gap_5e-4.log`): before the cut 6 + 5 failures (1.5×10⁻⁵ per kept attempt, 24.5% discard), after the cut at 13 no failure in 0.75M kept attempts per sector (< 6×10⁻⁶ total, 90% CL) for 0.4 points of discard (24.9%) — `ESCAPE_Z4_GAP[5e-4]`; with the measured CSUM cost (§5i) the 10⁻¹² row moves to D = 19, 5 832 qudits.  Caveats: no idle noise during CSUM layers; the final-code and D = 15 baselines (no postselection, `graft_d4.jsonl`) had no failure in 10⁵ shots at p ≤ 2×10⁻³, so the escape error is the graft's own and postselecting the baselines would add nothing; the 5×10⁻⁴ points rest on 1–3 events each.
+
+## 5i. The logical Clifford layer measured: transversal CSUM between surface-code patches (`logical_csum.py`)
+
+The footprint charged every Clifford fault location (the a_C = 0.36 and L_C counts are CSUM gates) one host logical
+error p_L(D) — a single patch idling for D rounds — without measuring a logical gate.  `csum_circuit(D, d, rounds, rounds,
+p, basis)` builds two identical signed Z_d rotated patches, D rounds of CSUM-extracted memory, one transversal
+CSUM(control → target, weight w = 1) layer (two-qudit depolarizing noise on every gate, idle noise on both patches), D
+more rounds, and a transversal readout.  Transversal CSUM is a logical CSUM: X-check_c → X-check_c X-check_t^w and
+Z-check_t → Z-check_t Z-check_c^{−w}, so the detectors across the layer are m_t^Z(r) − m_t^Z(r−1) − w·m_c^Z(r−1) and
+m_c^X(r) − m_c^X(r−1) + w·m_t^X(r−1) (verified deterministic for d = 4 and 8, both bases); the logical action
+X̄_c → X̄_c X̄_t^w, Z̄_t → Z̄_t Z̄_c^{−w} makes |0,0⟩ and |+,+⟩ deterministic for both logicals, and a run fails when
+*either* logical readout is wrong.  Pre-layer faults on the source patch are copied: an X error on the control before
+the layer becomes X_c X_t^w, a weight-4 hyperedge (control pair + target "shadow" pair) that `build_dem` decomposes.
+
+**Two decoders.**  *Independent*: each patch matched on its own with the decomposed DEM.  *Pauli-frame* (`SequentialDecoder`):
+X errors flow control → target and Z errors target → control, so the source patch is decoded first with a DEM restricted
+to its own detectors, the traversed edges (with their Z_d multipliers, `PeelDecoder.trace`) are mapped through a shadow
+table (sink-detector pattern and sink-observable coefficient per unit multiplier of each source edge, from the basis
+propagation of the full circuit, majority vote over faults sharing an edge) onto the sink syndrome and observable, and the
+sink is then decoded with a DEM of its own noise only.  Every single fault of the D = 3 circuit is corrected in both bases
+(`tests/test_logical_csum.py`).  The independent decoder mis-decodes 6 single faults per sector at D = 3: ancilla faults
+equivalent to a *source* measurement error at the pre-layer round, which the cross-layer detector turns into one lone
+sink defect that per-patch matching cannot pair.  This is a first-order floor, not a distance effect — the independent
+CSUM fails at 0.8–2.4% at p = 10⁻³ (growing with D in proportion to the ancilla count, about 24 p at D = 9), 10³× the
+memory at D = 9 — and the independent numbers below are a diagnostic, not a protocol.
+
+**Sweep** (`python -m primepower_msd.logical_csum sweep 4 …`, `runs/surface/csum_d4.jsonl`): d = 4, D = 3, 5, 7, 9,
+p = 1, 2, 3, 4, 6 ×10⁻³, 10⁵ shots (4×10⁴ at p ≥ 3×10⁻³), both bases; *base* = the same two patches and 2D rounds with
+no gate.  Fits of p_fail = A (p/p_th)^{(D+1)/2} over the 17 (16) sub-threshold points per basis (≥ 5 events, p_fail < 0.1):
+
+| experiment | Z basis (X-type errors): A, p_th, rms | X basis (Z-type errors): A, p_th, rms |
+|---|---|---|
+| two-patch memory, 2D rounds | 0.190, 7.34×10⁻³, 0.14 | 0.193, 6.95×10⁻³, 0.16 |
+| logical CSUM, Pauli-frame decoder | 0.219, 7.34×10⁻³, 0.18 | 0.214, 6.90×10⁻³, 0.34 |
+| logical CSUM, Pauli-frame decoder, **d = 8** (lenore, `csum_d8.jsonl`) | 0.250, 7.29×10⁻³, 0.15 | 0.216, 6.49×10⁻³, 0.17 |
+| logical CSUM, independent decoder | no scaling (fitted "p_th" 1.1×10⁻³, rms 0.9): first-order floor | same |
+
+Failure counts per 10⁵ shots at p = 10⁻³ / 2×10⁻³ (either logical wrong), Pauli-frame CSUM vs memory:
+
+| D | Z: CSUM | Z: memory | X: CSUM | X: memory |
+|---|---|---|---|---|
+| 3 | 431 / 1 579 | 357 / 1 397 | 436 / 1 731 | 416 / 1 580 |
+| 5 | 81 / 508 | 65 / 521 | 93 / 625 | 75 / 571 |
+| 7 | 10 / 151 | 7 / 112 | 9 / 162 | 8 / 156 |
+| 9 | 2 / 38 | 2 / 29 | 5 / 36 | 2 / 27 |
+
+The logical CSUM costs 1.1–1.2× the idle two-patch memory at the same threshold; the gate's excess over idling is
+A ≈ 0.02–0.03, i.e. about half a single-patch D-round memory error (A = 0.053, §5g; the two-patch 2D-round memory is 3.6×
+that, as expected).  Control and target fail at comparable rates (the sink slightly more often in the Z basis, the source
+in the X basis).  The two-patch sweep gives p_th 7.0–7.3×10⁻³, a little below the single-patch fit of record (7.55×10⁻³).
+
+**Footprint** (`footprint.CSUM_Z4`, `BASE2_Z4`; `python -m primepower_msd.footprint escape-gap csum` / `csum-excess`):
+*csum* charges each Clifford location the whole measured two-patch CSUM experiment error (conservative: it includes 2D
+rounds of idling of both patches per gate); *csum-excess* charges one p_L(D) as before plus the gate's measured excess
+over idling.  At p = 10⁻³ with the gap escape recipe, one [[7,1,3]] round:
+
+| target | Clifford cost model | D | physical qudits |
+|---|---|---|---|
+| 10⁻¹⁰ | one p_L(D) per CSUM (§5h) | 19 | 5 832 |
+| 10⁻¹⁰ | measured excess (*csum-excess*) | 19 | 5 832 |
+| 10⁻¹⁰ | whole CSUM experiment (*csum*) | 21 | 7 112 |
+| 10⁻¹² | one p_L(D) per CSUM (§5h) | 23 | 8 520 |
+| 10⁻¹² | measured excess / whole experiment | 25 | 10 056 |
+
+The measured Clifford layer moves the 10⁻¹⁰ pipeline by at most one distance step and the 10⁻¹² pipeline by one step to
+D = 25, which sits at the 10k budget; the sensitivity is the (D+1)/2 power of p_th (7.1 vs 7.55 ×10⁻³ is a factor 2 at
+D = 23), so the 10⁻¹² row should be read as 8.5–10k.  Caveats: the model still has no census of idle rounds between
+CSUM layers (the *csum* variant over-charges them, *csum-excess* omits them); the d = 8 sweep (same grid, 40 points) gives the same A and a
+threshold 0–6% lower, within the scatter between bases; the shadow table is a majority vote over faults sharing an edge (no
+ambiguous edges at D = 3; `SequentialDecoder.ambiguous` reports them).
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
 3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
-4. Cultivation acceptance and p_L at d = 4 rest on few events (4 failures at 10⁻³); longer lenore sweeps would tighten §5d.
+4. Done: the 10⁸-shot growth run (CULTIVATION_PLAN §12, `sweep_grow35_d4_long.json`) has 41 events at 10⁻³ and 10 at 5×10⁻⁴ (p_L 9.1×10⁻⁷ ± 16 %, 1.5×10⁻⁷ ± 32 %); §5d uses these numbers.
 5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: idle noise during CSUM steps; a joint Z_d decoder.
 6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 1.14M kept attempts at p = 10⁻³ (< 8×10⁻⁶, 90% CL) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Open: gap recipe at 5×10⁻⁴; the final-code and D = 15 memories under postselection; idle noise during CSUM layers.
+7. Done (§5i): the logical CSUM measured on two surface-code patches with a Pauli-frame (sequential) decoder: 1.1–1.2× the idle two-patch memory, same threshold; independent per-patch decoding has a first-order floor (24 p at D = 9) from source measurement errors leaking into the cross-layer detectors.  Footprint: 10⁻¹⁰ unchanged to +1 step (5 832–7 112 qudits), 10⁻¹² one step up (D = 25, 10 056).  Done: the d = 8 sweep (A 0.25/0.22, p_th 7.3/6.5×10⁻³) matches.  Open: idle census between CSUM layers.
+8. Done (§5h, d = 8 paragraph): the escape at d = 8 reproduces d = 4 (one class 1.6×10⁻⁴ at 45% discard; gap cut 13: 0 failures in 1.09×10⁵ kept per sector at p = 10⁻³).  d = 8 cultivation growth 3 → 5 at 2×10⁷ shots (CULTIVATION_PLAN §12): acceptance 0.439 / 0.662 at p = 10⁻³ / 5×10⁻⁴, 3 failures in 8.8M accepted (3.4×10⁻⁷, 90% CL 0.9–8.8×10⁻⁷) and 0 in 13.2M (< 1.7×10⁻⁷), consistent with d = 4 (9.1×10⁻⁷, 1.5×10⁻⁷).  Gap recipe measured at 5×10⁻⁴ (§5h).  Running: 10⁸-attempt floor of the gap recipe at d = 4.

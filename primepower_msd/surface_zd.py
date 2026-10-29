@@ -202,7 +202,7 @@ def propagate_basis(mem: Memory, chunk: int = 2000):
     shot (noise off, gauge off), in chunks of `chunk` faults to bound the dense forced-fault arrays."""
     faults, per_loc = _basis_faults(mem)
     c, d = mem.circ, mem.d
-    V = np.zeros((len(faults), len(c.detectors)), dtype=np.int64)
+    V = np.zeros((len(faults), len(c.detectors)), dtype=np.int16)      # detector values mod d; int16 keeps D = 9 two-patch models in a few hundred MB
     O = np.zeros(len(faults), dtype=np.int64)
     for lo in range(0, len(faults), chunk):
         part = faults[lo:lo + chunk]
@@ -533,6 +533,7 @@ class PeelDecoder:
         self.k = int(round(math.log2(self.d)))
         self.edges = dem.edges
         self.gap = gap
+        self.trace = None                             # when a list: (edge key, multiplier) of every traversed edge
         B = self.n                                    # boundary node for the shortest-path graph
         self.matchers, self.pred, self.gap_matchers, self.potential, self.conflicts = [], [], [], [], []
         wmax = 0.0
@@ -595,10 +596,14 @@ class PeelDecoder:
         if key[0] != a and a < B:
             ca, cb = cb, ca
         if a >= B:                                   # leaving a boundary: unit fault on the boundary edge
+            if self.trace is not None:
+                self.trace.append((key, 1))
             return 1, ca % d, obs + o
         w = self.solve[(ca % d, q % d)]
         if w is None:
             return None, q, obs
+        if self.trace is not None:
+            self.trace.append((key, w))
         return w, (w * cb) % d, obs + w * o
 
     def _walk_edges(self, lev, edge_arr, binsyn, sigma, obs):
@@ -702,6 +707,8 @@ class PeelDecoder:
                     w = self.solve[(ca % d, q % d)]
                     if w is None:
                         return obs % d, True
+                    if self.trace is not None:
+                        self.trace.append((key, w))
                     obs += w * o
                     q = (w * cb) % d
                 sigma[u] = 0

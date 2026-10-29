@@ -1,6 +1,6 @@
 """Escape study driver.  python -m primepower_msd.graft_run select basis     -> hyperedge share / discard per colour combo
                         python -m primepower_msd.graft_run run basis cX cZ shots p1,p2,... [jobs] [modes]  -> escape vs final-memory vs D=15
-                        python -m primepower_msd.graft_run variants - shots p1,p2,... jobs [names]  -> one / all / one+flags, both bases, joint postselection"""
+                        python -m primepower_msd.graft_run variants - shots p1,p2,... jobs [names] [cert_jobs] [d] [replicas]  -> variants, both bases, joint postselection"""
 from __future__ import annotations
 
 import json
@@ -59,17 +59,17 @@ CERT = {  # variant -> (scope, cache tag, degenerate cap)
 }
 
 
-def _variant(name, basis, p, shots):
+def _variant(name, basis, p, shots, d=4, replica=0):
     from .graft_zd import Escape
     t = time.time()
-    ex = Escape(4, basis, **VARIANTS[name])
+    ex = Escape(d, basis, **VARIANTS[name])
     stats = {}
     if name in CERT:
         scope, tag, cap = CERT[name]
         stats = ex.certify_pairs(p, n_jobs=int(sys.argv[7]) if len(sys.argv) > 7 else 1, scope=scope, degenerate_cap=cap,
-                                 cache=f"runs/surface/cert_pairs_{tag}_{basis}_{p:g}.json")
-    r = ex.run(p, shots, seed=hash((name, basis, p)) % 2**31, decoder=DECODER.get(name, "peel"))
-    r.update(variant=name, seconds=round(time.time() - t, 1), n_post=int(len(ex.mask)), pair_stats=stats)
+                                 cache=f"runs/surface/cert_pairs_{tag}_{basis}_{p:g}{'' if d == 4 else f'_d{d}'}.json")
+    r = ex.run(p, shots, seed=hash((name, basis, p, replica)) % 2**31, decoder=DECODER.get(name, "peel"))
+    r.update(variant=name, seconds=round(time.time() - t, 1), n_post=int(len(ex.mask)), pair_stats=stats, replica=replica)
     return {k: (v.item() if hasattr(v, "item") else v) for k, v in r.items()}
 
 
@@ -78,11 +78,15 @@ def main():
     if cmd == "variants":        # variants shots p1,p2,... jobs [names]
         shots = int(sys.argv[3]); ps = [float(x) for x in sys.argv[4].split(",")]; jobs = int(sys.argv[5])
         names = sys.argv[6].split(",") if len(sys.argv) > 6 else ["one", "all", "one+flags"]
-        tasks = [(nm, b, p, shots) for nm in names for b in "XZ" for p in ps]
-        res = Parallel(n_jobs=jobs)(delayed(_variant)(*t) for t in tasks)
-        with open("runs/surface/graft_variants.jsonl", "a") as f:
-            for r in res:
+        d = int(sys.argv[8]) if len(sys.argv) > 8 else 4                 # argv[7] = certification jobs
+        replicas = int(sys.argv[9]) if len(sys.argv) > 9 else 1         # independent seeds per (variant, basis, p)
+        tasks = [(nm, b, p, shots, d, k) for nm in names for b in "XZ" for p in ps for k in range(replicas)]
+        out = "runs/surface/graft_variants.jsonl" if d == 4 else f"runs/surface/graft_variants_d{d}.jsonl"
+        res = []
+        for r in Parallel(n_jobs=jobs, return_as="generator_unordered")(delayed(_variant)(*t) for t in tasks):
+            with open(out, "a") as f:                 # one line per finished task: a crash or kill loses only the tasks in flight
                 f.write(json.dumps(r) + "\n")
+            res.append(r)
         for r in res:
             print(r["variant"], r["basis"], r["p"], "p_fail %.3g" % r["p_fail"], "fails", r["fails"], "kept", r["kept"],
                   "discard %.4f" % r["discard"], "bad_mass %.3f" % r["bad_pattern_mass"], "pairs", r.get("n_pair_patterns"),
