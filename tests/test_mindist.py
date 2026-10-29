@@ -238,3 +238,37 @@ def test_weight_d_exists_fast_rejects_d_above_six():
     H = np.array([[1, 1, 3, 3, 1, 3, 1]], dtype=np.int64)  # 7 columns, one weight-7 dependency over F_7
     with pytest.raises(ValueError):
         weight_d_exists_fast(H, 7, 7)
+
+
+def test_weight7_census_matches_null_space_enumeration():
+    """3+4 weight-7 census against exhaustive enumeration of ker(G0) on small codes with d >= 7
+    (nullity 4: 7^4 words), per-output classification included."""
+    import itertools
+    from qmsd.mindist_nb import count_weight7_per_output, weight_d_exists_fast, weight6_exists_via_2_4
+    from qmsd.structured_ad import _null_space
+    p = 7
+    rng = np.random.default_rng(11)
+    checked = 0
+    for attempt in range(300):
+        r, n = 12, 16
+        H = rng.integers(0, p, size=(r, n))
+        if np.linalg.matrix_rank(H) < r:
+            continue
+        if any(weight_d_exists_fast(H, p, d) for d in (2, 3, 4, 5)) or weight6_exists_via_2_4(H, p):
+            continue
+        H1 = rng.integers(0, p, size=(2, n))
+        ns = np.asarray(_null_space(H, p)) % p
+        assert ns.shape[0] == n - r
+        coefs = np.array(list(itertools.product(range(p), repeat=ns.shape[0])))[1:]
+        W = (coefs @ ns) % p
+        w7 = W[(W != 0).sum(axis=1) == 7]
+        if len(w7) == 0:
+            continue
+        brute_per_output = ((w7 @ H1.T) % p != 0).sum(axis=0)
+        L7, n_classes, per_output = count_weight7_per_output(H, H1, p)
+        assert n_classes * (p - 1) == len(w7)
+        assert list(per_output) == list(brute_per_output)
+        checked += 1
+        if checked == 2:
+            break
+    assert checked >= 1

@@ -475,6 +475,82 @@ def count_weight6_per_output(G0, H1, p):
 
 
 @njit(cache=True, parallel=True)
+def _census_weight7_3x4(H, H1, p, powers, lcodes, lsupp, lcoef, i_lo, i_hi):
+    """Full 3+4 census over right 4-subsets with leading column in [i_lo, i_hi): every hash hit
+    verified exactly and classified against H1.  Each scalar class of a weight-7 word is found
+    once per 3-subset used as the left half, i.e. C(7,3) = 35 times (left pattern normalised,
+    right carries all (p-1)^4 patterns), when no weight <= 6 word exists.
+    Returns (fails int64[n, k] by leading right column, found int64[n])."""
+    r, n = H.shape
+    k = H1.shape[0]
+    N = lcodes.shape[0]
+    fails = np.zeros((n, k), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for i in prange(i_lo, i_hi):
+        for j in range(i + 1, n):
+            for kk in range(j + 1, n):
+                for ll in range(kk + 1, n):
+                    for c1 in range(1, p):
+                        for c2 in range(1, p):
+                            for c3 in range(1, p):
+                                for c4 in range(1, p):
+                                    target = np.uint64(0)
+                                    for t in range(r):
+                                        v = (c1 * H[t, i] + c2 * H[t, j] + c3 * H[t, kk] + c4 * H[t, ll]) % p
+                                        target = target + powers[t] * np.uint64((p - v) % p)
+                                    ii = np.searchsorted(lcodes, target)
+                                    while ii < N and lcodes[ii] == target:
+                                        l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                        if (l1 != i and l1 != j and l1 != kk and l1 != ll and l2 != i and l2 != j
+                                                and l2 != kk and l2 != ll and l3 != i and l3 != j and l3 != kk and l3 != ll):
+                                            a2 = lcoef[ii, 0]; a3 = lcoef[ii, 1]
+                                            ok = True
+                                            for t in range(r):
+                                                if (H[t, l1] + a2 * H[t, l2] + a3 * H[t, l3] + c1 * H[t, i]
+                                                        + c2 * H[t, j] + c3 * H[t, kk] + c4 * H[t, ll]) % p != 0:
+                                                    ok = False
+                                                    break
+                                            if ok:
+                                                found[i] += 1
+                                                for o in range(k):
+                                                    if (H1[o, l1] + a2 * H1[o, l2] + a3 * H1[o, l3]
+                                                            + c1 * H1[o, i] + c2 * H1[o, j]
+                                                            + c3 * H1[o, kk] + c4 * H1[o, ll]) % p != 0:
+                                                        fails[i, o] += 1
+                                        ii += 1
+    return fails, found
+
+
+def count_weight7_per_output(G0, H1, p, block=16, log=None):
+    """Per-output census of the weight-7 vectors of ker(G0) by the 3+4 split (left table
+    C(n,3)(p-1)^2 entries; right stream C(n,4)(p-1)^4 probes, processed in blocks of ``block``
+    leading columns with an optional ``log(lo, hi, seconds)`` callback): (L_7, n_classes,
+    fails_per_output), conventions as in ``count_weight5_per_output``.  Requires d(G0) >= 7; the
+    35-fold multiplicity is asserted."""
+    import time as _time
+    H = np.ascontiguousarray(np.asarray(G0, dtype=np.int64) % p)
+    H1 = np.ascontiguousarray(np.asarray(H1, dtype=np.int64) % p)
+    r, n = H.shape
+    powers = _powers_u64(p, r)
+    lcodes, lsupp, lcoef = _build_left3_norm_coef(H, p, powers)
+    fails = np.zeros((n, H1.shape[0]), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for lo in range(0, n, block):
+        t0 = _time.time()
+        f, g = _census_weight7_3x4(H, H1, p, powers, lcodes, lsupp, lcoef, lo, min(lo + block, n))
+        fails += f
+        found += g
+        if log is not None:
+            log(lo, min(lo + block, n), _time.time() - t0, int(found.sum()))
+    total = int(found.sum())
+    per_output = fails.sum(axis=0)
+    assert total % 35 == 0 and (per_output % 35 == 0).all(), \
+        "weight-7 hits not in groups of 35: a weight <= 6 dependency exists (d < 7)"
+    per_output = per_output // 35 * (p - 1)
+    return float(per_output.mean()), total // 35, per_output
+
+
+@njit(cache=True, parallel=True)
 def _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witness):
     """Thread-parallel right 4-subsets (leading column in [i_lo, i_hi)) with ALL (p-1)^4 patterns
     against the normalised left-3 table: weight-7 witness (3+4 split), shared stop flag."""

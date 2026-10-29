@@ -57,8 +57,12 @@ accidental-word limit can give.
 
 ## Follow-up work (not started)
 
-- Weight-7 census on the class block of [[1756,260,7]]_7 (cost claim; 3+4 counting kernel to write,
-  ~1.5e12 probes, ~14 h on 30 threads, ~50 h on 8).
+- Weight-7 census on the class block of [[1756,260,7]]_7 (cost claim): kernel `count_weight7_per_output`
+  (3+4, 35-fold multiplicity asserted, tested against null-space enumeration) written 2026-10-29;
+  `scratchpad/census7_1756.py` is QUEUED on lenore behind the certification chain (8 threads, ~50 h;
+  output `runs/certify/census7_1756.json`). It counts block words only; words with non-class
+  support are excluded by the weight-6 lemma but not yet for weight 7, so the result is a lower
+  bound on L_7 (the binomial-tail bound is the rigorous upper bound).
 - Weight-7 mixed-word lemma, to turn "no weight-7 block word" into d = 8 for seed 407 if the scan is
   empty.
 - Catalog import + performance records for every certified candidate (exact per-output enumeration
