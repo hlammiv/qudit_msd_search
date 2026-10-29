@@ -31,6 +31,15 @@ A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma
 | 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | queued after 1 | |
 | 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | queued after 2 | |
 
+**Throttling (2026-10-29/30).** Lenore runs at load 31-39 with the owner's circuit-knitting jobs, so the
+nice-19 jobs get 40-65% of their threads and the measured probe rate is ~1-3e5/s/thread (the idle figure
+was ~1e6). Revised ETAs: 407's full weight-5 scan ~16 h after its start; each further candidate ~1 day;
+the p = 29 / p = 31 certificates ~0.5 / ~1.5 days. Seed 407's witness stage (a 3+4 block scan with no
+early exit if d = 8, ~1000 thread-hours) is **skipped by a watcher** (`lenore:~/repro_aanha/skip407.sh`)
+so the chain proceeds to the two candidates with stored witnesses; 407 keeps the saved verdict
+"d >= 7" and the scan is deferred to an idle lenore. The weight-7 census (~4000 thread-hours at this
+rate) likewise needs an idle box: it stays queued but will not finish at the current throttle.
+
 Seed 407's witness stage is a full 3+4 scan of the class block with early exit; if it finds nothing,
 d = 8 is still *open*, because a weight-7 word could also be mixed (non-class part of weight 5-7 plus
 <= 2 class columns). Closing that needs the weight-7 analogue of the line lemma (enumerate point sets
