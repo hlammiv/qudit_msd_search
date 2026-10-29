@@ -43,6 +43,27 @@ Notes.
   (gamma 1.059, not reached: d = 4 at k = 26 in 150 trials).
 - The analytic Manhattan family (astronomical n) is cataloged separately and is not a "small code".
 
+## Acceptance probability of the large codes
+
+Exact enumeration is out of reach for the large codes (stabiliser spaces of dimension 10-66), but the
+acceptance probability is a common event and Monte Carlo resolves it in minutes
+(`scratchpad/pacc_mc.py`, `runs/certify/pacc_mc.json`, 2-4 x 10^5 shots per point). For every code the
+sampled P_acc agrees with the no-error probability (1 - eps)^n to within 1% at eps = 10^-4 .. 10^-2:
+accidental acceptance of a nonzero error is an O(A_d eps^d) correction and invisible at these rates.
+
+| code | n | P_acc(1e-2) | P_acc(3e-3) | P_acc(1e-3) | P_acc(3e-4) | P_acc(1e-4) |
+|---|---|---|---|---|---|---|
+| [[237,52,6]]_17 | 237 | 0.094 | 0.49 | 0.79 | 0.93 | 0.98 |
+| [[296,65,6]]_19 | 296 | 0.052 | 0.41 | 0.74 | 0.91 | 0.97 |
+| [[424,105,6]]_23 | 424 | 0.014 | 0.28 | 0.66 | 0.88 | 0.96 |
+| [[1756,260,7]]_7 | 1756 | < 1e-5 | 0.005 | 0.17 | 0.59 | 0.84 |
+| [[1746,270,>=7]]_7 | 1746 | < 1e-5 | 0.005 | 0.18 | 0.59 | 0.84 |
+
+Reading: a block of n qudits accepts roughly when it sees no error at all, so a code is usable only
+once n x eps is of order one. The p = 7 codes (n ~ 1750) are second- or third-round codes, fed by a
+small first round that brings eps to ~10^-4; the p >= 17 codes (n ~ 250-450) can take raw states at
+eps ~ 10^-3. This is the regime the protocol optimizer already uses (e.g. [[7,1,3]]_7 -> [[1746,270,6]]_7).
+
 ## Comparison with arXiv:2510.10852 (Figures 2 and 6)
 
 ![gamma vs p](runs/coverage/gamma_vs_p.png)
