@@ -1,0 +1,105 @@
+{
+ "N_per_stratum": 100000,
+ "strata": {
+  "uniform": {
+   "sets": 100000,
+   "dependent": 0,
+   "full_support": 0,
+   "dependent_labels": {},
+   "full_support_labels": {},
+   "nullities": {},
+   "violations": [],
+   "seconds": 6.3
+  },
+  "plane": {
+   "sets": 100000,
+   "dependent": 1172,
+   "full_support": 0,
+   "dependent_labels": {
+    "line5+2": 1148,
+    "line6+1": 24
+   },
+   "full_support_labels": {},
+   "nullities": {
+    "1": 1148,
+    "2": 24
+   },
+   "violations": [],
+   "seconds": 9.2
+  },
+  "3flat": {
+   "sets": 100000,
+   "dependent": 3,
+   "full_support": 0,
+   "dependent_labels": {
+    "line5+2": 3
+   },
+   "full_support_labels": {},
+   "nullities": {
+    "1": 3
+   },
+   "violations": [],
+   "seconds": 8.2
+  },
+  "line_heavy": {
+   "sets": 100000,
+   "dependent": 74894,
+   "full_support": 24893,
+   "dependent_labels": {
+    "line5+2": 24972,
+    "line7": 24893,
+    "line6+1": 25029
+   },
+   "full_support_labels": {
+    "line7": 24893
+   },
+   "nullities": {
+    "1": 24972,
+    "3": 24893,
+    "2": 25029
+   },
+   "violations": [],
+   "seconds": 479.0
+  },
+  "two_lines": {
+   "sets": 100000,
+   "dependent": 28878,
+   "full_support": 58,
+   "dependent_labels": {
+    "line5+2": 25948,
+    "line6+1": 2872,
+    "line7": 58
+   },
+   "full_support_labels": {
+    "line7": 58
+   },
+   "nullities": {
+    "1": 25948,
+    "2": 2872,
+    "3": 58
+   },
+   "violations": [],
+   "seconds": 377.5
+  },
+  "conic": {
+   "sets": 100000,
+   "dependent": 7086,
+   "full_support": 1131,
+   "dependent_labels": {
+    "line5+2": 5262,
+    "line7": 1131,
+    "line6+1": 693
+   },
+   "full_support_labels": {
+    "line7": 1131
+   },
+   "nullities": {
+    "1": 5262,
+    "3": 1131,
+    "2": 693
+   },
+   "violations": [],
+   "seconds": 67.4
+  }
+ }
+}

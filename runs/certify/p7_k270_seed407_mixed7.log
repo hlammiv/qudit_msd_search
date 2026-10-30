@@ -1,0 +1,13 @@
+[     2s] k=270 seed=407: G0 (56, 1746), class cols 402, non-class cols 1344
+[     2s] class block rank 21, kernel rows 35 (expect 35)
+[     3s] direction table: 402 singles + 483606 pair directions (+ zero) = 484009 keys, duplicates 0
+[     3s] lines: 137200; with 7/6/5 points in N: 1536/14112/32928
+[     3s]   10/57 line words done; candidates so far {5: 50020, 6: 10208, 7: 0}, hits 0
+[     3s]   20/57 line words done; candidates so far {5: 91260, 6: 17256, 7: 3072}, hits 0
+[     3s]   30/57 line words done; candidates so far {5: 105912, 6: 28388, 7: 10752}, hits 0
+[     4s]   40/57 line words done; candidates so far {5: 112360, 6: 39520, 7: 19968}, hits 0
+[     4s]   50/57 line words done; candidates so far {5: 135756, 6: 45840, 7: 27648}, hits 0
+[     4s] candidates: weight-5 words in N 149856, weight-6 49728, weight-7 33792 (total 233376); hits 0
+[     4s] positive control: planted single / pair class columns are found by the lookup
+[     4s] RESULT: no mixed word of weight <= 7
+[     4s] saved runs/certify/p7_k270_seed407_mixed7.json

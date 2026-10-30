@@ -1,0 +1,24 @@
+{
+ "k": 270,
+ "seed": 407,
+ "n": 1746,
+ "class_cols": 402,
+ "nonclass_cols": 1344,
+ "block_rank": 21,
+ "kernel_dim": 35,
+ "direction_keys": 484009,
+ "duplicate_keys": 0,
+ "lines_with_7_6_5_in_N": [
+  1536,
+  14112,
+  32928
+ ],
+ "candidates_by_line_word_weight": {
+  "5": 149856,
+  "6": 49728,
+  "7": 33792
+ },
+ "hits": [],
+ "verdict": "no mixed word of weight <= 7",
+ "seconds": 4
+}

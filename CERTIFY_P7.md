@@ -17,6 +17,7 @@ filters cannot do:
 | block6 | weight-6 words inside the class block | 3+3 MITM on the block (`weight6_witness_3x3`, ~6 GB table) | ~40 min |
 | full5 | weight <= 5 words anywhere | serial MITM d <= 4, thread-parallel 2+3 weight-5 scan on the full code (`weight5_exists_parallel`) | ~10 h |
 | mixed6 | weight-6 words touching a non-class column | kernel rows force the non-class part into RM(20,4) (d = 5); its full-support weight-5/6 words are line-supported (lemma, `scratchpad/mixed_w6_check.py`); enumerate those lines inside the non-class points and test extension by <= 1 class column | ~10 min |
+| mixed7 | weight-7 words touching a non-class column (needed only for a d = 8 claim) | the weight-7 words of RM(20,4) are line-supported too (`scratchpad/rm20_w7_classify.py`, WEIGHTED_SUPPORTS.md "Weight-7 words of RM(20,4)"); line words of weight 5/6/7 inside the non-class points, extension by <= 2 class columns via a direction table (`scratchpad/mixed_w7_check.py`) | 5 s |
 | witness7 | (upper bound) | the stored planar witness, verified against G0; for seed 407 the 3+4 block scan | seconds, or hours for 407 |
 
 Driver: `scratchpad/certify_candidate.py K SEED OUT.json [--skip-full5]` (resumable; each stage appends
@@ -49,10 +50,10 @@ so the chain proceeds to the two candidates with stored witnesses; 407 keeps the
 "d >= 7" and the scan is deferred to an idle lenore. The weight-7 census (~4000 thread-hours at this
 rate) likewise needs an idle box: it stays queued but will not finish at the current throttle.
 
-Seed 407's witness stage is a full 3+4 scan of the class block with early exit; if it finds nothing,
-d = 8 is still *open*, because a weight-7 word could also be mixed (non-class part of weight 5-7 plus
-<= 2 class columns). Closing that needs the weight-7 analogue of the line lemma (enumerate point sets
-of size 7 up to affine equivalence in `mixed_w6_check.py` style) and is listed below as follow-up work.
+Seed 407's witness stage is a full 3+4 scan of the class block with early exit. Since 2026-10-30 an
+empty scan *proves* d = 8: the weight-7 analogue of the line lemma (every word of weight <= 7 of
+RM(20,4) is a line word; `scratchpad/rm20_w7_classify.py`) plus the mixed7 lookup above exclude every
+weight-7 word with a non-class column for this draw (0 of 233 376 candidates extend).
 
 ## The p >= 17 ladder (m = 2 line-spread codes)
 
@@ -81,10 +82,11 @@ accidental-word limit can give.
 - Weight-7 census on the class block of [[1756,260,7]]_7 (cost claim): kernel `count_weight7_per_output`
   (3+4, 35-fold multiplicity asserted, tested against null-space enumeration) written 2026-10-29;
   `scratchpad/census7_1756.py` is QUEUED on lenore behind the certification chain (8 threads, ~50 h;
-  output `runs/certify/census7_1756.json`). It counts block words only; words with non-class
-  support are excluded by the weight-6 lemma but not yet for weight 7, so the result is a lower
-  bound on L_7 (the binomial-tail bound is the rigorous upper bound).
-- Weight-7 mixed-word lemma, to turn "no weight-7 block word" into d = 8 for seed 407 if the scan is
-  empty.
+  output `runs/certify/census7_1756.json`). It counts block words only, which since 2026-10-30 is
+  all of them (next item).
+- ~~Weight-7 mixed-word lemma~~ done 2026-10-30 (lines only; `scratchpad/mixed_w7_check.py`, seed 407:
+  0 mixed words of weight <= 7; same for the [[1756,260,7]]_7 draw,
+  `runs/weighted/p7_m4_sphere_1756_260_mixed_w7_check.json`). The queued weight-7 census of the
+  [[1756,260,7]]_7 class block therefore counts ALL weight-7 words of that code, not a lower bound.
 - Catalog import + performance records for every certified candidate (exact per-output enumeration
   is 7^{dim A} with dim A ~ 56-61: out of reach; use the leading-order surrogate from the census).

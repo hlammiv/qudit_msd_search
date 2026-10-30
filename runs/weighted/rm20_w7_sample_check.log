@@ -1,0 +1,7 @@
+[    8s] uniform: 100000 sets, dependent 0 {}, full-support 0 {}, violations 0
+[   17s] plane: 100000 sets, dependent 1172 {'line5+2': 1148, 'line6+1': 24}, full-support 0 {}, violations 0
+[   25s] 3flat: 100000 sets, dependent 3 {'line5+2': 3}, full-support 0 {}, violations 0
+[  504s] line_heavy: 100000 sets, dependent 74894 {'line5+2': 24972, 'line7': 24893, 'line6+1': 25029}, full-support 24893 {'line7': 24893}, violations 0
+[  882s] two_lines: 100000 sets, dependent 28878 {'line5+2': 25948, 'line6+1': 2872, 'line7': 58}, full-support 58 {'line7': 58}, violations 0
+[  949s] conic: 100000 sets, dependent 7086 {'line5+2': 5262, 'line7': 1131, 'line6+1': 693}, full-support 1131 {'line7': 1131}, violations 0
+[  949s] RESULT: 0 violations of the weight-7 lemma in 600000 random 7-sets
