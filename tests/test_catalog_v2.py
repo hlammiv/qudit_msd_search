@@ -58,16 +58,20 @@ def test_rebuild_matches_parameters_and_witnesses_are_code_words():
 
 
 def test_weighted_records_rebuild_and_certificates_say_what_they_mean():
-    recs = {r.label: r for r in _records()}
-    exact = recs["[[1756,260,7]]_7"]
+    recs = {r.artifact_id: r for r in _records()}
+    exact = next(r for r in recs.values() if r.label == "[[1756,260,7]]_7")
     assert exact.construction["family"] == "weighted_rm" and exact.status == "confirmed"
     assert exact.certificate["exact"] and exact.certificate["witness"]["weight"] == 7
     G0, H1 = record_matrices(exact)
     assert G0.shape == (66, 1756) and H1.shape == (260, 1756)
-    partial = recs["[[1746,270,>=7]]_7"]
-    assert partial.status == "partial" and partial.certificate["lower_bound"] == 7
-    assert partial.certificate["upper_bound"] is None and not partial.distance_certified
-    assert partial.distance_lower_bound == 7
+    # the two certified k = 270 draws (seeds 19 and 407): both exact d = 7 with stored block/planar witnesses
+    k270 = [r for r in recs.values() if r.label == "[[1746,270,7]]_7"]
+    assert len(k270) == 2
+    for r in k270:
+        assert r.status == "confirmed" and r.certificate["exact"] and r.certificate["witness"]["weight"] == 7
+        assert r.distance_certified and r.distance_lower_bound == 7
+    seed407 = recs["imported-p7-n1746-k270-c833577e4463"]
+    assert seed407.geometry["plane_distance"] == 8 and "3+4" in seed407.certificate["upper_method"]
 
 
 def test_v1_record_upgrades_in_memory_and_on_disk(tmp_path):
