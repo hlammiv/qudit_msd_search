@@ -1,0 +1,63 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p11-n115-k6-674b865f89d5",
+  "certificate": {
+    "date": "2026-10-30",
+    "exact": true,
+    "lower_bound": 6,
+    "lower_method": "qmsd search engine (MITM min_dependent_columns)",
+    "machine": "",
+    "refuted": false,
+    "stages": [],
+    "upper_bound": 6,
+    "upper_method": "qmsd search engine (explicit dependent set)",
+    "witness": null
+  },
+  "construction": {
+    "family": "punctured_rm",
+    "m": 2,
+    "p": 11,
+    "puncture_columns_1indexed": [
+      16,
+      34,
+      42,
+      62,
+      65,
+      101
+    ],
+    "r": 6
+  },
+  "d": 6,
+  "distance_evidence": "qmsd search engine (MITM min_dependent_columns)",
+  "family": "imported explicit search",
+  "gamma_value": 1.6481970431039568,
+  "geometry": null,
+  "k": 6,
+  "label": "[[115,6,6]]_11",
+  "m": 2,
+  "n": 115,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 2, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 11, \"sampler\": \"flat_spread\", \"seed\": 5, \"target_k\": 6, \"top\": 10, \"trials\": 15}",
+  "p": 11,
+  "performance": {
+    "acceptance_mc": null,
+    "census": null,
+    "exact_curve": false,
+    "notes": "",
+    "rigorous_bounds": false
+  },
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": [
+    16,
+    34,
+    42,
+    62,
+    65,
+    101
+  ],
+  "r": 6,
+  "schema": "qmsd.catalog-record.v2",
+  "source": "p11_m2_k6.json",
+  "status": "confirmed",
+  "w": null
+}

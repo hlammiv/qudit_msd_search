@@ -1,0 +1,212 @@
+{
+  "codes": [
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 4,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.7362438857313718,
+      "k": 10,
+      "label": "[[111,10,4]]_11",
+      "m": 2,
+      "n": 111,
+      "p": 11,
+      "puncture_columns_1indexed": null,
+      "r": 6,
+      "w": 3
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 3,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.7798716737279998,
+      "k": 15,
+      "label": "[[106,15,3]]_11",
+      "m": 2,
+      "n": 106,
+      "p": 11,
+      "puncture_columns_1indexed": null,
+      "r": 6,
+      "w": 4
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 5,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.8349093409070014,
+      "k": 6,
+      "label": "[[115,6,5]]_11",
+      "m": 2,
+      "n": 115,
+      "p": 11,
+      "puncture_columns_1indexed": null,
+      "r": 6,
+      "w": 2
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        42,
+        62,
+        65,
+        101
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        2,
+        13,
+        34,
+        99
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        2,
+        34,
+        55,
+        112
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        8,
+        22,
+        49,
+        81
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        1,
+        35,
+        44,
+        117
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        38,
+        53,
+        82,
+        88
+      ],
+      "r": 6,
+      "w": null
+    },
+    {
+      "A_d": null,
+      "A_d_exact": null,
+      "d": 6,
+      "distance_certified": true,
+      "full_rank": true,
+      "gamma": 1.884114264026911,
+      "k": 4,
+      "label": "[[117,4,6]]_11",
+      "m": 2,
+      "n": 117,
+      "p": 11,
+      "puncture_columns_1indexed": [
+        42,
+        60,
+        76,
+        79
+      ],
+      "r": 6,
+      "w": null
+    }
+  ],
+  "schema": "qmsd.search-results.v1",
+  "search": {
+    "jobs": 1,
+    "m": 2,
+    "max_triples": 0,
+    "min_keep_distance": null,
+    "p": 11,
+    "sampler": "flat_spread",
+    "seed": 5,
+    "target_k": 4,
+    "top": 10,
+    "trials": 15
+  }
+}

@@ -1,0 +1,2 @@
+{"p": 19, "m": 2, "r": 11, "k": 10, "seed": 0, "n": 351, "checks": 68, "max_line": 3, "d_lines": ">=7", "t_lines": 1247, "tries": 1, "full_w_le5": null, "t_full": 421, "d": ">=6", "puncture_columns_1indexed": [1, 117, 130, 146, 147, 176, 234, 238, 265, 311]}
+{"p": 19, "m": 2, "r": 11, "k": 10, "seed": 1, "n": 351, "checks": 68, "max_line": 3, "d_lines": ">=7", "t_lines": 1248, "tries": 1, "full_w_le5": null, "t_full": 431, "d": ">=6", "puncture_columns_1indexed": [2, 33, 70, 109, 128, 282, 288, 297, 310, 328]}
