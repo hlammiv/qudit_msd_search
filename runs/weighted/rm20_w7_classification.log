@@ -1,0 +1,24 @@
+[     4s] span2: method B (residual): 1515 dependent sets, zero residuals 0, proportional pairs 0 [2.9s]
+[    11s]   span2: 163185/163185 sets, dependent so far 1515
+[    11s] span2: method A (brute force): 163185 sets, 1515 dependent; agrees with B [7s]
+[    15s] span2: dependent labels {'line6+1': 15, 'line5+2': 1500}; full-support sets 0 {} [4s]
+# (first run aborted on a wrong hard-coded span-3 total; resumed from the span-2 checkpoint:)
+[     1s] span2: done, skipping
+[     4s] span3: method B (residual): 60 dependent sets, zero residuals 0, proportional pairs 0 [2.5s]
+[    46s]   span3: 1000000/6435689 sets, dependent so far 25
+[    88s]   span3: 2000000/6435689 sets, dependent so far 30
+[   131s]   span3: 3000000/6435689 sets, dependent so far 30
+[   172s]   span3: 4000000/6435689 sets, dependent so far 30
+[   216s]   span3: 5000000/6435689 sets, dependent so far 42
+[   263s]   span3: 6000000/6435689 sets, dependent so far 59
+[   283s]   span3: 6435689/6435689 sets, dependent so far 60
+[   283s] span3: method A (brute force): 6435689 sets, 60 dependent; agrees with B [280s]
+[   285s] span3: dependent labels {'line5+2': 60}; full-support sets 0 {} [1s]
+[   285s] span4: method B (residual): 0 dependent sets, zero residuals 0, proportional pairs 0 [0.0s]
+[   330s]   span4: 1000000/2869210 sets, dependent so far 0
+[   375s]   span4: 2000000/2869210 sets, dependent so far 0
+[   412s]   span4: 2869210/2869210 sets, dependent so far 0
+[   412s] span4: method A (brute force): 2869210 sets, 0 dependent; agrees with B [127s]
+[   412s] span4: dependent labels {}; full-support sets 0 {} [0s]
+[   412s] line: nullity 3, projective words by weight {5: 21, 6: 14, 7: 22}; 137200 lines
+[   412s] done: runs/weighted/rm20_w7_classification.json

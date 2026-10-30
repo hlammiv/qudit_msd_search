@@ -12,7 +12,7 @@ weight <= 5) is certified in five resumable stages, each appended to OUT.json:
                   of weight 5/6 inside the non-class points and test extension by <= 1 class column
   5. witness7     an explicit weight-7 word: taken from flat_witness_k*.jsonl (planar) and verified,
                   or found by the 3+4 scan on the class block (early exit; a full scan with no hit
-                  leaves d >= 8 open, pending the weight-7 mixed-word lemma)
+                  proves d = 8 once scratchpad/mixed_w7_check.py reports no mixed weight-7 word)
 
 Stages 2-4 together prove d >= 7; stage 5 makes d = 7 exact.
 usage: certify_candidate.py K SEED OUT.json [--threads N]
@@ -159,5 +159,5 @@ if not done("witness7"):
     if wit is not None:
         state["verdict"] = "d = 7 exact"; state["gamma"] = float(np.log(n / k) / np.log(7))
     else:
-        state["verdict"] = "d >= 7; no weight-7 block word (d = 8 needs the weight-7 mixed-word lemma)"
+        state["verdict"] = "d >= 7; no weight-7 block word (d = 8 if scratchpad/mixed_w7_check.py finds no mixed weight-7 word)"
     save(); log(state["verdict"])

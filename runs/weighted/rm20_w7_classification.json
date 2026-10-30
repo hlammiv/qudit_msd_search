@@ -1,0 +1,174 @@
+{
+ "p": 7,
+ "m": 4,
+ "spans": {
+  "span2": {
+   "frame": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0
+    ]
+   ],
+   "flat_points": 49,
+   "extras": 4,
+   "residual": {
+    "dim": 32,
+    "zero_residuals": 0,
+    "proportional_pairs": 0,
+    "dependent_sets": 1515,
+    "seconds": 2.9
+   },
+   "brute": {
+    "sets": 163185,
+    "dependent_sets": 1515,
+    "seconds": 7
+   },
+   "dependent_labels": {
+    "line6+1": 15,
+    "line5+2": 1500
+   },
+   "dependent_nullities": {
+    "2": 15,
+    "1": 1500
+   },
+   "full_support_sets": 0,
+   "full_support_labels": {},
+   "full_support_examples": [],
+   "done": true
+  },
+  "span3": {
+   "frame": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0
+    ]
+   ],
+   "flat_points": 343,
+   "extras": 3,
+   "residual": {
+    "dim": 31,
+    "zero_residuals": 0,
+    "proportional_pairs": 0,
+    "dependent_sets": 60,
+    "seconds": 2.5
+   },
+   "brute": {
+    "sets": 6435689,
+    "dependent_sets": 60,
+    "seconds": 280
+   },
+   "dependent_labels": {
+    "line5+2": 60
+   },
+   "dependent_nullities": {
+    "1": 60
+   },
+   "full_support_sets": 0,
+   "full_support_labels": {},
+   "full_support_examples": [],
+   "done": true
+  },
+  "span4": {
+   "frame": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1
+    ]
+   ],
+   "flat_points": 2401,
+   "extras": 2,
+   "residual": {
+    "dim": 30,
+    "zero_residuals": 0,
+    "proportional_pairs": 0,
+    "dependent_sets": 0,
+    "seconds": 0.0
+   },
+   "brute": {
+    "sets": 2869210,
+    "dependent_sets": 0,
+    "seconds": 127
+   },
+   "dependent_labels": {},
+   "dependent_nullities": {},
+   "full_support_sets": 0,
+   "full_support_labels": {},
+   "full_support_examples": [],
+   "done": true
+  }
+ },
+ "span1_line": {
+  "nullity": 3,
+  "projective_words_by_weight": {
+   "5": 21,
+   "6": 14,
+   "7": 22
+  },
+  "lines": 137200,
+  "codewords_by_weight": {
+   "5": 17287200,
+   "6": 11524800,
+   "7": 18110400
+  }
+ }
+}

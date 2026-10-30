@@ -64,7 +64,8 @@ would take weeks at the measured probe rate). Point 3 makes it rigorous.
    line: verified by enumerating point sets up to affine equivalence (a frame of the span plus
    the remaining points; 76,242 sets of span 2–4; none carries a full-support annihilator of
    the cubics). All 1,197,504 line words inside the non-class points were then tested and none
-   extends to a word of ker G0 (`scratchpad/mixed_w6_check.py`, 428 s).
+   extends to a word of ker G0 (`scratchpad/mixed_w6_check.py`, 428 s). The same holds at
+   weight 7 (section "Weight-7 words of RM(20,4)" below), which is what a d = 8 claim needs.
 4. A weight-7 word exists: G0 columns [523, 1045, 1117, 19, 490, 1260, 1556] with
    coefficients (3, 3, 1, 1, 1, 3, 1), found by `mindist_nb.weight7_witness_3x4` (5.8 h) and
    verified locally (rank 6, every 6-subset of full rank).
@@ -95,7 +96,7 @@ up the cube class.
 |---|---|---|---|---|---|
 | [[1746,270,6]]_7 weight-6 witness | (3,1,4,6) (1,4,4,6) (2,0,6,6) (0,1,2,6) (5,1,3,6) (3,2,6,6) | 2 | 2 | 6 6 6 6 1 1 | 3 3 3 3 1 1 |
 | [[1756,260,7]]_7 weight-7 witness | (3,4,0,2) (2,1,1,4) (4,0,3,4) (5,3,0,0) (3,4,6,1) (0,2,0,5) (0,2,1,6) | 2 | 5 | 1 1 6 6 6 1 6 | 3 3 1 1 1 3 1 |
-| [[1746,270,>=7]]_7 (sweep k = 270 seed 407, d_plane = 8) | F_7^4 | <= 0.959 (0.898 if d = 8) | d >= 7: block weight-6 scan + full weight-5 scan + mixed-word exclusion (2026-10-29, `CERTIFY_P7.md`); no planar or 3-flat weight-7 word found; d = 8 open |
+| [[1746,270,>=7]]_7 (sweep k = 270 seed 407, d_plane = 8) | F_7^4 | <= 0.959 (0.898 if d = 8) | d >= 7: block weight-6 scan + full weight-5 scan + mixed-word exclusion at weights 6 and 7 (2026-10-29/30, `CERTIFY_P7.md`); every weight-7 word, if any, lies in the class block; d = 8 iff the block 3+4 scan is empty |
 | k = 260 sample 0 (d = 4), its unique weight-4 word | (6,3,4,1) (1,6,3,3) (1,2,2,5) (6,4,3,6) | 3 | 0 | 6 6 6 6 | 1 3 3 2 |
 
 Why planes are special: the block checks are the 291 - k residual rows of RM(3,4) restricted
@@ -186,6 +187,110 @@ Findings:
 - Consequence for certification: at k = 265 a survivor can go straight to the full weight <= 5
   scan; at k = 270 the ~8% chance of an accidental weight-6 block word means the 3+3 weight-6
   block scan (6 GB table, ~10 min on lenore) should come first.
+
+## Weight-7 words of RM(20,4) (2026-10-30)
+
+*Scripts `scratchpad/rm20_w7_classify.py`, `scratchpad/rm20_w7_sample_check.py`,
+`scratchpad/mixed_w7_check.py`; library `qmsd/pointsets.py`; data
+`runs/weighted/rm20_w7_classification.json`, `runs/weighted/rm20_w7_sample_check.json`,
+`runs/certify/p7_k270_seed407_mixed7.json`; tests `tests/test_pointsets.py`.*
+
+The mixed stage of the certificate (point 3 of the class-block lemma) rests on knowing the
+supports of the low-weight words of RM_7(20,4) = RM(3,4)^⊥ over the full grid F_7^4: a word of
+ker G0 that touches a non-class column has its non-class part, reweighted by (g−1)(g−6), in that
+code. For weight ≤ 6 the supports are lines (`mixed_w6_check.py`). The weight-7 case is now
+settled the same way, and the answer is again "lines only".
+
+**Lemma (words of weight ≤ 7 of RM_7(20,4)).** Let u ≠ 0 satisfy Σ_x u_x f(x) = 0 for every
+polynomial f of degree ≤ 3 on F_7^4, and let |supp u| ≤ 7. Then supp u lies on an affine line
+ℓ = {a + t v}, and u is the restriction to ℓ of a polynomial q(t) of degree ≤ 2 (RM(3,1)^⊥ =
+RM(2,1) on the 7 points of ℓ): weight 5 when q has two roots, weight 6 when it has one (q linear
+or a square), weight 7 when it has none (q a non-zero constant or an irreducible quadratic). Per
+line there are 21 / 14 / 22 projective words of weight 5 / 6 / 7; with 137 200 lines the weight
+enumerators are A_5 = 17 287 200, A_6 = 11 524 800, A_7 = 18 110 400.
+
+Equivalently (a finite-field Cayley–Bacharach statement for d = 3, n ≤ 2d + 1): *a set of ≤ 7
+points of F_7^4 fails to impose independent conditions on the cubics iff it contains 5 collinear
+points, and it carries an annihilator of full support iff it is 5, 6 or 7 points of one line.*
+In particular no planar configuration (two lines 4 + 3 or 3 + 3 + 1, a parabola, 7 of the 8
+points of an ellipse) and no 3- or 4-dimensional 7-point set carries a weight-7 word. The lemma
+stops at weight 7: the 8 points of an ellipse x² + y² = 1 in a plane impose only 7 conditions on
+the cubics and carry a full-support weight-8 word, so the weight-8 mixed stage would have to
+include conics.
+
+**Proof (enumeration, `rm20_w7_classify.py`, 7 min on one core, < 1 GB).** A 7-point set of affine span
+j contains a frame 0, e₁..e_j and 7 − (j + 1) further points of its j-flat, so up to AGL(4,7)
+every set of span 2, 3, 4 is one of C(46,4) + C(339,3) + C(2396,2) = 163 185 + 6 435 689 +
+2 869 210 frame sets (span 1 is the full line). For each set the 35 × 7 evaluation matrix of
+RM(3,4) is tested for rank deficiency by a batched F_7 elimination (`pointsets.batched_rank_modp`,
+50 000 matrices per 2.3 s); the dependent sets get their null space, a full-support test (no
+coordinate is zero on the whole null space; over F_7 this is equivalent to the existence of a
+single all-non-zero null vector) and an affine-invariant classification (collinearity profile,
+`pointsets.classify_pointset`). An independent second method row-reduces the frame columns to
+unit vectors and decides dependence from the residuals of the extra points (span 4: equal
+residual directions; span 3: c′ ∈ ⟨a′, b′⟩, six directions per pair; span 2: batched rank of the
+residual blocks); the two methods agree on every span.
+
+| span j | frame sets | dependent | types (nullity) | full-support |
+|---|---|---|---|---|
+| 2 | 163 185 | 1 515 | 1 500 × five collinear + 2 (nullity 1), 15 × six collinear + 1 (nullity 2) | 0 |
+| 3 | 6 435 689 | 60 | 60 × five collinear + 2 (two frame points and three extras on one of the C(4,2) frame lines) | 0 |
+| 4 | 2 869 210 | 0 | – | 0 |
+
+The counts are exactly the sets with ≥ 5 collinear points (span 2: 3 · C(5,3) · 41 + 3 · 6 · C(6,4)
+= 1 500 and 3 · C(5,4) = 15; span 3: 6 · C(5,3) = 60; span 4: a line meets the frame in ≤ 2 points,
+so 5 collinear is impossible), which is the "iff" of the lemma.
+
+**Cross-check (`rm20_w7_sample_check.py`, 6 × 10⁵ random 7-sets, brute-force null spaces).**
+Strata: uniform on the grid, inside a random plane, inside a random 3-flat, line-heavy sets
+(4–7 points of a random line plus random points off it), 7-subsets of the union of two random
+lines, 7-subsets of random plane conics. In every stratum every dependent set contains ≥ 5
+collinear points and every full-support word is a full line (counts in the JSON; 0 violations).
+
+### The mixed stage at weight 7 (`scratchpad/mixed_w7_check.py`)
+
+For a weight-7 word e of ker G0 with non-class part e_N ≠ 0, u = (g−1)(g−6)·e_N is a word of
+RM(20,4) of weight 5, 6 or 7 inside the non-class points N, hence a line word, and the class part
+has 2, 1 or 0 columns. Writing s for the syndrome G0 e_N in the 21 block coordinates (the
+coordinates in which the 402 class columns live after the 35 kernel rows are split off by a row
+reduction of the class block; the kernel-row part of s vanishes automatically and is asserted),
+the three cases are
+
+| non-class part | class columns | condition on s | candidates (k = 270 seed 407) |
+|---|---|---|---|
+| weight-7 line word, all 7 points in N | 0 | s = 0 | 1 536 lines × 22 = 33 792 |
+| weight-6 line word, its 6 points in N | 1 | s ∝ c_i | 1 536 × 14 + 14 112 × 2 = 49 728 |
+| weight-5 line word, its 5 points in N | 2 | s ∈ ⟨c_i, c_j⟩ | 1 536 × 21 + 14 112 × 6 + 32 928 × 1 = 149 856 |
+
+(lines with 7 / 6 / 5 points in N: 1 536 / 14 112 / 32 928; the seventh point of a line with 6 in N
+may be a class column, an output or a g = 0 point, it does not enter). All three conditions are one
+hash lookup: the directions of the zero vector, of the 402 single class columns and of the
+6 · C(402,2) = 483 606 combinations c_i + β c_j are tabulated once as base-7 integers
+(`pointsets.pair_direction_table`, 484 009 keys, no duplicates — a duplicate would be a weight-3
+block word), and the normalised s of every candidate is binary-searched
+(`pointsets.lookup_directions`). A hit is verified explicitly against G0 and reported with its
+weight, so lower-weight mixed words (which the mixed6 stage excludes) would be caught as well.
+A positive control plants the syndromes of real candidates as fake single and pair class columns
+and checks that the lookup finds them. Cost: table 0.5 s, 233 376 candidates in 3 s (the weight-5/6
+part reproduces the 1 197 504 = 6 × (149 856 + 49 728) non-projective candidates of the mixed6
+stage); the stage is now cheaper than the plane filter. If non-line configurations had appeared in
+the lemma, each type would have needed its own enumeration inside N (planar types: the ~10⁵
+images per plane under AGL(2,7) over 139 650 planes, pruned by the N-mask line by line); none is
+needed.
+
+**Result for k = 270 seed 407 ([[1746,270,≥7]]₇, d_plane = 8).** 233 376 candidates, 0 extensions
+(`runs/certify/p7_k270_seed407_mixed7.json`). Together with the earlier stages (no block word of
+weight ≤ 6, no word of weight ≤ 5 anywhere, no mixed weight-6 word) this proves: *every weight-7
+word of this code, if any, lies entirely in the class block.* d = 8 (γ = 0.898) is therefore
+decided by the 3+4 weight-7 scan of the 402 class columns alone (the deferred lenore job); no
+further open-ended scan is needed. The same two lookups (mixed6 + mixed7, ~10 s) apply to every
+sphere-charge draw, so for any survivor the certificate of d = 8 is "class block has no word of
+weight ≤ 7, full code has no word of weight ≤ 5". (The candidate set is the same for every draw,
+because N = {g ∈ {2,3,4,5}} does not depend on the outputs; only the class columns, hence the
+direction table, change.) Run on the certified [[1756,260,7]]₇ draw as well
+(`runs/weighted/p7_m4_sphere_1756_260_mixed_w7_check.json`, block rank 31, 484 009 keys): 0 of
+233 376 candidates extend, so every weight-7 word of that code is a class-block word and the
+queued weight-7 census of its class block counts all of them.
 
 ## Beyond the sphere: degree-5 charges at r = 6
 
