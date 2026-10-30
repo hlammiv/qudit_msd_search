@@ -100,7 +100,13 @@ def main():
     ap.add_argument("--same-slice", action="store_true", help="time old on the new slices too")
     ap.add_argument("--merge", type=int, default=0, metavar="LOG2CAP",
                     help="also time the sort+merge-join 2+3 kernel with a 2^LOG2CAP buffer")
+    ap.add_argument("--cols", type=int, nargs=2, metavar=("LO", "HI"),
+                    help="override the slice of leading columns for every split (new path)")
     args = ap.parse_args()
+    if args.cols:
+        for s in SPLITS.values():
+            for k in s:
+                s[k] = tuple(args.cols)
     if not (args.old or args.new):
         args.old = args.new = True
     nthreads = int(os.environ.get("NUMBA_NUM_THREADS", "0") or 0)
