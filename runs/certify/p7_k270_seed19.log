@@ -1,0 +1,9 @@
+[      2s] k=270 seed=19: n=1746, class block (32, 402) rank 21, d_plane 7
+[    552s] block weight<=5: None
+[   4901s] block weight-6 witness (3+3): None
+[   5013s] full weight<=4: None
+[  40088s] full weight-5 exists: False
+[  40274s] mixed weight-6: kernel dim 35 (expect 35), lines 137200, candidates 1197504, hits 0
+[  40274s] d >= 7 (block6 + full5 + mixed6)
+[  40274s] weight-7 witness from flat_witness (plane) verified
+[  40274s] d = 7 exact

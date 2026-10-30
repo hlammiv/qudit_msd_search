@@ -37,8 +37,8 @@ A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma
 | # | candidate | why | status | result |
 |---|---|---|---|---|
 | 1 | k = 270 seed 407 | the only draw with plane distance 8; d = 7 (gamma 0.959) or d = 8 (gamma 0.898) | **d >= 7 certified** 2026-10-29 (block6 73 min, full5 10.0 h, mixed6 3.5 min: 1 197 504 line-word candidates, 0 extensions); witness scan deferred | [[1746,270,>=7]]_7, gamma <= 0.959; d = 8 open |
-| 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | running: block6 passed (81 min), in full5 | |
-| 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | queued after 2 | |
+| 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | **d = 7 exact** 2026-10-29 (block6 82 min, full5 9.8 h, mixed6 3 min, witness verified) | [[1746,270,7]]_7, gamma 0.959 |
+| 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | **d = 7 exact** 2026-10-30 (block6 88 min, mixed6 4 min, full5 skipped as implied, witness verified) | [[1751,265,7]]_7, gamma 0.970 |
 
 **Throttling (2026-10-29/30).** Lenore runs at load 31-39 with the owner's circuit-knitting jobs, so the
 nice-19 jobs get 40-65% of their threads and the measured probe rate is ~1-3e5/s/thread (the idle figure
@@ -66,7 +66,7 @@ MITM tables at n ~ 430-770 exceed loranne's memory and the local box reaps them 
 |---|---|---|---|---|
 | 19 | [[296,65,6]]_19 | 0.846 | certified (5/6 draws at k = 65; all 6 at k = 68 fail) | `runs/m2_line_sweep/p19_k65.jsonl` |
 | 23 | [[424,105,6]]_23 | 0.779 | certified (15 residual checks = accidental-word limit) | `runs/m2_line_sweep/local/p23_k105_certified.jsonl` |
-| 29 | [[666,175,6]]_29 ? | 0.746 if d = 6 | certificate running on lenore (4 threads) | `lenore:~/repro_aanha/runs_m2/p29_k175_certified.jsonl` |
+| 29 | [[666,175,6]]_29 | 0.746 | **certified** 2026-10-30 (weight-5 scan 86142 s at 4 throttled threads; explicit weight-6 line word by `scratchpad/line_witness.py`) | `runs/certify/p29_k175_certified.jsonl` |
 | 31 | [[766,195,6]]_31 ? | 0.763 if d = 6 | certificate running on lenore (4 threads) | `lenore:~/repro_aanha/runs_m2/p31_k195_certified.jsonl` |
 | 37 | | ~0.745 vs RS 0.800 | not started: marginal gain, 20 h certificate | |
 

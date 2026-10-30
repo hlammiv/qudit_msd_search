@@ -1,0 +1,6 @@
+[      3s] k=265 seed=8: n=1751, class block (42, 407) rank 26, d_plane 7
+[      3s] full5 skipped (implied)
+[    237s] mixed weight-6: kernel dim 35 (expect 35), lines 137200, candidates 1197504, hits 0
+[    237s] d >= 7 (block6 + mixed6)
+[    237s] weight-7 witness from flat_witness (plane) verified
+[    237s] d = 7 exact
