@@ -272,3 +272,160 @@ def test_weight7_census_matches_null_space_enumeration():
         if checked == 2:
             break
     assert checked >= 1
+
+
+# ----------------------------------------------------------------------------------------------
+# Bucket-indexed right scans (method="index") vs the original searchsorted kernels
+# ----------------------------------------------------------------------------------------------
+
+def _random_instances(seed, count, p_choices=(3, 5, 7, 11), r_range=(8, 14), n_range=(14, 24),
+                      nullity=None):
+    """Random (p, H, H1) instances; ``nullity`` restricts n - r (small nullity -> larger d)."""
+    rng = np.random.default_rng(seed)
+    out = []
+    while len(out) < count:
+        p = int(rng.choice(p_choices))
+        r = int(rng.integers(r_range[0], r_range[1] + 1))
+        n = int(rng.integers(n_range[0], n_range[1] + 1))
+        if nullity is not None:
+            n = r + int(rng.integers(nullity[0], nullity[1] + 1))
+        H = rng.integers(0, p, size=(r, n)).astype(np.int64)
+        H1 = rng.integers(0, p, size=(2, n)).astype(np.int64)
+        out.append((p, H, H1))
+    return out
+
+
+def _min_distance_reference(H, p):
+    """Exact d in 1..7 or 8 (meaning >= 8) using ONLY the original searchsorted kernels."""
+    from qmsd.mindist_nb import weight7_witness_3x4
+    if (H == 0).all(axis=0).any():
+        return 1
+    for d in (2, 3, 4, 5, 6):
+        if weight_d_exists_fast(H, p, d, method="searchsorted"):
+            return d
+    return 7 if weight7_witness_3x4(H, p, method="searchsorted") is not None else 8
+
+
+def _is_dependency(H, p, cols, w):
+    from qmsd.structured_ad import _rank
+    return cols is not None and len(set(cols)) == w and _rank(H[:, list(cols)].T.copy(), p) < w
+
+
+def test_left_index_brackets_every_code():
+    """bstart[beta] .. bstart[beta+1] is exactly the run of codes with top-K bits == beta."""
+    from qmsd.mindist_nb import _left_index
+    rng = np.random.default_rng(5)
+    for N in (0, 1, 2, 7, 100, 5000):
+        codes = np.sort(rng.integers(0, 2 ** 63, size=N).astype(np.uint64) * np.uint64(2)
+                        + rng.integers(0, 2, size=N).astype(np.uint64))
+        bstart, shift = _left_index(codes)
+        K = 64 - int(shift)
+        assert bstart.shape[0] == 2 ** K + 1 and bstart[0] == 0 and bstart[-1] == N
+        tops = (codes >> np.uint64(shift)).astype(np.int64)
+        for beta in range(2 ** K):
+            lo, hi = int(bstart[beta]), int(bstart[beta + 1])
+            assert lo == np.searchsorted(tops, beta, side="left")
+            assert hi == np.searchsorted(tops, beta, side="right")
+
+
+def test_index_method_matches_searchsorted_weight_d_exists():
+    """weight_d_exists_fast: identical verdict for every d (both b=3 splits go through the
+    index) on random instances over p in {3, 5, 7, 11}, r 8-14, n 14-24."""
+    checks = 0
+    for p, H, _ in _random_instances(101, 60):
+        for d in (2, 3, 4, 5, 6):
+            a = weight_d_exists_fast(H, p, d, method="searchsorted")
+            b = weight_d_exists_fast(H, p, d, method="index")
+            assert a == b, (p, H.shape, d, a, b)
+            checks += 1
+            if a:
+                break
+    assert checks >= 60
+
+
+def test_index_method_matches_searchsorted_parallel_scans():
+    """weight5_exists_parallel, weight6_exists_via_2_4, weight6_witness_parallel,
+    weight6_witness_3x3, weight7_witness_3x4: identical booleans, and every witness returned by
+    the index path is a genuine dependency of the right weight."""
+    from qmsd.mindist_nb import (weight5_exists_parallel, weight6_witness_parallel,
+                                 weight6_witness_3x3, weight7_witness_3x4)
+    seen = {5: 0, 6: 0, 7: 0, 8: 0}
+    for p, H, _ in _random_instances(202, 40, nullity=(2, 6)):
+        d = _min_distance_reference(H, p)
+        if d < 5:
+            continue
+        seen[d] += 1
+        a5 = weight5_exists_parallel(H, p, method="searchsorted")
+        b5 = weight5_exists_parallel(H, p, method="index")
+        assert a5 == b5 == (d == 5)
+        if d == 5:
+            continue
+        for fn, kw in ((weight6_exists_via_2_4, {}), (weight6_witness_parallel, {"block": 4}),
+                       (weight6_witness_3x3, {})):
+            a = fn(H, p, method="searchsorted", **kw)
+            b = fn(H, p, method="index", **kw)
+            assert (a is not None and a is not False) == (b is not None and b is not False) == (d == 6), fn
+            if isinstance(b, list):
+                assert _is_dependency(H, p, b, 6)
+        if d == 6 or p > 7:
+            continue                     # 3+4 at p = 11 is C(n,4) 10^4 probes per instance
+        a = weight7_witness_3x4(H, p, block=3, method="searchsorted")
+        b = weight7_witness_3x4(H, p, block=3, method="index")
+        assert (a is not None) == (b is not None) == (d == 7)
+        if b is not None:
+            assert _is_dependency(H, p, b, 7)
+    assert seen[5] >= 1 and seen[6] >= 1 and seen[7] + seen[8] >= 1, seen
+
+
+def test_index_method_matches_searchsorted_census_kernels():
+    """The per-leading-column census arrays (fails, found) of the 2+3, 3+3 and 3+4 kernels are
+    identical element-wise, and the public counters agree (incl. the 10/20/35-fold assertions)."""
+    from qmsd.mindist_nb import (_powers_u64, _build_left2_coef, _build_left3_norm_coef,
+                                 _left_index, _census_weight5_per_output, _census_weight5_idx,
+                                 _census_weight6_3x3, _census_weight6_idx, _census_weight7_3x4,
+                                 _census_weight7_idx, count_weight5_per_output,
+                                 count_weight6_per_output, count_weight7_per_output)
+    done = {5: 0, 6: 0, 7: 0}
+    for p, H, H1 in _random_instances(303, 60, nullity=(3, 6)):
+        r, n = H.shape
+        H = H % p
+        powers = _powers_u64(p, r)
+        # kernel-level: identical arrays whatever the distance (hits are just verified matches)
+        lc, ls, lf = _build_left2_coef(H, p, powers)
+        bs, sh = _left_index(lc)
+        f_old, g_old = _census_weight5_per_output(H, H1, p, powers, lc, ls, lf)
+        f_new, g_new = _census_weight5_idx(H, H1, p, powers, lc, ls, lf, bs, sh, 0, n)
+        assert np.array_equal(f_old, f_new) and np.array_equal(g_old, g_new)
+        lc, ls, lf = _build_left3_norm_coef(H, p, powers)
+        bs, sh = _left_index(lc)
+        f_old, g_old = _census_weight6_3x3(H, H1, p, powers, lc, ls, lf)
+        f_new, g_new = _census_weight6_idx(H, H1, p, powers, lc, ls, lf, bs, sh, 0, n)
+        assert np.array_equal(f_old, f_new) and np.array_equal(g_old, g_new)
+        if p <= 7:
+            f_old, g_old = _census_weight7_3x4(H, H1, p, powers, lc, ls, lf, 0, n)
+            f_new, g_new = _census_weight7_idx(H, H1, p, powers, lc, ls, lf, bs, sh, 0, n)
+            assert np.array_equal(f_old, f_new) and np.array_equal(g_old, g_new)
+        # public counters on instances whose distance admits them
+        d = _min_distance_reference(H, p)
+        if d >= 5:
+            a = count_weight5_per_output(H, H1, p, method="searchsorted")
+            b = count_weight5_per_output(H, H1, p, method="index")
+            assert a[:2] == b[:2] and np.array_equal(a[2], b[2])
+            done[5] += 1
+        if d >= 6:
+            a = count_weight6_per_output(H, H1, p, method="searchsorted")
+            b = count_weight6_per_output(H, H1, p, method="index")
+            assert a[:2] == b[:2] and np.array_equal(a[2], b[2])
+            done[6] += 1
+        if d >= 7 and p <= 7:
+            a = count_weight7_per_output(H, H1, p, method="searchsorted")
+            b = count_weight7_per_output(H, H1, p, method="index")
+            assert a[:2] == b[:2] and np.array_equal(a[2], b[2])
+            done[7] += 1
+    assert done[5] >= 3 and done[6] >= 2 and done[7] >= 1, done
+
+
+def test_index_method_rejects_unknown_method():
+    H = np.eye(5, dtype=np.int64)
+    with pytest.raises(ValueError):
+        weight_d_exists_fast(H, 7, 5, method="bogus")
