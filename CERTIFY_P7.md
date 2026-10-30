@@ -66,6 +66,9 @@ accidental-word limit can give.
 
 ## Follow-up work (not started)
 
+- Symmetric (orbit-union) output sets on the sphere, so that the certificates above shrink by the
+  group order; see the todo in `NEXT_STEPS.md` §H (queued 2026-10-30).
+
 - Weight-7 census on the class block of [[1756,260,7]]_7 (cost claim): kernel `count_weight7_per_output`
   (3+4, 35-fold multiplicity asserted, tested against null-space enumeration) written 2026-10-29;
   `scratchpad/census7_1756.py` is QUEUED on lenore behind the certification chain (8 threads, ~50 h;

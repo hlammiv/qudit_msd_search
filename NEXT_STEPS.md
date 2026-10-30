@@ -175,6 +175,16 @@ the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current 
   (γ 0.959 at d = 7), then k = 265 (γ 0.960). Stop after the first success per k.
 - [ ] The other degree-2 charges at m = 4 (non-square coefficient, hyperbolic form): recompute
   the class-block rank and rerun the cheap sweep; not started.
+- [ ] **Symmetric output sets (orbit sampler), queued 2026-10-30.** Draw the outputs as a union of
+  orbits of a subgroup G ≤ O(4, F₇) acting on the 672 class points of the sphere, instead of a uniform
+  random subset. If d ≥ 7 survives at k ≈ 265–270, ker G0 is G-invariant and every distance scan
+  (weight-5 full scan, weight-6 block scan, weight-7 census / witness) shrinks by ~|G| by enumerating
+  one orbit representative per word. Cheap first test (half a day, loranne-sized): enumerate small
+  subgroups (|G| 20–60), build orbit unions of size 260–275, run the plane filter and the random-count
+  model; only then write the orbit-aware wrappers around the existing MITM kernels (the kernels do not
+  change). Prompted by the binary fold-and-lift certificates of Zenodo 23466024 (not applicable
+  directly: characteristic 2 and cyclic structure). Risk: symmetry can force collinear
+  configurations and planar words; the census decides.
 **Next:** finish the weight-7 witness / census; bracket further (k = 255–265) using the class block
 as the cheap filter before the 2.75 h full weight-5 proof; then plug `marginal_saving` into the
 search as the ranking. r = 6 (degree-5 charges) was probed 2026-10-27: five-hyperplane charge
