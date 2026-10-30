@@ -15,7 +15,13 @@ weight <= 5) is certified in five resumable stages, each appended to OUT.json:
                   leaves d >= 8 open, pending the weight-7 mixed-word lemma)
 
 Stages 2-4 together prove d >= 7; stage 5 makes d = 7 exact.
-usage: certify_candidate.py K SEED OUT.json [--threads N]
+usage: certify_candidate.py K SEED OUT.json [--skip-full5]
+
+--skip-full5: omit stage 3.  It is implied by stages 2 and 4: a word of weight <= 6 either lies in the
+class block (stage 2 excludes weight <= 6 there) or has a non-class part, which the 35 kernel rows
+force into RM(20,4) (d = 5), whose weight-5/6 words are line-supported (lemma), and stage 4
+enumerates exactly those line words with weight 5 (no class part) or 6 / 5+1 and tests extension.
+Stage 3 is therefore an independent cross-check (10 h at 8 throttled threads), not a logical need.
 """
 import sys, os, json, time, itertools, glob
 import numpy as np
@@ -26,7 +32,7 @@ from qmsd.triorthogonal import shorten_matrix
 from qmsd.mindist_nb import (weight_d_exists_fast, weight5_exists_parallel, weight6_witness_3x3,
                              weight7_witness_3x4)
 
-k, seed, out = int(sys.argv[1]), int(sys.argv[2]), sys.argv[3]
+k, seed, out = int(sys.argv[1]), int(sys.argv[2]), sys.argv[3]; SKIP_FULL5 = "--skip-full5" in sys.argv
 p, m, r = 7, 4, 7
 T0 = time.time()
 def log(msg):
@@ -76,7 +82,9 @@ if not done("block6"):
     if low is not None or w6 is not None:
         state["verdict"] = f"d = {low or 6} (class block)"; save(); log(state["verdict"]); sys.exit(0)
 
-# ---- stage 3: full code, weight <= 5
+# ---- stage 3: full code, weight <= 5 (cross-check; implied by stages 2 + 4, see docstring)
+if SKIP_FULL5 and not done("full5"):
+    state["stages"]["full5"] = {"skipped": True, "reason": "implied by block6 + mixed6 (see docstring)"}; save(); log("full5 skipped (implied)")
 if not done("full5"):
     t = time.time(); low = None
     for d in (2, 3, 4):
@@ -132,7 +140,7 @@ if not done("mixed6"):
     state["stages"]["mixed6"] = {"kernel_dim": int(K_dim), "lines": n_lines, "line_word_candidates": cands, "hits": hits, "seconds": round(time.time() - t)}; save()
     if hits:
         state["verdict"] = "d = 6 (mixed word)"; save(); log(state["verdict"]); sys.exit(0)
-state["verdict"] = "d >= 7 (block6 + full5 + mixed6)"; save(); log(state["verdict"])
+state["verdict"] = "d >= 7 (block6 + mixed6" + ("" if SKIP_FULL5 else " + full5") + ")"; save(); log(state["verdict"])
 
 # ---- stage 5: weight-7 witness
 if not done("witness7"):

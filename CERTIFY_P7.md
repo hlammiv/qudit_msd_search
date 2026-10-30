@@ -19,7 +19,16 @@ filters cannot do:
 | mixed6 | weight-6 words touching a non-class column | kernel rows force the non-class part into RM(20,4) (d = 5); its full-support weight-5/6 words are line-supported (lemma, `scratchpad/mixed_w6_check.py`); enumerate those lines inside the non-class points and test extension by <= 1 class column | ~10 min |
 | witness7 | (upper bound) | the stored planar witness, verified against G0; for seed 407 the 3+4 block scan | seconds, or hours for 407 |
 
-Driver: `scratchpad/certify_candidate.py K SEED OUT.json` (resumable; each stage appends to the JSON).
+Driver: `scratchpad/certify_candidate.py K SEED OUT.json [--skip-full5]` (resumable; each stage appends
+to the JSON).
+
+**full5 is logically redundant (noted 2026-10-30).** A word of weight <= 6 either lies in the class block
+(block6 excludes it) or has a non-class part, which the 35 kernel rows force into RM(20,4) (d = 5),
+whose weight-5/6 words are line-supported; mixed6 enumerates exactly those line words (weight 5 with
+no class part, weight 6, weight 5 + one class column) and tests extension to ker G0. So
+block6 + mixed6 already prove d >= 7; the 10-hour full scan is an independent cross-check. Seed 407 and
+seed 19 ran it (seed 407: consistent); seed 8 and later candidates run with `--skip-full5`, which cuts a
+certificate from ~12 h to ~1.5 h at 8 throttled threads.
 A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma = 0.960, k = 270 gives
 0.959, against the current record 0.982.
 
