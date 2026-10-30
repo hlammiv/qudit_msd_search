@@ -96,7 +96,7 @@ up the cube class.
 |---|---|---|---|---|---|
 | [[1746,270,6]]_7 weight-6 witness | (3,1,4,6) (1,4,4,6) (2,0,6,6) (0,1,2,6) (5,1,3,6) (3,2,6,6) | 2 | 2 | 6 6 6 6 1 1 | 3 3 3 3 1 1 |
 | [[1756,260,7]]_7 weight-7 witness | (3,4,0,2) (2,1,1,4) (4,0,3,4) (5,3,0,0) (3,4,6,1) (0,2,0,5) (0,2,1,6) | 2 | 5 | 1 1 6 6 6 1 6 | 3 3 1 1 1 3 1 |
-| [[1746,270,>=7]]_7 (sweep k = 270 seed 407, d_plane = 8) | F_7^4 | <= 0.959 (0.898 if d = 8) | d >= 7: block weight-6 scan + full weight-5 scan + mixed-word exclusion at weights 6 and 7 (2026-10-29/30, `CERTIFY_P7.md`); every weight-7 word, if any, lies in the class block; d = 8 iff the block 3+4 scan is empty |
+| [[1746,270,7]]_7 (sweep k = 270 seed 407, d_plane = 8) | F_7^4 | 0.959 | d = 7 exact: block weight-6 scan + full weight-5 scan + mixed-word exclusion at weights 6 and 7, then a weight-7 block word from the 3+4 scan (14 min with the indexed kernels, 2026-10-30); plane distance 8 but a non-planar block word of weight 7 exists |
 | [[1746,270,7]]_7 (sweep k = 270 seed 19) | F_7^4 | **0.959** | d = 7 exact (2026-10-30): block weight-6 scan, full weight-5 scan, mixed-word exclusion, planar weight-7 witness (`CERTIFY_P7.md`) |
 | [[1751,265,7]]_7 (sweep k = 265 seed 8) | F_7^4 | 0.970 | d = 7 exact (2026-10-30): block weight-6 scan + mixed-word exclusion (the full weight-5 scan is implied, see `CERTIFY_P7.md`), planar weight-7 witness |
 | k = 260 sample 0 (d = 4), its unique weight-4 word | (6,3,4,1) (1,6,3,3) (1,2,2,5) (6,4,3,6) | 3 | 0 | 6 6 6 6 | 1 3 3 2 |

@@ -1,0 +1,5 @@
+[      3s] k=270 seed=407: n=1746, class block (32, 402) rank 21, d_plane 8
+[      3s] d >= 7 (block6 + mixed6 + full5)
+[      3s] no stored witness: running the 3+4 scan on the class block (early exit)
+[    821s]   block cols [0,8) 86s
+[    823s] d = 7 exact

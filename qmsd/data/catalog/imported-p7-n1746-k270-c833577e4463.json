@@ -3,8 +3,8 @@
   "Ad_evidence": "Not computed",
   "artifact_id": "imported-p7-n1746-k270-c833577e4463",
   "certificate": {
-    "date": "2026-10-29",
-    "exact": false,
+    "date": "2026-10-30",
+    "exact": true,
     "lower_bound": 7,
     "lower_method": "block6 + full5 + mixed6 (scratchpad/certify_candidate.py)",
     "machine": "lenore, 8 threads nice 19",
@@ -26,14 +26,34 @@
         "stage": "mixed6"
       },
       {
-        "result": "plane distance 8; no planar or 3-flat weight-7 word; full 3+4 block scan deferred",
-        "seconds": null,
+        "result": "weight-7 block word found in the second block of leading columns (3+4 scan, early exit)",
+        "seconds": 820,
         "stage": "witness7"
       }
     ],
-    "upper_bound": null,
-    "upper_method": "open: d = 7 or 8 (no weight-7 witness found in planar / 3-flat scans)",
-    "witness": null
+    "upper_bound": 7,
+    "upper_method": "explicit weight-7 word found by the 3+4 class-block scan (820 s with the bucket-indexed kernels, 2026-10-30), verified against G0",
+    "witness": {
+      "coefficients": [
+        1,
+        1,
+        3,
+        3,
+        3,
+        4,
+        1
+      ],
+      "columns": [
+        177,
+        337,
+        492,
+        14,
+        20,
+        651,
+        1160
+      ],
+      "weight": 7
+    }
   },
   "construction": {
     "charge": {
@@ -331,7 +351,7 @@
     "r": 7
   },
   "d": 7,
-  "distance_evidence": "Not certified by the qmsd search engine",
+  "distance_evidence": "d = 7 exact: block6 + full5 + mixed6 (and mixed7: no mixed weight-7 word) lower bound; weight-7 block word found by the 3+4 scan",
   "family": "weighted support (sphere charge), sweep candidate",
   "gamma_value": 0.9592738792730929,
   "geometry": {
@@ -342,7 +362,7 @@
     "sweep": "runs/weighted/plane_sweep (k=270 seed 407)"
   },
   "k": 270,
-  "label": "[[1746,270,>=7]]_7",
+  "label": "[[1746,270,7]]_7",
   "m": 4,
   "n": 1746,
   "note": "Imported search parameters: {\"jobs\": 1, \"m\": 4, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 7, \"sampler\": \"weighted sphere-charge sweep (scratchpad/plane_sweep.py) + certify_candidate.py\", \"seed\": 407, \"target_k\": 270, \"top\": 1, \"trials\": 1}",
@@ -369,6 +389,6 @@
   "r": 7,
   "schema": "qmsd.catalog-record.v2",
   "source": "p7_k270_seed407_bundle.json",
-  "status": "partial",
+  "status": "confirmed",
   "w": null
 }

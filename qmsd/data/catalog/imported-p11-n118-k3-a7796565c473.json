@@ -1,0 +1,49 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p11-n118-k3-a7796565c473",
+  "certificate": {
+    "date": "2026-10-30",
+    "exact": true,
+    "lower_bound": 6,
+    "lower_method": "qmsd search engine (MITM min_dependent_columns)",
+    "machine": "",
+    "refuted": false,
+    "stages": [],
+    "upper_bound": 6,
+    "upper_method": "qmsd search engine (explicit dependent set)",
+    "witness": null
+  },
+  "construction": {
+    "family": "manhattan",
+    "m": 2,
+    "p": 11,
+    "r": 6,
+    "w": 1
+  },
+  "d": 6,
+  "distance_evidence": "qmsd search engine (MITM min_dependent_columns)",
+  "family": "imported analytic Manhattan",
+  "gamma_value": 2.0494225920734754,
+  "geometry": null,
+  "k": 3,
+  "label": "[[118,3,6]]_11",
+  "m": 2,
+  "n": 118,
+  "note": "Imported search parameters: {\"jobs\": 1, \"m\": 2, \"max_triples\": 0, \"min_keep_distance\": null, \"p\": 11, \"sampler\": \"flat_spread\", \"seed\": 5, \"target_k\": 28, \"top\": 10, \"trials\": 100}",
+  "p": 11,
+  "performance": {
+    "acceptance_mc": null,
+    "census": null,
+    "exact_curve": false,
+    "notes": "",
+    "rigorous_bounds": false
+  },
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": null,
+  "r": 6,
+  "schema": "qmsd.catalog-record.v2",
+  "source": "p11_m2_k28.json",
+  "status": "confirmed",
+  "w": 1
+}

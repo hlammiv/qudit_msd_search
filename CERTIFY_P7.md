@@ -37,7 +37,7 @@ A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma
 
 | # | candidate | why | status | result |
 |---|---|---|---|---|
-| 1 | k = 270 seed 407 | the only draw with plane distance 8; d = 7 (gamma 0.959) or d = 8 (gamma 0.898) | **d >= 7 certified** 2026-10-29 (block6 73 min, full5 10.0 h, mixed6 3.5 min: 1 197 504 line-word candidates, 0 extensions); witness scan deferred | [[1746,270,>=7]]_7, gamma <= 0.959; d = 8 open |
+| 1 | k = 270 seed 407 | the only draw with plane distance 8; d = 7 (gamma 0.959) or d = 8 (gamma 0.898) | **d = 7 exact** (lower bound 2026-10-29: block6 73 min, full5 10.0 h, mixed6 3.5 min, 0 extensions; mixed7 0 extensions; the 3+4 block scan on the indexed kernels found a weight-7 word after 14 min on 2026-10-30) | [[1746,270,7]]_7, gamma 0.959; the d = 8 hope is closed |
 | 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | **d = 7 exact** 2026-10-29 (block6 82 min, full5 9.8 h, mixed6 3 min, witness verified) | [[1746,270,7]]_7, gamma 0.959 |
 | 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | **d = 7 exact** 2026-10-30 (block6 88 min, mixed6 4 min, full5 skipped as implied, witness verified) | [[1751,265,7]]_7, gamma 0.970 |
 
