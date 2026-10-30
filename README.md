@@ -56,10 +56,12 @@ and by single-round distillation cost `C`.
   certified by a three-part proof plus an explicit weight-7 word (`WEIGHTED_SUPPORTS.md`). The
   best published p = 7 codes have γ ≥ 1.6; the sibling [[1746,270,6]]₇ cuts distillation cost
   ~4× below the cyclic and doubled p = 7 codes in the leading-order surrogate.
+- Numba meet-in-the-middle kernels certify distances to d = 7 at n ~ 2000 (bucket-indexed, division-free
+  right scans: 6-7x the probe rate of a binary-search join at identical results, `scratchpad/bench_mitm/`).
 - Reproduces arXiv:2610.08012 **Table 2** (leading order, threshold, acceptance) to the printed
   digits, and gives exact thresholds or rigorous threshold lower bounds for the catalog codes
   (`PERFORMANCE.md`).
-- **393 tests pass, 7 skipped** (`python -m pytest -q`).
+- **tests: see `python -m pytest -q`** (400+ collected, 7 skipped) (`python -m pytest -q`).
 
 ## Quickstart
 

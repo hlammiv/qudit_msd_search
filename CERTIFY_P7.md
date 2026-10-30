@@ -41,6 +41,15 @@ A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma
 | 2 | k = 270 seed 19 | first k = 270 survivor, planar witness in hand | **d = 7 exact** 2026-10-29 (block6 82 min, full5 9.8 h, mixed6 3 min, witness verified) | [[1746,270,7]]_7, gamma 0.959 |
 | 3 | k = 265 seed 8 | first k = 265 survivor, planar witness in hand | **d = 7 exact** 2026-10-30 (block6 88 min, mixed6 4 min, full5 skipped as implied, witness verified) | [[1751,265,7]]_7, gamma 0.970 |
 
+**Kernel speedup (2026-10-30, merged 49593d6).** The MITM right-hand scans now use a bucket index over
+the sorted left table, division-free hashing (mod-p tables) and staged lookups (`method="index"`, the
+default; the original `searchsorted` path is kept and cross-checked by tests). Measured 6-7x more
+probes per second per thread on every split (2+3, 3+3, 3+4, 2+4) at identical results
+(`scratchpad/bench_mitm/RESULTS.md`), with the old kernel degrading further under contention, so the
+production gain should be at least that. Consequences: the weight-7 census and seed 407's 3+4 block
+scan (~1.4e12 probes each) drop from weeks to ~1 day at 8 throttled threads, and a full certificate's
+block6 stage from ~80 min to ~15 min.
+
 **Throttling (2026-10-29/30).** Lenore runs at load 31-39 with the owner's circuit-knitting jobs, so the
 nice-19 jobs get 40-65% of their threads and the measured probe rate is ~1-3e5/s/thread (the idle figure
 was ~1e6). Revised ETAs: 407's full weight-5 scan ~16 h after its start; each further candidate ~1 day;
