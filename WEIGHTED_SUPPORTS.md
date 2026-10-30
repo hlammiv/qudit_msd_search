@@ -244,8 +244,21 @@ so 5 collinear is impossible), which is the "iff" of the lemma.
 **Cross-check (`rm20_w7_sample_check.py`, 6 × 10⁵ random 7-sets, brute-force null spaces).**
 Strata: uniform on the grid, inside a random plane, inside a random 3-flat, line-heavy sets
 (4–7 points of a random line plus random points off it), 7-subsets of the union of two random
-lines, 7-subsets of random plane conics. In every stratum every dependent set contains ≥ 5
-collinear points and every full-support word is a full line (counts in the JSON; 0 violations).
+lines, 7-subsets of random plane conics (random quadrics, degenerate ones included). In every
+stratum every dependent set contains ≥ 5 collinear points and every full-support word is a full
+line; 0 violations in 600 000 sets (16 min, dominated by the classification of the dependent sets):
+
+| stratum (10⁵ sets each) | dependent | five collinear + 2 | six collinear + 1 | full line | full-support words |
+|---|---|---|---|---|---|
+| uniform on F_7^4 | 0 | – | – | – | 0 |
+| inside a random plane | 1 172 | 1 148 | 24 | 0 | 0 |
+| inside a random 3-flat | 3 | 3 | 0 | 0 | 0 |
+| 4–7 points of a line + random points | 74 894 | 24 972 | 25 029 | 24 893 | 24 893 (all full lines) |
+| 7 of the union of two lines | 28 878 | 25 948 | 2 872 | 58 | 58 (all full lines) |
+| 7 of a plane conic | 7 086 | 5 262 | 693 | 1 131 | 1 131 (all full lines) |
+
+The nullities are 1, 2, 3 for the three configurations, as the lemma predicts (two, one, zero
+missing points of RM(2,1) on the line).
 
 ### The mixed stage at weight 7 (`scratchpad/mixed_w7_check.py`)
 
