@@ -1,0 +1,53 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p23-n22-k1-faa9fd1f1e35",
+  "certificate": {
+    "date": "2026-10-30",
+    "exact": true,
+    "lower_bound": 8,
+    "lower_method": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4; shortened/punctured MDS codes are MDS)",
+    "machine": "closed form",
+    "refuted": false,
+    "stages": [],
+    "upper_bound": 8,
+    "upper_method": "closed-form MDS: any d columns of the [n, r+1-k] shortened RS dual are ... explicit: the MDS code has words of every weight >= d",
+    "witness": null
+  },
+  "construction": {
+    "family": "reed_solomon",
+    "m": 1,
+    "p": 23,
+    "puncture_columns_1indexed": [
+      1
+    ],
+    "r": 7
+  },
+  "d": 8,
+  "distance_evidence": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4; shortened/punctured MDS codes are MDS)",
+  "family": "imported Reed-Solomon (m = 1)",
+  "gamma_value": 1.4864772062124327,
+  "geometry": null,
+  "k": 1,
+  "label": "[[22,1,8]]_23",
+  "m": 1,
+  "n": 22,
+  "note": "Reed-Solomon (m = 1) family member, k = 1 of r = 7; puncture set is immaterial (puncture-invariant). Exact threshold 0.6431 (per output), c = 0.000128.",
+  "p": 23,
+  "performance": {
+    "acceptance_mc": null,
+    "census": null,
+    "exact_curve": true,
+    "notes": "exact closed-form MDS performance (qmsd.rs_family); record in qmsd/data/performance",
+    "rigorous_bounds": false
+  },
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": [
+    1
+  ],
+  "r": 7,
+  "schema": "qmsd.catalog-record.v2",
+  "source": "rs_family_all_bundle.json",
+  "status": "confirmed",
+  "w": null
+}

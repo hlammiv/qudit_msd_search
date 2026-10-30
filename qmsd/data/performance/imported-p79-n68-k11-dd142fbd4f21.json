@@ -1,0 +1,36 @@
+{
+ "schema": "qmsd.performance.v1",
+ "git_rev": "9391ad7",
+ "artifact_id": "imported-p79-n68-k11-dd142fbd4f21",
+ "label": "[[68,11,16]]_79",
+ "p": 79,
+ "n": 68,
+ "k": 11,
+ "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
+ "dim_A": 15,
+ "tier": 1,
+ "engine_avg": "mds closed form (qmsd.rs_family)",
+ "engine_block": "mds closed form (qmsd.rs_family)",
+ "avg": {
+  "d": 16,
+  "L_d": "114626365326354024",
+  "c_eps": 6.106197942820562e-14,
+  "c_delta": null,
+  "threshold_eps": 0.6215398506802962,
+  "threshold_delta": 0.6295083103044025,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "block": {
+  "d": 16,
+  "c_eps": 6.106197942820562e-14,
+  "threshold_eps": 0.621345877292273,
+  "threshold_delta": 0.6293118500780713,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "P_acc_eps_0.01": 0.5048858887870705,
+ "P_acc_eps_0.001": 0.9342286880693657,
+ "status": "exact",
+ "seconds": 0.0
+}

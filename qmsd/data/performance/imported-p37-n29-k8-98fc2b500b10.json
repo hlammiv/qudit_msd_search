@@ -1,6 +1,6 @@
 {
  "schema": "qmsd.performance.v1",
- "git_rev": "4e19305",
+ "git_rev": "9391ad7",
  "artifact_id": "imported-p37-n29-k8-98fc2b500b10",
  "label": "[[29,8,5]]_37",
  "p": 37,
@@ -8,22 +8,29 @@
  "k": 8,
  "convention": "eps = paper (2610.08012); delta = p/(p-1) eps",
  "dim_A": 4,
- "log10_cost_avg": 7.175896883259924,
- "log10_cost_block": 18.81842068880394,
- "engine_avg": "exact",
- "engine_block": "bounds",
  "tier": 1,
+ "engine_avg": "mds closed form (qmsd.rs_family)",
+ "engine_block": "mds closed form (qmsd.rs_family)",
  "avg": {
   "d": 5,
   "L_d": "4275180",
   "c_eps": 0.07070366083676269,
-  "c_delta": 0.0633643534360175,
+  "c_delta": null,
   "threshold_eps": 0.38324557741725446,
-  "threshold_delta": 0.39389128790106703,
+  "threshold_delta": 0.3938912879010671,
+  "threshold_status": "found",
+  "threshold_rigorous": true
+ },
+ "block": {
+  "d": 5,
+  "c_eps": 0.07070366083676269,
+  "threshold_eps": 0.38220730364781097,
+  "threshold_delta": 0.3928241731935835,
   "threshold_status": "found",
   "threshold_rigorous": true
  },
  "P_acc_eps_0.01": 0.7471720943373569,
+ "P_acc_eps_0.001": 0.9714023696327199,
  "status": "exact",
- "seconds": 6.9
+ "seconds": 0.0
 }

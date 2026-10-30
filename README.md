@@ -34,6 +34,9 @@ and by single-round distillation cost `C`.
   i.e. shorter triorthogonal spaces with charge coefficients). Notes:
   `literature/2610.29457_NOTES.md`; results: **`WEIGHTED_SUPPORTS.md`** (the first γ < 1
   search code at p = 7, its certificate and the class-block lemma behind it).
+- **`SMALL_CODES.md`** — small effective codes at every prime p ≤ 97: the full Reed–Solomon family
+  with exact thresholds and coefficients (closed-form MDS engine, `qmsd.rs_family`), plus the small
+  search and literature codes.
 - **`CATALOG.md`** — the catalog record schema (v2): every code carries a rebuild recipe, a
   structured distance certificate (bounds, methods, witness), performance pointers and geometry;
   `qmsd catalog show <id>` prints them. `CERTIFY_P7.md` tracks the running certification queue.

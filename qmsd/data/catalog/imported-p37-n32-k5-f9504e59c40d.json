@@ -1,0 +1,61 @@
+{
+  "A_d": null,
+  "Ad_evidence": "Not computed",
+  "artifact_id": "imported-p37-n32-k5-f9504e59c40d",
+  "certificate": {
+    "date": "2026-10-30",
+    "exact": true,
+    "lower_bound": 8,
+    "lower_method": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4; shortened/punctured MDS codes are MDS)",
+    "machine": "closed form",
+    "refuted": false,
+    "stages": [],
+    "upper_bound": 8,
+    "upper_method": "closed-form MDS: any d columns of the [n, r+1-k] shortened RS dual are ... explicit: the MDS code has words of every weight >= d",
+    "witness": null
+  },
+  "construction": {
+    "family": "reed_solomon",
+    "m": 1,
+    "p": 37,
+    "puncture_columns_1indexed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "r": 11
+  },
+  "d": 8,
+  "distance_evidence": "closed-form MDS distance d = r - k + 2 of the punctured Reed-Solomon code (RESULTS.md sec 4; shortened/punctured MDS codes are MDS)",
+  "family": "imported Reed-Solomon (m = 1)",
+  "gamma_value": 0.892690635037546,
+  "geometry": null,
+  "k": 5,
+  "label": "[[32,5,8]]_37",
+  "m": 1,
+  "n": 32,
+  "note": "Reed-Solomon (m = 1) family member, k = 5 of r = 11; puncture set is immaterial (puncture-invariant). Exact threshold 0.5498 (per output), c = 0.000134.",
+  "p": 37,
+  "performance": {
+    "acceptance_mc": null,
+    "census": null,
+    "exact_curve": true,
+    "notes": "exact closed-form MDS performance (qmsd.rs_family); record in qmsd/data/performance",
+    "rigorous_bounds": false
+  },
+  "provenance": "qmsd CLI search import",
+  "puncture_columns": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "r": 11,
+  "schema": "qmsd.catalog-record.v2",
+  "source": "rs_family_all_bundle.json",
+  "status": "confirmed",
+  "w": null
+}
