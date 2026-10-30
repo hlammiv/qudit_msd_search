@@ -296,13 +296,15 @@ def _scan_right_b4_parallel(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witn
     return found[0] != 0
 
 
-def weight6_witness_parallel(H, p, i_max=None, block=16, log=None):
+def weight6_witness_parallel(H, p, i_max=None, block=16, log=None, method="index"):
     """Weight-6 witness via the 2+4 split with the b=4 stream thread-parallel over leading
     columns, in blocks of ``block`` columns (early exit at the first witness).  Returns the 6
     witness columns (list) or None if no weight-6 word has leading column < i_max.  Assumes no
-    weight < 6.  ``log`` is an optional callable(i_lo, i_hi, seconds)."""
+    weight < 6.  ``log`` is an optional callable(i_lo, i_hi, seconds).  ``method``: "index"
+    (bucket-indexed scan, default) or "searchsorted" (original per-probe binary search)."""
     import time as _time
 
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 6:
@@ -311,13 +313,19 @@ def weight6_witness_parallel(H, p, i_max=None, block=16, log=None):
     lcodes, lsupp = _build_left(H, p, 2, powers)
     if lcodes.shape[0] == 0:
         return None
+    if fast:
+        bstart, shift = _left_index(lcodes)
     found = np.zeros(1, dtype=np.int64)
     witness = np.full(6, -1, dtype=np.int32)
     i_max = n if i_max is None else int(i_max)
     for i_lo in range(0, i_max, block):
         t0 = _time.time()
-        hit = _scan_right_b4_parallel(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max),
-                                      found, witness)
+        if fast:
+            hit = _scan_right_b4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness,
+                                     i_lo, min(i_lo + block, i_max))
+        else:
+            hit = _scan_right_b4_parallel(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max),
+                                          found, witness)
         if log is not None:
             log(i_lo, min(i_lo + block, i_max), _time.time() - t0)
         if hit:
@@ -456,16 +464,22 @@ def _census_weight6_3x3(H, H1, p, powers, lcodes, lsupp, lcoef):
     return fails, found
 
 
-def count_weight6_per_output(G0, H1, p):
+def count_weight6_per_output(G0, H1, p, method="index"):
     """Per-output census of the weight-6 vectors of ker(G0) by the 3+3 split (left table
     C(n,3)(p-1)^2 entries, ~23 B each): (L_6, n_classes, fails_per_output), conventions as in
-    ``count_weight5_per_output``.  Requires d(G0) >= 6; the 20-fold multiplicity is asserted."""
+    ``count_weight5_per_output``.  Requires d(G0) >= 6; the 20-fold multiplicity is asserted.
+    ``method``: "index" (bucket-indexed scan, default) or "searchsorted" (original kernel)."""
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(G0, dtype=np.int64) % p)
     H1 = np.ascontiguousarray(np.asarray(H1, dtype=np.int64) % p)
     r, n = H.shape
     powers = _powers_u64(p, r)
     lcodes, lsupp, lcoef = _build_left3_norm_coef(H, p, powers)
-    fails, found = _census_weight6_3x3(H, H1, p, powers, lcodes, lsupp, lcoef)
+    if fast:
+        bstart, shift = _left_index(lcodes)
+        fails, found = _census_weight6_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift, 0, n)
+    else:
+        fails, found = _census_weight6_3x3(H, H1, p, powers, lcodes, lsupp, lcoef)
     total = int(found.sum())
     per_output = fails.sum(axis=0)
     assert total % 20 == 0 and (per_output % 20 == 0).all(), \
@@ -521,23 +535,30 @@ def _census_weight7_3x4(H, H1, p, powers, lcodes, lsupp, lcoef, i_lo, i_hi):
     return fails, found
 
 
-def count_weight7_per_output(G0, H1, p, block=16, log=None):
+def count_weight7_per_output(G0, H1, p, block=16, log=None, method="index"):
     """Per-output census of the weight-7 vectors of ker(G0) by the 3+4 split (left table
     C(n,3)(p-1)^2 entries; right stream C(n,4)(p-1)^4 probes, processed in blocks of ``block``
     leading columns with an optional ``log(lo, hi, seconds)`` callback): (L_7, n_classes,
     fails_per_output), conventions as in ``count_weight5_per_output``.  Requires d(G0) >= 7; the
-    35-fold multiplicity is asserted."""
+    35-fold multiplicity is asserted.  ``method``: "index" (default) or "searchsorted"."""
     import time as _time
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(G0, dtype=np.int64) % p)
     H1 = np.ascontiguousarray(np.asarray(H1, dtype=np.int64) % p)
     r, n = H.shape
     powers = _powers_u64(p, r)
     lcodes, lsupp, lcoef = _build_left3_norm_coef(H, p, powers)
+    if fast:
+        bstart, shift = _left_index(lcodes)
     fails = np.zeros((n, H1.shape[0]), dtype=np.int64)
     found = np.zeros(n, dtype=np.int64)
     for lo in range(0, n, block):
         t0 = _time.time()
-        f, g = _census_weight7_3x4(H, H1, p, powers, lcodes, lsupp, lcoef, lo, min(lo + block, n))
+        if fast:
+            f, g = _census_weight7_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift,
+                                       lo, min(lo + block, n))
+        else:
+            f, g = _census_weight7_3x4(H, H1, p, powers, lcodes, lsupp, lcoef, lo, min(lo + block, n))
         fails += f
         found += g
         if log is not None:
@@ -585,24 +606,32 @@ def _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witness):
     return found[0] != 0
 
 
-def weight7_witness_3x4(H, p, block=8, i_max=None, log=None):
+def weight7_witness_3x4(H, p, block=8, i_max=None, log=None, method="index"):
     """Weight-7 witness by a 3+4 split: normalised left-3 table, thread-parallel right-4 scan with
     all (p-1)^4 patterns in blocks of leading columns (early exit).  Returns 7 columns or None
-    (None = no weight-7 word with leading right column < i_max).  Assumes no weight < 7."""
+    (None = no weight-7 word with leading right column < i_max).  Assumes no weight < 7.
+    ``method``: "index" (bucket-indexed scan, default) or "searchsorted" (original kernel)."""
     import time as _time
 
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 7:
         return None
     powers = _powers_u64(p, r)
     lcodes, lsupp = _build_left3_norm(H, p, powers)
+    if fast:
+        bstart, shift = _left_index(lcodes)
     found = np.zeros(1, dtype=np.int64)
     witness = np.full(7, -1, dtype=np.int32)
     i_max = n if i_max is None else int(i_max)
     for i_lo in range(0, i_max, block):
         t0 = _time.time()
-        hit = _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max), found, witness)
+        if fast:
+            hit = _scan_right4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness,
+                                   i_lo, min(i_lo + block, i_max))
+        else:
+            hit = _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, min(i_lo + block, i_max), found, witness)
         if log is not None:
             log(i_lo, min(i_lo + block, i_max), _time.time() - t0)
         if hit:
@@ -610,11 +639,13 @@ def weight7_witness_3x4(H, p, block=8, i_max=None, log=None):
     return None
 
 
-def weight6_witness_3x3(H, p):
+def weight6_witness_3x3(H, p, method="index"):
     """Weight-6 witness by a 3+3 split: normalised left-3 table (C(n,3)(p-1)^2 entries, 20 B each)
     and a thread-parallel right-3 scan with all (p-1)^3 patterns.  Far fewer probes than the 2+4
     split (C(n,3)(p-1)^3 vs C(n,4)(p-1)^3) when the table fits (n ~ 400 at p = 7: ~8 GB).
-    Returns the 6 columns or None.  Assumes no weight < 6."""
+    Returns the 6 columns or None.  Assumes no weight < 6.  ``method``: "index" (bucket-indexed
+    scan, default) or "searchsorted" (original kernel)."""
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 6:
@@ -623,17 +654,25 @@ def weight6_witness_3x3(H, p):
     lcodes, lsupp = _build_left3_norm(H, p, powers)
     found = np.zeros(1, dtype=np.int64)
     witness = np.full(6, -1, dtype=np.int32)
-    if _scan_right3_full(H, p, powers, lcodes, lsupp, found, witness):
+    if fast:
+        bstart, shift = _left_index(lcodes)
+        hit = _scan_right3_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness, 0, n)
+    else:
+        hit = _scan_right3_full(H, p, powers, lcodes, lsupp, found, witness)
+    if hit:
         return [int(c) for c in witness]
     return None
 
 
-def weight6_exists_via_2_4(H, p, i_max=None):
+def weight6_exists_via_2_4(H, p, i_max=None, method="index"):
     """True iff H has 6 F_p-dependent columns, found via a 2+4 split (a=2 left table + b=4 stream).
     Memory = the a=2 left table only, so this certifies d=6 at n~2000 where the standard a=3,b=3
     d=6 path OOMs. ``i_max`` bounds the weight-4 leading column (default: all n) so a d>=7 set
     can't hang; a genuine d=6 code is found within a small budget. Assumes no weight<6 (call after
-    min_dependent_columns(d_max=5) finds nothing)."""
+    min_dependent_columns(d_max=5) finds nothing).  ``method``: "index" (bucket-indexed,
+    thread-parallel stream in blocks of 16 leading columns, default) or "searchsorted" (the
+    original serial stream)."""
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 6:
@@ -642,7 +681,17 @@ def weight6_exists_via_2_4(H, p, i_max=None):
     lcodes, lsupp = _build_left(H, p, 2, powers)
     if lcodes.shape[0] == 0:
         return False
-    return bool(_scan_right_b4(H, p, powers, lcodes, lsupp, n if i_max is None else int(i_max)))
+    i_max = n if i_max is None else int(i_max)
+    if not fast:
+        return bool(_scan_right_b4(H, p, powers, lcodes, lsupp, i_max))
+    bstart, shift = _left_index(lcodes)
+    found = np.zeros(1, dtype=np.int64)
+    witness = np.full(6, -1, dtype=np.int32)
+    for i_lo in range(0, i_max, 16):
+        if _scan_right_b4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness,
+                              i_lo, min(i_lo + 16, i_max)):
+            return True
+    return False
 
 
 @njit(cache=True)
@@ -722,10 +771,12 @@ def _scan_right_b3_parallel(H, p, powers, lcodes, lsupp):
     return total > 0
 
 
-def weight5_exists_parallel(H, p):
+def weight5_exists_parallel(H, p, method="index"):
     """True iff H has a weight-5 (a=2 + b=3) F_p-dependent column set, via the thread-parallel
     full b=3 scan. Same verdict as weight_d_exists_fast(H,p,5) but scans in parallel, so proving
-    ABSENCE (the d>=6 case, no early exit) is ~cores-times faster. Call after ruling out weight<=4."""
+    ABSENCE (the d>=6 case, no early exit) is ~cores-times faster. Call after ruling out weight<=4.
+    ``method``: "index" (bucket-indexed scan, default) or "searchsorted" (original kernel)."""
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(H, dtype=np.int64) % p)
     r, n = H.shape
     if n < 5:
@@ -734,6 +785,9 @@ def weight5_exists_parallel(H, p):
     lcodes, lsupp = _build_left(H, p, 2, powers)
     if lcodes.shape[0] == 0:
         return False
+    if fast:
+        bstart, shift = _left_index(lcodes)
+        return bool(_scan_right_b3_idx(H, p, powers, lcodes, lsupp, bstart, shift, 0, n) > 0)
     return bool(_scan_right_b3_parallel(H, p, powers, lcodes, lsupp))
 
 
@@ -772,9 +826,13 @@ def min_distance_upto6_lowmem(H, p):
     return 7
 
 
-def weight_d_exists_fast(H, p, d):
+def weight_d_exists_fast(H, p, d, method="index"):
     """True iff H has d columns with a nontrivial zero F_p-combination using all d (assumes no
-    weight < d exists -- call with increasing d). Numba MITM; identical result to the numpy path."""
+    weight < d exists -- call with increasing d). Numba MITM; identical result to the numpy path.
+    ``method``: "index" (bucket-indexed right scan for the b = 3 splits d = 5, 6; default) or
+    "searchsorted" (original per-probe binary search).  d <= 4 always uses the original kernel
+    (tiny tables)."""
+    fast = _check_method(method)
     if d < 2 or d > 6:
         # the halves are a <= 3 / b <= 3 only; a larger d would silently scan the wrong weight
         raise ValueError(f"weight_d_exists_fast certifies 2 <= d <= 6 only (got d={d}); "
@@ -788,7 +846,562 @@ def weight_d_exists_fast(H, p, d):
     lcodes, lsupp = _build_left(H, p, a, powers)
     if lcodes.shape[0] == 0:
         return False
+    if fast and b == 3:
+        bstart, shift = _left_index(lcodes)
+        return bool(_scan_right3_norm_idx(H, p, powers, lcodes, lsupp, bstart, shift))
     return bool(_scan_right(H, p, b, powers, lcodes, lsupp))
+
+
+# ----------------------------------------------------------------------------------------------
+# Bucket-indexed right-hand scans: a cache-friendly join against the sorted left table
+# ----------------------------------------------------------------------------------------------
+#
+# The scans above look every right-hand target up with np.searchsorted in a table of 1e7-4e8
+# codes: a ~log2(N)-deep binary search whose lower ~half of the levels are all cache misses, and
+# a dependent chain, so the core cannot overlap consecutive probes.  On top of that each probe
+# recomputes the hash with two 64-bit divisions per row.  Measured: ~1e5-1e6 probes/s/thread.
+#
+# The ``_idx`` kernels keep the SAME probe sequence, the same hash, the same table and the same
+# exact verification, and change only the lookup and the arithmetic:
+#   * ``_left_index`` builds, once per table, ``bstart[beta]`` = first table position whose top
+#     K hash bits are >= beta.  A probe reads bstart[beta], bstart[beta+1] and the ~8-16 codes
+#     between them (one or two adjacent cache lines).  Consecutive probes are independent, so
+#     the out-of-order core overlaps their misses (memory-level parallelism) instead of
+#     serialising ~12 misses per probe.  Index memory ~N bytes (<= 5% of the table).
+#   * ``_scaled_cols`` tabulates (c * H[t, j]) % p once; the right-hand sums are then reduced by
+#     table lookups (``red``/``neg`` over [0, 2p)) -- no division in the hot loop.  Partial sums
+#     over the leading columns are reused across the innermost column (``U2``/``U3``).
+# Correctness of a hit is still decided by the exact F_p test, so a bucket is only a filter.
+# Every public function keeps a ``method="searchsorted"`` switch to the original kernels.
+
+@njit(cache=True)
+def _left_index(lcodes):
+    """Bucket index over an ASCENDING uint64 code table: ``bstart[beta]`` = first position whose
+    code has top-K bits >= beta, for beta in [0, 2^K], bstart[2^K] = N.  K is the largest value
+    with 2^K <= N / 8 (K <= 30), i.e. ~8-16 codes per bucket and <= N bytes of index.  Returns
+    (bstart int64[2^K + 1], shift = 64 - K)."""
+    N = lcodes.shape[0]
+    K = 1
+    while K < 30 and (np.int64(1) << np.int64(K + 3)) <= N:
+        K += 1
+    sh = np.uint64(64 - K)
+    nb = np.int64(1) << np.int64(K)
+    bstart = np.empty(nb + 1, dtype=np.int64)
+    ii = 0
+    for beta in range(nb):
+        b = np.uint64(beta)
+        while ii < N and (lcodes[ii] >> sh) < b:
+            ii += 1
+        bstart[beta] = ii
+    bstart[nb] = N
+    return bstart, np.int64(64 - K)
+
+
+@njit(cache=True)
+def _scaled_cols(H, p):
+    """CHT[j, c, t] = (c * H[t, j]) % p (int64, c in [0, p)): the right-hand hash loops add
+    pre-reduced scaled columns and reduce by table lookup instead of dividing per row."""
+    r, n = H.shape
+    CHT = np.empty((n, p, r), dtype=np.int64)
+    for j in range(n):
+        for c in range(p):
+            for t in range(r):
+                CHT[j, c, t] = (c * H[t, j]) % p
+    return CHT
+
+
+@njit(cache=True)
+def _mod_tables(p):
+    """red[s] = s % p and neg[s] = (-s) % p for s in [0, 2p) (a sum of two reduced residues)."""
+    red = np.empty(2 * p, dtype=np.int64)
+    neg = np.empty(2 * p, dtype=np.int64)
+    for s in range(2 * p):
+        red[s] = s % p
+        neg[s] = (p - s % p) % p
+    return red, neg
+
+
+_BATCH = 1024                           # right-hand targets staged per innermost column
+
+
+@njit(cache=True)
+def _batch_step(q1):
+    """Rows of the partial-sum table per staged batch so that a batch holds ~_BATCH targets."""
+    s = _BATCH // q1
+    return s if s >= 1 else 1
+
+
+# Each kernel below stages the probes of one innermost column in two passes over a batch of
+# <= ~_BATCH coefficient patterns: pass 1 computes the targets and reads the two index entries
+# (independent loads, so the core overlaps their cache misses); pass 2 walks the matching
+# buckets (sorted, early exit past the target) and verifies hits exactly.  The probe SET and the
+# hit handling are those of the original kernels; only the memory access schedule changes.
+
+@njit(cache=True)
+def _stage_b3(powers, neg, U, CHT, k, q0, q_cnt, q1, bstart, sh, tb, lo, hi):
+    """Pass 1 for a b=3 right side: targets of the patterns (U row q0 + q // q1, last coeff
+    q % q1 + 1) for q in [0, q_cnt * q1) into tb, bucket bounds into lo/hi."""
+    r = U.shape[1]
+    b = 0
+    for qq in range(q_cnt):
+        q = q0 + qq
+        for c3 in range(1, q1 + 1):
+            target = np.uint64(0)
+            for t in range(r):
+                target = target + powers[t] * np.uint64(neg[U[q, t] + CHT[k, c3, t]])
+            beta = np.int64(target >> sh)
+            tb[b] = target
+            lo[b] = bstart[beta]
+            hi[b] = bstart[beta + 1]
+            b += 1
+    return b
+
+
+@njit(cache=True)
+def _scan_right3_norm_idx(H, p, powers, lcodes, lsupp, bstart, shift):
+    """Serial, early-exit b=3 right stream (first coefficient 1) against an a-column left table
+    (a = lsupp.shape[1]) through the bucket index: same verdict as ``_scan_right(..., 3, ...)``
+    (the d = 5 and d = 6 paths of ``weight_d_exists_fast``)."""
+    r, n = H.shape
+    a = lsupp.shape[1]
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    rcols = np.empty(3, dtype=np.int32)
+    U = np.empty((p, r), dtype=np.int64)
+    tb = np.empty(q1 * q1, dtype=np.uint64)
+    lo = np.empty(q1 * q1, dtype=np.int64)
+    hi = np.empty(q1 * q1, dtype=np.int64)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for c2 in range(1, p):
+                for t in range(r):
+                    U[c2, t] = red[CHT[i, 1, t] + CHT[j, c2, t]]
+            for k in range(j + 1, n):
+                nb = _stage_b3(powers, neg, U, CHT, k, 1, q1, q1, bstart, sh, tb, lo, hi)
+                for b in range(nb):
+                    target = tb[b]
+                    ii = lo[b]
+                    end = hi[b]
+                    while ii < end:
+                        c = lcodes[ii]
+                        if c == target:
+                            disjoint = True
+                            for s in range(a):
+                                ls = lsupp[ii, s]
+                                if ls == i or ls == j or ls == k:
+                                    disjoint = False
+                                    break
+                            if disjoint:
+                                rcols[0] = i; rcols[1] = j; rcols[2] = k
+                                if _fp_dependent(H, p, lsupp[ii], rcols, a, 3):
+                                    return True
+                        elif c > target:
+                            break
+                        ii += 1
+    return False
+
+
+@njit(cache=True, parallel=True)
+def _scan_right_b3_idx(H, p, powers, lcodes, lsupp, bstart, shift, i_lo, i_hi):
+    """Indexed ``_scan_right_b3_parallel`` restricted to leading columns [i_lo, i_hi): full
+    (no early exit) b=3 stream with the first coefficient 1 against an a=2 (or a=3) left table.
+    Returns the number of rank-verified hits (> 0 iff a weight-(a+3) dependency exists)."""
+    r, n = H.shape
+    a = lsupp.shape[1]
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    total = 0
+    for i in prange(i_lo, min(i_hi, n)):
+        U = np.empty((p, r), dtype=np.int64)
+        tb = np.empty(q1 * q1, dtype=np.uint64)
+        lo = np.empty(q1 * q1, dtype=np.int64)
+        hi = np.empty(q1 * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            for c2 in range(1, p):
+                for t in range(r):
+                    U[c2, t] = red[CHT[i, 1, t] + CHT[j, c2, t]]
+            for k in range(j + 1, n):
+                nb = _stage_b3(powers, neg, U, CHT, k, 1, q1, q1, bstart, sh, tb, lo, hi)
+                for b in range(nb):
+                    target = tb[b]
+                    ii = lo[b]
+                    end = hi[b]
+                    while ii < end:
+                        c = lcodes[ii]
+                        if c == target:
+                            ok = True
+                            for s in range(a):
+                                ls = lsupp[ii, s]
+                                if ls == i or ls == j or ls == k:
+                                    ok = False
+                                    break
+                            if ok and _fp_dependent_b3(H, p, lsupp[ii], i, j, k, a):
+                                total += 1
+                        elif c > target:
+                            break
+                        ii += 1
+    return total
+
+
+@njit(cache=True, parallel=True)
+def _census_weight5_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift, i_lo, i_hi):
+    """Indexed ``_census_weight5_per_output`` restricted to leading columns [i_lo, i_hi)."""
+    r, n = H.shape
+    k = H1.shape[0]
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    fails = np.zeros((n, k), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for i in prange(i_lo, min(i_hi, n)):
+        U = np.empty((p, r), dtype=np.int64)
+        tb = np.empty(q1 * q1, dtype=np.uint64)
+        lo = np.empty(q1 * q1, dtype=np.int64)
+        hi = np.empty(q1 * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            for c2 in range(1, p):
+                for t in range(r):
+                    U[c2, t] = red[CHT[i, 1, t] + CHT[j, c2, t]]
+            for kk in range(j + 1, n):
+                nb = _stage_b3(powers, neg, U, CHT, kk, 1, q1, q1, bstart, sh, tb, lo, hi)
+                for b in range(nb):
+                    target = tb[b]
+                    ii = lo[b]
+                    end = hi[b]
+                    while ii < end:
+                        c = lcodes[ii]
+                        if c == target:
+                            l1 = lsupp[ii, 0]
+                            l2 = lsupp[ii, 1]
+                            if (l1 != i and l1 != j and l1 != kk and l2 != i and l2 != j
+                                    and l2 != kk):
+                                c2 = b // q1 + 1
+                                c3 = b % q1 + 1
+                                a1 = lcoef[ii, 0]
+                                a2 = lcoef[ii, 1]
+                                ok = True
+                                for t in range(r):
+                                    if (a1 * H[t, l1] + a2 * H[t, l2] + H[t, i] + c2 * H[t, j]
+                                            + c3 * H[t, kk]) % p != 0:
+                                        ok = False
+                                        break
+                                if ok:
+                                    found[i] += 1
+                                    for o in range(k):
+                                        if (a1 * H1[o, l1] + a2 * H1[o, l2] + H1[o, i]
+                                                + c2 * H1[o, j] + c3 * H1[o, kk]) % p != 0:
+                                            fails[i, o] += 1
+                        elif c > target:
+                            break
+                        ii += 1
+    return fails, found
+
+
+@njit(cache=True, parallel=True)
+def _scan_right3_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness, i_lo, i_hi):
+    """Indexed ``_scan_right3_full`` (3+3 witness, all (p-1)^3 right patterns against the
+    normalised left-3 table) restricted to leading columns [i_lo, i_hi); shared stop flag."""
+    r, n = H.shape
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    step = _batch_step(q1)
+    for i in prange(i_lo, min(i_hi, n)):
+        rcols = np.empty(3, dtype=np.int32)
+        U = np.empty((q1 * q1, r), dtype=np.int64)
+        tb = np.empty(step * q1, dtype=np.uint64)
+        lo = np.empty(step * q1, dtype=np.int64)
+        hi = np.empty(step * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for c1 in range(1, p):
+                for c2 in range(1, p):
+                    q = (c1 - 1) * q1 + (c2 - 1)
+                    for t in range(r):
+                        U[q, t] = red[CHT[i, c1, t] + CHT[j, c2, t]]
+            for k in range(j + 1, n):
+                for q0 in range(0, q1 * q1, step):
+                    qc = min(step, q1 * q1 - q0)
+                    nb = _stage_b3(powers, neg, U, CHT, k, q0, qc, q1, bstart, sh, tb, lo, hi)
+                    for b in range(nb):
+                        target = tb[b]
+                        ii = lo[b]
+                        end = hi[b]
+                        while ii < end:
+                            c = lcodes[ii]
+                            if c == target:
+                                l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                if (l1 != i and l1 != j and l1 != k and l2 != i and l2 != j
+                                        and l2 != k and l3 != i and l3 != j and l3 != k):
+                                    rcols[0] = i; rcols[1] = j; rcols[2] = k
+                                    if _fp_dependent(H, p, lsupp[ii], rcols, 3, 3):
+                                        found[0] = 1
+                                        witness[0] = l1; witness[1] = l2; witness[2] = l3
+                                        witness[3] = i; witness[4] = j; witness[5] = k
+                            elif c > target:
+                                break
+                            ii += 1
+    return found[0] != 0
+
+
+@njit(cache=True, parallel=True)
+def _census_weight6_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift, i_lo, i_hi):
+    """Indexed ``_census_weight6_3x3`` restricted to leading columns [i_lo, i_hi)."""
+    r, n = H.shape
+    k = H1.shape[0]
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    step = _batch_step(q1)
+    fails = np.zeros((n, k), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for i in prange(i_lo, min(i_hi, n)):
+        U = np.empty((q1 * q1, r), dtype=np.int64)
+        tb = np.empty(step * q1, dtype=np.uint64)
+        lo = np.empty(step * q1, dtype=np.int64)
+        hi = np.empty(step * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            for c1 in range(1, p):
+                for c2 in range(1, p):
+                    q = (c1 - 1) * q1 + (c2 - 1)
+                    for t in range(r):
+                        U[q, t] = red[CHT[i, c1, t] + CHT[j, c2, t]]
+            for kk in range(j + 1, n):
+                for q0 in range(0, q1 * q1, step):
+                    qc = min(step, q1 * q1 - q0)
+                    nb = _stage_b3(powers, neg, U, CHT, kk, q0, qc, q1, bstart, sh, tb, lo, hi)
+                    for b in range(nb):
+                        target = tb[b]
+                        ii = lo[b]
+                        end = hi[b]
+                        while ii < end:
+                            c = lcodes[ii]
+                            if c == target:
+                                l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                if (l1 != i and l1 != j and l1 != kk and l2 != i and l2 != j
+                                        and l2 != kk and l3 != i and l3 != j and l3 != kk):
+                                    q = q0 + b // q1
+                                    c1 = q // q1 + 1
+                                    c2 = q % q1 + 1
+                                    c3 = b % q1 + 1
+                                    a2 = lcoef[ii, 0]; a3 = lcoef[ii, 1]
+                                    ok = True
+                                    for t in range(r):
+                                        if (H[t, l1] + a2 * H[t, l2] + a3 * H[t, l3] + c1 * H[t, i]
+                                                + c2 * H[t, j] + c3 * H[t, kk]) % p != 0:
+                                            ok = False
+                                            break
+                                    if ok:
+                                        found[i] += 1
+                                        for o in range(k):
+                                            if (H1[o, l1] + a2 * H1[o, l2] + a3 * H1[o, l3]
+                                                    + c1 * H1[o, i] + c2 * H1[o, j]
+                                                    + c3 * H1[o, kk]) % p != 0:
+                                                fails[i, o] += 1
+                            elif c > target:
+                                break
+                            ii += 1
+    return fails, found
+
+
+@njit(cache=True, parallel=True)
+def _scan_right4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness, i_lo, i_hi):
+    """Indexed ``_scan_right4_full`` (3+4 witness, all (p-1)^4 right patterns against the
+    normalised left-3 table) over leading columns [i_lo, i_hi); shared stop flag."""
+    r, n = H.shape
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    Q3 = q1 * q1 * q1
+    step = _batch_step(q1)
+    for i in prange(i_lo, min(i_hi, n)):
+        rcols = np.empty(4, dtype=np.int32)
+        U2 = np.empty((q1 * q1, r), dtype=np.int64)
+        U3 = np.empty((Q3, r), dtype=np.int64)
+        tb = np.empty(step * q1, dtype=np.uint64)
+        lo = np.empty(step * q1, dtype=np.int64)
+        hi = np.empty(step * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for c1 in range(1, p):
+                for c2 in range(1, p):
+                    q = (c1 - 1) * q1 + (c2 - 1)
+                    for t in range(r):
+                        U2[q, t] = red[CHT[i, c1, t] + CHT[j, c2, t]]
+            for k in range(j + 1, n):
+                for q in range(q1 * q1):
+                    for c3 in range(1, p):
+                        q3 = q * q1 + (c3 - 1)
+                        for t in range(r):
+                            U3[q3, t] = red[U2[q, t] + CHT[k, c3, t]]
+                for l in range(k + 1, n):
+                    for q0 in range(0, Q3, step):
+                        qc = min(step, Q3 - q0)
+                        nb = _stage_b3(powers, neg, U3, CHT, l, q0, qc, q1, bstart, sh, tb, lo, hi)
+                        for b in range(nb):
+                            target = tb[b]
+                            ii = lo[b]
+                            end = hi[b]
+                            while ii < end:
+                                c = lcodes[ii]
+                                if c == target:
+                                    l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                    if (l1 != i and l1 != j and l1 != k and l1 != l and l2 != i and l2 != j
+                                            and l2 != k and l2 != l and l3 != i and l3 != j and l3 != k and l3 != l):
+                                        rcols[0] = i; rcols[1] = j; rcols[2] = k; rcols[3] = l
+                                        if _fp_dependent(H, p, lsupp[ii], rcols, 3, 4):
+                                            found[0] = 1
+                                            witness[0] = l1; witness[1] = l2; witness[2] = l3
+                                            witness[3] = i; witness[4] = j; witness[5] = k; witness[6] = l
+                                elif c > target:
+                                    break
+                                ii += 1
+    return found[0] != 0
+
+
+@njit(cache=True, parallel=True)
+def _census_weight7_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift, i_lo, i_hi):
+    """Indexed ``_census_weight7_3x4`` over leading columns [i_lo, i_hi)."""
+    r, n = H.shape
+    k = H1.shape[0]
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    Q3 = q1 * q1 * q1
+    step = _batch_step(q1)
+    fails = np.zeros((n, k), dtype=np.int64)
+    found = np.zeros(n, dtype=np.int64)
+    for i in prange(i_lo, min(i_hi, n)):
+        U2 = np.empty((q1 * q1, r), dtype=np.int64)
+        U3 = np.empty((Q3, r), dtype=np.int64)
+        tb = np.empty(step * q1, dtype=np.uint64)
+        lo = np.empty(step * q1, dtype=np.int64)
+        hi = np.empty(step * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            for c1 in range(1, p):
+                for c2 in range(1, p):
+                    q = (c1 - 1) * q1 + (c2 - 1)
+                    for t in range(r):
+                        U2[q, t] = red[CHT[i, c1, t] + CHT[j, c2, t]]
+            for kk in range(j + 1, n):
+                for q in range(q1 * q1):
+                    for c3 in range(1, p):
+                        q3 = q * q1 + (c3 - 1)
+                        for t in range(r):
+                            U3[q3, t] = red[U2[q, t] + CHT[kk, c3, t]]
+                for ll in range(kk + 1, n):
+                    for q0 in range(0, Q3, step):
+                        qc = min(step, Q3 - q0)
+                        nb = _stage_b3(powers, neg, U3, CHT, ll, q0, qc, q1, bstart, sh, tb, lo, hi)
+                        for b in range(nb):
+                            target = tb[b]
+                            ii = lo[b]
+                            end = hi[b]
+                            while ii < end:
+                                c = lcodes[ii]
+                                if c == target:
+                                    l1 = lsupp[ii, 0]; l2 = lsupp[ii, 1]; l3 = lsupp[ii, 2]
+                                    if (l1 != i and l1 != j and l1 != kk and l1 != ll and l2 != i and l2 != j
+                                            and l2 != kk and l2 != ll and l3 != i and l3 != j and l3 != kk and l3 != ll):
+                                        q3 = q0 + b // q1
+                                        c1 = q3 // (q1 * q1) + 1
+                                        c2 = (q3 // q1) % q1 + 1
+                                        c3 = q3 % q1 + 1
+                                        c4 = b % q1 + 1
+                                        a2 = lcoef[ii, 0]; a3 = lcoef[ii, 1]
+                                        ok = True
+                                        for t in range(r):
+                                            if (H[t, l1] + a2 * H[t, l2] + a3 * H[t, l3] + c1 * H[t, i]
+                                                    + c2 * H[t, j] + c3 * H[t, kk] + c4 * H[t, ll]) % p != 0:
+                                                ok = False
+                                                break
+                                        if ok:
+                                            found[i] += 1
+                                            for o in range(k):
+                                                if (H1[o, l1] + a2 * H1[o, l2] + a3 * H1[o, l3]
+                                                        + c1 * H1[o, i] + c2 * H1[o, j]
+                                                        + c3 * H1[o, kk] + c4 * H1[o, ll]) % p != 0:
+                                                    fails[i, o] += 1
+                                elif c > target:
+                                    break
+                                ii += 1
+    return fails, found
+
+
+@njit(cache=True, parallel=True)
+def _scan_right_b4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness, i_lo, i_hi):
+    """Indexed ``_scan_right_b4_parallel`` (2+4 witness: b=4 stream with the first coefficient 1
+    against the a=2 left table) over leading columns [i_lo, i_hi); shared stop flag."""
+    r, n = H.shape
+    CHT = _scaled_cols(H, p)
+    red, neg = _mod_tables(p)
+    sh = np.uint64(shift)
+    q1 = p - 1
+    Q2 = q1 * q1
+    step = _batch_step(q1)
+    for i in prange(i_lo, min(i_hi, n)):
+        rcols = np.empty(4, dtype=np.int32)
+        U2 = np.empty((p, r), dtype=np.int64)
+        U3 = np.empty((Q2, r), dtype=np.int64)
+        tb = np.empty(step * q1, dtype=np.uint64)
+        lo = np.empty(step * q1, dtype=np.int64)
+        hi = np.empty(step * q1, dtype=np.int64)
+        for j in range(i + 1, n):
+            if found[0] != 0:
+                break
+            for c2 in range(1, p):
+                for t in range(r):
+                    U2[c2, t] = red[CHT[i, 1, t] + CHT[j, c2, t]]
+            for k in range(j + 1, n):
+                for c2 in range(1, p):
+                    for c3 in range(1, p):
+                        q = (c2 - 1) * q1 + (c3 - 1)
+                        for t in range(r):
+                            U3[q, t] = red[U2[c2, t] + CHT[k, c3, t]]
+                for l in range(k + 1, n):
+                    for q0 in range(0, Q2, step):
+                        qc = min(step, Q2 - q0)
+                        nb = _stage_b3(powers, neg, U3, CHT, l, q0, qc, q1, bstart, sh, tb, lo, hi)
+                        for b in range(nb):
+                            target = tb[b]
+                            ii = lo[b]
+                            end = hi[b]
+                            while ii < end:
+                                c = lcodes[ii]
+                                if c == target:
+                                    l1 = lsupp[ii, 0]
+                                    l2 = lsupp[ii, 1]
+                                    if (l1 != i and l1 != j and l1 != k and l1 != l and l2 != i
+                                            and l2 != j and l2 != k and l2 != l):
+                                        rcols[0] = i; rcols[1] = j; rcols[2] = k; rcols[3] = l
+                                        if _fp_dependent(H, p, lsupp[ii], rcols, 2, 4):
+                                            found[0] = 1
+                                            witness[0] = l1; witness[1] = l2; witness[2] = i
+                                            witness[3] = j; witness[4] = k; witness[5] = l
+                                elif c > target:
+                                    break
+                                ii += 1
+    return found[0] != 0
+
+
+_METHODS = ("index", "searchsorted")
+
+
+def _check_method(method):
+    if method not in _METHODS:
+        raise ValueError(f"method must be one of {_METHODS}, got {method!r}")
+    return method == "index"
 
 
 # ----------------------------------------------------------------------------------------------
@@ -869,20 +1482,26 @@ def _census_weight5_per_output(H, H1, p, powers, lcodes, lsupp, lcoef):
     return fails, found
 
 
-def count_weight5_per_output(G0, H1, p):
+def count_weight5_per_output(G0, H1, p, method="index"):
     """Per-output census of the weight-5 vectors of ker(G0) (the accepted weight-5 errors of a
     d = 5 code): returns (L_d, n_classes, fails) where ``fails[o]`` is the number of weight-5
     vectors e with h_o . e != 0, ``L_d = mean_o fails[o]`` is the per-output leading-order count
     used by ``objective.LeadingOrderCurve`` and ``n_classes`` the number of scalar classes
     (A_5 = (p-1) n_classes).  Requires d(G0) >= 5 (no weight <= 4 dependency), which makes every
     class appear exactly 10 times in the 2+3 scan; that divisibility is asserted.  Thread-parallel
-    (NUMBA_NUM_THREADS); the left table is C(n,2)(p-1)^2 entries (~2 GB at n ~ 2100, p = 7)."""
+    (NUMBA_NUM_THREADS); the left table is C(n,2)(p-1)^2 entries (~2 GB at n ~ 2100, p = 7).
+    ``method``: "index" (bucket-indexed scan, default) or "searchsorted" (original kernel)."""
+    fast = _check_method(method)
     H = np.ascontiguousarray(np.asarray(G0, dtype=np.int64) % p)
     H1 = np.ascontiguousarray(np.asarray(H1, dtype=np.int64) % p)
     r, n = H.shape
     powers = _powers_u64(p, r)
     lcodes, lsupp, lcoef = _build_left2_coef(H, p, powers)
-    fails, found = _census_weight5_per_output(H, H1, p, powers, lcodes, lsupp, lcoef)
+    if fast:
+        bstart, shift = _left_index(lcodes)
+        fails, found = _census_weight5_idx(H, H1, p, powers, lcodes, lsupp, lcoef, bstart, shift, 0, n)
+    else:
+        fails, found = _census_weight5_per_output(H, H1, p, powers, lcodes, lsupp, lcoef)
     total = int(found.sum())
     per_output = fails.sum(axis=0)
     assert total % 10 == 0 and (per_output % 10 == 0).all(), \
