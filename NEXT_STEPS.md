@@ -175,6 +175,17 @@ the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current 
   (γ 0.959 at d = 7), then k = 265 (γ 0.960). Stop after the first success per k.
 - [ ] The other degree-2 charges at m = 4 (non-square coefficient, hyperbolic form): recompute
   the class-block rank and rerun the cheap sweep; not started.
+- [ ] **Weight-8 words of RM₇(20,4) (theory item, queued 2026-10-30).** The weight-≤7 lemma (all words
+  line-supported, `qmsd/pointsets.py`, WEIGHTED_SUPPORTS.md "Weight-7 words of RM(20,4)") breaks at 8:
+  the 8 points of an ellipse x²+y²=1 carry a full-support weight-8 word (verified in
+  `tests/test_pointsets.py`); hyperbolas (6 pts) and parabolas (7) do not. Conjecture: weight-8 words are
+  supported on full plane ellipses (plus possibly degenerate two-line 4+4 sets); open whether any
+  3-/4-dimensional 8-set carries one. Proof = the frame enumeration one point larger (~1.4e6 planar,
+  5.4e8 in 3-flats, 2.3e9 general sets; ~a day on loranne's 4 cores at the agent's vectorised rate,
+  less with the frame stabiliser) + the random cross-check. A weight-8 mixed stage would enumerate
+  ellipses inside the non-class points and line words with up to 3 class columns (direction table →
+  triples). Payoff only for d = 9 certificates, which also need a 4+4 block scan our kernels cannot
+  do; at p = 7 the d = 9 regime (k ≈ 240) has γ ≈ 0.91 anyway. Do not run before the kernel speedup.
 - [ ] **Symmetric output sets (orbit sampler), queued 2026-10-30.** Draw the outputs as a union of
   orbits of a subgroup G ≤ O(4, F₇) acting on the 672 class points of the sphere, instead of a uniform
   random subset. If d ≥ 7 survives at k ≈ 265–270, ker G0 is G-invariant and every distance scan
