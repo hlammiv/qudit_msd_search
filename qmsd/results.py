@@ -191,6 +191,7 @@ def _artifact_records() -> list[ResultRecord]:
             provenance="This repository", status=status,
             distance_evidence=distance_evidence, Ad_evidence=ad_evidence,
             source=name, note=str(data.get(note_key, "")),
+            performance=data.get("performance"), geometry=data.get("geometry"),
         ))
 
     add("p17_d6_code.json", "new-p17-d6", ad_key="A_6",

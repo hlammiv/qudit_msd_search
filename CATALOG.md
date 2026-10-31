@@ -124,3 +124,10 @@ including the stored performance record.
   (`max_outputs_per_line`, `line_distance`), acceptance Monte Carlo.
 
 Records imported earlier from the search engine keep the engine's exact MITM certificate.
+
+2026-10-31: [[1746,270,6]]_7 (the sphere-charge d = 6 draw) imported as a `weighted_rm` record with
+its verified weight-6 witness (`runs/weighted/p7_m4_sphere_1746_270_6_bundle.json`); the built-in
+artifact records (`results._artifact_records`) now read optional `performance` / `geometry` blocks
+from their source files, used for [[2093,308,5]]_7 (`p7_2093_308_5.json`). Census and rigorous-bound
+pointers (`performance.census`, `performance.rigorous`, see `PERFORMANCE.md`) are set on the three
+large p = 7 codes.

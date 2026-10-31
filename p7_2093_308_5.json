@@ -317,5 +317,35 @@
   2387,
   2389,
   2394
- ]
+ ],
+ "performance": {
+  "exact_curve": false,
+  "rigorous_bounds": true,
+  "census": {
+   "A_d": 1560,
+   "L_d_per_output": 1337.6688311688313,
+   "c_eps": 0.17202531265031265,
+   "weight": 5,
+   "complete": true,
+   "source": "runs/weighted/p7_m4_unit_2093_308_5_census.json",
+   "saving_surrogate": {
+    "1e-2->1e-30": 4.112,
+    "1e-3->1e-30": 2.943
+   }
+  },
+  "acceptance_mc": null,
+  "rigorous": {
+   "source": "runs/weighted/rigorous_savings.json",
+   "module": "qmsd.rigorous_curve",
+   "threshold_rigorous": 0.001356640738105569,
+   "saving_proved": {
+    "1e-2->1e-30": 1.266,
+    "1e-3->1e-30": 2.943
+   }
+  },
+  "notes": "exact enumeration infeasible (dim A = 18); the weight-5 census is the complete count"
+ },
+ "geometry": {
+  "residual_checks": 18
+ }
 }
