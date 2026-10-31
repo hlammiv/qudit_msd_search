@@ -160,7 +160,7 @@ A weight-7 witness (3+4 on the class block, 5.8 h; G0 columns [523, 1045, 1117, 
 block of 8 leading columns held none, so the random-model ~160 is an overestimate. The cost needs
 the full weight-7 census (3+4 on the block, ~1.5e12 probes: days at the current probe rate).
 **Todo (queued 2026-10-27, not started):**
-- [~] Cost of [[1756,260,7]]₇ — weight-7 counting kernel in progress 2026-10-29 (see `CERTIFY_P7.md`). (a) rigorous bound now — count every accepted error of weight ≥ 7
+- [x] Cost of [[1756,260,7]]₇ — DONE 2026-10-31: full weight-7 census (33 h on lenore, indexed 3+4 kernel): A_7 = 24, L_7 = 1.29, c_ε = 4.6e-6; surrogate saving 4.14× (1e-2 → 1e-30), 3.44× (1e-3 → 1e-30); does not beat [[1746,270,6]]₇ (rate wins at these targets; see `PERFORMANCE.md`). Original plan: (a) rigorous bound now — count every accepted error of weight ≥ 7
   as a failure (ε_out ≤ Σ_{w≥7} C(n,w) ε^w / P_acc; ≤ 3e-24 behind one [[7,1,3]]₇ round) and
   run the protocol optimizer on that curve; (b) exact leading order — full weight-7 census on
   the class block (3+4, ~1.5e12 probes, ~12 h on an idle lenore) → `marginal_saving`.

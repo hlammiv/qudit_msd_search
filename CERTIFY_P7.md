@@ -90,9 +90,12 @@ accidental-word limit can give.
 
 - Weight-7 census on the class block of [[1756,260,7]]_7 (cost claim): kernel `count_weight7_per_output`
   (3+4, 35-fold multiplicity asserted, tested against null-space enumeration) written 2026-10-29;
-  `scratchpad/census7_1756.py` is QUEUED on lenore behind the certification chain (8 threads, ~50 h;
-  output `runs/certify/census7_1756.json`). It counts block words only, which since 2026-10-30 is
-  all of them (next item).
+  `scratchpad/census7_1756.py` DONE 2026-10-31: 119 533 s (33 h) on lenore's indexed kernel at
+  7-8 effective threads (first blocks 3 h each, last ones seconds; the progress table is in
+  `runs/certify/census7_1756.json`). 140 raw hits / 35 = 4 projective classes, A_7 = 24, per-output
+  counts 0-12 (47 of 260 outputs see any), L_7 = 1.29, c_ε = 4.6e-6. It counts block words only,
+  which since 2026-10-30 is all of them (next item). Cost claim in `PERFORMANCE.md`
+  (`runs/weighted/p7_m4_sphere_1756_260_7_census.json`): 4.14× / 3.44×, below [[1746,270,6]]₇.
 - ~~Weight-7 mixed-word lemma~~ done 2026-10-30 (lines only; `scratchpad/mixed_w7_check.py`, seed 407:
   0 mixed words of weight <= 7; same for the [[1756,260,7]]_7 draw,
   `runs/weighted/p7_m4_sphere_1756_260_mixed_w7_check.json`). The queued weight-7 census of the

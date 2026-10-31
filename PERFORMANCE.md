@@ -325,6 +325,7 @@ and keep d = 5 up to k = 24. Scored with the surrogate against the p = 7 standar
 | [[235,10,5]]₇ | x₁(x₁−1) | 0.0031 | 1.19× | none | none |
 | **[[2093,308,5]]₇** (m = 4, unit, free-form) | — | 0.172 | **4.11×** (210 → 51) | none | **2.94×** (141 → 48) |
 | **[[1746,270,6]]₇** (m = 4, sphere charge) | x₁²+x₂²+x₃²+x₄² | 2.9e-5 | **4.32×** (210 → 48.7) | none | **3.60×** (141 → 39.2) |
+| **[[1756,260,7]]₇** (m = 4, sphere charge, γ 0.982) | x₁²+x₂²+x₃²+x₄² | 4.6e-6 | 4.14× (210 → 50.8) | none | 3.44× (141 → 40.9) |
 
 The last row is the m = 4 free-form code from the γ hunt (γ 1.19), scored with the thread-parallel
 weight-5 census (`mindist_nb.count_weight5_per_output`, 3.1 h on lenore under load): it has only
@@ -335,8 +336,17 @@ essentially exact); at 1e-2 → 1e-30 the output is 1.8e-31, a 5.6× margin. It 
 1e-3 → 1e-15 because P_acc(1e-3) = 0.12 makes a direct round cost 55 against 28.8.
 
 **[[1756,260,7]]₇ (m = 4, sphere charge, 2026-10-27): γ = 0.982, the first γ < 1 search code
-at p = 7** (three-part certificate plus weight-7 witness in NEXT_STEPS.md §H). Cost pending its
-weight-7 census.
+at p = 7** (three-part certificate plus weight-7 witness in NEXT_STEPS.md §H). **Cost (weight-7
+census 2026-10-31, `scratchpad/census7_1756.py`, 33 h on lenore's indexed 3+4 kernel):** A_7 = 24
+words (4 scalar classes), each hitting 6-12 outputs, so L_7 = 1.29 per output and c_ε = 4.6e-6
+(surrogate threshold 0.85). The count is complete, not a block lower bound: `mixed_w7_check.py`
+proved no weight-7 word touches a non-class column. Surrogate protocols: 4.14× at 1e-2 → 1e-30
+(210 → 50.8) and 3.44× at 1e-3 → 1e-30 (141 → 40.9), 1.03× at 1e-2 → 1e-15, none at 1e-3 → 1e-15.
+**It does not beat [[1746,270,6]]₇ (48.7 / 39.2):** both are applied as the last round at ε ≈ 1e-6,
+where either distance overshoots the 1e-30 target by many orders, so the extra distance buys
+nothing and the 270-output code's better rate decides. γ orders codes by asymptotic overhead; at
+these targets the protocol optimizer prefers rate over distance. The d = 7 code would pay only for
+targets around 1e-40 or beyond. Data: `runs/weighted/p7_m4_sphere_1756_260_7_census.json`.
 
 **[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ before that
 (certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Weight-6

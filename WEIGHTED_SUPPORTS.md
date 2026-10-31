@@ -21,8 +21,13 @@ arXiv:2510.10852 is an n → ∞ limit, not a code.
 
 On cost (leading-order surrogate against the p = 7 standard library of RS, RM, cyclic and
 doubled codes): [[1746,270,6]]₇ saves 4.3× at 1e-2 → 1e-30 and 3.6× at 1e-3 → 1e-30,
-[[2093,308,5]]₇ 4.1× / 2.9×, [[263,24,5]]₇ 2.6× / 2.1×. The cost of [[1756,260,7]]₇ is
-pending its weight-7 census (todo in `NEXT_STEPS.md`).
+[[2093,308,5]]₇ 4.1× / 2.9×, [[263,24,5]]₇ 2.6× / 2.1×, and [[1756,260,7]]₇ 4.1× / 3.4× (weight-7
+census 2026-10-31: A_7 = 24, L_7 = 1.29, c_ε = 4.6e-6; `PERFORMANCE.md`). The γ < 1 code does not
+beat the γ = 1.04 code on cost at these targets: both act as the last round at ε ≈ 1e-6, where
+d = 6 already overshoots, so the 270-output rate wins. The k = 270 d = 7 draws ([[1746,270,7]]₇,
+seeds 19 and 407) have the same n, k as [[1746,270,6]]₇ and one more unit of distance, so at
+leading order they can only be cheaper (unless L_7 exceeded ~1e5, against a census-scale
+expectation of ~1); their own weight-7 censuses (~33 h each) would make that exact.
 
 ## Construction
 
