@@ -344,11 +344,39 @@ few survivors at k = 275 where random draws have none; by k = 280 the window is 
 too. The 3-cycle is worse than random (many sets with plane distance ≤ 2: a 3-cycle-invariant set
 contains fixed points of the cycle, whose orbits are single points, and the small orbits cluster).
 
-Certificates (`certify_candidate.py --file`, lenore, 8 threads each, started 2026-10-31): k = 272
-seeds 3 and 18 (both d_plane = 8; their mixed weight-7 checks find no word of weight ≤ 7 touching a
-non-class column, so d = 8 exactly when the class block has no weight-7 word, which the witness
-stage's 3+4 scan decides). Outcomes: d = 7 gives [[1744,272,7]]₇, γ = 0.955 (a hair below the
-0.959 record); d = 8 gives γ = **0.894**. Data: `runs/weighted/orbit_sweep/`.
+**Certificates: all d = 6.** Every one of the 18 shift-symmetric k = 272 survivors (including the
+8 with plane distance 8) and both k = 275 survivors has a weight-6 word inside the class block
+(`certify_candidate.py --file`, block stage, 6 min each on lenore). The killer words are non-planar
+(their six points span a 3-flat or all of F₇⁴, so the plane filter cannot see them) and mostly not
+symmetric (four of them meet six different shift-orbits). The 15 survivors of the order-2 group
+neg₁₂ at k = 272 are in the same chain.
+
+**Why, and where the window really ends.** The class-block lemma gives the block 291 − k
+independent checks on its 402 columns (the 402 is fixed by the charge: 672 class points minus
+~270 outputs). The accidental-word count E[projective weight-w words] ≈ C(402, w)(p−1)^{w−1}/p^{291−k}
+then reads
+
+| k | checks | E[weight-5] | E[weight-6] | P(no weight-6 block word) | E[weight-7] |
+|---|---|---|---|---|---|
+| 269 | 22 | 3e-5 | 0.011 | 0.99 | 3.8 |
+| 270 | 21 | 2e-4 | 0.079 | 0.92 | 27 |
+| 271 | 20 | 1.4e-3 | 0.55 | 0.58 | 187 |
+| 272 | 19 | 1e-2 | 3.9 | 0.02 | 1300 |
+| 273 | 18 | 0.07 | 27 | 2e-12 | 9200 |
+| 275 | 16 | 3.3 | 1300 | 0 | 4.5e5 |
+
+This is the window edge: at k ≤ 270 a draw that passes the plane filter almost always has
+d = 7 (both k = 270 survivors we certified did; the seed-19 census is finding ~30 weight-7 classes,
+matching the 27 predicted), at k = 271 about half do, at k = 272 one in fifty, and from k = 273 none.
+The 0 of 18 (shift) at k = 272 is exactly what the table says; symmetry improves the *planar*
+population (the plane filter) but cannot change the accidental count, which depends only on the
+number of checks and columns. The direction is therefore closed at p = 7 for the sphere charge:
+the best possible gain is k = 271 (γ = 0.957 instead of 0.959) at a 58% pass rate, and k = 272
+(γ = 0.955) at 2%. A plane sweep at k = 271 (40 random draws) is running to confirm the 58%.
+
+What symmetric sets *would* buy is a cheaper certificate (scans over orbit representatives only),
+which does not matter once the window is this narrow. Data: `runs/weighted/orbit_sweep/`,
+`runs/certify/p7_k272_*`, `runs/certify/p7_k275_*` on lenore.
 
 ## Beyond the sphere: degree-5 charges at r = 6
 
