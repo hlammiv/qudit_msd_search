@@ -15,7 +15,7 @@ weight <= 5) is certified in five resumable stages, each appended to OUT.json:
                   proves d = 8 once scratchpad/mixed_w7_check.py reports no mixed weight-7 word)
 
 Stages 2-4 together prove d >= 7; stage 5 makes d = 7 exact.
-usage: certify_candidate.py K SEED OUT.json [--skip-full5]
+usage: certify_candidate.py K SEED OUT.json [--skip-full5] [--file DRAWS.jsonl]
 
 --skip-full5: omit stage 3.  It is implied by stages 2 and 4: a word of weight <= 6 either lies in the
 class block (stage 2 excludes weight <= 6 there) or has a non-class part, which the 35 kernel rows
@@ -33,6 +33,7 @@ from qmsd.mindist_nb import (weight_d_exists_fast, weight5_exists_parallel, weig
                              weight7_witness_3x4)
 
 k, seed, out = int(sys.argv[1]), int(sys.argv[2]), sys.argv[3]; SKIP_FULL5 = "--skip-full5" in sys.argv
+DRAW_FILES = [sys.argv[sys.argv.index("--file") + 1]] if "--file" in sys.argv else None   # e.g. runs/weighted/orbit_sweep/*.jsonl
 p, m, r = 7, 4, 7
 T0 = time.time()
 def log(msg):
@@ -45,7 +46,7 @@ def done(stage):
 
 # ---- the draw
 rec = None
-for f in glob.glob("runs/weighted/plane_sweep/plane_sweep_k*.jsonl"):
+for f in (DRAW_FILES or glob.glob("runs/weighted/plane_sweep/plane_sweep_k*.jsonl")):
     for l in open(f):
         if not l.strip(): continue
         rr = json.loads(l)

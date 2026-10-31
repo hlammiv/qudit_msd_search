@@ -348,14 +348,46 @@ nothing and the 270-output code's better rate decides. γ orders codes by asympt
 these targets the protocol optimizer prefers rate over distance. The d = 7 code would pay only for
 targets around 1e-40 or beyond. Data: `runs/weighted/p7_m4_sphere_1756_260_7_census.json`.
 
+### Rigorous bounds behind the surrogate (2026-10-31, `qmsd/rigorous_curve.py`)
+
+The surrogate keeps the weight-d term only. `RigorousBoundCurve` turns a *complete* weight-d
+census (A_d, per-output L_d; complete for all three codes below, since `mixed_w7_check.py` finds
+no weight <= 7 word outside the class block) plus the certified distance into two-sided bounds:
+the weight-d term is exact, every heavier accepted error is counted as a failure with the
+Singleton count N_w <= C(n,w) p^(w-d+1) (the subcode inside any w-set has distance >= d, so
+dimension <= w-d+1), P_acc is bracketed by (1-eps)^n and the same sum. The optimizer then runs
+with the pessimistic curve (`best_protocol(mode="upper")`): a protocol it returns provably
+reaches the target (each chain is re-fed through f_hi as an independent check,
+`tests/test_rigorous_curve.py`). The optimistic curve (f_lo, pacc_hi) bounds what any proof could
+show. Data: `runs/weighted/rigorous_savings.json` (`scratchpad/rigorous_saving.py`).
+
+| code | rigorous threshold | 1e-2 -> 1e-30: proved / optimistic (surrogate) | 1e-3 -> 1e-30: proved / optimistic (surrogate) |
+|---|---|---|---|
+| [[2093,308,5]]_7 | 1.4e-3 | **1.27x** / 4.11x (4.11x) | **2.94x** / 2.94x (2.94x) |
+| [[1746,270,6]]_7 | 2.5e-3 | **1.33x** / 4.32x (4.32x) | **3.09x** / 3.60x (3.60x) |
+| [[1756,260,7]]_7 | 3.4e-3 | **4.14x** / 4.14x (4.14x) | **2.96x** / 3.44x (3.44x) |
+
+**The proof reverses the surrogate's ranking.** The Singleton tail is C(n,d+1) p^2 (eps/(p-1))^(d+1),
+which at eps = 1e-6 sits 1e9 (d = 5), 6e13 (d = 6) and 1e16 (d = 7) above the respective
+surrogates, but the *absolute* level falls with d: f_hi(1e-6) is 1e-13, 2e-27 and 7e-32. So
+after one [[7,1,3]]_7 round (eps 1.0e-6) only the d = 7 code provably reaches 1e-30, and it keeps
+its full 4.14x; the d = 5, 6 codes must be entered from a [[20,1,4]]_7 round (eps 1e-8) and
+keep only 1.3x. At 1e-3 -> 1e-30 all three are entered at 1e-9 and prove 3.0-3.1x. In words:
+*the gamma < 1 code is the one whose cost saving survives a proof*, because distance is what the
+rigorous tail rewards; the surrogate's preference for rate rests on the (unproved, but
+random-model-expected) absence of weight-8 words. Both statements belong in a cost claim. The
+rigorous thresholds (one round provably improves below 0.14-0.34%) are the first rigorous
+threshold statements for these codes.
+
 **[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ before that
 (certificate in NEXT_STEPS.md §H and `runs/weighted/p7_m4_sphere_1746_270_cols.json`). Weight-6
 census on its class block (`count_weight6_per_output`, 3+3, 30 min): only A_6 = 24 words
 (4 scalar classes), each hitting ~6% of the outputs, L_6 = 1.33, c_ε = 2.9e-5. Protocols:
 [[7,1,3]]_7 cyc-B → [[1746,270,6]]_7 (1e-2 → 1e-30, cost 48.7) and [[6,1,?]]_7 RS → [[1746,270,6]]_7
 (1e-3 → 1e-30, cost 39.2); the code is applied at ε ≈ 1e-6, output ≈ 3.0e-41. Words that
-mix in non-class columns are assumed absent (35 extra checks; random-model expectation ~1e-9),
-so this is a surrogate on a lower bound of L_6, and at this n·ε the next order is negligible.
+mix in non-class columns were assumed absent; `mixed_w7_check.py` (2026-10-31,
+`runs/weighted/p7_m4_sphere_1746_270_mixed_w7_check.json`) proves none of weight ≤ 7 exist, so
+A_6 = 24 is the complete count and the surrogate is exact at leading order.
 Data: `runs/weighted/p7_m4_sphere_1746_270_6_census.json`.
 
 Typical protocols: [[7,1,3]]₇ → [[263,24,5]]₇ (1e-2 → 1e-30) and [[263,24,5]]₇ alone

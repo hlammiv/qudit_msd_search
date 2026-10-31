@@ -366,7 +366,16 @@
   },
   "exact_curve": false,
   "notes": "exact enumeration infeasible (dim A = 66); weight-7 census complete 2026-10-31 (block census + mixed-word exclusion)",
-  "rigorous_bounds": false
+  "rigorous_bounds": true,
+  "rigorous": {
+   "source": "runs/weighted/rigorous_savings.json",
+   "module": "qmsd.rigorous_curve",
+   "threshold_rigorous": 0.003377789191791819,
+   "saving_proved": {
+    "1e-2->1e-30": 4.139,
+    "1e-3->1e-30": 2.961
+   }
+  }
  },
  "provenance": "qmsd CLI search import",
  "puncture_columns": null,
