@@ -15,7 +15,7 @@ have one. gamma = ln(n/k)/ln d.*
 | 19 | [[296,65,6]]_19 (ours, m = 2 line-spread sweep, 2026-10-28; was [[293,68,5]]_19 at 0.908) | 0.846 | no weight <= 5 (MITM) + explicit weight-6 line word | 6 of 6 draws at k = 62 and 5 of 6 at k = 65 (<= 7 outputs per line) give d = 6; all 6 draws at k = 68 fail (d = 4 or 5, accidental words as the random-count model predicts), so k = 65 is the limit |
 | 23 | [[424,105,6]]_23 (ours, m = 2 line-spread sweep, 2026-10-29; also [[429,100,6]]_23 at 0.813); RS [[18,5,4]]_23 at 0.924 | 0.779 | no weight <= 5 (MITM, 1 h) + explicit weight-6 line word | first m = 2 codes at p = 23: all 180 line-spread draws at k = 90-110 have line distance exactly 6; k = 105 leaves 15 residual checks, the accidental-word limit (k = 110 is model-dead); RS m = 1 family (closed form) is the small-n alternative |
 | 29 | [[666,175,6]]_29 (ours, m = 2 line-spread sweep, 2026-10-30); RS [[22,7,4]]_29 at 0.826 | 0.746 | no weight <= 5 (MITM, 24 h at 4 throttled threads) + explicit weight-6 line word | first m = 2 code at p = 29; k = 175 leaves 15 residual checks (the accidental-word limit) |
-| 31 | [[25,6,5]]_31 | 0.887 | MITM exact; eps* = 0.416 | |
+| 31 | [[766,195,>=6]]_31 (ours, m = 2 line-spread sweep, 2026-10-31; d = 6 or 7); RS [[25,6,5]]_31 at 0.887 | <= 0.763 (0.703 if d = 7) | no weight <= 5 (MITM, 28 h fast kernels); no line word below weight 7, explicit weight-7 line word | first m = 2 code at p = 31; the exact value needs a weight-6 exclusion (~4e14 probes) that is out of reach |
 | 37 | [[29,8,5]]_37 | 0.800 | MITM exact; eps* = 0.383 | |
 | 41 | [[31,10,5]]_41 | 0.703 | MITM exact; eps* = 0.371 | |
 | 43 | [[34,9,6]]_43 | 0.742 | closed-form MDS | MITM tables scale as (p-1)^3: infeasible from here |
@@ -87,7 +87,8 @@ sizes (the paper's Figure 2).
 | 19 | Manhattan | 0.967 | 121470 | [[293,68,5]]_19 | 0.908 | 293 |
 | 23 | [[17,6,3]]_23 (RS) | 0.948 | 17 | [[18,5,4]]_23 (RS) | 0.924 | 18 |
 | 29 | (RS family cited) | | | [[666,175,6]]₂₉ (m = 2 search); RS 0.826 | 0.746 | 666 |
-| 31-97 | (RS family cited, not tabulated) | | | RS min-gamma member (p = 31 m = 2 certificate pending) | 0.887 -> 0.506 | 25 -> 73 |
+| 31 | (RS family cited) | | | [[766,195,>=6]]₃₁ (m = 2 search, d = 6 or 7); RS 0.887 | <= 0.763 | 766 |
+| 37-97 | (RS family cited, not tabulated) | | | RS min-gamma member | 0.800 -> 0.506 | 29 -> 73 |
 
 Reading. (i) Every finite code, theirs or ours, sits far above gamma_0(p): the asymptotic curve is
 an n -> infinity statement, and at p = 7 the gap is 0.98 vs 0.51. (ii) Where we have new codes

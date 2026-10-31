@@ -4,7 +4,8 @@ Prints the witness or reports that no line carries a weight-6 word (then d >= 6 
 usage: line_witness.py RECORD.jsonl"""
 import sys, json, itertools, numpy as np
 from qmsd.reedmuller import points, rm_generator
-from qmsd.structured_ad import _rank, mitm_streamed
+from qmsd.structured_ad import _rank, mitm_streamed, _null_space
+from qmsd.mindist_nb import weight7_witness_3x4
 from qmsd.triorthogonal import build_triorthogonal_code
 r = [json.loads(l) for l in open(sys.argv[1]) if l.strip()][0]
 p, rr, cols = r["p"], r["r"], r["puncture_columns_1indexed"]
@@ -22,11 +23,19 @@ for ln, j in sorted(zip(lines, jc), key=lambda x: -x[1]):
     if len(cc) < 6: continue
     M = G0[:, cc]; M = M[[t for t in range(M.shape[0]) if M[t].any()]]
     if _rank(M.T.copy(), p) == len(cc): continue
-    for d in range(2, 7):
-        ws = list(itertools.islice(mitm_streamed(M, d, p), 1))
-        if ws:
-            supp, vals = ws[0]; g0 = [int(cc[s]) for s in supp]; coef = [int(v) for v in vals]
+    for d in range(2, 8):
+        if d <= 6:
+            ws = list(itertools.islice(mitm_streamed(M, d, p), 1))
+            hit = None if not ws else ([int(cc[s]) for s in ws[0][0]], [int(v) for v in ws[0][1]])
+        else:  # weight 7: numba 3+4 witness on the small line sub-problem, coefficients from the null space
+            w7 = weight7_witness_3x4(np.ascontiguousarray(M), p)
+            hit = None
+            if w7 is not None:
+                g0c = [int(cc[s]) for s in w7]; ns = np.asarray(_null_space(G0[:, g0c], p)) % p
+                hit = (g0c, [int(x) for x in ns[0]])
+        if hit:
+            g0, coef = hit
             vec = np.zeros(G0.shape[1], dtype=np.int64); vec[g0] = coef; assert ((G0 @ vec) % p == 0).all()
             print(json.dumps({"witness_weight": d, "witness_G0_cols": g0, "witness_coeffs": coef, "outputs_on_line": j}), flush=True)
             sys.exit(0)
-print("NO line word of weight <= 6 found on any line: d >= 6 only from this check", flush=True)
+print("NO line word of weight <= 7 found on any line", flush=True)

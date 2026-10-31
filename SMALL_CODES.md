@@ -1,6 +1,6 @@
 # Small effective codes for every prime p <= 97
 
-*2026-10-30. Companion to `COVERAGE.md` (which ranks by gamma). Here the question is the practical one: at each prime,
+*2026-10-31. Companion to `COVERAGE.md` (which ranks by gamma). Here the question is the practical one: at each prime,
 which small codes exist, how good must the raw magic states be (threshold eps*), how fast does one round suppress
 error (eps_out ~ c eps^d), and how many blocks are accepted (P_acc). All thresholds and coefficients are EXACT:
 Reed-Solomon codes from the closed-form MDS engine (`qmsd.rs_family`, `runs/coverage/rs_family_all.json`), the

@@ -77,7 +77,7 @@ MITM tables at n ~ 430-770 exceed loranne's memory and the local box reaps them 
 | 19 | [[296,65,6]]_19 | 0.846 | certified (5/6 draws at k = 65; all 6 at k = 68 fail) | `runs/m2_line_sweep/p19_k65.jsonl` |
 | 23 | [[424,105,6]]_23 | 0.779 | certified (15 residual checks = accidental-word limit) | `runs/m2_line_sweep/local/p23_k105_certified.jsonl` |
 | 29 | [[666,175,6]]_29 | 0.746 | **certified** 2026-10-30 (weight-5 scan 86142 s at 4 throttled threads; explicit weight-6 line word by `scratchpad/line_witness.py`) | `runs/certify/p29_k175_certified.jsonl` |
-| 31 | [[766,195,6]]_31 ? | 0.763 if d = 6 | certificate running on lenore (4 threads) | `lenore:~/repro_aanha/runs_m2/p31_k195_certified.jsonl` |
+| 31 | [[766,195,>=6]]_31 | <= 0.763 (0.703 if d = 7) | **d >= 6 certified** 2026-10-31 (weight-5 scan 27920 s on the indexed kernels); no line word of weight <= 6, explicit weight-7 line word; d = 7 would need the infeasible 2+4 weight-6 exclusion | `runs/certify/p31_k195_certified.jsonl` |
 | 37 | | ~0.745 vs RS 0.800 | not started: marginal gain, 20 h certificate | |
 
 The route stops paying at p ~ 37, where the RS family's gamma falls below what d = 6 at the
