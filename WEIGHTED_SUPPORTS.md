@@ -312,6 +312,44 @@ direction table, change.) Run on the certified [[1756,260,7]]₇ draw as well
 233 376 candidates extend, so every weight-7 word of that code is a class-block word and the
 queued weight-7 census of its class block counts all of them.
 
+## Orbit-union output sets (2026-10-31, in progress)
+
+Output sets that are unions of orbits of a group Γ ≤ O(4, F₇) (so g(Mx) = g(x) and the cube
+classes are preserved) are a different population from the random cube-class draws, and a
+Γ-symmetric code's low-weight words come in Γ-orbits. `scratchpad/orbit_rank_probe.py` first
+asks which groups allow a full-rank set of size k at all: the output columns must be independent
+in RM(7,4)|_X, and a Γ-invariant set respects the isotypic decomposition of that space, so a
+component that is too small caps k. Any group containing −I is capped at 2·dim(even part) = 260
+(rank deficiency 17 at k = 272 for shift+neg, rot12, …); S₄-type and rotation groups are also
+deficient. Full-rank unions past k = 270 exist only for small groups without −I: the coordinate
+shift x₁→x₂→x₃→x₄ (order 4, full rank to k ≈ 285), the 3-cycle (order 3) and neg₁₂ (order 2).
+
+`scratchpad/orbit_sweep.py` (same cheap filters as `plane_sweep.py`: plane distance, then the
+class-block weight ≤ 5 check) on the shift group, 60 draws per k:
+
+| k | n | population | d_plane 3 / 4 / 5 / 6 / 7 / 8 | survivors | rate |
+|---|---|---|---|---|---|
+| 270 | 1746 | random (600 draws) | 6 / 17 / 102 / 424 / 50 / 1 | 51 | 8% |
+| **272** | 1744 | **shift orbits** | 0 / 5 / 5 / 23 / 19 / **8** | **18** | **30%** |
+| 275 | 1741 | random (63 draws) | 1 / 0 / 9 / 53 / 0 / 0 | 0 | 0% |
+| **275** | 1741 | **shift orbits** | 0 / 5 / 14 / 29 / 11 / 0 | 2 | 3% |
+| 275 | 1741 | 3-cycle orbits | (3 draws with d_plane ≤ 2) 5 / 9 / 6 / 29 / 2 / 0 | 1 | 2% |
+| 280 | 1736 | shift orbits | 0 / 4 / 13 / 42 / 0 / 0 (one d_plane 1) | 0 | 0% |
+| 280 | 1736 | 3-cycle orbits | 0 / 2 / 11 / 39 / 0 / 0 (8 with d_plane ≤ 2) | 0 | 0% |
+| 285 | 1731 | shift orbits | 1 / 18 / 29 / 12 / 0 / 0 | 0 | 0% |
+
+The shift-symmetric sets are clearly the better population at k = 272 (30% survivors against 8%
+for random sets at k = 270, and 8 of 60 with plane distance 8 against 1 of 600) and they keep a
+few survivors at k = 275 where random draws have none; by k = 280 the window is closed for them
+too. The 3-cycle is worse than random (many sets with plane distance ≤ 2: a 3-cycle-invariant set
+contains fixed points of the cycle, whose orbits are single points, and the small orbits cluster).
+
+Certificates (`certify_candidate.py --file`, lenore, 8 threads each, started 2026-10-31): k = 272
+seeds 3 and 18 (both d_plane = 8; their mixed weight-7 checks find no word of weight ≤ 7 touching a
+non-class column, so d = 8 exactly when the class block has no weight-7 word, which the witness
+stage's 3+4 scan decides). Outcomes: d = 7 gives [[1744,272,7]]₇, γ = 0.955 (a hair below the
+0.959 record); d = 8 gives γ = **0.894**. Data: `runs/weighted/orbit_sweep/`.
+
 ## Beyond the sphere: degree-5 charges at r = 6
 
 The sphere is the only degree-2 charge at m = 4; the next budget, deg g <= 5, allows r = 6
