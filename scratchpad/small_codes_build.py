@@ -80,7 +80,17 @@ for r in m2:
     if key not in best or (r.d or 0) > (best[key].d or 0): best[key] = r
 for (p, k), r in sorted(best.items()):
     L.append(f"| {p} | {r.label} | m = 2 search (catalog `{r.artifact_id}`) | - | - | d exact (MITM certificate); exact curve not enumerable (dim A too large): P_acc = (1-eps)^n within 1% (COVERAGE.md), leading order needs the A_d census, rigorous bounds via `qmsd assess` |")
-L += ["", "## How to extend", "",
+L += ["", "## Where m = 2 search codes beat the Reed-Solomon family (and where they do not)", "",
+      "- **Few outputs, p >= 17:** RS wins outright. [[16,1,6]]_17 is 16 qudits; the m = 2 draws at k = 6-22 are",
+      "  260-280 qudits with only d >= 6 certified (no line word of weight <= 6, no word of weight <= 5; the exact",
+      "  value would need a ~55 thread-hour weight-6 exclusion each, not spent). m = 2 only pays once its rate beats",
+      "  RS's n/k = p - 1, i.e. from k of order p upward ([[237,52,6]]_17, [[296,65,6]]_19, [[424,105,6]]_23 ...).",
+      "- **Few outputs, p = 11, 13:** the reverse. RS stops at d = 4 ([[10,1,4]]_11, [[12,1,4]]_13), while the m = 2",
+      "  front has d = 7 at k = 1-3 and d = 6 up to k = 10 at p = 11 ([[120,1,7]], [[118,3,6]], [[115,6,6]], [[113,8,6]],",
+      "  [[111,10,6]]) and d = 7 at k = 3, d = 6 at k = 6 at p = 13 ([[166,3,7]], [[163,6,6]]). These are the best small",
+      "  high-distance codes at those primes (certified by the search engine's MITM; exact curves not enumerable).",
+      "- **p <= 7:** the cyclic / doubling / paper codes above; no RS code with d > 2 exists.", "",
+      "## How to extend", "",
       "- `scratchpad/rs_family_table.py` regenerates the RS table; `scratchpad/small_codes_build.py` rebuilds this file and the catalog/performance records.",
       "- m = 2 searches at small k (high d, n ~ 100-300) for p = 11, 13 run on loranne (`runs/coverage/small/`); p >= 17 at d >= 6 needs the 3+3 kernel memory (lenore).",
       "- Cost per output (raw states per accepted output at a target error) comes from `qmsd protocol` / `qmsd assess`; not yet tabulated here."]
