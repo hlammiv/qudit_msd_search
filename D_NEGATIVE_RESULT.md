@@ -1,7 +1,7 @@
 # No small γ<1 triorthogonal magic code over prime F_p for p ≤ 13
 
 **A negative result (Direction D).** Consolidated 2026-06-30 from `D_PHASE01_FINDINGS.md`
-(execution log), `RESULTS.md` (the positive results + the flat-cap boundary), and the
+(execution log), `VERIFICATION_LEDGER_2026-06.md` (formerly `RESULTS.md`; the positive results + the flat-cap boundary), and the
 `qmsd` toolkit. Companion to arXiv:2510.10852.
 
 ---
@@ -55,7 +55,7 @@ direct search (§5).
 
 ## 2. Context — the positive results (p ≥ 17) that frame the question
 
-`RESULTS.md` establishes the γ<1 codes that *do* exist and motivate the p ≤ 13 question:
+`VERIFICATION_LEDGER_2026-06.md` (formerly `RESULTS.md`) establishes the γ<1 codes that *do* exist and motivate the p ≤ 13 question:
 - **p = 17:** `[[237,52,6]]₁₇`, γ=0.8466 (d=6 exact, A₆=147856), from punctured RM₁₇(10,2).
 - **p = 19:** `[[293,68,5]]₁₉`, γ=0.9076 (d=5 exact), from punctured RM₁₉(11,2).
 - **p ≥ 23:** the Reed–Solomon (m=1) family, MDS, closed-form d = r_max−k+2, γ from 0.924 (p=23) to ≈0.506.
@@ -187,7 +187,7 @@ case constructible (§5), collapse to d≤3. Hence:
   algebraic idea could still attack.
 - **p=7 mid-k m=4 RM window** `k∈[110,312]`. Still uncertified — `min_dependent_columns` overflows past
   R=21 rows there. This is *RM* (within the forced grid), not a non-RM route; closing it rigorously needs
-  an overflow-safe distance certificate (a separate engineering task, see `RESULTS.md`).
+  an overflow-safe distance certificate (a separate engineering task, see `VERIFICATION_LEDGER_2026-06.md`).
 
 ## 8. Per-p verdict
 

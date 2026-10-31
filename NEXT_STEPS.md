@@ -1,6 +1,6 @@
 # Longer-term todos (qudit-MSD code discovery)
 
-Last updated 2026-06-29. Status tags: ✅ done · 🔄 running · ⏸ deferred · 🔭 research.
+Last updated 2026-10-31 (section H); header date of the original 2026-06-29. Status tags: ✅ done · 🔄 running · ⏸ deferred · 🔭 research.
 
 ## A. Push the new γ<1 codes lower — ✅ TESTED + REFUTED (2026-06-30)
 The line-spread d+1 rung was tested for both flagships and **refuted by the 2D cap**: a lower-max_line set
@@ -41,7 +41,7 @@ boundary**, the A_d optimizations (qutrit/ququint), the distillation analysis, a
 Probed p=7 m=4 (N=2401, D=326) at the γ<1 density (high k): true d = 2–3 (via `min_dependent_columns(d_max=3)`,
 e.g. k=314 ⇒ d=3, k=320 ⇒ d=2), vs d>6.6 needed for γ<1. The codim-1 flats (hyperplanes, 7³ pts) over-puncture
 (~k/7 each) — same mechanism as p=11/13 m=3 (plane) and p≤13 m=2 (2D). **CORRECTION (adversarial verification,
-RESULTS.md):** this is rigorous only for **k ≥ 313** (Hamming/MDS on redundancy R=326−k); the **mid-k window
+VERIFICATION_LEDGER_2026-06.md, formerly RESULTS.md):** this is rigorous only for **k ≥ 313** (Hamming/MDS on redundancy R=326−k); the **mid-k window
 k ∈ [110, 312] is NOT certified** (`min_dependent_columns` overflows at R>21 rows there, and the "~k/7" heuristic
 is loose — binding weight-21 2-flat words cost only ~k/114 per hyperplane). So "airtight for p=7" was an
 **overstatement**: p=7 is closed only for k ≥ 313; the mid-k m=4 window is the one open loose end (and is D's best

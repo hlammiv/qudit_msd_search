@@ -77,7 +77,7 @@ integer polynomial before it is evaluated, which avoids cancellation.
    (block) count. The exact per-output recursion from δ_in = 0.01 gives 1.12× / 1.85× / 13×
    (rounds 1/2/3), with absolute errors ~14× above eq 39; see the corrections there.
 3. **The p = 17 "δ_th = 2.74 > 1" claim is refuted.** That figure extrapolated the leading
-   order (RESULTS.md §6, NEXT_STEPS.md and NEW_CODES.md are corrected;
+   order (VERIFICATION_LEDGER_2026-06.md §6 (formerly RESULTS.md), NEXT_STEPS.md and NEW_CODES.md are corrected;
    `p17_d6_code.json` still carries the old note). Exact thresholds are finite. The γ<1
    flagship has ε\* = 0.043.
 4. **Per-output thresholds are identical across outputs** to ~1e-9 on the flagship, so
@@ -323,7 +323,7 @@ and keep d = 5 up to k = 24. Scored with the surrogate against the p = 7 standar
 | [[266,21,5]]₇ | x₁²+x₂²+x₃²+1 | 0.0062 | 2.21× | 1.74× | 1.84× |
 | [[319,24,5]]₇ | unit (unweighted) | 0.0177 | 2.11× | 1.57× | 1.50× |
 | [[235,10,5]]₇ | x₁(x₁−1) | 0.0031 | 1.19× | none | none |
-| **[[2093,308,5]]₇** (m = 4, unit, free-form) | — | 0.172 | **4.11×** (210 → 51) | none | **2.94×** (141 → 48) |
+| **[[2093,308,5]]₇** (m = 4, unit, free-form) | — | 0.172 | **4.11×** (210 → 51) | 1.03× | **2.94×** (141 → 48) |
 | **[[1746,270,6]]₇** (m = 4, sphere charge) | x₁²+x₂²+x₃²+x₄² | 2.9e-5 | **4.32×** (210 → 48.7) | none | **3.60×** (141 → 39.2) |
 | **[[1756,260,7]]₇** (m = 4, sphere charge, γ 0.982) | x₁²+x₂²+x₃²+x₄² | 4.6e-6 | 4.14× (210 → 50.8) | none | 3.44× (141 → 40.9) |
 

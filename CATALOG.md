@@ -93,7 +93,7 @@ quantities in `WEIGHTED_SUPPORTS.md` and `COVERAGE.md`; they are not recomputed 
 | status | certificate | examples |
 |---|---|---|
 | confirmed | exact (bounds meet) | the paper's search codes; [[1756,260,7]]_7; [[424,105,6]]_23; the RS family (closed-form MDS, re-checked by MITM for p <= 41) |
-| partial | lower bound proved, exact value open; or closed form only | [[1746,270,>=7]]_7 (d = 7 or 8) |
+| partial | lower bound proved, exact value open; or closed form only | [[766,195,>=6]]_31 (d = 6 or 7); earlier [[1746,270,>=7]]_7 until its weight-7 word was found |
 | candidate | no rigorous bound | the old p = 17 / p = 19 d = 7 candidates |
 | refuted | a lighter word was found later | the qutrit m = 7 cap code |
 

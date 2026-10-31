@@ -14,7 +14,7 @@ filters cannot do:
 
 | stage | what it excludes | method | cost (8 threads) |
 |---|---|---|---|
-| block6 | weight-6 words inside the class block | 3+3 MITM on the block (`weight6_witness_3x3`, ~6 GB table) | ~40 min |
+| block6 | weight-6 words inside the class block | 3+3 MITM on the block (`weight6_witness_3x3`, ~6 GB table) | 73-88 min on the old kernels under load; 5-6 min with the indexed kernels at 8 threads (k = 272 runs, 2026-10-31); nominal ~40 min |
 | full5 | weight <= 5 words anywhere | serial MITM d <= 4, thread-parallel 2+3 weight-5 scan on the full code (`weight5_exists_parallel`) | ~10 h |
 | mixed6 | weight-6 words touching a non-class column | kernel rows force the non-class part into RM(20,4) (d = 5); its full-support weight-5/6 words are line-supported (lemma, `scratchpad/mixed_w6_check.py`); enumerate those lines inside the non-class points and test extension by <= 1 class column | ~10 min |
 | mixed7 | weight-7 words touching a non-class column (needed only for a d = 8 claim) | the weight-7 words of RM(20,4) are line-supported too (`scratchpad/rm20_w7_classify.py`, WEIGHTED_SUPPORTS.md "Weight-7 words of RM(20,4)"); line words of weight 5/6/7 inside the non-class points, extension by <= 2 class columns via a direction table (`scratchpad/mixed_w7_check.py`) | 5 s |
@@ -30,7 +30,7 @@ no class part, weight 6, weight 5 + one class column) and tests extension to ker
 block6 + mixed6 already prove d >= 7; the 10-hour full scan is an independent cross-check. Seed 407 and
 seed 19 ran it (seed 407: consistent); seed 8 and later candidates run with `--skip-full5`, which cuts a
 certificate from ~12 h to ~1.5 h at 8 throttled threads.
-A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma = 0.960, k = 270 gives
+A verdict of `d = 7 exact` makes the code a certified entry: k = 265 gives gamma = 0.970, k = 270 gives
 0.959, against the current record 0.982.
 
 ## Queue (lenore, `~/repro_aanha/runs/certify/`)

@@ -7,7 +7,9 @@
 
 | code | support | γ | certificate |
 |---|---|---|---|
-| **[[1756,260,7]]₇** | sphere charge, m = 4, r = 7 | **0.982** | d = 7 exact (three-part proof + witness, below) |
+| **[[1746,270,7]]₇** (sweep seeds 19 and 407) | sphere charge, m = 4, r = 7 | **0.959** | d = 7 exact, both draws (block6 + mixed6 + weight-7 witness; `CERTIFY_P7.md`) |
+| [[1751,265,7]]₇ (seed 8) | same | 0.970 | d = 7 exact |
+| [[1756,260,7]]₇ (the first) | same | 0.982 | d = 7 exact (three-part proof + witness, below); weight-7 census complete |
 | [[1746,270,6]]₇ | same | 1.042 | d = 6 exact |
 | [[1751,265,6]]₇ | same | 1.054 | d = 6 exact |
 | [[263,24,5]]₇ | ellipsoid charge, m = 3 | 1.49 | d = 5 (MITM) |
@@ -162,7 +164,7 @@ witness), not a certified code.
 
 Findings:
 
-- d >= 7 candidates are not rare: one draw in 8 at k = 265 (gamma 0.960 if d = 7) and one in 12
+- d >= 7 candidates are not rare: one draw in 8 at k = 265 (gamma 0.970 if d = 7) and one in 12
   at k = 270 (gamma 0.959). The [[1756,260,7]]_7 draw was a 1-in-6 event, not a fluke.
 - The plane filter does almost all the work: only 3 of 1323 draws passed it and then failed the
   block weight <= 5 check (all at k = 265).

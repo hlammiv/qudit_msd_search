@@ -8,7 +8,7 @@ have one. gamma = ln(n/k)/ln d.*
 |---|---|---|---|---|
 | 3 | [[206,37,4]]_3 (paper's puncture set, A_d 572 ours) | 1.239 | MITM exact | gamma < 1 impossible for unweighted RM (flat cap); weighted m <= 7 probed, no window (`WEIGHTED_SUPPORTS.md`) |
 | 5 | [[519,106,5]]_5 (paper) | 0.987 | MITM exact (10 s) | the only p <= 13 crossing; Singleton-infeasible at m <= 3 |
-| 7 | [[1746,270,7]]_7 (weighted sphere, sweep seed 19, d = 7 exact, 2026-10-30); also [[1751,265,7]]_7 (0.970, exact), [[1756,260,7]]_7 (0.982, exact), [[1746,270,7]]_7 (seed 407, also d = 7 exact: the 3+4 block scan found a weight-7 word on 2026-10-30) | 0.959 | block weight-6 scan + mixed-word exclusion (+ full weight-5 cross-check for seed 19) and an explicit planar weight-7 word | four certified gamma < 1 codes at p = 7 (two at k = 270); certificates in CERTIFY_P7.md |
+| 7 | [[1746,270,7]]_7 (weighted sphere, sweep seed 19, d = 7 exact, 2026-10-30); also [[1751,265,7]]_7 (0.970, exact), [[1756,260,7]]_7 (0.982, exact), [[1746,270,7]]_7 (seed 407, also d = 7 exact: the 3+4 block scan found a weight-7 word on 2026-10-30) | 0.959 | block weight-6 scan + mixed-word exclusion (+ full weight-5 cross-check for seeds 19 and 407) and an explicit planar weight-7 word | four certified gamma < 1 codes at p = 7 (two at k = 270); certificates in CERTIFY_P7.md |
 | 11 | [[100,21,4]]_11 (ours, m = 2 flat-spread search) | 1.126 | MITM exact | equals the 2D-cap prediction of the no-go; weighted supports dead by line words (r < p-1) |
 | 13 | [[145,24,5]]_13 (ours, m = 2 search, 600 trials at k = 24, 2026-10-30) | 1.118 | MITM exact | 2D-cap prediction is [[143,26,5]] (1.059): 600 trials at k = 25-27 and 3000 flat-spread trials at k = 26 all give d = 4, so a d = 5 set at k = 26 (if it exists) is not a random line-spread set; the arc-climb, cap-set and near-cap samplers do not reach k = 26 at p = 13 at all (they stall at k = 15), so the prediction stays unrealised |
 | 17 | [[237,52,6]]_17 (ours) | 0.847 | MITM exact, two-way | first small gamma < 1 search code; 330x smaller than the analytic family |
@@ -57,7 +57,7 @@ accidental acceptance of a nonzero error is an O(A_d eps^d) correction and invis
 | [[296,65,6]]_19 | 296 | 0.052 | 0.41 | 0.74 | 0.91 | 0.97 |
 | [[424,105,6]]_23 | 424 | 0.014 | 0.28 | 0.66 | 0.88 | 0.96 |
 | [[1756,260,7]]_7 | 1756 | < 1e-5 | 0.005 | 0.17 | 0.59 | 0.84 |
-| [[1746,270,>=7]]_7 | 1746 | < 1e-5 | 0.005 | 0.18 | 0.59 | 0.84 |
+| [[1746,270,7]]_7 | 1746 | < 1e-5 | 0.005 | 0.18 | 0.59 | 0.84 |
 
 Reading: a block of n qudits accepts roughly when it sees no error at all, so a code is usable only
 once n x eps is of order one. The p = 7 codes (n ~ 1750) are second- or third-round codes, fed by a
@@ -80,11 +80,11 @@ sizes (the paper's Figure 2).
 |---|---|---|---|---|---|---|
 | 3 | [[206,37,4]]_3 (Table 3) / Manhattan | 1.239 / 0.990 | 206 / 1.9e15 | same code (A_d 572 vs 880) | 1.239 | 206 |
 | 5 | [[519,106,5]]_5 (Table 3) / Manhattan | 0.987 / 0.980 | 519 / 1.5e11 | same code | 0.987 | 519 |
-| 7 | Manhattan | 0.990 | 9.6e10 | [[1756,260,7]]_7 | 0.982 | 1756 |
+| 7 | Manhattan | 0.990 | 9.6e10 | [[1746,270,7]]_7 (also [[1756,260,7]]_7 0.982) | 0.959 | 1746 |
 | 11 | Manhattan | 0.964 | 1.9e7 | [[100,21,4]]_11 | 1.126 | 100 |
-| 13 | Manhattan | 0.975 | 6.1e7 | [[141,28,4]]_13 | 1.166 | 141 |
+| 13 | Manhattan | 0.975 | 6.1e7 | [[145,24,5]]_13 | 1.118 | 145 |
 | 17 | Manhattan | 0.946 | 77540 | [[237,52,6]]_17 | 0.847 | 237 |
-| 19 | Manhattan | 0.967 | 121470 | [[293,68,5]]_19 | 0.908 | 293 |
+| 19 | Manhattan | 0.967 | 121470 | [[296,65,6]]_19 | 0.846 | 296 |
 | 23 | [[17,6,3]]_23 (RS) | 0.948 | 17 | [[18,5,4]]_23 (RS) | 0.924 | 18 |
 | 29 | (RS family cited) | | | [[666,175,6]]₂₉ (m = 2 search); RS 0.826 | 0.746 | 666 |
 | 31 | (RS family cited) | | | [[766,195,>=6]]₃₁ (m = 2 search, d = 6 or 7); RS 0.887 | <= 0.763 | 766 |
