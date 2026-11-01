@@ -17,8 +17,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 - **First proved gamma < 1 code at p = 11: [[13332,1309,22]]_11, gamma = 0.751** (d = 22 exact: the theorem
   plus an explicit weight-22 word). Output set = the full zero set of a cubic; distance follows from a one-line
   theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;
-  catalog `imported-p11-n13332-k1309-c7aae3253e15`). The same construction predicts gamma 0.66 at
-  p = 17 (n = 78608) and 0.63 at p = 23.
+  catalog `imported-p11-n13332-k1309-c7aae3253e15`). Built at p = 17: [[78455,5066,>=68]]_17,
+  gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (rank check pending).
 
 - **First gamma < 1 magic-state-distillation codes at p = 7**: [[1745,271,7]]_7, gamma 0.957 (four independent
   draws, all d = 7 exact, 2026-11-01); [[1746,270,7]]_7, gamma 0.959 (two

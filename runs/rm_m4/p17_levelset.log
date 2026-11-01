@@ -1,0 +1,5 @@
+p=17 r=21 delta=3: dim RM(r)=12370 dim RM(r-delta)=7295 cap=5075; dual RM(45,4) d>=68
+  cubic 0 level 2: |O|=5032 rank=5032 OK (284s)
+  cubic 1 level 0: |O|=5049 rank=5049 OK (581s)
+  cubic 2 level 12: |O|=5066 rank=5066 OK (885s)
+BEST: {'p': 17, 'm': 4, 'r': 21, 'delta': 3, 'k': 5066, 'n': 78455, 'd_lower_bound': 68, 'gamma_upper': 0.6493586105010304, 'level': 12}

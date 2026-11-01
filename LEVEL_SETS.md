@@ -63,7 +63,23 @@ under the cap. The random-draw window at p = 11 (`scratchpad/window_law.py`: k �
 d = 7) is better in γ but unprovable; the level-set code trades rate for a proof and a much larger
 distance.
 
-## The family (predicted, not built)
+## The family: built at p = 17 and 19 (2026-11-01)
+
+`scratchpad/levelset_build.py` evaluates only the monomials at the output points, so it never forms
+the dense generator; `scratchpad/levelset_verify.py` recomputes the level set from the stored
+polynomial and re-checks the rank with a different elimination routine.
+
+| p | construction | code | d | γ | previous best at p | status |
+|---|---|---|---|---|---|---|
+| 11 | cubic, r = 13 | [[13332,1309,22]]₁₁ | 22 exact | **0.751** | 1.126 | confirmed |
+| 17 | cubic, r = 21 | [[78455,5066,≥68]]₁₇ | ≥ 68 | **≤ 0.649** | 0.847 ([[237,52,6]]₁₇); paper 0.946 at n = 77540 | proved lower bound, rank checked twice (`imported-p17-n78455-k5066-2d7880c18fa5`) |
+| 19 | quartic, r = 23 | [[123284,7037,≥57]]₁₉ | ≥ 57 | **≤ 0.708** | 0.846 | builder's rank only; independent check running |
+| 13 | — | cubic zero sets (≈ 2197 points) exceed the cap 1996; quartic gives d ≥ 13, γ ≈ 0.97 | | | | no useful member |
+
+At p = 13 and 19 a cubic zero set has about p³ points, more than the cubic cap allows; at p = 19 the
+quartic (cap 8419, dual RM(52,4), d ≥ 57) fits. At p = 13 the quartic's distance bound is only 13.
+
+## The family (original prediction)
 
 Same construction at r = r_max, δ = 3, O a cubic zero set of size ≈ p³ (always ≡ 0 mod p):
 
