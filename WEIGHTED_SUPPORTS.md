@@ -370,11 +370,24 @@ then reads
 This is the window edge: at k ≤ 270 a draw that passes the plane filter almost always has
 d = 7 (both k = 270 survivors we certified did; the seed-19 census is finding ~30 weight-7 classes,
 matching the 27 predicted), at k = 271 about half do, at k = 272 one in fifty, and from k = 273 none.
-The 0 of 18 (shift) at k = 272 is exactly what the table says; symmetry improves the *planar*
-population (the plane filter) but cannot change the accidental count, which depends only on the
-number of checks and columns. The direction is therefore closed at p = 7 for the sphere charge:
-the best possible gain is k = 271 (γ = 0.957 instead of 0.959) at a 58% pass rate, and k = 272
-(γ = 0.955) at 2%. A plane sweep at k = 271 (40 random draws) is running to confirm the 58%.
+The 0 of 18 (shift) at k = 272 is what the table says for existence. **Correction (2026-11-01):** a
+sampled census of one shift-symmetric k = 272 block (`scratchpad/routes/isd/`, Stern 2+2, 1552
+iterations) finds about 115 distinct weight-6 words against the law's 3.7, concentrated on four
+columns that very likely form one shift orbit. So symmetry does change the accidental count, and
+upward: orbit-union sets are worse than random draws at the block stage, not merely no better.
+The law matches random blocks (sampled N_7 = 32 ± 6 on the k = 270 seed-19 block, law 26.7, exhaustive
+census about 30) and exact counts at p = 11 (below).
+
+**k = 271 measured (2026-11-01).** 160 random draws give 13 plane-filter survivors (8%); the block
+stages on lenore have certified the first four, and **all four are d = 7 exact**:
+[[1745,271,7]]₇, γ = **0.957**, the new p = 7 record (catalog `imported-p7-n1745-k271-*`,
+`runs/certify/p7_k271_bundle.json`). The law's 58% pass rate at k = 271 is so far an underestimate
+(4 of 4); the remaining nine survivors are in the chain.
+
+**The law at p = 11 (exact).** On restrictions of the p = 11, m = 4 candidate to 13 or 14 checks and
+100 or 120 columns, where an exhaustive scan fits, the mean number of weight-6 words is 3.67 (law
+3.45, 12 subsets) and 1.20 (law 0.96, 10 subsets); the fraction with none is 0.30 against the law's
+0.38. Data: `scratchpad/routes/isd/runs/law_restricted_*.json`.
 
 What symmetric sets *would* buy is a cheaper certificate (scans over orbit representatives only),
 which does not matter once the window is this narrow. Data: `runs/weighted/orbit_sweep/`,

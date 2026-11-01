@@ -20,7 +20,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   catalog `imported-p11-n13332-k1309-c7aae3253e15`). The same construction predicts gamma 0.66 at
   p = 17 (n = 78608) and 0.63 at p = 23.
 
-- **First gamma < 1 magic-state-distillation codes at p = 7**: [[1746,270,7]]_7, gamma 0.959 (two
+- **First gamma < 1 magic-state-distillation codes at p = 7**: [[1745,271,7]]_7, gamma 0.957 (four independent
+  draws, all d = 7 exact, 2026-11-01); [[1746,270,7]]_7, gamma 0.959 (two
   independent draws, plane-sweep seeds 19 and 407, both d = 7 exact, 2026-10-30), [[1751,265,7]]_7
   (0.970, exact) and the first one found, [[1756,260,7]]_7 (0.982, exact, 2026-10-27). All are weighted
   sphere-charge supports on F_7^4 (`WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `runs/certify/`). No
@@ -44,7 +45,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   (`WEIGHTED_SUPPORTS.md`, "Weight-7 words of RM(20,4)"; `CERTIFY_P7.md`).
 - **The p = 7 window edge is a law**: the accidental-word count on the 402-column class block with 291 - k
   checks gives P(no weight-6 block word) = 0.92 at k = 270, 0.58 at 271, 0.02 at 272, 2e-12 at 273; all
-  20 symmetric (orbit-union) survivors at k = 272 / 275 have weight-6 block words. The direction is
+  20 symmetric (orbit-union) survivors at k = 272 / 275 have weight-6 block words (a sampled census
+  shows symmetric blocks carry ~30x the law's weight-6 count). The law matches exact counts at p = 11. The direction is
   closed at p = 7 for the sphere charge (`WEIGHTED_SUPPORTS.md`, "Orbit-union output sets").
 
 ## 2. Best certified code per prime, p = 5 .. 97

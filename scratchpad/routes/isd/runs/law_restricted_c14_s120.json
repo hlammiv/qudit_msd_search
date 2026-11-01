@@ -1,0 +1,235 @@
+{
+ "source": "scratchpad/routes/isd/runs/p11_r13_k2290_seed1.npz",
+ "p": 11,
+ "checks": 14,
+ "s": 120,
+ "extra_outputs": [
+  430,
+  1779,
+  3076,
+  3173,
+  3373,
+  3849,
+  5054,
+  5226,
+  5837,
+  6314,
+  9317,
+  10156,
+  10221,
+  10728,
+  11709,
+  11727
+ ],
+ "subsets": [
+  {
+   "subset_index": 0,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 1,
+   "words": [
+    [
+     36,
+     42,
+     61,
+     65,
+     105,
+     107
+    ]
+   ],
+   "seconds": 105.1
+  },
+  {
+   "subset_index": 1,
+   "rank": 14,
+   "lowest_weight": null,
+   "n_words": 0,
+   "words": [],
+   "seconds": 94.7
+  },
+  {
+   "subset_index": 2,
+   "rank": 14,
+   "lowest_weight": null,
+   "n_words": 0,
+   "words": [],
+   "seconds": 89.9
+  },
+  {
+   "subset_index": 3,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 2,
+   "words": [
+    [
+     14,
+     29,
+     32,
+     65,
+     90,
+     92
+    ],
+    [
+     22,
+     32,
+     33,
+     34,
+     35,
+     61
+    ]
+   ],
+   "seconds": 90.3
+  },
+  {
+   "subset_index": 4,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 2,
+   "words": [
+    [
+     4,
+     10,
+     43,
+     64,
+     117,
+     118
+    ],
+    [
+     3,
+     77,
+     88,
+     97,
+     105,
+     115
+    ]
+   ],
+   "seconds": 88.0
+  },
+  {
+   "subset_index": 5,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 2,
+   "words": [
+    [
+     6,
+     8,
+     20,
+     21,
+     38,
+     39
+    ],
+    [
+     15,
+     30,
+     39,
+     110,
+     113,
+     119
+    ]
+   ],
+   "seconds": 83.5
+  },
+  {
+   "subset_index": 6,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 1,
+   "words": [
+    [
+     19,
+     45,
+     51,
+     59,
+     69,
+     99
+    ]
+   ],
+   "seconds": 83.3
+  },
+  {
+   "subset_index": 7,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 1,
+   "words": [
+    [
+     27,
+     53,
+     61,
+     64,
+     87,
+     111
+    ]
+   ],
+   "seconds": 83.3
+  },
+  {
+   "subset_index": 8,
+   "rank": 14,
+   "lowest_weight": null,
+   "n_words": 0,
+   "words": [],
+   "seconds": 83.3
+  },
+  {
+   "subset_index": 9,
+   "rank": 14,
+   "lowest_weight": 6,
+   "n_words": 3,
+   "words": [
+    [
+     24,
+     35,
+     56,
+     86,
+     88,
+     97
+    ],
+    [
+     5,
+     46,
+     85,
+     88,
+     103,
+     113
+    ],
+    [
+     45,
+     51,
+     58,
+     88,
+     96,
+     117
+    ]
+   ],
+   "seconds": 83.3
+  }
+ ],
+ "E_law": {
+  "4": 2.1631530216850958e-05,
+  "5": 0.005018515010309422,
+  "6": 0.9618820436426392,
+  "7": 156.6493613932298
+ },
+ "summary": {
+  "subsets": 10,
+  "with_weight_le5": 0,
+  "weight6_counts": [
+   1,
+   0,
+   0,
+   2,
+   2,
+   2,
+   1,
+   1,
+   0,
+   3
+  ],
+  "mean_count": 1.2,
+  "frac_zero": 0.3,
+  "law_E6": 0.9618820436426392,
+  "law_P_zero": 0.3821729425482342
+ }
+}

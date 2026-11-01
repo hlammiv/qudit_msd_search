@@ -86,7 +86,11 @@ and other δ are open.
   not competitive by 3–10 orders of magnitude at every size tried (cannot close weight 3 on the
   402-column p = 7 block in 300 s where MITM takes 0.45 s); the modular constraints give solvers no
   propagation. Closed.
-- Information-set decoding (`scratchpad/routes/isd/`, in progress): a fast finder, not a certificate.
+- Information-set decoding (`scratchpad/routes/isd/NOTES.md`; the agent stopped before finishing its
+  write-up, the data are complete): a finder and a sampled counter, never a certificate. Useful at
+  n ≈ 400 (a weight-6 word in under a second, unbiased Monte-Carlo word counts); blind at n ≈ 12 000
+  (success probability 4·10⁻⁹ per word per iteration). It found the 30x excess of weight-6 words in
+  symmetric p = 7 blocks and confirmed the law on exact p = 11 restrictions.
 
 ## Next
 

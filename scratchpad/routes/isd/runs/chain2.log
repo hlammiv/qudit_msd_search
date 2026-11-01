@@ -1,0 +1,31 @@
+p=11 checks=13 s=100: law E4=0.000114 E5=0.0218 E6=3.45 E7=464; 3+3 list 1.62e+07
+  subset 0: rank 13 lowest weight 6 count 2 (51.4s)
+  subset 1: rank 13 lowest weight 6 count 5 (55.8s)
+  subset 2: rank 13 lowest weight 6 count 5 (56.3s)
+  subset 3: rank 13 lowest weight 6 count 4 (54.7s)
+  subset 4: rank 13 lowest weight 6 count 5 (54.5s)
+  subset 5: rank 13 lowest weight 6 count 2 (55.0s)
+  subset 6: rank 13 lowest weight 6 count 2 (55.3s)
+  subset 7: rank 13 lowest weight 6 count 4 (55.1s)
+  subset 8: rank 13 lowest weight 6 count 5 (56.1s)
+  subset 9: rank 13 lowest weight 6 count 5 (55.9s)
+  subset 10: rank 13 lowest weight 6 count 3 (54.8s)
+  subset 11: rank 13 lowest weight 6 count 2 (54.6s)
+{"subsets": 12, "with_weight_le5": 0, "weight6_counts": [2, 5, 5, 4, 5, 2, 2, 4, 5, 5, 3, 2], "mean_count": 3.6666666666666665, "frac_zero": 0.0, "law_E6": 3.4529511905963033, "law_P_zero": 0.031652087063341786}
+p=11 checks=14 s=120: law E4=2.16e-05 E5=0.00502 E6=0.962 E7=157; 3+3 list 2.81e+07
+  subset 0: rank 14 lowest weight 6 count 1 (105.1s)
+  subset 1: rank 14 lowest weight None count 0 (94.7s)
+  subset 2: rank 14 lowest weight None count 0 (89.9s)
+  subset 3: rank 14 lowest weight 6 count 2 (90.3s)
+  subset 4: rank 14 lowest weight 6 count 2 (88.0s)
+  subset 5: rank 14 lowest weight 6 count 2 (83.5s)
+  subset 6: rank 14 lowest weight 6 count 1 (83.3s)
+  subset 7: rank 14 lowest weight 6 count 1 (83.3s)
+  subset 8: rank 14 lowest weight None count 0 (83.3s)
+  subset 9: rank 14 lowest weight 6 count 3 (83.3s)
+{"subsets": 10, "with_weight_le5": 0, "weight6_counts": [1, 0, 0, 2, 2, 2, 1, 1, 0, 3], "mean_count": 1.2, "frac_zero": 0.3, "law_E6": 0.9618820436426392, "law_P_zero": 0.3821729425482342}
+20:06:36 p11_r13_k2294_seed1: G0 (26, 12347) rank 26 (93s)
+20:07:09 p11_r13_k2294_seed1: checks 26 E6 0.412 P(no w6) 0.66 | stern w<=6 10 it: found False (33.09s) P/iter/word 2.39e-09
+20:09:57 p11_r13_k2294_seed1: exact weight-4 scan FAILED (MemoryError) after 168s
+20:11:26 p11_r13_k2294_seed2: G0 (26, 12347) rank 26 (89s)
+20:11:59 p11_r13_k2294_seed2: checks 26 E6 0.412 P(no w6) 0.66 | stern w<=6 10 it: found False (32.78s) P/iter/word 2.39e-09
