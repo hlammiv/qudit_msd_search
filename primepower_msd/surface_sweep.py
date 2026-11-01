@@ -29,11 +29,14 @@ def main():
     tasks = [(D, basis, p, lo if p <= 2e-3 else hi) for D in Ds for basis in "ZX" for p in ps]
     tasks.sort(key=lambda t: -t[0])
     out = f"runs/surface/zd_d{d}.jsonl"
-    res = Parallel(n_jobs=jobs, verbose=0)(delayed(point)(D, d, b, p, s, hash((D, b, p)) % 2**31) for D, b, p, s in tasks)
-    with open(out, "a") as f:
-        for r in res:
+    n = 0
+    for r in Parallel(n_jobs=jobs, verbose=0, return_as="generator_unordered")(
+            delayed(point)(D, d, b, p, s, hash((D, b, p)) % 2**31) for D, b, p, s in tasks):
+        with open(out, "a") as f:                  # one line per finished point: a crash or kill loses only the points in flight
             f.write(json.dumps(r) + "\n")
-    print("wrote", len(res), "points to", out)
+        n += 1
+        print(r["D"], r["basis"], r["p"], "fails", r["fails"], "shots", r["shots"], flush=True)
+    print("wrote", n, "points to", out)
 
 
 if __name__ == "__main__":

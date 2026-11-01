@@ -275,7 +275,9 @@ def main():
         ps = [float(x) for x in sys.argv[5].split(",")] if len(sys.argv) > 5 else [1e-3, 2e-3, 3e-3, 4e-3, 6e-3]
         lo, hi = (int(sys.argv[6]), int(sys.argv[7])) if len(sys.argv) > 7 else (100_000, 40_000)
         decoder = sys.argv[8] if len(sys.argv) > 8 else "indep"
-        css = (True, False) if decoder == "indep" else (True,)
+        css = (True, False) if decoder == "indep" else (False,) if decoder == "base" else (True,)
+        if decoder == "base":                          # the no-gate two-patch memory only (decoded independently)
+            decoder = "indep"
         tasks = [(D, basis, p, lo if p <= 2e-3 else hi, cs) for D in Ds for basis in "ZX" for p in ps for cs in css]
         tasks.sort(key=lambda t: -t[0])
         out = f"runs/surface/csum_d{d}.jsonl"

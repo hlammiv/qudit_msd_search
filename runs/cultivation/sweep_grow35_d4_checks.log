@@ -1,0 +1,6 @@
+d=4 D=3to5 p=0.0005: accept 0.7328  p_L 1.856e-06 (136 fails / 73284401)
+d=4 D=3to5 p=0.001: accept 0.5370  p_L 7.802e-06 (419 fails / 53704718)
+d=4 D=3to5 p=0.0005: accept 0.6170  p_L 9.725e-08 (6 fails / 61698759)
+d=4 D=3to5 p=0.001: accept 0.3806  p_L 7.882e-07 (30 fails / 38062599)
+d=4 D=3to5 p=0.0005: accept 0.5200  p_L 1.923e-07 (10 fails / 51995771)
+d=4 D=3to5 p=0.001: accept 0.2703  p_L 7.399e-07 (20 fails / 27029520)

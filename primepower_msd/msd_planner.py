@@ -117,6 +117,8 @@ CULT_D4 = {
     "injection":    {1e-3: (1.0, 1e-3), 5e-4: (1.0, 5e-4)},
     "D3 (20 q)":    {1e-3: (0.727, 2.34e-5), 5e-4: (0.853, 5.75e-6)},
     "grow3->5 (56 q)": {1e-3: (0.452, 9.07e-7), 5e-4: (0.672, 1.49e-7)},  # 1e8 shots, sweep_grow35_d4_long
+    "grow3->5 r1c1 (56 q)": {1e-3: (0.537, 7.80e-6), 5e-4: (0.733, 1.86e-6)},  # one T-check per stage (1e8 shots, _r1c1)
+    "grow3->5 r1c3 (56 q)": {1e-3: (0.381, 7.88e-7), 5e-4: (0.617, 9.7e-8)},   # three checks per stage (1e8 shots, _r1c3)
     # d = 8, 2e7 shots (sweep_grow35_d8_long): acceptance 0.439 / 0.662, p_L 3.4e-7 (3 events) / < 1.7e-7 (0 events) -- consistent
 }
 

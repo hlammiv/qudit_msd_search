@@ -411,3 +411,19 @@ Growth has ≈ 2–3× lower p_L at ≈ 20 % lower acceptance.  The 10⁸-shot g
 `MEAS_DISTILL.md` §5d.
 
 **d = 8** (`sweep_grow35_d8_long.json`, 2×10⁷ shots per point, lenore, 2026-10-29): growth 3→5 acceptance 0.662 / 0.439 at p = 5e-4 / 1e-3, failures 0 / 13.2M accepted (< 1.7e-7) and 3 / 8.8M (3.4e-7, 90% CL 0.9–8.8e-7) — consistent with the d = 4 values above at the available statistics; the growth circuit, checks and signs are the same for every 2^k.
+
+**Check count** (`sweep_grow35_d4_r{rounds}c{checks}.json`, 10⁸ shots per point, lenore, 2026-10-31; the recipe of record is one
+round of two T-checks at each stage, `r1c2`):
+
+| (rounds, checks) per stage | p = 5e-4: accept, p_L | p = 1e-3: accept, p_L | attempts / distilled output at 1e-3 (footprint, gap escape) |
+|---|---|---|---|
+| (1, 1) | 0.733, 1.86e-6 (136 events) | 0.537, 7.8e-6 (419) | 49.6 |
+| (1, 2) record | 0.672, 1.5e-7 (10) | 0.452, 9.1e-7 (41) | 59.0 |
+| (1, 3) | 0.617, 9.7e-8 (6) | 0.381, 7.9e-7 (30) | 70.0 |
+| (2, 2) | 0.520, 1.9e-7 (10) | 0.270, 7.4e-7 (20) | 98.7 |
+
+Neither three checks (7.9e-7) nor two rounds of two (7.4e-7) lower p_L at 1e-3 beyond the errors on 9.1e-7, while costing 16 % and 40 % of the acceptance: beyond two
+checks the growth error is not set by undetected T-faults but by the growth / final-round step itself.  One check raises
+p_L 8.6× for 19 % more acceptance.  For the one-round [[7,1,3]] pipeline the distillation cubes the input error, so even
+7.8e-6 is far below the Clifford floor and the cheapest cultivation is the *one-check* recipe (49.6 vs 59 attempts per
+output, same qudits); p_cult only matters where the cultivated state is used undistilled.

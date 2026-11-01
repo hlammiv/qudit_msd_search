@@ -536,7 +536,9 @@ binding constraint and one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (D =
 
 The qudit count is unchanged (the 8 logical qudits are reused round after round); the escape costs a factor 1.4–1.9 in
 time through its discard.  Without the gap cut the 10⁻¹² target at p = 10⁻³ needs a second round
-(3.15 × (9×10⁻⁵)³ = 2.3×10⁻¹²); with it one round suffices.  The gap recipe at 5×10⁻⁴ (10⁶ attempts per sector, `graft_variants_gap_5e-4.log`): before the cut 6 + 5 failures (1.5×10⁻⁵ per kept attempt, 24.5% discard), after the cut at 13 no failure in 0.75M kept attempts per sector (< 6×10⁻⁶ total, 90% CL) for 0.4 points of discard (24.9%) — `ESCAPE_Z4_GAP[5e-4]`; with the measured CSUM cost (§5i) the 10⁻¹² row moves to D = 19, 5 832 qudits.  Caveats: no idle noise during CSUM layers; the final-code and D = 15 baselines (no postselection, `graft_d4.jsonl`) had no failure in 10⁵ shots at p ≤ 2×10⁻³, so the escape error is the graft's own and postselecting the baselines would add nothing; the 5×10⁻⁴ points rest on 1–3 events each.
+(3.15 × (9×10⁻⁵)³ = 2.3×10⁻¹²); with it one round suffices.  The gap recipe at 5×10⁻⁴ (10⁶ attempts per sector, `graft_variants_gap_5e-4.log`): before the cut 6 + 5 failures (1.5×10⁻⁵ per kept attempt, 24.5% discard), after the cut at 13 no failure in 0.75M kept attempts per sector (< 6×10⁻⁶ total, 90% CL) for 0.4 points of discard (24.9%) — `ESCAPE_Z4_GAP[5e-4]`; with the measured CSUM cost (§5i) the 10⁻¹² row moves to D = 19, 5 832 qudits.
+
+**Floor run at 10⁻³** (lenore, 2026-10-31, `graft_variants_gap_floor.jsonl`, 3 replicas × 4×10⁶ attempts per sector): before the gap cut 389 (X) + 270 (Z) failures in 6.83M kept per sector, 9.6×10⁻⁵ per kept attempt — the one+pairs-cap value of 9.1×10⁻⁵ reproduced; at the cut 13 no failure in 6.77M kept per sector (discard 0.436).  Together with the first 1.14M kept: **no failure in 7.9M kept attempts per sector, < 2.9×10⁻⁷ per sector and < 6×10⁻⁷ in total (90% CL)** — the escape adds less error than the cultivation itself (9×10⁻⁷).  The cut has little margin: the failing gaps reach 12.x in one replica (2 failures per 2.25M kept at cut 12, the lowest zero-failure cut per replica is 10, 11, 11, 11, 12, 13), so the true floor at cut 13 is likely within a factor of a few of the bound; a cut at 15 would cost ~1 more point of discard.  Caveats: no idle noise during CSUM layers; the final-code and D = 15 baselines (no postselection, `graft_d4.jsonl`) had no failure in 10⁵ shots at p ≤ 2×10⁻³, so the escape error is the graft's own and postselecting the baselines would add nothing; the 5×10⁻⁴ points rest on 1–3 events each.
 
 ## 5i. The logical Clifford layer measured: transversal CSUM between surface-code patches (`logical_csum.py`)
 
@@ -608,12 +610,90 @@ CSUM layers (the *csum* variant over-charges them, *csum-excess* omits them); th
 threshold 0–6% lower, within the scatter between bases; the shadow table is a majority vote over faults sharing an edge (no
 ambiguous edges at D = 3; `SequentialDecoder.ambiguous` reports them).
 
+## 5j. Host-code census of the Clifford layer: the depolarizing a_C under-counts (`host_census.py`)
+
+§5e's a_C = 0.357 assumes every Pauli of a failing logical gate is equally likely (depolarizing p_C), and §5f–5i charged
+each Clifford location one host logical error p_L(D) or the whole measured CSUM experiment.  Neither is the host's noise:
+a surface-code logical CSUM fails mostly by a *single-wire* logical Pauli, a patch that waits fails per round, a Fourier
+gate costs a patch rotation (or nothing, if the frame is tracked), and a readout fails like one round.  `host_census.py`
+schedules the [[7,1,3]] s = 1 gadget circuit of `meas_circuit.build` into rounds (CSUM = 1, F/FD = τ_F, R/M = 1; 45 CSUMs,
+depth 31), injects every single-wire logical Z^a and X^a at every CSUM wire, idle patch-round, Fourier gate, reset and
+readout, and counts the undetected bad outputs per unit of per-location error — the *exposure* N of each location class.
+The depolarizing fault set reproduces 0.357 (Z-type) and 2.92 (any) exactly.  Z-type exposures per output at d = 4:
+
+| location class | exposure (weight) | undetected bad outputs, any type | Z-type |
+|---|---|---|---|
+| CSUM wires (90) | 90 | 4.67 (+ 5.67 X-type) | **4.67** |
+| idle patch-rounds (130 at τ_F = 0) | 130 | 5.33 (+ 19.0 X-type) | **5.33** |
+| Fourier gates (τ_F = 15 rounds each) | 135 | 0 (+ 30 X-type) | 0 |
+| resets (8), readouts (7) | 15 | 2.0 (+0) | 0 |
+
+Only Z-type gate and idle faults survive (the check projects X-type faults away, §5e), Fourier rotations and readouts
+contribute nothing of Z type, and a τ_F = 15 rotation per Fourier gate adds 14 idle rounds of exposure (the output waits).
+The floor per output is therefore
+
+  floor(p, D) = 4.67 q_gate(D) + 5.33 q_round(D),   q_round = Z-type logical error per patch per round = p_base2,X(D) / 4D,
+  q_gate = Z-type error per wire per logical CSUM = (p_csum,X − p_base2,X)/2 + q_round  (X-basis fits of §5i),
+
+against a_C p_L(D) = 0.357 × 0.053 (p/7.55×10⁻³)^{(D+1)/2}.  Why the old coefficient is 10× too small: a_C counts one
+gate's worth of *depolarizing* failures, 91 bad of 255 Paulis; the host's failures are concentrated on exactly the
+single-wire Z-type Paulis that survive, so per unit of gate-failure probability about 2.3 outputs go bad instead of 0.36,
+and the idle rounds, never charged before, add as much again.  At p = 10⁻³:
+
+| D | a_C p_L(D) (§5f–h) | *csum* (§5i, conservative) | census, CSUM excess from the fit | census, CSUM = one extra round |
+|---|---|---|---|---|
+| 19 | 3.1×10⁻¹¹ | 2.4×10⁻¹⁰ | 4.3×10⁻¹⁰ | 1.3×10⁻¹⁰ |
+| 21 | 4.2×10⁻¹² | 3.3×10⁻¹¹ | 6.2×10⁻¹¹ | 1.9×10⁻¹¹ |
+| 23 | 5.5×10⁻¹³ | 4.7×10⁻¹² | 9.1×10⁻¹² | 2.8×10⁻¹² |
+| 25 | 7.3×10⁻¹⁴ | 6.6×10⁻¹³ | 1.3×10⁻¹² | 4.0×10⁻¹³ |
+| 27 | 9.7×10⁻¹⁵ | 9.3×10⁻¹⁴ | 2.0×10⁻¹³ | 6.0×10⁻¹⁴ |
+
+The two census columns bracket the one uncertain input: the CSUM's excess over idling.  The fits give the CSUM experiment
+1.11× the two-patch memory, i.e. an excess of ≈ 0.4 D patch-rounds per gate (10 rounds at D = 23), but the per-D ratios
+(1.10, 1.09, 1.04, 1.33 in the X basis at D = 3–9) cannot distinguish that from a constant one extra round per wire; the
+"one extra round" column is the optimistic reading.  **Fixed-D measurement** (`csum_excess.log`, 10⁶ shots per point, 4 workers,
+2.4 h): CSUM over no-gate memory, both decoded as in §5i,
+
+| D | basis | p | CSUM / memory failures | ratio | excess in patch-rounds (4D × (ratio − 1)) | one extra round per patch |
+|---|---|---|---|---|---|---|
+| 5 | X | 2×10⁻³ | 6 156 / 5 604 | 1.099 ± 0.020 | 2.0 ± 0.4 | 2 |
+| 5 | Z | 2×10⁻³ | 5 315 / 4 813 | 1.104 ± 0.022 | 2.1 ± 0.4 | 2 |
+| 5 | X, Z | 10⁻³ | 787 / 785, 686 / 655 | 1.00 ± 0.05, 1.05 ± 0.06 | 0.1 ± 1.0, 0.9 ± 1.1 | 2 |
+| 7 | X | 2×10⁻³ | 1 699 / 1 496 | 1.136 ± 0.040 | 3.8 ± 1.1 | 2 |
+| 7 | X | 3×10⁻³ | 8 532 / 7 685 | 1.110 ± 0.017 | 3.1 ± 0.5 | 2 |
+| 7 | Z | 2×10⁻³ | 1 429 / 1 303 | 1.097 ± 0.042 | 2.7 ± 1.2 | 2 |
+| 7 | Z | 3×10⁻³ | 7 056 / 6 197 | 1.139 ± 0.020 | 3.9 ± 0.6 | 2 |
+
+The excess grows with D — 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7 — as ≈ 0.45 D, which is the fitted
+0.11 × 4D; a constant one extra round per patch is excluded at D = 7 (3.5σ).  The copying mechanism explains the
+scaling: the layer propagates the control's whole *uncorrected* error history (∝ D rounds) into the target as
+correlated shadows, which the Pauli-frame decoder removes only when the source decode is right.  So the **"CSUM excess
+from the fit" column is the measured one**; the "one round" column is dropped.  (At D = 5 the 10⁻³ points show less
+excess than at 2×10⁻³, 0.5 ± 0.7 vs 2.0 ± 0.3 rounds, hinting at a higher power of p in the excess; not resolved.)
+**Footprint** (`python -m primepower_msd.footprint escape-gap census` /
+`census-round`), p = 10⁻³, one [[7,1,3]] round, gap escape:
+
+| target | a_C p_L (§5h) | census (fit) | census (one round) |
+|---|---|---|---|
+| 10⁻¹⁰ | D = 19, 5 832 | D = 21, 7 112 | D = 21, 7 112 |
+| 10⁻¹² | D = 23, 8 520 | D = 27, 11 720 | D = 25, 10 056 |
+| 10⁻¹⁰ at 5×10⁻⁴ | D = 15, 3 656 | D = 15, 3 656 | D = 15, 3 656 |
+| 10⁻¹² at 5×10⁻⁴ | D = 17, 4 680 | D = 19, 5 832 | D = 19, 5 832 |
+
+The 10⁻¹⁰ pipeline at 10⁻³ is 7 112 qudits with the Clifford layer measured and censused (one distance step above the
+§5h figure); 10⁻¹² at 10⁻³ needs D = 27 (11 720, the fit column, now measured), over the 10k budget, and 5.8k at 5×10⁻⁴.  Caveats: the census
+takes the logical CSUM's failures as single-wire (correlated two-wire logical failures are not weighted; the Pauli-frame
+decoder removes most of the copying, §5i); τ_F = 0 (Fourier gates by frame tracking); the exposures are exact for the
+dense encoder of the s = 1 gadget (12-CSUM sparse encoder, §5e, would lower both exposures — not yet censused); d = 4
+exposures (the gadget is d-independent in structure; a_C at d = 8 was 0.147, so the d = 8 exposures will be smaller).
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
 3. Done (§5e): circuit-level model; first-order Clifford floor a_C = 0.36 exact for [[7,1,3]] (cannot be made second order without consuming encoded outputs); sparse encoders 1.5–2.6× fewer CSUMs.  Open: a structured (recursive) sparse normal basis for RM(1,m) to remove the heavy tail.
 4. Done: the 10⁸-shot growth run (CULTIVATION_PLAN §12, `sweep_grow35_d4_long.json`) has 41 events at 10⁻³ and 10 at 5×10⁻⁴ (p_L 9.1×10⁻⁷ ± 16 %, 1.5×10⁻⁷ ± 32 %); §5d uses these numbers.
 5. Done (§5g): ring Z₄/Z₈ surface-code threshold ≈ 0.8% with a 2-adic matching decoder, A ≈ 0.053, p_th ≈ 7.6×10⁻³ → 5.8k physical qudits at p = 10⁻³ for 10⁻¹⁰.  Open: idle noise during CSUM steps; a joint Z_d decoder.
-6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 1.14M kept attempts at p = 10⁻³ (< 8×10⁻⁶, 90% CL) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Open: gap recipe at 5×10⁻⁴; the final-code and D = 15 memories under postselection; idle noise during CSUM layers.
+6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 7.9M kept attempts per sector at p = 10⁻³ (< 6×10⁻⁷ total, 90% CL; floor run 2026-10-31) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Gap recipe at 5×10⁻⁴: < 6×10⁻⁶ at 24.9% discard.  Open: idle noise during CSUM layers; margin of the cut (failing gaps reach 12.x).
 7. Done (§5i): the logical CSUM measured on two surface-code patches with a Pauli-frame (sequential) decoder: 1.1–1.2× the idle two-patch memory, same threshold; independent per-patch decoding has a first-order floor (24 p at D = 9) from source measurement errors leaking into the cross-layer detectors.  Footprint: 10⁻¹⁰ unchanged to +1 step (5 832–7 112 qudits), 10⁻¹² one step up (D = 25, 10 056).  Done: the d = 8 sweep (A 0.25/0.22, p_th 7.3/6.5×10⁻³) matches.  Open: idle census between CSUM layers.
 8. Done (§5h, d = 8 paragraph): the escape at d = 8 reproduces d = 4 (one class 1.6×10⁻⁴ at 45% discard; gap cut 13: 0 failures in 1.09×10⁵ kept per sector at p = 10⁻³).  d = 8 cultivation growth 3 → 5 at 2×10⁷ shots (CULTIVATION_PLAN §12): acceptance 0.439 / 0.662 at p = 10⁻³ / 5×10⁻⁴, 3 failures in 8.8M accepted (3.4×10⁻⁷, 90% CL 0.9–8.8×10⁻⁷) and 0 in 13.2M (< 1.7×10⁻⁷), consistent with d = 4 (9.1×10⁻⁷, 1.5×10⁻⁷).  Gap recipe measured at 5×10⁻⁴ (§5h).  Running: 10⁸-attempt floor of the gap recipe at d = 4.
+9. Done (§5j): host-code census of the Clifford layer — the depolarizing a_C = 0.357 under-counts the surface-code host by ~10× (single-wire Z-type failures are the surviving type; idle rounds never charged); floor = 4.67 q_gate + 5.33 q_round per output.  Footprint: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits; 10⁻¹² → D = 27 (11 720).  The CSUM excess measured at fixed D (10⁶ shots): 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7, ≈ 0.45 D — the fit's value, not one extra round.  Open: census of the sparse-encoder gadget (fewer CSUMs and idle rounds → lower exposures, the cheapest lever on D); d = 8 exposures; two-wire correlated failures; p-dependence of the excess.

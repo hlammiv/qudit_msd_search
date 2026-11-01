@@ -41,9 +41,11 @@ def main(argv=None):
     jobs = [(int(d), int(D), float(p), a.shots // a.chunks, 1000 * k + 7, a.rounds, a.checks, a.mode)
             for d in a.dims.split(",") for D in a.Ds.split(",") for p in a.ps.split(",") for k in range(a.chunks)]
     t0 = time.time()
-    res = Parallel(n_jobs=a.jobs, backend="loky")(delayed(one)(*j) for j in jobs)
     agg = {}
-    for r in res:
+    part = a.out + ".partial.jsonl"                 # one line per finished chunk: a crash or kill keeps the chunks done so far
+    for r in Parallel(n_jobs=a.jobs, backend="loky", return_as="generator_unordered")(delayed(one)(*j) for j in jobs):
+        with open(part, "a") as f:
+            f.write(json.dumps(r) + "\n")
         key = (r["d"], r["D"], r["p"])
         g = agg.setdefault(key, {"d": r["d"], "D": r["D"], "p": r["p"], "shots": 0, "accepted": 0, "logical_failures": 0,
                                  "qudits": r["qudits"], "noise_locations": r["noise_locations"], "rounds": r["rounds"], "checks": r["checks"], "mode": r["mode"]})

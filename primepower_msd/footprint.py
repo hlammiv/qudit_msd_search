@@ -21,6 +21,7 @@ import re
 from dataclasses import dataclass
 
 from .msd_planner import A_CLIFF, CULT_D4, STAGES_D4, plan
+from . import host_census
 
 CULT_KEY = "grow3->5 (56 q)"
 
@@ -42,9 +43,11 @@ ESCAPE_Z4_ALL = {1e-3: (6.6e-5, 0.62), 5e-4: (1.0e-5, 0.39)}   # all three class
 # first-order cost of the certified patterns capped at 0.2% (degenerate_cap=2): the best recipe measured
 ESCAPE_Z4_PAIRS = {1e-3: (9.1e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 6.7e-5 + Z 2.5e-5 (52 events in 2e6 attempts) at 1e-3; 2 events at 5e-4
 # ... plus complementary-gap postselection (PeelDecoder(gap=True), cut at 13): no failure in 1.14M kept attempts at 1e-3 ->
-# 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  At 5e-4: no failure in 0.75M kept attempts
-# per sector (1e6 attempts, 11 events per sector before the cut) -> < 3e-6 per sector, 24.9% discard.
-ESCAPE_Z4_GAP = {1e-3: (8e-6, 0.437), 5e-4: (6e-6, 0.249)}
+# 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  Floor run (lenore, 2026-10-31): 3 x 4e6
+# more attempts per sector, 659 failures before the cut (9.6e-5, the pairs recipe), none at cut 13 -> 7.9M kept per sector
+# with no failure, < 2.9e-7 per sector (90% CL), i.e. the escape adds less than the cultivation error (9e-7).  At 5e-4: no
+# failure in 0.75M kept attempts per sector (1e6 attempts, 11 events per sector before the cut) -> < 3e-6 per sector.
+ESCAPE_Z4_GAP = {1e-3: (6e-7, 0.437), 5e-4: (6e-6, 0.249)}
 
 # Measured logical CSUM (logical_csum.py, runs/surface/csum_d4.jsonl; MEAS_DISTILL §5i): transversal CSUM between two
 # D-patches with D rounds before and after, failure of either logical, Pauli-frame (sequential) decoder; fit
@@ -136,6 +139,13 @@ if __name__ == "__main__":
     if "csum" in sys.argv[2:]:                       # conservative: the whole two-patch CSUM experiment error per CSUM location
         clifford = Host(**CSUM_Z4)
         sys.argv.remove("csum")
+    for tag, gm in (("census", "fit"), ("census-round", "round")):   # host_census: exposures x measured per-round / per-CSUM rates
+        if tag in sys.argv[2:]:
+            class _Census(Host):
+                def p_logical(self, p, D, _gm=gm):          # a_C p_C == census floor for the [[7,1,3]] stage (a_C = 0.357)
+                    return host_census.floor(p, D, gate_model=_gm) / 0.357
+            clifford = _Census(**{**CSUM_Z4, "name": f"host census ({'fitted CSUM excess' if gm == 'fit' else 'CSUM = one extra round'})"})
+            sys.argv.remove(tag)
     if "csum-excess" in sys.argv[2:]:                # the gate's measured excess over idling, on top of one p_L(D) per location
         class _Excess(Host):
             def p_logical(self, p, D):
