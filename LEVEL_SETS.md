@@ -26,7 +26,7 @@ scanned; taking O to be the *whole* zero set leaves no block, and the whole dist
 the dual RM distance with no scan. (Any O ⊆ {g = 0} gives the same bound for the part of a word
 off {g = 0}; the leftover points of {g = 0} must then be certified separately, exactly as at p = 7.)
 
-## The code: [[13332, 1309, ≥ 22]]₁₁, γ ∈ [0.648, 0.751]
+## The code: [[13332, 1309, 22]]₁₁, γ = 0.751 (exact)
 
 p = 11, m = 4, r = 13 (= r_max), δ = 3. Dual code RM_11(29, 4): 29 = 2·10 + 9, distance
 (11 − 9)·11 = **22**. Cap: dim RM(13,4) − dim RM(10,4) = 2320 − 1001 = 1319. Cubic zero sets in
@@ -45,8 +45,8 @@ G0 e = 0; the best of 4000 random planes, not exhaustive). So
 | quantity | value |
 |---|---|
 | n, k | 13332, 1309 (rate 0.098) |
-| d | 22 ≤ d ≤ 36 (proved / explicit word) |
-| γ = ln(n/k)/ln d | **≤ 0.751** (0.648 if d = 36) |
+| d | **22 exactly**: the theorem gives ≥ 22; an exhaustive search over planes found a minimum-weight dual word (55 points on 5 parallel lines) with 33 points in O, i.e. an explicit kernel word of weight 22 (`runs/rm_m4/p11_cubic_weight22_witness.json`, verified G0 e = 0) |
+| γ = ln(n/k)/ln d | **0.751** |
 | previous best at p = 11 | [[100,21,4]]₁₁ γ 1.126; the paper's analytic family 0.964 at n = 1.9·10⁷ |
 | checks (dim A) | 1011: exact performance enumeration impossible, acceptance (1−ε)ⁿ |
 

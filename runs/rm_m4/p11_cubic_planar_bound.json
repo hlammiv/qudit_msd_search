@@ -1,0 +1,1 @@
+{"max_outputs_on_minweight_support": 33, "kernel_weight_upper": 22, "where": {"S": [[1, 0, 7, 4], [0, 1, 10, 8]], "f": [0, 0, 1, 8], "plane_key": 16, "line_values": [3, 6, 10, 1, 2]}, "seconds": 2243}

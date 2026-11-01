@@ -25,6 +25,7 @@ def rref2(a_, b_):
 subs = [np.array(s).reshape(2, m) for s in {rref2(normals[i], normals[j]) for i in range(len(normals)) for j in range(i + 1, len(normals))}]
 print(f"{len(subs)} plane-quotient maps; dual RM({dual},4): min-weight words = {nl} parallel lines ({time.time()-t0:.0f}s)", flush=True)
 best = (0, None)
+STOP_AT = int(sys.argv[3]) if len(sys.argv) > 3 else 0
 # a plane-quotient map S (2x4) has fibres = planes; inside a plane the lines parallel to a direction u in ker S are the
 # fibres of a third functional f with (S, f) of rank 3.  Enumerate f over normals with rank 3 and group by (S-value, f-value).
 Ocnt_cache = {}
@@ -39,6 +40,12 @@ for S in subs:
         key3 = key2 * p + (P @ np.array(f)) % p
         cnt = np.bincount(key3[inO], minlength=p ** 3).reshape(p * p, p)   # [plane, line] -> outputs on that line
         top = -np.sort(-cnt, axis=1)[:, :nl].sum(axis=1); mx = int(top.max())
-        if mx > best[0]: best = (mx, (S.tolist(), list(f), int(np.argmax(top)))); print(f"  new max outputs on {nl} parallel lines: {mx} -> kernel weight {nl*p - mx} ({time.time()-t0:.0f}s)", flush=True)
+        if mx > best[0]:
+            pl = int(np.argmax(top)); lines = [int(x) for x in np.argsort(-cnt[pl])[:nl]]
+            best = (mx, {"S": S.tolist(), "f": list(f), "plane_key": pl, "line_values": lines})
+            print(f"  new max outputs on {nl} parallel lines: {mx} -> kernel weight {nl*p - mx} ({time.time()-t0:.0f}s)", flush=True)
+            json.dump({"max_outputs_on_minweight_support": best[0], "kernel_weight_upper": nl * p - best[0], "where": best[1], "seconds": round(time.time() - t0), "status": "running"}, open(sys.argv[2], "w"))
+            if nl * p - mx <= STOP_AT: break
+    if best[0] and nl * p - best[0] <= STOP_AT: print("reached the proven lower bound; stopping", flush=True); break
 json.dump({"max_outputs_on_minweight_support": best[0], "kernel_weight_upper": nl * p - best[0], "where": best[1], "seconds": round(time.time() - t0)}, open(sys.argv[2], "w"))
 print("RESULT: d <=", nl * p - best[0], f"({time.time()-t0:.0f}s)", flush=True)
