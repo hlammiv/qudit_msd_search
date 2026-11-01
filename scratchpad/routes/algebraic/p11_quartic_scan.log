@@ -1,0 +1,4 @@
+dim RM(13,4)=2320, deg g=4: cap on k = 1605, theorem bound d >= 11; setup 6.1s
+trial 0: |Z|=1373 h_Z(13)=1373 INDEPENDENT k=1373 gamma<=0.946  [34.7s]
+trial 1: |Z|=1359 h_Z(13)=1359 INDEPENDENT k=1359 gamma<=0.951  [26.2s]
+trial 2: |Z|=1327 h_Z(13)=1327 INDEPENDENT k=1327 gamma<=0.962  [22.8s]

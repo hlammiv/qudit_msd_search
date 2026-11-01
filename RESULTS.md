@@ -14,6 +14,12 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 
 ## 1. Headline results
 
+- **First proved gamma < 1 code at p = 11: [[13332,1309,>=22]]_11, gamma <= 0.751** (0.648 if d = 36, the
+  explicit upper bound). Output set = the full zero set of a cubic; distance follows from a one-line
+  theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;
+  catalog `imported-p11-n13332-k1309-c7aae3253e15`). The same construction predicts gamma 0.66 at
+  p = 17 (n = 78608) and 0.63 at p = 23.
+
 - **First gamma < 1 magic-state-distillation codes at p = 7**: [[1746,270,7]]_7, gamma 0.959 (two
   independent draws, plane-sweep seeds 19 and 407, both d = 7 exact, 2026-10-30), [[1751,265,7]]_7
   (0.970, exact) and the first one found, [[1756,260,7]]_7 (0.982, exact, 2026-10-27). All are weighted

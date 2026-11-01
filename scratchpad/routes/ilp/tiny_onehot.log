@@ -1,0 +1,5 @@
+{"solver": "cpsat-onehot", "rows": 21, "n": 30, "w": 3, "exact": true, "seconds": 0.34, "status": "INFEASIBLE", "conflicts": 1028, "branches": 3763, "instance":
+{"solver": "cpsat-onehot", "rows": 21, "n": 30, "w": 4, "exact": true, "seconds": 3.4, "status": "INFEASIBLE", "conflicts": 7107, "branches": 50839, "instance":
+{"solver": "cpsat-onehot", "rows": 21, "n": 30, "w": 5, "exact": true, "seconds": 70.7, "status": "INFEASIBLE", "conflicts": 29699, "branches": 308649, "instanc
+{"solver": "cpsat-onehot", "rows": 21, "n": 50, "w": 3, "exact": true, "seconds": 100.01, "status": "UNKNOWN", "conflicts": 30018, "branches": 678782, "instance
+{"solver": "cpsat-onehot", "rows": 21, "n": 50, "w": 4, "exact": true, "seconds": 100.0, "status": "UNKNOWN", "conflicts": 32970, "branches": 1089697, "instance

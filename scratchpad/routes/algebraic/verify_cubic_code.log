@@ -1,0 +1,9 @@
+k = 1309, n = 13332, level = 3
+1. O == {g = level}: OK; degree-3 part nonzero: True
+2. numpy rank of RM(13,4) on O = 1309 (|O| = 1309): FULL RANK [40s]
+3. G0 shape (1011, 13332) [119s]
+   random 21-subsets of G0 columns with a dependency: 0/200 (theorem: 0)
+   21 points in a plane (N part): dependent 0/100 (theorem: 0)
+   two parallel lines inside N (22 columns): ranks [22] over 20 pairs (rank 21 would be a weight-22 kernel word, allowed by the bound; rank 22 = independent)
+4. no kernel word of weight <= 3 (18-row projection MITM, 248s): OK
+5. [[13332,1309,>=22]]_11, gamma <= ln(13332/1309)/ln 22 = 0.7508; d(RM(29,4)) = 22

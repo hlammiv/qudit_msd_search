@@ -1,0 +1,1 @@
+{"solver": "cpsat-onehot", "rows": 19, "n": 400, "w": 6, "exact": true, "seconds": 600.0, "status": "UNKNOWN", "conflicts": 34069, "branches": 1309548, "instance": "B", "subset": null, "seed": 0, "p": 7, "tag": "", "G_shape": [29, 400]}

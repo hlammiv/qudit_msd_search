@@ -1,0 +1,20 @@
+dim RM(13,4) = 2320; rank on O (k=2290) = 2290; checks = 30; dim RM(3,4) = 35, dim RM(2,4) = 15
+random-code model E[#projective kernel words of weight w] = C(n,w)(p-1)^(w-1)/p^rho, n = 12351 rho = 30
+  w=3: 1.799e-18
+  w=4: 5.554e-14
+  w=5: 1.372e-09
+  w=6: 2.822e-05
+  w=7: 4.977e-01
+  w=8: 7.679e+03
+  w=9: 1.053e+08
+
+Design table for O = Z(g), deg g = delta (unweighted RM_11(13,4) on F_11^4):
+  delta=1: cap k <= 520, d >= d(RM(27,4)) = 44, gamma at k=cap: 0.872, typical |Z| ~ 1331 -> gamma 0.608
+  delta=2: cap k <= 959, d >= d(RM(28,4)) = 33, gamma at k=cap: 0.760, typical |Z| ~ 1331 -> gamma 0.659
+  delta=3: cap k <= 1319, d >= d(RM(29,4)) = 22, gamma at k=cap: 0.748, typical |Z| ~ 1331 -> gamma 0.745
+  delta=4: cap k <= 1605, d >= d(RM(30,4)) = 11, gamma at k=cap: 0.874, typical |Z| ~ 1331 -> gamma 0.960
+  delta=5: cap k <= 1825, d >= d(RM(31,4)) = 10, gamma at k=cap: 0.846, typical |Z| ~ 1331 -> gamma 1.000
+  delta=6: cap k <= 1990, d >= d(RM(32,4)) = 9, gamma at k=cap: 0.842, typical |Z| ~ 1331 -> gamma 1.048
+  delta=7: cap k <= 2110, d >= d(RM(33,4)) = 8, gamma at k=cap: 0.857, typical |Z| ~ 1331 -> gamma 1.107
+  delta=8: cap k <= 2194, d >= d(RM(34,4)) = 7, gamma at k=cap: 0.892, typical |Z| ~ 1331 -> gamma 1.183
+  delta=9: cap k <= 2250, d >= d(RM(35,4)) = 6, gamma at k=cap: 0.952, typical |Z| ~ 1331 -> gamma 1.285

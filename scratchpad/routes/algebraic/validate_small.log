@@ -1,0 +1,51 @@
+
+=== p=7 m=3 r=5 deg g=2: dim RM=56, cap on k = 36, theorem bound d >= 5
+  trial 0: |Z|=56 h_Z=36 dependent -> O=33 pts, block |B|=23 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 1: |Z|=56 h_Z=36 dependent -> O=34 pts, block |B|=22 rho=2: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 2: |Z|=56 h_Z=36 dependent -> O=36 pts, block |B|=20 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 3: |Z|=42 h_Z=36 dependent -> O=33 pts, block |B|=9 rho=3: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 4: |Z|=42 h_Z=36 dependent -> O=33 pts, block |B|=9 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 5: |Z|=42 h_Z=36 dependent -> O=35 pts, block |B|=7 rho=1: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 6: |Z|=49 h_Z=32 dependent -> O=30 pts, block |B|=19 rho=2: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 7: |Z|=49 h_Z=36 dependent -> O=36 pts, block |B|=13 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 8: |Z|=56 h_Z=36 dependent -> O=36 pts, block |B|=20 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 9: |Z|=42 h_Z=36 dependent -> O=36 pts, block |B|=6 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+
+=== p=7 m=3 r=5 deg g=3: dim RM=56, cap on k = 46, theorem bound d >= 4
+  trial 0: |Z|=59 h_Z=46 dependent -> O=46 pts, block |B|=13 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 1: |Z|=52 h_Z=46 dependent -> O=46 pts, block |B|=6 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 2: |Z|=45 h_Z=45 INDEPENDENT -> O=Z(g): [[298,45,d]] exact d=4; bound 4: OK
+  trial 3: |Z|=50 h_Z=46 dependent -> O=46 pts, block |B|=4 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 4: |Z|=34 h_Z=34 INDEPENDENT -> O=Z(g): [[309,34,d]] exact d=4; bound 4: OK
+  trial 5: |Z|=36 h_Z=36 INDEPENDENT -> O=Z(g): [[307,36,d]] exact d=4; bound 4: OK
+  trial 6: |Z|=64 h_Z=46 dependent -> O=46 pts, block |B|=18 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 7: |Z|=51 h_Z=46 dependent -> O=45 pts, block |B|=6 rho=1: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 8: |Z|=49 h_Z=46 dependent -> O=45 pts, block |B|=4 rho=1: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 9: |Z|=51 h_Z=46 dependent -> O=43 pts, block |B|=8 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+
+=== p=7 m=3 r=5 deg g=1: dim RM=56, cap on k = 21, theorem bound d >= 6
+  trial 0: |Z|=49 h_Z=21 dependent -> O=20 pts, block |B|=29 rho=1: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 1: |Z|=49 h_Z=21 dependent -> O=21 pts, block |B|=28 rho=0: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 2: |Z|=49 h_Z=21 dependent -> O=19 pts, block |B|=30 rho=2: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+
+=== p=5 m=4 r=5 deg g=3: dim RM=122, cap on k = 107, theorem bound d >= 4
+  trial 0: |Z|=110 h_Z=107 dependent -> O=104 pts, block |B|=6 rho=3: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 1: |Z|=130 h_Z=107 dependent -> O=106 pts, block |B|=24 rho=1: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 2: |Z|=135 h_Z=107 dependent -> O=105 pts, block |B|=30 rho=2: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 3: |Z|=125 h_Z=107 dependent -> O=106 pts, block |B|=19 rho=1: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 4: |Z|=115 h_Z=107 dependent -> O=104 pts, block |B|=11 rho=3: d=3, d_block=3, predicted min(bound,d_block)=3: OK
+  trial 5: |Z|=125 h_Z=107 dependent -> O=104 pts, block |B|=21 rho=3: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+
+=== p=5 m=4 r=5 deg g=2: dim RM=122, cap on k = 87, theorem bound d >= 5
+  trial 0: |Z|=105 h_Z=77 dependent -> O=74 pts, block |B|=31 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 1: |Z|=120 h_Z=87 dependent -> O=85 pts, block |B|=35 rho=2: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 2: |Z|=130 h_Z=87 dependent -> O=84 pts, block |B|=46 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 3: |Z|=120 h_Z=87 dependent -> O=86 pts, block |B|=34 rho=1: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 4: |Z|=145 h_Z=87 dependent -> O=84 pts, block |B|=61 rho=3: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+
+=== p=5 m=4 r=5 deg g=4: dim RM=122, cap on k = 117, theorem bound d >= 3
+  trial 0: |Z|=126 h_Z=117 dependent -> O=116 pts, block |B|=10 rho=1: d=1, d_block=1, predicted min(bound,d_block)=1: OK
+  trial 1: |Z|=118 h_Z=117 dependent -> O=114 pts, block |B|=4 rho=3: d=3, d_block=4, predicted min(bound,d_block)=3: OK
+  trial 2: |Z|=137 h_Z=117 dependent -> O=115 pts, block |B|=22 rho=2: d=2, d_block=2, predicted min(bound,d_block)=2: OK
+  trial 3: |Z|=104 h_Z=104 INDEPENDENT -> O=Z(g): [[521,104,d]] exact d=4; bound 3: OK
+  trial 4: |Z|=130 h_Z=117 dependent -> O=114 pts, block |B|=16 rho=3: d=2, d_block=2, predicted min(bound,d_block)=2: OK

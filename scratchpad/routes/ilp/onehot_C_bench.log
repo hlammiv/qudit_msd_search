@@ -1,0 +1,2 @@
+{"solver": "cpsat-onehot", "rows": 30, "n": 100, "w": 3, "exact": true, "seconds": 200.12, "status": "UNKNOWN", "conflicts": 46519, "branches": 1206964, "instan
+{"solver": "cpsat-onehot", "rows": 30, "n": 100, "w": 4, "exact": true, "seconds": 200.0, "status": "UNKNOWN", "conflicts": 25801, "branches": 513907, "instance

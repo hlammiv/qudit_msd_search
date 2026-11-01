@@ -1,0 +1,6 @@
+{"solver": "sat-cadical195", "rows": 21, "n": 30, "w": 3, "exact": true, "vars": 4959, "clauses": 27011, "seconds": 0.04, "status": "INFEASIBLE", "conflicts": 4
+{"solver": "sat-cadical195", "rows": 21, "n": 30, "w": 4, "exact": true, "vars": 5005, "clauses": 27103, "seconds": 0.27, "status": "INFEASIBLE", "conflicts": 2
+{"solver": "sat-cadical195", "rows": 21, "n": 30, "w": 5, "exact": true, "vars": 5047, "clauses": 27187, "seconds": 0.98, "status": "INFEASIBLE", "conflicts": 1
+{"solver": "sat-cadical195", "rows": 21, "n": 50, "w": 3, "exact": true, "vars": 8179, "clauses": 54395, "seconds": 1.87, "status": "INFEASIBLE", "conflicts": 7
+{"solver": "sat-cadical195", "rows": 21, "n": 50, "w": 4, "exact": true, "vars": 8265, "clauses": 54567, "seconds": 36.58, "status": "INFEASIBLE", "conflicts": 
+{"solver": "sat-cadical195", "rows": 21, "n": 75, "w": 3, "exact": true, "vars": 12204, "clauses": 89255, "seconds": 9.55, "status": "INFEASIBLE", "conflicts": 

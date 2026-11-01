@@ -1,0 +1,18 @@
+{"solver": "mitm", "n": 50, "w": 3, "exact": true, "seconds": 0.39, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 50, "w": 4, "exact": true, "seconds": 0.47, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 50, "w": 5, "exact": true, "seconds": 0.38, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 50, "w": 6, "exact": true, "seconds": 0.73, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 100, "w": 3, "exact": true, "seconds": 0.34, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 200, "w": 3, "exact": true, "seconds": 0.39, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 200, "seed": 1, "p
+{"solver": "mitm", "n": 300, "w": 3, "exact": true, "seconds": 0.45, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 300, "seed": 1, "p
+{"solver": "mitm", "n": 402, "w": 3, "exact": true, "seconds": 0.45, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": null, "seed": 0, "
+{"solver": "mitm", "n": 100, "w": 3, "exact": true, "seconds": 0.36, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 100, "w": 4, "exact": true, "seconds": 0.54, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 100, "w": 5, "exact": true, "seconds": 3.06, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 200, "w": 3, "exact": true, "seconds": 0.53, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 200, "seed": 1, "p
+{"solver": "mitm", "n": 200, "w": 4, "exact": true, "seconds": 1.71, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 200, "seed": 1, "p
+{"solver": "mitm", "n": 300, "w": 3, "exact": true, "seconds": 0.67, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 300, "seed": 1, "p
+{"solver": "mitm", "n": 600, "w": 3, "exact": true, "seconds": 1.31, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 600, "seed": 1, "p
+{"solver": "mitm", "n": 1200, "w": 3, "exact": true, "seconds": 2.85, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 1200, "seed": 1, 
+{"solver": "mitm", "n": 2400, "w": 3, "exact": true, "seconds": 10.78, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 2400, "seed": 1,
+{"solver": "mitm", "n": 12351, "w": 3, "exact": true, "seconds": 348.29, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": null, "seed": 

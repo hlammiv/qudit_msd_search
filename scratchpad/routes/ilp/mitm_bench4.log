@@ -1,0 +1,7 @@
+{"solver": "mitm", "n": 30, "w": 3, "exact": true, "seconds": 0.5, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 30, "seed": 1, "p": 
+{"solver": "mitm", "n": 30, "w": 4, "exact": true, "seconds": 0.63, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 30, "seed": 1, "p":
+{"solver": "mitm", "n": 30, "w": 5, "exact": true, "seconds": 0.67, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 30, "seed": 1, "p":
+{"solver": "mitm", "n": 50, "w": 3, "exact": true, "seconds": 0.63, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 50, "w": 4, "exact": true, "seconds": 0.71, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 50, "seed": 1, "p":
+{"solver": "mitm", "n": 75, "w": 3, "exact": true, "seconds": 0.58, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 75, "seed": 1, "p":
+{"solver": "mitm", "n": 75, "w": 4, "exact": true, "seconds": 0.66, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 75, "seed": 1, "p":

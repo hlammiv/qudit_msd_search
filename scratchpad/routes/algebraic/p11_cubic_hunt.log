@@ -1,0 +1,15 @@
+cap = 1319
+cubic 1 level 3: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [29.1s]
+cubic 2 level 3: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [24.6s]
+cubic 3 level 10: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [24.7s]
+cubic 4 level 4: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [28.0s]
+cubic 4 level 6: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [57.5s]
+cubic 5 level 4: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [26.7s]
+cubic 7 level 8: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [40.0s]
+cubic 7 level 9: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [22.3s]
+cubic 8 level 2: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [21.0s]
+cubic 8 level 3: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [20.7s]
+cubic 8 level 9: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [19.4s]
+cubic 10 level 9: |Z|=1309 h=1309 INDEP gamma(d=22)=0.7508 [20.1s]
+level-set counts: min 1232 max 1408 mean 1331.0 fraction <= cap 0.3409090909090909 fraction in [lo,cap] 0.09090909090909091
+BEST: 1309 13332 0.7508482036525073

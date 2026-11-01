@@ -1,0 +1,7 @@
+{"solver": "cpsat-elem", "rows": 21, "n": 30, "w": 3, "exact": true, "seconds": 0.1, "status": "INFEASIBLE", "conflicts": 0, "branches": 0, "instance": "A", "su
+{"solver": "cpsat-elem", "rows": 21, "n": 30, "w": 4, "exact": true, "seconds": 0.71, "status": "INFEASIBLE", "conflicts": 1102, "branches": 12545, "instance": 
+{"solver": "cpsat-elem", "rows": 21, "n": 30, "w": 5, "exact": true, "seconds": 4.35, "status": "INFEASIBLE", "conflicts": 8412, "branches": 33054, "instance": 
+{"solver": "cpsat-elem", "rows": 21, "n": 50, "w": 3, "exact": true, "seconds": 1.86, "status": "INFEASIBLE", "conflicts": 1812, "branches": 20418, "instance": 
+{"solver": "cpsat-elem", "rows": 21, "n": 50, "w": 4, "exact": true, "seconds": 41.49, "status": "INFEASIBLE", "conflicts": 107340, "branches": 400119, "instanc
+{"solver": "cpsat-elem", "rows": 21, "n": 75, "w": 3, "exact": true, "seconds": 5.68, "status": "INFEASIBLE", "conflicts": 12244, "branches": 89304, "instance":
+{"solver": "cpsat-elem", "rows": 21, "n": 75, "w": 4, "exact": true, "seconds": 100.01, "status": "UNKNOWN", "stuck_at_weight": 4, "conflicts": 199339, "branche

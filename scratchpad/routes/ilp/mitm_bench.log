@@ -1,0 +1,41 @@
+{"solver": "mitm", "n": 100, "w": 4, "exact": true, "seconds": 0.31, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 100, "w": 5, "exact": true, "seconds": 2.09, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 100, "w": 6, "exact": true, "seconds": 7.34, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 100, "seed": 1, "p
+{"solver": "mitm", "n": 200, "w": 4, "exact": true, "seconds": 0.52, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 200, "seed": 1, "p
+{"solver": "mitm", "n": 200, "w": 5, "exact": true, "seconds": 3.4, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 200, "seed": 1, "p"
+{"solver": "mitm", "n": 200, "w": 6, "exact": true, "seconds": 30.48, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 200, "seed": 1, "
+{"solver": "mitm", "n": 300, "w": 4, "exact": true, "seconds": 0.97, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 300, "seed": 1, "p
+{"solver": "mitm", "n": 300, "w": 5, "exact": true, "seconds": 12.67, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 300, "seed": 1, "
+Traceback (most recent call last):
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 433, in <module>
+    main()
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 422, in main
+    res = SOLVERS[a.encoding](G, p, a.w, exact=a.exact, **kw)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 381, in solve_mitm
+    wit = weight6_witness_3x3(G, p)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/qmsd/mindist_nb.py", line 654, in weight6_witness_3x3
+    lcodes, lsupp = _build_left3_norm(H, p, powers)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MemoryError: Allocation failed (probably too large).
+{"solver": "mitm", "n": 402, "w": 4, "exact": true, "seconds": 1.54, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": null, "seed": 0, "
+{"solver": "mitm", "n": 402, "w": 5, "exact": true, "seconds": 39.12, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": null, "seed": 0, 
+{"solver": "mitm", "n": 300, "w": 4, "exact": true, "seconds": 2.16, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 300, "seed": 1, "p
+{"solver": "mitm", "n": 600, "w": 4, "exact": true, "seconds": 9.42, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 600, "seed": 1, "p
+{"solver": "mitm", "n": 1200, "w": 4, "exact": true, "seconds": 41.53, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 1200, "seed": 1,
+Traceback (most recent call last):
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 433, in <module>
+    main()
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 422, in main
+    res = SOLVERS[a.encoding](G, p, a.w, exact=a.exact, **kw)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/scratchpad/routes/ilp/ilp_distance.py", line 385, in solve_mitm
+    if weight_d_exists_fast(G, p, d):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/.claude/worktrees/agent-af852552fa941f28b/qmsd/mindist_nb.py", line 846, in weight_d_exists_fast
+    lcodes, lsupp = _build_left(H, p, a, powers)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MemoryError: Allocation failed (probably too large).
+{"solver": "mitm", "n": 300, "w": 5, "exact": true, "seconds": 53.13, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 300, "seed": 1, "
+{"solver": "mitm", "n": 600, "w": 5, "exact": true, "seconds": 490.48, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": 600, "seed": 1, 

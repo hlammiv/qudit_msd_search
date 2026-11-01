@@ -1,0 +1,5 @@
+{"solver": "mitm", "n": 30, "w": 3, "exact": true, "seconds": 0.47, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 30, "seed": 1, "p":
+{"solver": "mitm", "n": 30, "w": 4, "exact": true, "seconds": 0.35, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 30, "seed": 1, "p":
+{"solver": "mitm", "n": 30, "w": 5, "exact": true, "seconds": 0.54, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 30, "seed": 1, "p":
+{"solver": "mitm", "n": 75, "w": 3, "exact": true, "seconds": 0.33, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 75, "seed": 1, "p":
+{"solver": "mitm", "n": 75, "w": 4, "exact": true, "seconds": 0.36, "status": "INFEASIBLE", "found_weight": null, "instance": "A", "subset": 75, "seed": 1, "p":

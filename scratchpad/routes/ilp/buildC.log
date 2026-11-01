@@ -1,0 +1,1 @@
+{"solver": "mitm", "n": 12351, "w": 2, "exact": true, "seconds": 0.04, "status": "INFEASIBLE", "found_weight": null, "instance": "C", "subset": null, "seed": 0, "p": 11, "tag": "", "G_shape": [30, 12351]}

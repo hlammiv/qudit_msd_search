@@ -1,0 +1,1 @@
+{"solver": "sat-cadical195", "rows": 19, "n": 400, "w": 6, "exact": true, "vars": 61261, "clauses": 496319, "seconds": 422.14, "status": "TIMEOUT", "conflicts": 985540, "instance": "B", "subset": null, "seed": 0, "p": 7, "tag": "", "G_shape": [29, 400]}

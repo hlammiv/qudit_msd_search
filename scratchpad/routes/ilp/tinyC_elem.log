@@ -1,0 +1,7 @@
+{"solver": "cpsat-elem", "rows": 30, "n": 30, "w": 3, "exact": true, "seconds": 0.05, "status": "INFEASIBLE", "conflicts": 0, "branches": 0, "instance": "C", "s
+{"solver": "cpsat-elem", "rows": 30, "n": 30, "w": 4, "exact": true, "seconds": 0.06, "status": "INFEASIBLE", "conflicts": 0, "branches": 0, "instance": "C", "s
+{"solver": "cpsat-elem", "rows": 30, "n": 30, "w": 5, "exact": true, "seconds": 0.07, "status": "INFEASIBLE", "conflicts": 0, "branches": 0, "instance": "C", "s
+{"solver": "cpsat-elem", "rows": 30, "n": 50, "w": 3, "exact": true, "seconds": 0.87, "status": "INFEASIBLE", "conflicts": 0, "branches": 0, "instance": "C", "s
+{"solver": "cpsat-elem", "rows": 30, "n": 50, "w": 4, "exact": true, "seconds": 58.13, "status": "INFEASIBLE", "conflicts": 75714, "branches": 280952, "instance
+{"solver": "cpsat-elem", "rows": 30, "n": 75, "w": 3, "exact": true, "seconds": 13.86, "status": "INFEASIBLE", "conflicts": 11362, "branches": 88370, "instance"
+{"solver": "cpsat-elem", "rows": 30, "n": 75, "w": 4, "exact": true, "seconds": 100.01, "status": "UNKNOWN", "stuck_at_weight": 4, "conflicts": 108330, "branche

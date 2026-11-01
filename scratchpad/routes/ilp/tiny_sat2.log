@@ -1,0 +1,2 @@
+{"solver": "sat-cadical195", "rows": 21, "n": 75, "w": 4, "exact": true, "vars": 12340, "clauses": 89527, "seconds": 100.4, "status": "TIMEOUT", "conflicts": 59
+{"solver": "sat-cadical195", "rows": 30, "n": 75, "w": 4, "exact": true, "vars": 26548, "clauses": 294795, "seconds": 100.01, "status": "TIMEOUT", "conflicts": 
