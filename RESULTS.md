@@ -14,6 +14,12 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 
 ## 1. Headline results
 
+- **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
+  noisy T on non-outputs, X measurement) and an axis-by-axis Reed–Muller encoder, the large codes need
+  98 ([[1745,271,7]]_7), 233 ([[13332,1309,22]]_11) and 567 ([[78455,5066,>=68]]_17) two-qudit gates per
+  output per round, 17–375x below the systematic-encoder count; verified exactly on small codes
+  (`CODE_METRICS.md` section 6).
+
 - **First proved gamma < 1 code at p = 11: [[13332,1309,22]]_11, gamma = 0.751** (d = 22 exact: the theorem
   plus an explicit weight-22 word). Output set = the full zero set of a cubic; distance follows from a one-line
   theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;

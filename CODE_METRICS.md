@@ -158,3 +158,59 @@ points (for the weighted codes) or on a cubic surface (level sets) is open.
 a Clifford bill of about 1 600 two-qudit gates per output per round against about 17 for [[7,1,3]]₇;
 the p = 11 level-set code needs about 14 500. A cost claim in the paper must state the price ratio
 of a magic state to a Clifford gate at which the large codes break even.
+
+## 6. One-shot rounds with an axis-by-axis encoder (`scratchpad/fast_encoder.py`, `scratchpad/oneshot_check.py`, `runs/coverage/fast_encoder.json`)
+
+Section 5 concluded that no choice of basis makes the checks or the output decoding cheap. Both can be
+avoided. A round only needs the state Σ_{f ∈ RM_p(r,m)} |f(x)⟩ on the whole grid F_pᵐ: apply the noisy
+T on every non-output qudit, measure those qudits in the X basis (the outcomes give the syndrome
+classically and teleport the result), and the output qudits are left in U⁻¹|+⟩ᵏ up to a Pauli frame,
+because Σ_x f(x)³ = 0 on the whole grid makes transversal U act trivially on the code state. There is no
+check-measurement circuit and no per-output decoding.
+
+That state is prepared by putting |+⟩ on the coefficient registers of the monomials of degree ≤ r,
+|0⟩ on the rest, and applying the univariate evaluation map V[j,t] = jᵗ along every line of axis 1, then
+axis 2, …, axis m (polynomial evaluation on a grid factorises as V⊗V⊗…⊗V). In stage i a line has only
+the inputs whose exponent still fits under r, which prunes most of the work. Each line map is
+implemented as an invertible p × p matrix and its two-qudit add-multiple gates are counted exactly by
+Gauss–Jordan elimination (same convention as section 1: scalings and relabels free). Weighted supports
+are prepared on the whole grid; points outside the support get no T (charge 0) and are measured with
+the rest.
+
+**Checks.** The factorisation equals direct evaluation and spans exactly rm_generator's space
+(p, m, r) = (3,2,1), (5,2,2), (7,2,3), (5,3,3). The one-shot round was simulated exactly (state vectors
+over all codewords): for RM(1,1) at p = 7 all 16 807 outcomes with nonzero probability leave the output in
+Z^a U⁻¹|+⟩ with fidelity 1.000000000000; sampled outcomes (2000–3000 each) give the same for RM(3,1) at
+p = 13, RM(1,2) at p = 7, and a two-output RM(1,2) code at p = 5.
+
+| code | two-qudit gates per output per round: systematic encoder (section 1) | one-shot, axis-by-axis | ratio |
+|---|---|---|---|
+| [[206,37,4]]₃ | 173 | 29 | 6.0× |
+| [[519,106,5]]₅ | 460 | 46 | 10.0× |
+| [[1745,271,7]]₇ | 1 682 | 98 | **17×** |
+| [[2093,308,5]]₇ | 1 883 | 86 | 22× |
+| [[100,21,4]]₁₁ | 110 | 45 | 2.4× |
+| [[13332,1309,22]]₁₁ | 16 041 | 233 | **69×** |
+| [[237,52,6]]₁₇ | 260 | 73 | 3.6× |
+| [[78455,5066,≥68]]₁₇ | 163 516 | 567 | **288×** |
+| [[296,65,6]]₁₉ | 316 | 89 | 3.6× |
+| [[123284,7037,≥57]]₁₉ | 262 846 | 701 | **375×** |
+| [[666,175,6]]₂₉ | 673 | 114 | 5.9× |
+
+Small codes ([[7,1,3]]₇ and the Reed–Solomon codes) cost 15–28 gates per output; the cyclic codes are not
+grid-evaluation codes, so the method does not apply to them, and it does not need to.
+
+**This reverses the conclusion of sections 1 and 5.** With the one-shot round the large codes cost
+100–700 two-qudit gates per output per round, within a factor 4–40 of the small codes instead of
+100–10 000, and per output of the *final* product the large codes are used once where small codes are
+chained. The γ < 1 codes are no longer Clifford-prohibitive.
+
+Caveats, all open:
+- *Fault tolerance of the encoder.* A fault early in the transform spreads along a whole line (p
+  qudits per stage, up to pᵐ⁻ⁱ after later stages). In distillation the Clifford circuit normally runs on
+  error-corrected logical qudits, so such faults are suppressed by the outer code and the gate count is a
+  space-time cost; if the circuit runs on physical qudits, its fault distance must be analysed
+  separately (this is the "circuit-level distance" item, now the most important open metric).
+- *Connectivity.* The stages act along lines of an m-dimensional grid; on planar hardware they need
+  routing, which this count ignores (as did section 1).
+- *All-to-all T.* The noisy T is applied to every non-output qudit, as before; inputs are teleported in.
