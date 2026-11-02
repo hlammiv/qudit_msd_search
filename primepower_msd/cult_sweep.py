@@ -14,14 +14,14 @@ from .cult_growth import GrowCult
 from .zdsim import add_tick_idle
 
 
-def one(d, D, p, shots, seed, rounds, checks, mode="direct", tick=0.0, parallel=False):
+def one(d, D, p, shots, seed, rounds, checks, mode="direct", tick=0.0, parallel=False, batch=200_000):
     if mode == "grow":                      # D=3 stage (rounds x checks), grow, D=5 stage (rounds x checks)
         cc = GrowCult(d, p, 1, 1, rounds3=rounds, checks3=checks, rounds5=rounds, checks5=checks, parallel=parallel)
     else:
         cc = ColorCult(D, d, p, 1, 1, checks_per_round=checks, rounds=rounds, parallel=parallel)
     if tick:                                # idle noise at every tick of the ASAP schedule, DEP1(tick p)
         cc.c = add_tick_idle(cc.c, tick * p)
-    r = cc.simulate(shots, seed=seed)
+    r = cc.simulate(shots, seed=seed, batch=batch)
     r.update({"d": d, "D": D if mode == "direct" else "3to5", "p": p, "mode": mode, "tick_idle": tick, "parallel": parallel, "seed": seed, "rounds": rounds, "checks": checks, "qudits": cc.c.nq,
               "noise_locations": cc.c.noise_locations()})
     return r
@@ -40,10 +40,11 @@ def main(argv=None):
     ap.add_argument("--mode", default="direct", choices=["direct", "grow"])
     ap.add_argument("--tick", type=float, default=0.0, help="idle noise DEP1(tick p) at every tick (zdsim.add_tick_idle)")
     ap.add_argument("--parallel", action="store_true", help="parallel schedule (block plaquette rounds, tree cat states)")
+    ap.add_argument("--batch", type=int, default=200_000, help="shots per simulator batch (memory ~ batch x qudits)")
     ap.add_argument("--out", default="runs/cultivation/sweep.json")
     a = ap.parse_args(argv)
     from joblib import Parallel, delayed
-    jobs = [(int(d), int(D), float(p), a.shots // a.chunks, 1000 * k + 7, a.rounds, a.checks, a.mode, a.tick, a.parallel)
+    jobs = [(int(d), int(D), float(p), a.shots // a.chunks, 1000 * k + 7, a.rounds, a.checks, a.mode, a.tick, a.parallel, a.batch)
             for d in a.dims.split(",") for D in a.Ds.split(",") for p in a.ps.split(",") for k in range(a.chunks)]
     t0 = time.time()
     agg = {}
