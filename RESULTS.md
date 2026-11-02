@@ -24,7 +24,7 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   plus an explicit weight-22 word). Output set = the full zero set of a cubic; distance follows from a one-line
   theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;
   catalog `imported-p11-n13332-k1309-c7aae3253e15`). Built at p = 17: [[78455,5066,>=68]]_17,
-  gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (proved); at p = 23 a cubic gives [[267513,12328,>=138]]_23, gamma <= 0.625 (proved). Cost caveat: against the RS family the level-set codes save
+  gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (proved); at p = 23 a cubic gives [[267467,12374,>=138]]_23, gamma <= 0.624 (proved). Cost caveat: against the RS family the level-set codes save
   1.1-1.2x at p = 11 and nothing at p = 17, 19 for targets 1e-30; they pay only from 1e-60 (p = 11) or
   1e-100 to 1e-150 (p = 17, 19), because acceptance (1-eps)^n forces eps ~ 1e-5 (`LEVEL_SETS.md`).
 

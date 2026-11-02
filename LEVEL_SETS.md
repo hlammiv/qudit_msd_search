@@ -74,7 +74,7 @@ polynomial and re-checks the rank with a different elimination routine.
 | 11 | cubic, r = 13 | [[13332,1309,22]]₁₁ | 22 exact | **0.751** | 1.126 | confirmed |
 | 17 | cubic, r = 21 | [[78455,5066,≥68]]₁₇ | ≥ 68 | **≤ 0.649** | 0.847 ([[237,52,6]]₁₇); paper 0.946 at n = 77540 | proved lower bound, rank checked twice (`imported-p17-n78455-k5066-2d7880c18fa5`) |
 | 19 | quartic, r = 23 | [[123284,7037,≥57]]₁₉ | ≥ 57 | **≤ 0.708** | 0.846 | proved lower bound, rank checked twice (`imported-p19-n123284-k7037-*`) |
-| 23 | cubic, r = 29 | [[267513,12328,≥138]]₂₃ | ≥ 138 | **≤ 0.625** | 0.779 ([[424,105,6]]₂₃) | proved lower bound, rank checked twice (`imported-p23-n267513-*`); a larger set k = 12374 (γ ≤ 0.624) awaits its second check |
+| 23 | cubic, r = 29 | [[267513,12328,≥138]]₂₃ | ≥ 138 | **≤ 0.625** | 0.779 ([[424,105,6]]₂₃) | proved lower bound, rank checked twice (`imported-p23-n267513-*`); a larger set [[267467,12374,≥138]]₂₃, γ ≤ **0.624**, is also proved (second check by `levelset_verify_fast.py`) |
 | 13 | — | cubic zero sets (≈ 2197 points) exceed the cap 1996; quartic gives d ≥ 13, γ ≈ 0.97 | | | | no useful member |
 
 At p = 13 and 19 a cubic zero set has about p³ points, more than the cubic cap allows; at p = 19 the
