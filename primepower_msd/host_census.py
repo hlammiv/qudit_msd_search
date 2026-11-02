@@ -131,6 +131,24 @@ def _idle(F, last, q, t_next, k_next, d, units):
             F.append((k_prev, q, (0, a), n / (d - 1), "idle")); F.append((k_prev, q, (a, 0), n / (d - 1), "idle_x"))
 
 
+def faults_pairs(C, d, mode="uniform"):
+    """Two-wire Z-type logical faults after every CSUM (control c, target t): 'uniform' = every Z^a (x) Z^b, a, b != 0,
+    weight 1/(d-1)^2; 'copy' = the patterns a CSUM makes from one earlier wire error, Z_c^-a Z_t^a, weight 1/(d-1)."""
+    F = []
+    for k, op in enumerate(C.ops):
+        if op[0] != "CSUM":
+            continue
+        for (c, t) in op[1]:
+            if mode == "uniform":
+                for a in range(1, d):
+                    for b in range(1, d):
+                        F.append((k, (c, t), ((0, a), (0, b)), 1 / (d - 1) ** 2, "gate2"))
+            else:
+                for a in range(1, d):
+                    F.append((k, (c, t), ((0, (-a) % d), (0, a)), 1 / (d - 1), "gate2"))
+    return F
+
+
 def faults_depolarizing(C, d):
     """cliff_census.py's fault set: every Pauli at every DEP1/DEP2/XERR site, equal weights (validation)."""
     F = []

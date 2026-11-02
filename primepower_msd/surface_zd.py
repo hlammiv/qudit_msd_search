@@ -305,25 +305,48 @@ def build_dem(mem: Memory, sector: str, exclude=None) -> DEM:
     singles = {}                       # every kept single-fault pattern ((det, value), ...) -> {observable: probability}
     for kind, ids in per_loc:
         m = len(ids)
-        combos = np.array(list(it.product(range(d), repeat=m)), dtype=np.int64)[1:]     # non-identity
-        pr = 1.0 / len(combos)
         total += 1.0
-        Vl = combos @ Vs[ids] % d
-        Ol = combos @ O[ids] % d
-        cnt = (Vl != 0).sum(axis=1)
-        drop = np.any(combos @ Vx[ids] % d != 0, axis=1) if Vx is not None else np.zeros(len(combos), dtype=bool)
-        for row in range(len(combos)):
-            if drop[row]:
-                discarded += pr
+        # only the basis faults seen by this sector matter.  R1: those that fire a sector detector or the observable;
+        # R2: those that only fire an excluded (postselected) detector.  Enumerate the R1 values (d^|R1| rows, not
+        # d^m), each row weighted by the number of Paulis of the location that share them and survive the exclusion.
+        R1 = [i for i in ids if Vs[i].any() or O[i] % d]
+        R2 = [i for i in ids if i not in R1 and Vx is not None and Vx[i].any()]
+        if not R1 and not R2:
+            continue
+        unit = 1.0 / (d ** m - 1)
+        r1 = len(R1)
+        U = np.array(list(it.product(range(d), repeat=r1)), dtype=np.int64)          # row 0 = all R1 values zero
+        mult = np.full(len(U), d ** (m - r1 - len(R2)), dtype=np.int64)
+        if Vx is not None:
+            # kept Paulis per R1 row: R2 values y with (u, y) . Vx == 0 on the excluded detectors
+            cx = np.nonzero(Vx[R1 + R2].any(axis=0))[0]
+            Y = np.array(list(it.product(range(d), repeat=len(R2))), dtype=np.int64)
+            sx_u = U @ Vx[R1][:, cx] % d if r1 else np.zeros((1, len(cx)), np.int64)
+            sx_y = Y @ Vx[R2][:, cx] % d if R2 else np.zeros((1, len(cx)), np.int64)
+            ky = {}
+            for row in sx_y:
+                ky[row.tobytes()] = ky.get(row.tobytes(), 0) + 1
+            kept = np.array([ky.get(((-row) % d).tobytes(), 0) for row in sx_u], dtype=np.int64)
+            mult = mult * kept
+            n_kept = int(mult.sum())                                                  # includes the identity
+            discarded += unit * (d ** m - n_kept)
+        cs = np.nonzero(Vs[R1].any(axis=0))[0] if r1 else np.zeros(0, np.int64)
+        Vsub = U @ Vs[R1][:, cs] % d if r1 else np.zeros((1, 0), np.int64)
+        Ol = U @ O[R1] % d if r1 else np.zeros(1, np.int64)
+        cnt = (Vsub != 0).sum(axis=1)
+        for row in range(1, len(U)):
+            if not mult[row]:
                 continue
+            pr = unit * float(mult[row])
+            vrow = np.zeros(n_det, dtype=np.int64); vrow[cs] = Vsub[row]
             if cnt[row]:
-                key = tuple((int(j), int(Vl[row, j])) for j in np.nonzero(Vl[row])[0])
+                key = tuple((int(cs[j]), int(Vsub[row, j])) for j in np.nonzero(Vsub[row])[0])
                 sd = singles.setdefault(key, {}); sd[int(Ol[row])] = sd.get(int(Ol[row]), 0.0) + pr
-            if cnt[row] <= 2 and add(Vl[row], Ol[row], pr):
+            if cnt[row] <= 2 and add(vrow, Ol[row], pr):
                 continue
             # decompose into single-generator components
-            comps = [(combos[row, i] * Vs[ids[i]] % d, combos[row, i] * O[ids[i]] % d)
-                     for i in range(m) if combos[row, i] % d]
+            comps = [(U[row, i] * Vs[R1[i]] % d, U[row, i] * O[R1[i]] % d)
+                     for i in range(r1) if U[row, i] % d]
             if all(len(np.nonzero(v)[0]) <= 2 for v, _ in comps):
                 for v, o in comps:
                     add(v, o, pr)

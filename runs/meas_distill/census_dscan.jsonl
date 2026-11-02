@@ -1,0 +1,8 @@
+{"d": 4, "gadget": "dense", "n_csum": 45, "depth": 31, "gate": 4.666666666666666, "rounds": 5.333333333333333, "two_wire_uniform": 1.8888888888888895, "two_wire_copy": 1.0}
+{"d": 4, "gadget": "sparse-best", "n_csum": 41, "depth": 35, "gate": 1.0, "rounds": 2.0, "two_wire_uniform": 0.0, "two_wire_copy": 0.0}
+{"d": 8, "gadget": "dense", "n_csum": 47, "depth": 33, "gate": 3.714285714285713, "rounds": 6.142857142857142, "two_wire_uniform": 1.4897959183673481, "two_wire_copy": 0.9999999999999998}
+{"d": 8, "gadget": "sparse-best", "n_csum": 43, "depth": 37, "gate": 0.9999999999999998, "rounds": 1.9999999999999996, "two_wire_uniform": 0.0, "two_wire_copy": 0.0}
+{"d": 16, "gadget": "dense", "n_csum": 47, "depth": 33, "gate": 3.333333333333337, "rounds": 6.066666666666669, "two_wire_uniform": 1.2488888888888923, "two_wire_copy": 0.9999999999999999}
+{"d": 16, "gadget": "sparse-best", "n_csum": 43, "depth": 37, "gate": 0.9999999999999999, "rounds": 1.9999999999999998, "two_wire_uniform": 0.0, "two_wire_copy": 0.0}
+{"d": 32, "gadget": "dense", "n_csum": 47, "depth": 33, "gate": 3.161290322580643, "rounds": 6.032258064516125, "two_wire_uniform": 1.1248699271592197, "two_wire_copy": 0.9999999999999993}
+{"d": 32, "gadget": "sparse-best", "n_csum": 43, "depth": 37, "gate": 0.9999999999999993, "rounds": 1.9999999999999987, "two_wire_uniform": 0.0, "two_wire_copy": 0.0}

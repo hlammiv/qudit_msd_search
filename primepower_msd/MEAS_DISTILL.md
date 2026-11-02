@@ -336,13 +336,21 @@ part), above the qubit MWPM value 10.3%, as expected for a qudit code.
 | 8 | X | 6.7, 7.5, (7,9) > 8 ×10⁻³ | 0.051, 7.0×10⁻³ |
 | 16 | Z | 6.1, 8.2, 8.3 ×10⁻³ | 0.053, 7.5×10⁻³ |
 | 16 | X | 6.3, 7.6, 7.8 ×10⁻³ | 0.066, 7.4×10⁻³ |
+| 32 | Z | 6.3, 7.9, 8.1 ×10⁻³ | 0.053, 7.4×10⁻³ |
+| 32 | X | 6.4, 7.6, 7.8 ×10⁻³ | 0.069, 7.4×10⁻³ |
 
 **d = 16** (`zd_d16.jsonl`, 80 points, lenore, 2026-11-01; same shots): p_th unchanged; A drifts up 15–25% from d = 4
 to d = 16 (refit on identical point sets: Z 0.046 / 0.050 / 0.053, X 0.053 / 0.058 / 0.066 for d = 4 / 8 / 16).  At the
 D that matter the raw failure counts agree point by point: D = 7, 9 below 4×10⁻³ give d16/d4 ratios 0.97–1.33 (Poisson
 scatter); the excess sits at D = 3 (up to 1.8× at 10⁻³) and near threshold — the extra valuation levels add a few short
-uncorrectable chains.  A 20% larger A moves no footprint D, so the host is d-independent for 4 ≤ d ≤ 16; d = 32 has not
-been run.
+uncorrectable chains.  A 20% larger A moves no footprint D, so the host is d-independent for 4 ≤ d ≤ 16.
+
+**d = 32** (`zd_d32.jsonl`, 80 points, local, 2026-11-02; same shots; made feasible by the exact R1/R2 reduction of
+`surface_zd.build_dem`, which enumerates only the d^|R1| Pauli rows of a location that touch sector detectors or the
+observable instead of all d^m − 1 — identical DEMs at d = 4, 8, 20–60× faster): the drift has stopped.  A = 0.053 (Z) /
+0.069 (X), p_th = 7.4×10⁻³ in both bases, equal to d = 16 within the fit scatter; the D = 7, 9 counts below 4×10⁻³ match
+d = 16 point by point (Z, D = 9: 0 / 1 / 7 / 20 / 103 vs 0 / 1 / 8 / 18 / 87).  The host is d-independent for 4 ≤ d ≤ 32
+up to a saturated +15–30% in A at the larger d, which moves no footprint D.
 
 Selected points at d = 4 (Z memory): p = 10⁻³: D = 3 9.3×10⁻⁴, D = 5 1.7×10⁻⁴, D = 7 4×10⁻⁵, D = 9 < 10⁻⁵;
 p = 3×10⁻³: 7.1×10⁻³, 4.0×10⁻³, 1.3×10⁻³, 4.5×10⁻⁴; p = 6×10⁻³: 2.7, 2.4, 1.9, 1.3 ×10⁻².  The crossings drift up
@@ -711,6 +719,22 @@ census-sparse` (`host_census.EXPOSURE_713_SPARSE`):
 | 10⁻¹⁵ at 10⁻³ | D = 33, 17 480 | D = 31, 15 432 |
 | 10⁻¹² at 5×10⁻⁴ | D = 19, 5 832 | D = 19, 5 832 |
 
+**Two-wire failures and d-scan** (`host_census.faults_pairs`, `scratchpad/census_dscan.py` →
+`runs/meas_distill/census_dscan.jsonl`, 2026-11-02).  Correlated logical Z ⊗ Z failures after every CSUM, either uniform
+(all Z^a ⊗ Z^b, weight 1/(d−1)²) or the copy pattern a CSUM makes from one earlier wire error (Z_c^−a Z_t^a, weight
+1/(d−1)), counted as undetected bad outputs per unit two-wire failure rate:
+
+| d | dense: gate / rounds | two-wire uniform / copy | best sparse: gate / rounds | two-wire uniform / copy |
+|---|---|---|---|---|
+| 4 | 4.67 / 5.33 | 1.89 / 1.00 | 1.0 / 2.0 | 0 / 0 |
+| 8 | 3.71 / 6.14 | 1.49 / 1.00 | 1.0 / 2.0 | 0 / 0 |
+| 16 | 3.33 / 6.07 | 1.25 / 1.00 | 1.0 / 2.0 | 0 / 0 |
+| 32 | 3.16 / 6.03 | 1.12 / 1.00 | 1.0 / 2.0 | 0 / 0 |
+
+The best sparse gadget (same network seed at every d: 41 CSUMs at d = 4, 43 at d ≥ 8) is immune to correlated two-wire
+CSUM failures — every Z ⊗ Z pattern after a CSUM is caught by the check — so the single-wire caveat above does not apply
+to the recipe of record, and its exposures 1.0 / 2.0 are d-independent through d = 32.
+
 10⁻¹⁰ stays at D = 21 (at D = 19 the floor alone is 9.9×10⁻¹¹, no room for the other terms); 10⁻¹² comes within 56 qudits of the budget.
 
 ## 6. Open / next
@@ -722,4 +746,4 @@ census-sparse` (`host_census.EXPOSURE_713_SPARSE`):
 6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 7.9M kept attempts per sector at p = 10⁻³ (< 6×10⁻⁷ total, 90% CL; floor run 2026-10-31) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Gap recipe at 5×10⁻⁴: < 6×10⁻⁶ at 24.9% discard.  Open: idle noise during CSUM layers; margin of the cut (failing gaps reach 12.x).
 7. Done (§5i): the logical CSUM measured on two surface-code patches with a Pauli-frame (sequential) decoder: 1.1–1.2× the idle two-patch memory, same threshold; independent per-patch decoding has a first-order floor (24 p at D = 9) from source measurement errors leaking into the cross-layer detectors.  Footprint: 10⁻¹⁰ unchanged to +1 step (5 832–7 112 qudits), 10⁻¹² one step up (D = 25, 10 056).  Done: the d = 8 sweep (A 0.25/0.22, p_th 7.3/6.5×10⁻³) matches.  Open: idle census between CSUM layers.
 8. Done (§5h, d = 8 paragraph): the escape at d = 8 reproduces d = 4 (one class 1.6×10⁻⁴ at 45% discard; gap cut 13: 0 failures in 1.09×10⁵ kept per sector at p = 10⁻³).  d = 8 cultivation growth 3 → 5 at 2×10⁷ shots (CULTIVATION_PLAN §12): acceptance 0.439 / 0.662 at p = 10⁻³ / 5×10⁻⁴, 3 failures in 8.8M accepted (3.4×10⁻⁷, 90% CL 0.9–8.8×10⁻⁷) and 0 in 13.2M (< 1.7×10⁻⁷), consistent with d = 4 (9.1×10⁻⁷, 1.5×10⁻⁷).  Gap recipe measured at 5×10⁻⁴ (§5h).  Running: 10⁸-attempt floor of the gap recipe at d = 4.
-9. Done (§5j): host-code census of the Clifford layer — the depolarizing a_C = 0.357 under-counts the surface-code host by ~10× (single-wire Z-type failures are the surviving type; idle rounds never charged); floor = 4.67 q_gate + 5.33 q_round per output.  Footprint: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits; 10⁻¹² → D = 27 (11 720).  The CSUM excess measured at fixed D (10⁶ shots): 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7, ≈ 0.45 D — the fit's value, not one extra round.  Done (§5j, sparse census): the best of 200 sparse encoder networks has exposures 1.0 / 2.0 (4.3× lower floor), same at d = 8; 10⁻¹² at 10⁻³ → D = 25, 10 056.  Done (§5g): d = 16 host sweep — p_th unchanged, A +15–25%, no footprint change.  Running (lenore, 2026-11-01): gap-cut margin (6 more floor replicas), p-dependence of the excess (D = 5, 7, 9).  Open: two-wire correlated failures; d = 32.
+9. Done (§5j): host-code census of the Clifford layer — the depolarizing a_C = 0.357 under-counts the surface-code host by ~10× (single-wire Z-type failures are the surviving type; idle rounds never charged); floor = 4.67 q_gate + 5.33 q_round per output.  Footprint: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits; 10⁻¹² → D = 27 (11 720).  The CSUM excess measured at fixed D (10⁶ shots): 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7, ≈ 0.45 D — the fit's value, not one extra round.  Done (§5j, sparse census): the best of 200 sparse encoder networks has exposures 1.0 / 2.0 (4.3× lower floor), same at d = 8; 10⁻¹² at 10⁻³ → D = 25, 10 056.  Done (§5g): d = 16 host sweep — p_th unchanged, A +15–25%, no footprint change.  Done (§5g): d = 32 host sweep — A, p_th equal to d = 16 (saturated).  Done (§5j): two-wire CSUM failures — the best sparse gadget is immune (0 / 0); census exposures d-independent through d = 32.  Running (lenore, 2026-11-01): gap-cut margin (6 more floor replicas), p-dependence of the excess (D = 5, 7, 9).  Next: d = 16 / 32 escape (`one`, `one+gap`, as at d = 8).
