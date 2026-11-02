@@ -143,6 +143,65 @@ class FrameSim:
         return D % self.d
 
 
+def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
+    """Copy of `circ` with idle noise at every tick: the gates are scheduled as soon as possible in circuit order (one tick
+    per gate; the pairs of one CSUM op take one tick each, in order, so a fan-out serialises on its shared qudit); a qudit
+    is live from its reset until it is measured, and every tick a live qudit waits gets DEP1(p_idle) -- k waiting ticks
+    compose exactly into one DEP1 inserted before the gate it waits for; live qudits also wait until the circuit's last
+    tick.  Resets are just in time: a freshly reset qudit (and its single-qudit preparation gates) waits for nothing before
+    its first two-qudit gate.  Noise, detector and feed-forward ops take no time.  Measurement indices and detectors are
+    unchanged."""
+    if p_idle <= 0:
+        return circ
+    d = circ.d
+    lam = p_idle * d * d / (d * d - 1)                    # DEP1(q) = (1 - lam) rho + lam (fully depolarised)
+
+    def comp(k):
+        return (1 - (1 - lam) ** k) * (d * d - 1) / (d * d)
+
+    out = Circuit(d, circ.nq, [], circ.n_meas, circ.detectors, circ.det_tags)
+    t = [0] * circ.nq
+    live = [False] * circ.nq
+    fresh = [False] * circ.nq                             # reset, not yet in a two-qudit gate: prepared just in time
+
+    def emit_idle(waits):
+        by_k = {}
+        for q, k in waits.items():
+            if k > 0:
+                by_k.setdefault(k, []).append(q)
+        for k in sorted(by_k):
+            out.ops.append(("DEP1", by_k[k], comp(k)))
+
+    for op in circ.ops:
+        name = op[0]
+        if name in ("F", "FD", "S", "R", "M"):
+            for q in op[1]:
+                t[q] += 1                                # single-qudit gates run as soon as the qudit is free
+            out.ops.append(op)
+            if name == "R":
+                for q in op[1]:
+                    live[q] = fresh[q] = True
+            elif name == "M":
+                for q in op[1]:
+                    live[q] = fresh[q] = False
+        elif name == "CSUM":
+            waits = {}
+            for (a, b) in op[1]:
+                s0 = max(t[a], t[b])
+                for q in (a, b):
+                    if live[q] and not fresh[q] and s0 > t[q]:
+                        waits[q] = waits.get(q, 0) + s0 - t[q]
+                    fresh[q] = False
+                t[a] = t[b] = s0 + 1
+            emit_idle(waits)
+            out.ops.append(op)
+        else:
+            out.ops.append(op)
+    T = max(t) if t else 0
+    emit_idle({q: T - t[q] for q in range(circ.nq) if live[q]})
+    return out
+
+
 def check_determinism(circ: Circuit, shots: int = 256, seed: int = 0) -> list[int]:
     """Indices of declared detectors that fire in noiseless gauge-randomised runs (should be [])."""
     s = FrameSim(circ, shots, np.random.default_rng(seed), gauge=True).run(scale=0.0)

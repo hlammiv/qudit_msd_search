@@ -44,7 +44,8 @@ def pivot_form(H, d):
 
 class ColorCult:
     def __init__(self, distance: int = 3, d: int = 4, p: float = 1e-3, sigma: int = 1, inj: int | None = None,
-                 checks_per_round: int = 2, rounds: int = 2, noisy_injection: bool = True):
+                 checks_per_round: int = 2, rounds: int = 2, noisy_injection: bool = True, parallel: bool = False):
+        self.parallel = parallel
         H, xy = color_code_plaquettes(distance)
         self.H, self.tau, self.d, self.n = H, honeycomb_signs(H, xy), d, H.shape[1]
         self.distance, self._tab = distance, None
@@ -55,12 +56,13 @@ class ColorCult:
         c = self.c = Circuit(d)
         self.data = c.q(self.n)
         self.xa = c.q(len(H)); self.za = c.q(len(H)); self.cat = c.q(self.n)
+        self.cat2 = c.q(self.n) if parallel else None     # second cat register: consecutive checks overlap
         self.encode(noisy_injection)
         for _ in range(rounds):
             self.stab_round()
             for _ in range(checks_per_round):
                 self.check()
-        self.stab_round()
+        self.stab_round(final=True)
 
     # noisy primitives
     def R(self, qs):
@@ -97,8 +99,50 @@ class ColorCult:
             self.CSUM([(D[pc], D[i]) for i in tg], [int(G[k, i]) for i in tg])
         self.p = p0
 
-    def stab_round(self):
+    def _measure_plaquettes(self):
+        """parallel schedule: all X plaquettes in one block, then all Z plaquettes (CSUMs into a common target, resp. out of a
+        common control, commute, so each block measures its stabilisers exactly in any step order); the steps are greedy:
+        each plaquette visits its data in the serial order, a leg waits only while its data qudit is busy.  Returns (m_x, m_z) per plaquette."""
         D, H, d = self.data, self.H, self.d
+        xa, za = self.xa[:len(H)], self.za[:len(H)]
+        steps = []
+        busy_q = {}
+        for r in range(len(H)):
+            k = 0
+            for i in np.nonzero(H[r])[0]:          # each plaquette keeps the serial leg order (its hooks stay the serial ones)
+                while k in busy_q.setdefault(int(i), set()):
+                    k += 1
+                busy_q[int(i)].add(k)
+                while len(steps) <= k:
+                    steps.append([])
+                steps[k].append((r, int(i)))
+                k += 1
+        self.R(xa + za); self.F(xa)
+        for st in steps:
+            self.CSUM([(xa[r], D[i]) for r, i in st], 1)
+        for st in steps:
+            self.CSUM([(D[i], za[r]) for r, i in st], [int(self.tau[i]) % d for r, i in st])
+        self.FD(xa)
+        m = self.M(xa + za)
+        return m[:len(H)], m[len(H):]
+
+    def _cat_tree(self, C, sign):
+        """log-depth Z_d cat (sign = +1, C[0] carries the value) or its inverse (sign = -1)."""
+        levels, k = [], 1
+        while k < len(C):
+            levels.append([(C[i], C[i + k]) for i in range(k) if i + k < len(C)]); k *= 2
+        for lv in (levels if sign > 0 else levels[::-1]):
+            self.CSUM(lv, sign % self.d)
+
+    def stab_round(self, final: bool = False):
+        """final: the last round before the ideal decode stays serial even in the parallel schedule -- there the X checks
+        of the later plaquettes catch the Z hooks of the earlier ones, which the block schedule would leave undetected."""
+        D, H, d = self.data, self.H, self.d
+        if self.parallel and not final:
+            m_x, m_z = self._measure_plaquettes()
+            for ma, mb in zip(m_x, m_z):
+                self.c.detector([(ma, 1)], "X-stab"); self.c.detector([(mb, 1)], "Z-stab")
+            return
         for r in range(len(H)):
             a, b = self.xa[r], self.za[r]
             sup = list(np.nonzero(H[r])[0])
@@ -111,13 +155,21 @@ class ColorCult:
 
     def check(self):
         D, C, d, n = self.data, self.cat, self.d, self.n
+        if self.parallel and self.cat2 is not None:     # alternate the two cat registers
+            self.cat, self.cat2 = self.cat2, self.cat
         self.R(C); self.F([C[0]])
-        self.CSUM([(C[0], C[i]) for i in range(1, n)], 1)
+        if self.parallel:
+            self._cat_tree(C, 1)
+        else:
+            self.CSUM([(C[0], C[i]) for i in range(1, n)], 1)
         a = [int(-self.sigma * t) % d for t in self.tau]
         self.S(D, a)
         self.CSUM([(C[i], D[i]) for i in range(n)], 1)
         self.S(D, [(-v) % d for v in a])
-        self.CSUM([(C[0], C[i]) for i in range(1, n)], -1 % d)
+        if self.parallel:
+            self._cat_tree(C, -1)
+        else:
+            self.CSUM([(C[0], C[i]) for i in range(1, n)], -1 % d)
         self.FD([C[0]])
         m = self.M(C)
         self.c.detector([(m[0], 1)], "T-check")

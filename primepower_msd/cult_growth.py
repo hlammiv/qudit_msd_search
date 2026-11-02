@@ -110,7 +110,8 @@ class GrowCult(ColorCult):
 
     def __init__(self, d: int = 4, p: float = 1e-3, sigma: int = 1, inj: int | None = None,
                  rounds3: int = 1, checks3: int = 2, rounds5: int = 1, checks5: int = 2,
-                 zset=None, noisy_injection: bool = True):
+                 zset=None, noisy_injection: bool = True, parallel: bool = False):
+        self.parallel = parallel
         Hs, Hb, xb, emb = embedding(3, 5)
         tau5 = honeycomb_signs(Hb, xb)
         self.d, self.p, self.sigma = d, p, sigma
@@ -130,8 +131,10 @@ class GrowCult(ColorCult):
         c = self.c = Circuit(d)
         self.data5 = c.q(Hb.shape[1])
         xa5, za5, cat5 = c.q(len(Hb)), c.q(len(Hb)), c.q(Hb.shape[1])
+        cat5b = c.q(Hb.shape[1]) if parallel else None
         # ---- D=3 stage
         self._phase(Hs, tau3, [self.data5[i] for i in emb], xa5[:len(Hs)], za5[:len(Hs)], cat5[:len(emb)], 3)
+        self.cat2 = cat5b[:len(emb)] if parallel else None
         self.encode(noisy_injection)
         for _ in range(rounds3):
             self.stab_round()
@@ -139,12 +142,13 @@ class GrowCult(ColorCult):
                 self.check()
         # ---- growth
         self._phase(Hb, tau5, self.data5, xa5, za5, cat5, 5)
+        self.cat2 = cat5b if parallel else None
         self.grow()
         for _ in range(rounds5):
             self.stab_round()
             for _ in range(checks5):
                 self.check()
-        self.stab_round()
+        self.stab_round(final=True)
 
     def _phase(self, H, tau, data, xa, za, cat, D):
         self.H, self.tau, self.data, self.xa, self.za, self.cat = H, tau, list(data), list(xa), list(za), list(cat)
@@ -159,7 +163,9 @@ class GrowCult(ColorCult):
             self.F(xs)
         # first D=5 round: measure, then classify deterministic vs random in a noiseless gauge run
         m_x, m_z = [], []
-        for r in range(len(H)):
+        if self.parallel:
+            m_x, m_z = self._measure_plaquettes()
+        for r in range(len(H) if not self.parallel else 0):
             a, b = self.xa[r], self.za[r]
             sup = list(np.nonzero(H[r])[0])
             self.R([a, b]); self.F([a])
