@@ -65,6 +65,14 @@ distance.
 
 ## The family: built at p = 17 and 19 (2026-11-01)
 
+> **CORRECTION (2026-11-02).** The builder and both rank checkers computed x^e with 64-bit integers before
+> reducing mod p; for p ≥ 17 this overflows (22^22 at p = 23), and the evaluation matrices disagreed with
+> the exact generator in 194 entries at p = 17 and about 20 % of entries at p = 23. The "rank checked twice"
+> claims for the p = 17, 19 and 23 codes below were therefore not valid, since both checks shared the bug.
+> The p = 11 code (10^10 fits) and the level-set argument are unaffected. Those three records are
+> suspended (catalog status `candidate`) until the ranks are recomputed with exact powers (two independent
+> routines per code, running on lenore).
+
 `scratchpad/levelset_build.py` evaluates only the monomials at the output points, so it never forms
 the dense generator; `scratchpad/levelset_verify.py` recomputes the level set from the stored
 polynomial and re-checks the rank with a different elimination routine.

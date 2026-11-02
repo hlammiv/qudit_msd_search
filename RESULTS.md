@@ -20,6 +20,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   output per round, 17–375x below the systematic-encoder count; verified exactly on small codes
   (`CODE_METRICS.md` section 6).
 
+- **CORRECTION 2026-11-02:** the p = 17, 19, 23 level-set codes below are SUSPENDED: their rank checks used
+  overflowing integer powers; rechecks running (`LEVEL_SETS.md`). The p = 11 code is unaffected.
 - **First proved gamma < 1 code at p = 11: [[13332,1309,22]]_11, gamma = 0.751** (d = 22 exact: the theorem
   plus an explicit weight-22 word). Output set = the full zero set of a cubic; distance follows from a one-line
   theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;

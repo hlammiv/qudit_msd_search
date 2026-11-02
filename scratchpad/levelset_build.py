@@ -14,7 +14,8 @@ print(f"p={p} r={r} delta={delta}: dim RM(r)={len(M_r)} dim RM(r-delta)={len(M_r
 grid = np.array(list(itertools.product(range(p), repeat=m)), dtype=np.int64)   # same order as reedmuller.points? checked below
 from qmsd.reedmuller import points
 P = np.asarray(points(m, p), dtype=np.int64); assert (P == grid).all() or True
-pw = np.stack([np.power(P[:, i:i+1], np.arange(p)[None, :]) % p for i in range(m)], axis=1)   # N x m x p
+POW = np.array([[pow(x, k, p) for k in range(p)] for x in range(p)], dtype=np.int64)   # exact x^k mod p (no int64 overflow)
+pw = np.stack([POW[P[:, i]] for i in range(m)], axis=1)   # N x m x p
 @nb.njit(cache=True)
 def rank_mod_p(A, p):
     A = A.copy(); R, C = A.shape; rk = 0

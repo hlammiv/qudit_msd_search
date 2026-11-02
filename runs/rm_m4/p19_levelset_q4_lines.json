@@ -1,0 +1,10 @@
+{
+ "p": 19,
+ "r": 23,
+ "delta": 4,
+ "lower_bound": 57,
+ "found": null,
+ "full_lines_seen": 26,
+ "directions_scanned": 7240,
+ "seconds": 27
+}
