@@ -1,0 +1,18 @@
+{
+ "code": "[[2093,308,5]]_7",
+ "p": 7,
+ "m": 4,
+ "r": 7,
+ "fault_locations": 55519,
+ "Z_trivial": 26,
+ "Z_detected": 54682,
+ "Z_harmful": 811,
+ "Z_harmful_direct_output": 722,
+ "Z_harmful_fraction": 0.014607611808570039,
+ "Z_harmful_from_spreading": 89,
+ "Z_harmful_support_median": 1.0,
+ "X_image_N_support_median": 1765.0,
+ "X_images_with_N_support_below_d": 10458,
+ "d": 5,
+ "seconds": 97
+}

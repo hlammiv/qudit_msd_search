@@ -1,0 +1,18 @@
+{
+ "code": "[[519,106,5]]_5",
+ "p": 5,
+ "m": 4,
+ "r": 5,
+ "fault_locations": 10343,
+ "Z_trivial": 112,
+ "Z_detected": 10008,
+ "Z_harmful": 223,
+ "Z_harmful_direct_output": 182,
+ "Z_harmful_fraction": 0.021560475684037513,
+ "Z_harmful_from_spreading": 41,
+ "Z_harmful_support_median": 1.0,
+ "X_image_N_support_median": 391.0,
+ "X_images_with_N_support_below_d": 3501,
+ "d": 5,
+ "seconds": 2
+}

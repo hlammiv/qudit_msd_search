@@ -1,0 +1,18 @@
+{
+ "code": "[[100,21,4]]_11",
+ "p": 11,
+ "m": 2,
+ "r": 6,
+ "fault_locations": 2019,
+ "Z_trivial": 0,
+ "Z_detected": 1956,
+ "Z_harmful": 63,
+ "Z_harmful_direct_output": 51,
+ "Z_harmful_fraction": 0.031203566121842496,
+ "Z_harmful_from_spreading": 12,
+ "Z_harmful_support_median": 1.0,
+ "X_image_N_support_median": 80.0,
+ "X_images_with_N_support_below_d": 572,
+ "d": 4,
+ "seconds": 1
+}

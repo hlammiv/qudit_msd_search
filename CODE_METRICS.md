@@ -214,3 +214,33 @@ Caveats, all open:
 - *Connectivity.* The stages act along lines of an m-dimensional grid; on planar hardware they need
   routing, which this count ignores (as did section 1).
 - *All-to-all T.* The noisy T is applied to every non-output qudit, as before; inputs are teleported in.
+
+## 7. Fault spreading in the one-shot encoder (`scratchpad/encoder_faults.py`, `runs/coverage/encoder_faults_*.json`)
+
+Every single Pauli fault location of the axis-by-axis circuit (after each add-multiple gate, on both of its
+qudits, plus preparation faults) was propagated exactly through the remaining linear gates, with the
+circuit run on **physical** qudits. A final Z image z is *trivial* if it lies in C^⊥, *detected* if it
+changes the X-measurement syndrome (G0 z_N ≠ 0), and *harmful* if it is undetected but changes the
+outputs. An X image is equivalent, modulo a codeword shift, to a shift supported on the measured qudits;
+after the T layer that acts like Z-type errors there, which are detected unless they form a kernel word
+of weight ≥ d.
+
+| code | fault locations | Z harmful (undetected) | of which: fault on an output after its last gate | from spreading | harmful locations per output |
+|---|---|---|---|---|---|
+| [[100,21,4]]₁₁ | 2 019 | 63 (3.1 %) | 51 | 12 | 3.0 |
+| [[237,52,6]]₁₇ | 7 891 | 70 (0.9 %) | 68 | 2 | 1.3 |
+| [[519,106,5]]₅ | 10 343 | 223 (2.2 %) | 182 | 41 | 2.1 |
+| [[2093,308,5]]₇ | 55 519 | 811 (1.5 %) | 722 | 89 | 2.6 |
+
+**Spreading is not the problem.** Each output has 1–3 undetected first-order fault locations, almost all
+of them faults on the output qudit itself after its last gate, which every distillation circuit has; spreading
+adds 3–25 % on top. The encoder does not create the large correlated undetected errors one might fear,
+because a fault early in the transform spreads to many qudits and is then caught by the checks.
+
+**Acceptance is the cost.** The other 97–99 % of fault locations are detected and discard the round.
+The circuit has about 26 locations per input qudit for [[2093,308,5]]₇ (55 519 against 2 093 inputs), so
+the Clifford fault rate must be about 26× below the input magic-state error for the circuit not to dominate
+the discard rate. That is the usual regime (Cliffords on error-corrected logical qudits, magic states noisy),
+and the systematic encoder of section 1 would have about 17× more locations. On physical qudits with
+comparable gate and input error rates the large codes would be throttled by acceptance, not by
+undetected errors.
