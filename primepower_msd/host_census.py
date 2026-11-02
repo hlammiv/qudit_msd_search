@@ -12,7 +12,7 @@ survives the check), the Clifford floor per output is
 
     floor(p, D) = N_gate q_gate(D) + (N_idle + tau_F N_F + N_meas + N_prep) q_round(D)
 
-which replaces a_C p_L(D).  `python -m primepower_msd.host_census [d] [tau_F]` prints the census and the floor table; the
+which replaces a_C p_L(D).  `python -m primepower_msd.host_census [d] [tau_F] [sparse]` prints the census and the floor table; the
 depolarizing census of cliff_census.py (0.357 per output at d = 4) is reproduced as a check.
 """
 from __future__ import annotations
@@ -49,10 +49,16 @@ def q_gate(p, D):
     return max(_scale(CSUM_X, p, D) - _scale(BASE2_X, p, D), 0.0) / 2 + q_round(p, D)
 
 
-def gadget(d):
+def gadget(d, sparse=False, seed=0, tries=20):
+    """The [[7,1,3]] s = 1 gadget; sparse: the sequential sparse normal basis and encoder (sparse_encoder.py, 12 CSUMs)."""
     S, tau = signed_rm(1, 3)
-    P = Protocol(S, tau, d, np.array([[0]]))
-    C, inputs = build(P, 0.0, 0.0, 1e-3)
+    if sparse:
+        from .sparse_encoder import sparse_protocol
+        P, enc = sparse_protocol(S, tau, d, np.array([[0]]), seed=seed, tries=tries)
+        C, inputs = build(P, 0.0, 0.0, 1e-3, encoder=enc)
+    else:
+        P = Protocol(S, tau, d, np.array([[0]]))
+        C, inputs = build(P, 0.0, 0.0, 1e-3)
     return P, C, inputs
 
 
@@ -175,16 +181,20 @@ def census(C, inputs, d, faults, chunk=2000):
 # depth 31 rounds; gate = CSUM-wire exposures, rounds = idle patch-rounds (Fourier gates, resets and readouts contribute no
 # Z-type exposure; a tau_F = 15-round patch rotation per Fourier gate adds 14 idle rounds).
 EXPOSURE_713 = dict(gate=4.667, rounds=5.333, rounds_tauF15=19.333)
+# Best of 200 sparse normal bases / encoder networks (scratchpad/sparse_census_scan.py -> runs/meas_distill/sparse_census_d4.jsonl,
+# seed 0, tries 1: N = (3,0,0,0,0,1,1), 41 CSUMs, depth 35; same inner coefficient C_3 = 85 as the dense gadget): the exposure is
+# set by which single-wire faults the check misses, not by the CSUM count (the 29-CSUM networks sit at 3 / 3).
+EXPOSURE_713_SPARSE = dict(gate=1.0, rounds=2.0, rounds_tauF15=17.0)
 
 
 # Fixed-D measurement of the excess (runs/surface/csum_excess.log, 1e6 shots): 2.0 +- 0.3 patch-rounds at D = 5, 3.4 +- 0.4 at
 # D = 7, i.e. ~0.45 D -- the fitted 0.11 x 4D; a constant one extra round per patch is excluded (MEAS_DISTILL 5j).
-def floor(p, D, NZ=None, tau_F=0, gate_model="fit"):
+def floor(p, D, NZ=None, tau_F=0, gate_model="fit", exposure=EXPOSURE_713):
     """Clifford floor per output on the measured Z_4 host (Z-type exposures).  gate_model 'fit': q_gate from the CSUM-minus-
     memory fits (excess ~0.11 of the two-patch memory, i.e. ~0.4 D patch-rounds per CSUM); 'round': the CSUM layer costs one
     extra round per wire (q_gate = 2 q_round), the optimistic reading of the same data."""
     if NZ is None:
-        NZ = dict(gate=EXPOSURE_713["gate"], idle=EXPOSURE_713["rounds_tauF15" if tau_F else "rounds"], fourier=0, meas=0, prep=0)
+        NZ = dict(gate=exposure["gate"], idle=exposure["rounds_tauF15" if tau_F else "rounds"], fourier=0, meas=0, prep=0)
     rounds = NZ["idle"] + NZ["fourier"] + NZ["meas"] + NZ["prep"]      # fourier already carries tau_F in its weights
     qg = q_gate(p, D) if gate_model == "fit" else 2 * q_round(p, D)
     return NZ["gate"] * qg + rounds * q_round(p, D)
@@ -193,7 +203,8 @@ def floor(p, D, NZ=None, tau_F=0, gate_model="fit"):
 def main():
     d = int(sys.argv[1]) if len(sys.argv) > 1 else 4
     tau_F = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-    P, C, inputs = gadget(d)
+    sparse = len(sys.argv) > 3 and sys.argv[3] == "sparse"
+    P, C, inputs = gadget(d, sparse)
     N, NZ, W = census(C, inputs, d, faults_depolarizing(C, d))
     print(f"depolarizing census (cliff_census check), d = {d}: per output any {sum(N.values()) / P.n_in:.3f}, Z-type {sum(NZ.values()) / P.n_in:.3f}")
     F, T_end = faults_logical(C, inputs, d, tau_F)

@@ -1,4 +1,5 @@
 import numpy as np
+from primepower_msd import host_census
 from primepower_msd.host_census import gadget, census, faults_depolarizing, faults_logical, schedule, floor, q_round, q_gate
 
 
@@ -23,3 +24,14 @@ def test_floor_monotone():
     f = [floor(1e-3, D) for D in (15, 19, 23, 27)]
     assert all(a > b for a, b in zip(f, f[1:])) and floor(1e-3, 23) > floor(1e-3, 23, gate_model="round")
     assert q_gate(1e-3, 23) > q_round(1e-3, 23)
+
+
+def test_sparse_best_exposures():
+    from primepower_msd.meas_sim import leading_order
+    P, C, inputs = host_census.gadget(4, True, seed=0, tries=1)
+    assert sum(op[0] == "CSUM" for op in C.ops) == 41
+    F, _ = host_census.faults_logical(C, inputs, 4)
+    N, NZ, W = host_census.census(C, inputs, 4, F)
+    assert abs(NZ["gate"] - host_census.EXPOSURE_713_SPARSE["gate"]) < 1e-6
+    assert abs(NZ["idle"] - host_census.EXPOSURE_713_SPARSE["rounds"]) < 1e-6
+    assert leading_order(P, 3)["C"] == 85

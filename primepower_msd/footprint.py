@@ -139,12 +139,14 @@ if __name__ == "__main__":
     if "csum" in sys.argv[2:]:                       # conservative: the whole two-patch CSUM experiment error per CSUM location
         clifford = Host(**CSUM_Z4)
         sys.argv.remove("csum")
-    for tag, gm in (("census", "fit"), ("census-round", "round")):   # host_census: exposures x measured per-round / per-CSUM rates
+    for tag, gm, ex in (("census", "fit", host_census.EXPOSURE_713), ("census-round", "round", host_census.EXPOSURE_713),
+                        ("census-sparse", "fit", host_census.EXPOSURE_713_SPARSE)):   # host_census: exposures x measured rates
         if tag in sys.argv[2:]:
             class _Census(Host):
-                def p_logical(self, p, D, _gm=gm):          # a_C p_C == census floor for the [[7,1,3]] stage (a_C = 0.357)
-                    return host_census.floor(p, D, gate_model=_gm) / 0.357
-            clifford = _Census(**{**CSUM_Z4, "name": f"host census ({'fitted CSUM excess' if gm == 'fit' else 'CSUM = one extra round'})"})
+                def p_logical(self, p, D, _gm=gm, _ex=ex):  # a_C p_C == census floor for the [[7,1,3]] stage (a_C = 0.357)
+                    return host_census.floor(p, D, gate_model=_gm, exposure=_ex) / 0.357
+            clifford = _Census(**{**CSUM_Z4, "name": f"host census ({'fitted CSUM excess' if gm == 'fit' else 'CSUM = one extra round'}"
+                                                     f"{', best sparse encoder' if ex is host_census.EXPOSURE_713_SPARSE else ''})"})
             sys.argv.remove(tag)
     if "csum-excess" in sys.argv[2:]:                # the gate's measured excess over idling, on top of one p_L(D) per location
         class _Excess(Host):
