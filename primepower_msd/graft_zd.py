@@ -360,6 +360,9 @@ class Escape:
         self.post_idx = np.nonzero(self.mem.det_post[self.sel])[0]        # within the sector
         self.locations = sum(len(qs) for _, _, qs in self.mem.noise_locs)
         self.n_data = len(data)
+        self.colour_q = colour_q                       # circuit qudit of colour qudit colour_q[j] is j (data list order)
+        first_noise = next(k for k, op in enumerate(self.mem.circ.ops) if op[0] in ("DEP1", "DEP2", "XERR", "ZERR"))
+        self.inject_op = first_noise - 1               # end of the noiseless colour-state preparation
 
     def colour_region_patterns(self, phases=(0, 1, 2)):
         """Kept single-fault patterns (dem.singles keys) that fire a detector of a check touching the colour-code qudits."""
@@ -432,19 +435,27 @@ class Escape:
         from .hyperdecoder import HyperDecoder
         return HyperDecoder(self.dem, p, **kw)
 
-    def run(self, p: float, shots: int = 10_000, seed: int = 0, chunk: int = 5_000, decoder: str = "peel", **dec_kw) -> dict:
+    def run(self, p: float, shots: int = 10_000, seed: int = 0, chunk: int = 5_000, decoder: str = "peel", inject=None,
+            per_shot: bool = False, **dec_kw) -> dict:
+        """inject: optional (shots, 19, 2) array of X / Z frames on the colour qudits (colour_q order), applied at the end of
+        the noiseless colour-state preparation -- e.g. the residual frames of a simulated cultivation.  per_shot: also return
+        shot_keep (bool), shot_flip (decoded logical readout error mod d) and shot_gap (nan without a gap) arrays."""
         dec = self.make_decoder(p, decoder, **dec_kw)
         gaps = []                                     # (gap, failed) per kept shot when the decoder reports a gap
         rng = np.random.default_rng(seed)
         d = self.d
         fails = kept = leftovers = done = hyper_disc = 0
+        sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
         bad = SZ.misdecoded_patterns(self.dem, dec) if self.hyper_post else {}
         pairs = getattr(self, "discard_pairs", {})
         self.discard_patterns = list(bad) + [k for k in pairs if k not in bad]; bad_mass = sum(bad.values())
         while done < shots:
             n = min(chunk, shots - done)
-            sim = FrameSim(self.mem.circ, n, rng).run(scale=p / P_BUILD)
+            forced = None
+            if inject is not None:
+                forced = {self.inject_op: [(np.ones(n, dtype=bool), list(range(len(self.colour_q))), inject[done:done + n])]}
+            sim = FrameSim(self.mem.circ, n, rng).run(scale=p / P_BUILD, forced=forced)
             Dall = sim.detector_values()
             Dv = Dall[:, self.sel]
             O = np.zeros(n, dtype=np.int64)
@@ -459,6 +470,10 @@ class Escape:
             for s in np.nonzero(keep)[0]:
                 corr, left = dec.decode(Dv[s])
                 f = ((O[s] + corr) % d) != 0
+                if per_shot:
+                    sk[done + s] = True; sf[done + s] = (O[s] + corr) % d
+                    if isinstance(left, float):
+                        sg[done + s] = left
                 if left is None or isinstance(left, float):
                     if left is not None:
                         gaps.append((left, bool(f)))
@@ -484,7 +499,7 @@ class Escape:
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
                     locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight,
-                    n_qudits=self.mem.circ.nq)
+                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg) if per_shot else {}))
 
 
 if __name__ == "__main__":
