@@ -42,12 +42,16 @@ ESCAPE_Z4_ALL = {1e-3: (6.6e-5, 0.62), 5e-4: (1.0e-5, 0.39)}   # all three class
 # one class + decoder-certified second-order postselection on the colour region (13M/16M fault pairs decoded at build time),
 # first-order cost of the certified patterns capped at 0.2% (degenerate_cap=2): the best recipe measured
 ESCAPE_Z4_PAIRS = {1e-3: (9.1e-5, 0.43), 5e-4: (1.3e-5, 0.24)}  # X 6.7e-5 + Z 2.5e-5 (52 events in 2e6 attempts) at 1e-3; 2 events at 5e-4
-# ... plus complementary-gap postselection (PeelDecoder(gap=True), cut at 13): no failure in 1.14M kept attempts at 1e-3 ->
+# ... plus complementary-gap postselection (PeelDecoder(gap=True), cut at 13, now 15 -- see below): no failure in 1.14M kept attempts at 1e-3 ->
 # 90% CL upper bound 4e-6 per sector; the recipe of record (MEAS_DISTILL 5h).  Floor run (lenore, 2026-10-31): 3 x 4e6
 # more attempts per sector, 659 failures before the cut (9.6e-5, the pairs recipe), none at cut 13 -> 7.9M kept per sector
 # with no failure, < 2.9e-7 per sector (90% CL), i.e. the escape adds less than the cultivation error (9e-7).  At 5e-4: no
 # failure in 0.75M kept attempts per sector (1e6 attempts, 11 events per sector before the cut) -> < 3e-6 per sector.
-ESCAPE_Z4_GAP = {1e-3: (6e-7, 0.437), 5e-4: (6e-6, 0.249)}
+# Margin run (lenore, 2026-11-02, graft_variants_gap_margin.log): 6 more replicas x 4e6 attempts per sector.  Pooled with the
+# floor run, 20.5M kept per sector: at cut 13 X 7 + Z 1 failures (3.9e-7 per attempt, the failing gaps reach 13.x), at cut 15
+# X 1 + Z 0 (5e-8; 90% CL < 1.8e-7 + 1.1e-7) for 0.5 points more discard -> the recipe of record cuts at 15.  5e-4: no failure
+# at either cut in 0.75M kept per sector, discard 0.249 -> 0.250.
+ESCAPE_Z4_GAP = {1e-3: (3e-7, 0.441), 5e-4: (6e-6, 0.250)}
 
 # Measured logical CSUM (logical_csum.py, runs/surface/csum_d4.jsonl; MEAS_DISTILL §5i): transversal CSUM between two
 # D-patches with D rounds before and after, failure of either logical, Pauli-frame (sequential) decoder; fit
