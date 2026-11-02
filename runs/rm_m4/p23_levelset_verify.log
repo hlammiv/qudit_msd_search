@@ -1,0 +1,3 @@
+level set recomputed: 12328 points; equals O: True
+rank of RM(29,4) on O by structured_ad._rank: 12328 (|O| = 12328) -> INDEPENDENT (49796s)
+dual RM(61,4): d >= 138; n = 267513, k = 12328, gamma <= 0.6245
