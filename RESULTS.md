@@ -20,8 +20,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   catalog `imported-p11-n13332-k1309-c7aae3253e15`). Built at p = 17: [[78455,5066,>=68]]_17,
   gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (proved).
 
-- **First gamma < 1 magic-state-distillation codes at p = 7**: [[1745,271,7]]_7, gamma 0.957 (four independent
-  draws, all d = 7 exact, 2026-11-01); [[1746,270,7]]_7, gamma 0.959 (two
+- **First gamma < 1 magic-state-distillation codes at p = 7**: [[1745,271,7]]_7, gamma 0.957 (nine independent
+  draws d = 7 exact out of 13 filter survivors, 2026-11-01); [[1746,270,7]]_7, gamma 0.959 (two
   independent draws, plane-sweep seeds 19 and 407, both d = 7 exact, 2026-10-30), [[1751,265,7]]_7
   (0.970, exact) and the first one found, [[1756,260,7]]_7 (0.982, exact, 2026-10-27). All are weighted
   sphere-charge supports on F_7^4 (`WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `runs/certify/`). No
@@ -35,7 +35,8 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 - **No small gamma < 1 code at p <= 13**: forced-grid theorem (evaluation codes) + flat cap, p = 11 misses by
   one distance unit (d = 4, need 5), p = 13 by one (`D_NEGATIVE_RESULT.md`); weighted supports do not
   reopen p = 3, 11, 13 at any certifiable size (`WEIGHTED_SUPPORTS.md`, "Do weighted supports reopen").
-- **Rigorous cost**: the gamma < 1 code [[1756,260,7]]_7 keeps a *proved* saving of 4.14x over the p = 7
+- **Rigorous cost**: the headline [[1746,270,7]]_7 has a *proved* saving of 4.32x at 1e-2 -> 1e-30
+  (complete weight-7 census, 2026-11-01); the gamma < 1 code [[1756,260,7]]_7 keeps a *proved* saving of 4.14x over the p = 7
   standard library at 1e-2 -> 1e-30, where the d = 5, 6 codes keep only 1.27x / 1.33x of their
   surrogate 4.11x / 4.32x; rigorous one-round thresholds 3.4e-3 / 1.4e-3 / 2.5e-3
   (`PERFORMANCE.md`, "Rigorous bounds behind the surrogate"; `runs/weighted/rigorous_savings.json`).

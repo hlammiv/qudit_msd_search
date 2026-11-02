@@ -365,7 +365,15 @@ show. Data: `runs/weighted/rigorous_savings.json` (`scratchpad/rigorous_saving.p
 |---|---|---|---|
 | [[2093,308,5]]_7 | 1.4e-3 | **1.27x** / 4.11x (4.11x) | **2.94x** / 2.94x (2.94x) |
 | [[1746,270,6]]_7 | 2.5e-3 | **1.33x** / 4.32x (4.32x) | **3.09x** / 3.60x (3.60x) |
+| **[[1746,270,7]]_7** (seed 19, census 2026-11-01: A_7 = 276, L_7 = 193) | 3.4e-3 | **4.32x** / 4.32x (4.32x) | **3.09x** / 3.60x (3.60x) |
 | [[1756,260,7]]_7 | 3.4e-3 | **4.14x** / 4.14x (4.14x) | **2.96x** / 3.44x (3.44x) |
+
+**The headline code (2026-11-01).** The weight-7 census of [[1746,270,7]]_7 (seed 19, 46 024 s on
+lenore; complete, since no mixed weight-7 word exists) finds 46 projective classes, A_7 = 276, and,
+unlike [[1756,260,7]]_7 whose 24 words touch few outputs, these words touch most of the 270 outputs:
+L_7 = 193 per output, c_ε = 6.9e-4. It still enters after one [[7,1,3]]_7 round and provably reaches
+1e-30, so its **proved saving is 4.32x at 1e-2 -> 1e-30**, the best proved figure of any p = 7
+code, and 3.09x at 1e-3 -> 1e-30 (`runs/weighted/p7_m4_sphere_1746_270_7_census.json`).
 
 **The proof reverses the surrogate's ranking.** The Singleton tail is C(n,d+1) p^2 (eps/(p-1))^(d+1),
 which at eps = 1e-6 sits 1e9 (d = 5), 6e13 (d = 6) and 1e16 (d = 7) above the respective

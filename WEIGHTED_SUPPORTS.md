@@ -379,10 +379,9 @@ The law matches random blocks (sampled N_7 = 32 ± 6 on the k = 270 seed-19 bloc
 census about 30) and exact counts at p = 11 (below).
 
 **k = 271 measured (2026-11-01).** 160 random draws give 13 plane-filter survivors (8%); the block
-stages on lenore have certified the first four, and **all four are d = 7 exact**:
+stages on lenore certified all thirteen: **9 are d = 7 exact** and 4 have a weight-6 block word:
 [[1745,271,7]]₇, γ = **0.957**, the new p = 7 record (catalog `imported-p7-n1745-k271-*`,
-`runs/certify/p7_k271_bundle.json`). The law's 58% pass rate at k = 271 is so far an underestimate
-(4 of 4); the remaining nine survivors are in the chain.
+`runs/certify/p7_k271_bundle.json`). Measured pass rate 9/13 = 69%, against the law's 58%.
 
 **The law at p = 11 (exact).** On restrictions of the p = 11, m = 4 candidate to 13 or 14 checks and
 100 or 120 columns, where an exhaustive scan fits, the mean number of weight-6 words is 3.67 (law

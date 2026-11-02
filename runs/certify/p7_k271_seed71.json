@@ -4,6 +4,18 @@
  "stages": {
   "setup": {
    "seconds": 1
+  },
+  "block6": {
+   "block_w_le5": null,
+   "block_w6_witness_class_idx": [
+    29,
+    133,
+    244,
+    261,
+    318,
+    394
+   ],
+   "seconds": 318
   }
  },
  "n": 1745,
@@ -285,5 +297,6 @@
  "class_cols": 401,
  "nonclass_cols": 1344,
  "block_rows": 30,
- "block_rank": 20
+ "block_rank": 20,
+ "verdict": "d = 6 (class block)"
 }
