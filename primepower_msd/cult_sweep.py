@@ -14,15 +14,15 @@ from .cult_growth import GrowCult
 from .zdsim import add_tick_idle
 
 
-def one(d, D, p, shots, seed, rounds, checks, mode="direct", tick=0.0, parallel=False, batch=200_000):
+def one(d, D, p, shots, seed, rounds, checks, mode="direct", tick=0.0, parallel=False, batch=200_000, hooks=False):
     if mode == "grow":                      # D=3 stage (rounds x checks), grow, D=5 stage (rounds x checks)
-        cc = GrowCult(d, p, 1, 1, rounds3=rounds, checks3=checks, rounds5=rounds, checks5=checks, parallel=parallel)
+        cc = GrowCult(d, p, 1, 1, rounds3=rounds, checks3=checks, rounds5=rounds, checks5=checks, parallel=parallel, hooks=hooks)
     else:
-        cc = ColorCult(D, d, p, 1, 1, checks_per_round=checks, rounds=rounds, parallel=parallel)
+        cc = ColorCult(D, d, p, 1, 1, checks_per_round=checks, rounds=rounds, parallel=parallel, hooks=hooks)
     if tick:                                # idle noise at every tick of the ASAP schedule, DEP1(tick p)
         cc.c = add_tick_idle(cc.c, tick * p)
     r = cc.simulate(shots, seed=seed, batch=batch)
-    r.update({"d": d, "D": D if mode == "direct" else "3to5", "p": p, "mode": mode, "tick_idle": tick, "parallel": parallel, "seed": seed, "rounds": rounds, "checks": checks, "qudits": cc.c.nq,
+    r.update({"d": d, "D": D if mode == "direct" else "3to5", "p": p, "mode": mode, "tick_idle": tick, "parallel": parallel, "hooks": hooks, "seed": seed, "rounds": rounds, "checks": checks, "qudits": cc.c.nq,
               "noise_locations": cc.c.noise_locations()})
     return r
 
@@ -40,11 +40,12 @@ def main(argv=None):
     ap.add_argument("--mode", default="direct", choices=["direct", "grow"])
     ap.add_argument("--tick", type=float, default=0.0, help="idle noise DEP1(tick p) at every tick (zdsim.add_tick_idle)")
     ap.add_argument("--parallel", action="store_true", help="parallel schedule (block plaquette rounds, tree cat states)")
+    ap.add_argument("--hooks", action="store_true", help="fan-outs pair by pair, DEP2 after each leg (hook errors sampled)")
     ap.add_argument("--batch", type=int, default=200_000, help="shots per simulator batch (memory ~ batch x qudits)")
     ap.add_argument("--out", default="runs/cultivation/sweep.json")
     a = ap.parse_args(argv)
     from joblib import Parallel, delayed
-    jobs = [(int(d), int(D), float(p), a.shots // a.chunks, 1000 * k + 7, a.rounds, a.checks, a.mode, a.tick, a.parallel, a.batch)
+    jobs = [(int(d), int(D), float(p), a.shots // a.chunks, 1000 * k + 7, a.rounds, a.checks, a.mode, a.tick, a.parallel, a.batch, a.hooks)
             for d in a.dims.split(",") for D in a.Ds.split(",") for p in a.ps.split(",") for k in range(a.chunks)]
     t0 = time.time()
     agg = {}
@@ -55,14 +56,17 @@ def main(argv=None):
         key = (r["d"], r["D"], r["p"])
         g = agg.setdefault(key, {"d": r["d"], "D": r["D"], "p": r["p"], "shots": 0, "accepted": 0, "logical_failures": 0,
                                  "qudits": r["qudits"], "noise_locations": r["noise_locations"], "rounds": r["rounds"], "checks": r["checks"], "mode": r["mode"]})
-        for k in ("shots", "accepted", "logical_failures"):
-            g[k] += r[k]
+        for k in ("shots", "accepted", "logical_failures", "accepted_trivial_final_syndrome", "failures_trivial_final_syndrome"):
+            g[k] = g.get(k, 0) + r.get(k, 0)
     out = []
     for g in agg.values():
         g["accept_rate"] = g["accepted"] / g["shots"]
         g["p_L"] = g["logical_failures"] / max(g["accepted"], 1)
+        g["accept_rate_final_ps"] = g["accepted_trivial_final_syndrome"] / g["shots"]
+        g["p_L_final_ps"] = g["failures_trivial_final_syndrome"] / max(g["accepted_trivial_final_syndrome"], 1)
         out.append(g)
-        print(f"d={g['d']} D={g['D']} p={g['p']:.4g}: accept {g['accept_rate']:.4f}  p_L {g['p_L']:.3e} ({g['logical_failures']} fails / {g['accepted']})", flush=True)
+        print(f"d={g['d']} D={g['D']} p={g['p']:.4g}: accept {g['accept_rate']:.4f}  p_L {g['p_L']:.3e} ({g['logical_failures']} fails / {g['accepted']}); "
+              f"final-syndrome postselected: accept {g['accept_rate_final_ps']:.4f} p_L {g['p_L_final_ps']:.3e} ({g['failures_trivial_final_syndrome']})", flush=True)
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     with open(a.out, "w") as f:
         json.dump({"seconds": round(time.time() - t0, 1), "results": out}, f, indent=1)

@@ -23,6 +23,38 @@ from .cultivation import color_code_plaquettes, honeycomb_signs
 from .zdsim import Circuit, FrameSim, check_determinism
 
 
+_SLOTS = {}
+
+
+def stim_slots(distance: int) -> dict:
+    """(plaquette, data) -> CX slot 0..5 of stim's color_code:memory_xyz schedule (conflict-free on every data qudit),
+    in the plaquette / data order of color_code_plaquettes."""
+    if distance not in _SLOTS:
+        import stim
+        c = stim.Circuit.generated("color_code:memory_xyz", distance=distance, rounds=2).flattened()
+        tick, legs, anc, data = 0, {}, set(), []
+        for ins in c:
+            t = [x.value for x in ins.targets_copy()]
+            if ins.name == "TICK":
+                tick += 1
+            elif ins.name == "CX":
+                for a, b in zip(t[::2], t[1::2]):
+                    legs.setdefault(b, []).append((tick, a))
+            elif ins.name == "MY":
+                data = t
+            elif ins.name == "MR":
+                anc |= set(t)
+        idx = {q: i for i, q in enumerate(data)}
+        out = {}
+        for r, a in enumerate(sorted(anc)):
+            t0 = min(tt for tt, _ in legs[a])
+            for tt, q in legs[a]:
+                if tt - t0 < 6:
+                    out[(r, idx[q])] = tt - t0
+        _SLOTS[distance] = out
+    return _SLOTS[distance]
+
+
 def _inv(a, d):
     return pow(int(a) % d, -1, d)
 
@@ -44,8 +76,11 @@ def pivot_form(H, d):
 
 class ColorCult:
     def __init__(self, distance: int = 3, d: int = 4, p: float = 1e-3, sigma: int = 1, inj: int | None = None,
-                 checks_per_round: int = 2, rounds: int = 2, noisy_injection: bool = True, parallel: bool = False):
-        self.parallel = parallel
+                 checks_per_round: int = 2, rounds: int = 2, noisy_injection: bool = True, parallel: bool = False,
+                 schedule=None, final_by_colour: bool = False, hooks: bool = False,
+                 final_block: bool = False):
+        self.parallel, self.schedule = parallel or schedule is not None, schedule
+        self.final_by_colour, self.hooks, self.final_block = final_by_colour, hooks, final_block
         H, xy = color_code_plaquettes(distance)
         self.H, self.tau, self.d, self.n = H, honeycomb_signs(H, xy), d, H.shape[1]
         self.distance, self._tab = distance, None
@@ -56,7 +91,7 @@ class ColorCult:
         c = self.c = Circuit(d)
         self.data = c.q(self.n)
         self.xa = c.q(len(H)); self.za = c.q(len(H)); self.cat = c.q(self.n)
-        self.cat2 = c.q(self.n) if parallel else None     # second cat register: consecutive checks overlap
+        self.cat2 = c.q(self.n) if self.parallel else None     # second cat register: consecutive checks overlap
         self.encode(noisy_injection)
         for _ in range(rounds):
             self.stab_round()
@@ -76,6 +111,16 @@ class ColorCult:
     def S(self, qs, a):
         self.c.S(qs, a); self.c.DEP1(qs, self.p)
     def CSUM(self, pairs, w=1):
+        """hooks=True: a layer whose pairs share a qudit (a fan-out) is applied pair by pair, each followed by its DEP2, so
+        faults between the legs (hook errors) are sampled; the default applies the whole layer, then DEP2 on every pair."""
+        pairs = list(pairs)
+        if getattr(self, "hooks", False):
+            qs = [q for pq in pairs for q in pq]
+            if len(set(qs)) < len(qs):
+                ws = np.broadcast_to(np.asarray(w, dtype=np.int64), (len(pairs),))
+                for pq, wq in zip(pairs, ws):
+                    self.c.CSUM([pq], int(wq)); self.c.DEP2([pq], self.p)
+                return
         self.c.CSUM(pairs, w); self.c.DEP2(pairs, self.p)
 
     def encode(self, noisy: bool):
@@ -105,6 +150,8 @@ class ColorCult:
         each plaquette visits its data in the serial order, a leg waits only while its data qudit is busy.  Returns (m_x, m_z) per plaquette."""
         D, H, d = self.data, self.H, self.d
         xa, za = self.xa[:len(H)], self.za[:len(H)]
+        if getattr(self, "schedule", None) is not None:
+            return self._measure_plaquettes_slots(*self.schedule)
         steps = []
         busy_q = {}
         for r in range(len(H)):
@@ -126,6 +173,82 @@ class ColorCult:
         m = self.M(xa + za)
         return m[:len(H)], m[len(H):]
 
+    def _measure_plaquettes_slots(self, ax: int, bx: int, az: int, bz: int):
+        """stim-slot schedule: the X leg of plaquette r on data q at tick ax s + bx, its Z leg at az s + bz (s = stim slot
+        0..5); legs are emitted tick by tick (X before Z within a tick), so residual collisions are serialised by the
+        ASAP scheduler; correctness is checked by detector determinism."""
+        D, H, d = self.data, self.H, self.d
+        xa, za = self.xa[:len(H)], self.za[:len(H)]
+        slot = stim_slots(self.distance)
+        ev = []
+        for r in range(len(H)):
+            for i in np.nonzero(H[r])[0]:
+                sl = slot[(r, int(i))]
+                ev.append((ax * sl + bx, 0, r, int(i))); ev.append((az * sl + bz, 1, r, int(i)))
+        self.R(xa + za); self.F(xa)
+        for t in sorted({e[0] for e in ev}):
+            for kind in (0, 1):
+                legs = [(r, i) for tt, k, r, i in ev if tt == t and k == kind]
+                if not legs:
+                    continue
+                if kind == 0:
+                    self.CSUM([(xa[r], D[i]) for r, i in legs], 1)
+                else:
+                    self.CSUM([(D[i], za[r]) for r, i in legs], [int(self.tau[i]) % d for r, i in legs])
+        self.FD(xa)
+        m = self.M(xa + za)
+        return m[:len(H)], m[len(H):]
+
+    def _plaquette_colours(self):
+        """proper 3-colouring of the plaquette overlap graph (plaquettes of one colour share no data)."""
+        H = self.H
+        adj = [[r2 for r2 in range(len(H)) if r2 != r and np.any(H[r] * H[r2])] for r in range(len(H))]
+        col = [-1] * len(H)
+
+        def bt(r):
+            if r == len(H):
+                return True
+            for c in range(3):
+                if all(col[x] != c for x in adj[r]):
+                    col[r] = c
+                    if bt(r + 1):
+                        return True
+            col[r] = -1
+            return False
+        assert bt(0), "plaquettes not 3-colourable"
+        return col
+
+    def _measure_plaquettes_by_colour(self):
+        """final-round schedule: one colour class at a time (X legs in stim slot order, then Z legs); the X checks of later
+        classes catch the Z hooks of earlier ones as in the serial round, and the classes overlap under ASAP."""
+        D, H, d = self.data, self.H, self.d
+        xa, za = self.xa[:len(H)], self.za[:len(H)]
+        slot = stim_slots(self.distance)
+        col = self._plaquette_colours()
+        m_x, m_z = [None] * len(H), [None] * len(H)
+        for c in range(3):
+            P = [r for r in range(len(H)) if col[r] == c]
+            if not P:
+                continue
+            self.R([xa[r] for r in P] + [za[r] for r in P]); self.F([xa[r] for r in P])
+            if self.final_by_colour == "sup":            # serial leg order (ascending data index) inside each class
+                legs = [(k, r, int(i)) for r in P for k, i in enumerate(np.nonzero(H[r])[0])]
+            else:
+                legs = [(slot[(r, int(i))], r, int(i)) for r in P for i in np.nonzero(H[r])[0]]
+            for sl in range(6):
+                L = [(r, i) for s_, r, i in legs if s_ == sl]
+                if L:
+                    self.CSUM([(xa[r], D[i]) for r, i in L], 1)
+            for sl in range(6):
+                L = [(r, i) for s_, r, i in legs if s_ == sl]
+                if L:
+                    self.CSUM([(D[i], za[r]) for r, i in L], [int(self.tau[i]) % d for r, i in L])
+            self.FD([xa[r] for r in P])
+            m = self.M([xa[r] for r in P] + [za[r] for r in P])
+            for j, r in enumerate(P):
+                m_x[r], m_z[r] = m[j], m[len(P) + j]
+        return m_x, m_z
+
     def _cat_tree(self, C, sign):
         """log-depth Z_d cat (sign = +1, C[0] carries the value) or its inverse (sign = -1)."""
         levels, k = [], 1
@@ -138,7 +261,12 @@ class ColorCult:
         """final: the last round before the ideal decode stays serial even in the parallel schedule -- there the X checks
         of the later plaquettes catch the Z hooks of the earlier ones, which the block schedule would leave undetected."""
         D, H, d = self.data, self.H, self.d
-        if self.parallel and not final:
+        if self.parallel and final and getattr(self, "final_by_colour", False):
+            m_x, m_z = self._measure_plaquettes_by_colour()
+            for ma, mb in zip(m_x, m_z):
+                self.c.detector([(ma, 1)], "X-stab"); self.c.detector([(mb, 1)], "Z-stab")
+            return
+        if self.parallel and (not final or getattr(self, "final_block", False)):   # final_block: with final-syndrome postselection
             m_x, m_z = self._measure_plaquettes()
             for ma, mb in zip(m_x, m_z):
                 self.c.detector([(ma, 1)], "X-stab"); self.c.detector([(mb, 1)], "Z-stab")
@@ -222,11 +350,13 @@ class ColorCult:
             acc_triv += int((~nontriv).sum()); fail_triv += int((f & ~nontriv).sum())
             done += b
         return {"shots": shots, "accepted": acc, "accept_rate": acc / shots, "logical_failures": fail,
-                "p_L": fail / max(acc, 1), "failures_trivial_final_syndrome": fail_triv}
+                "p_L": fail / max(acc, 1), "failures_trivial_final_syndrome": fail_triv,
+                "accepted_trivial_final_syndrome": acc_triv}      # final-syndrome postselection (the next stage detects)
 
-    def single_fault_scan(self):
+    def single_fault_scan(self, final_postselect: bool = False):
         """Inject every single fault (each noise location, each non-identity Pauli); count undetected
-        harmful ones (fault distance >= 2 iff 0)."""
+        harmful ones (fault distance >= 2 iff 0).  final_postselect: a fault that leaves a nonzero final data syndrome
+        counts as detected (the next stage, e.g. the escape's colour-region rounds, sees it)."""
         d, c = self.d, self.c
         faults = []
         for k, op in enumerate(c.ops):
@@ -255,10 +385,12 @@ class ColorCult:
                 per_op.setdefault(k, []).append((mask, list(qs), Pa))
             sim.run(scale=0.0, forced=per_op)
             ok = ~np.any(sim.detector_values(), axis=1)
-            f, _ = self.logical_failures(sim.x[:, self.data], sim.z[:, self.data])
+            f, nontriv = self.logical_failures(sim.x[:, self.data], sim.z[:, self.data])
+            if final_postselect:
+                ok = ok & ~nontriv
             for j in np.nonzero(ok & f)[0]:
                 bad.append(chunk[j])
-        return {"single_faults": len(faults), "undetected_harmful": len(bad), "examples": bad[:10]}
+        return {"single_faults": len(faults), "undetected_harmful": len(bad), "examples": bad[:10], "harmful_ops": sorted({k for k, _, _ in bad})}
 
 
 def find_sigma_inj(distance=3, d=4):

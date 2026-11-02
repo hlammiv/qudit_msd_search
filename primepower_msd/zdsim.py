@@ -148,8 +148,10 @@ def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
     per gate; the pairs of one CSUM op take one tick each, in order, so a fan-out serialises on its shared qudit); a qudit
     is live from its reset until it is measured, and every tick a live qudit waits gets DEP1(p_idle) -- k waiting ticks
     compose exactly into one DEP1 inserted before the gate it waits for; live qudits also wait until the circuit's last
-    tick.  Resets are just in time: a freshly reset qudit (and its single-qudit preparation gates) waits for nothing before
-    its first two-qudit gate.  Noise, detector and feed-forward ops take no time.  Measurement indices and detectors are
+    tick.  Preparation is just in time: freshly reset qudits, and clusters of them entangled only among themselves (a cat
+    tree), keep their ASAP timeline (gaps inside count) but the whole cluster is shifted later so that it is ready when it
+    first meets a non-fresh qudit; a measurement on a fresh cluster anchors it unshifted (so the initial data / encoder
+    cluster anchors at the first syndrome readout).  Noise, detector and feed-forward ops take no time.  Measurement indices and detectors are
     unchanged."""
     if p_idle <= 0:
         return circ
@@ -162,7 +164,13 @@ def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
     out = Circuit(d, circ.nq, [], circ.n_meas, circ.detectors, circ.det_tags)
     t = [0] * circ.nq
     live = [False] * circ.nq
-    fresh = [False] * circ.nq                             # reset, not yet in a two-qudit gate: prepared just in time
+    fresh = [False] * circ.nq                             # reset, not yet touched by a non-fresh qudit: prepared just in time
+    root = list(range(circ.nq))                           # union-find over fresh clusters
+
+    def find(q):
+        while root[q] != q:
+            root[q] = root[root[q]]; q = root[q]
+        return q
 
     def emit_idle(waits):
         by_k = {}
@@ -181,17 +189,52 @@ def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
             if name == "R":
                 for q in op[1]:
                     live[q] = fresh[q] = True
+                    root[q] = q
             elif name == "M":
                 for q in op[1]:
+                    if fresh[q]:
+                        rq = find(q)
+                        for m in range(circ.nq):
+                            if fresh[m] and find(m) == rq:
+                                fresh[m] = False
                     live[q] = fresh[q] = False
         elif name == "CSUM":
             waits = {}
+            # a fresh cluster meeting several non-fresh qudits in one layer is aligned to the latest of them
+            meet, seen = {}, set()
+            for (a, b) in op[1]:                         # each fresh qudit's first partner in this op (a fan-out
+                if fresh[a] != fresh[b]:                 # serialises on its shared qudit, a transversal layer does not)
+                    q, other = (a, b) if fresh[a] else (b, a)
+                    if q in seen:
+                        continue
+                    seen.add(q)
+                    rq = find(q)
+                    meet[rq] = max(meet.get(rq, -1), t[other] - t[q])
+            for rq, sh in meet.items():
+                for m in range(circ.nq):
+                    if fresh[m] and find(m) == rq:
+                        fresh[m] = False; t[m] += max(0, sh)
             for (a, b) in op[1]:
+                if fresh[a] and fresh[b]:                # two fresh clusters meet: the earlier one is shifted to be ready now
+                    ra, rb = find(a), find(b)
+                    if ra != rb:
+                        lo, hi = (a, b) if t[a] < t[b] else (b, a)
+                        shift, rl = t[hi] - t[lo], find(lo)
+                        for m in range(circ.nq):
+                            if fresh[m] and find(m) == rl:
+                                t[m] += shift
+                        root[ra] = rb
+                elif fresh[a] or fresh[b]:               # a fresh cluster meets a non-fresh qudit: shift it to be ready now
+                    q, other = (a, b) if fresh[a] else (b, a)
+                    shift = max(0, t[other] - t[q])
+                    rq = find(q)
+                    for m in range(circ.nq):
+                        if fresh[m] and find(m) == rq:
+                            fresh[m] = False; t[m] += shift
                 s0 = max(t[a], t[b])
                 for q in (a, b):
-                    if live[q] and not fresh[q] and s0 > t[q]:
+                    if live[q] and s0 > t[q]:
                         waits[q] = waits.get(q, 0) + s0 - t[q]
-                    fresh[q] = False
                 t[a] = t[b] = s0 + 1
             emit_idle(waits)
             out.ops.append(op)

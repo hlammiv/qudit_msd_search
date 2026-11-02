@@ -30,3 +30,17 @@ def test_parallel_schedule_fault_distance_with_tick_idle():
     assert cc.single_fault_scan()["undetected_harmful"] == 0
     assert cc.c.nq == serial.c.nq + serial.n                  # the second cat register
     assert cc.c.n_meas > 0 and len(cc.c.ops) > len(serial.c.ops)
+
+
+def test_hook_noise_final_round_boundary():
+    """with fan-outs split into noisy legs the final round's hooks reach the ideal decode (fault distance 1 there);
+    postselecting the final data syndrome (the next stage detects it) restores fault distance 2, also for the parallel
+    schedule with a block final round."""
+    from primepower_msd.zdsim import add_tick_idle
+    cc = ColorCult(3, 4, 1e-3, 1, 1, checks_per_round=2, rounds=1, hooks=True)
+    assert cc.single_fault_scan()["undetected_harmful"] > 0
+    assert cc.single_fault_scan(final_postselect=True)["undetected_harmful"] == 0
+    cp = ColorCult(3, 4, 1e-3, 1, 1, checks_per_round=2, rounds=1, hooks=True, parallel=True, final_block=True)
+    cp.c = add_tick_idle(cp.c, 1e-3)
+    assert check_determinism(cp.c, 64, 0) == []
+    assert cp.single_fault_scan(final_postselect=True)["undetected_harmful"] == 0

@@ -110,8 +110,11 @@ class GrowCult(ColorCult):
 
     def __init__(self, d: int = 4, p: float = 1e-3, sigma: int = 1, inj: int | None = None,
                  rounds3: int = 1, checks3: int = 2, rounds5: int = 1, checks5: int = 2,
-                 zset=None, noisy_injection: bool = True, parallel: bool = False):
-        self.parallel = parallel
+                 zset=None, noisy_injection: bool = True, parallel: bool = False, schedule=None,
+                 final_by_colour: bool = False, hooks: bool = False,
+                 final_block: bool = False):
+        self.parallel, self.schedule = parallel or schedule is not None, schedule
+        self.final_by_colour, self.hooks, self.final_block = final_by_colour, hooks, final_block
         Hs, Hb, xb, emb = embedding(3, 5)
         tau5 = honeycomb_signs(Hb, xb)
         self.d, self.p, self.sigma = d, p, sigma
@@ -131,10 +134,10 @@ class GrowCult(ColorCult):
         c = self.c = Circuit(d)
         self.data5 = c.q(Hb.shape[1])
         xa5, za5, cat5 = c.q(len(Hb)), c.q(len(Hb)), c.q(Hb.shape[1])
-        cat5b = c.q(Hb.shape[1]) if parallel else None
+        cat5b = c.q(Hb.shape[1]) if self.parallel else None
         # ---- D=3 stage
         self._phase(Hs, tau3, [self.data5[i] for i in emb], xa5[:len(Hs)], za5[:len(Hs)], cat5[:len(emb)], 3)
-        self.cat2 = cat5b[:len(emb)] if parallel else None
+        self.cat2 = cat5b[:len(emb)] if self.parallel else None
         self.encode(noisy_injection)
         for _ in range(rounds3):
             self.stab_round()
@@ -142,7 +145,7 @@ class GrowCult(ColorCult):
                 self.check()
         # ---- growth
         self._phase(Hb, tau5, self.data5, xa5, za5, cat5, 5)
-        self.cat2 = cat5b if parallel else None
+        self.cat2 = cat5b if self.parallel else None
         self.grow()
         for _ in range(rounds5):
             self.stab_round()
