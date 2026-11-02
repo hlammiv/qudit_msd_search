@@ -1,0 +1,18 @@
+{
+ "code": "[[1745,271,7]]_7",
+ "n": 1745,
+ "k": 271,
+ "checks": 55,
+ "structured_light_rows": 35,
+ "check_gates_rref": 66316,
+ "check_gates_sparse": 58188,
+ "logical_weight_rref_mean": 1435.275,
+ "logical_weight_descended_mean": 1403.225,
+ "logical_weight_descended_min": 1376,
+ "decode_gates_rref_est": 388959.525,
+ "decode_gates_sparse_est": 380273.975,
+ "gates_per_output_before": 1679.9834870848708,
+ "gates_per_output_after": 1617.9408671586716,
+ "saving": 1.0383466548039886,
+ "seconds": 3
+}

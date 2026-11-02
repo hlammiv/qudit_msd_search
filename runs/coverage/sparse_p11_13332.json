@@ -1,0 +1,18 @@
+{
+ "code": "[[13332,1309,22]]_11",
+ "n": 13332,
+ "k": 1309,
+ "checks": 1011,
+ "structured_light_rows": 471,
+ "check_gates_rref": 6347378,
+ "check_gates_sparse": 4540904,
+ "logical_weight_rref_mean": 11196.1,
+ "logical_weight_descended_mean": 10999.8,
+ "logical_weight_descended_min": 10972,
+ "decode_gates_rref_est": 14655694.9,
+ "decode_gates_sparse_est": 14398738.2,
+ "gates_per_output_before": 16045.128265851794,
+ "gates_per_output_after": 14468.787012987012,
+ "saving": 1.1089477128559482,
+ "seconds": 855
+}

@@ -112,3 +112,30 @@ Conclusion: syndrome-dependent grading and recycling is cheap and harmless but n
 into a factory for these codes. Together with section 3, error correction inside distillation rounds is
 closed as a cost lever here; the remaining levers are cheaper Clifford circuits (sparse check bases)
 and better small codes at each prime.
+
+## 5. Sparse check bases and light logical operators (`scratchpad/sparse_basis.py`, `runs/coverage/sparse_*.json`)
+
+Same gate model as section 1. Checks: structured light vectors of the check space (p = 7 weighted codes:
+(g−1)(g−6) times products of three linear forms; level-set codes: g times hyperplane indicators,
+weight ≈ |H \ O|), selected greedily for independence and completed with row-reduced rows. Outputs:
+each logical operator H1_i + rowspace(G0) is pushed down by greedy descent (repeatedly add the
+multiple of a check that lowers the weight most), on sampled outputs.
+
+| code | check gates: row-reduced → sparse | mean logical weight: row-reduced → descended | gates per output: before → after |
+|---|---|---|---|
+| [[1745,271,7]]₇ | 66 316 → 58 188 (1.14×) | 1435 → 1403 of n = 1745 | 1680 → 1623 (**1.04×**) |
+| [[13332,1309,22]]₁₁ | 6.35·10⁶ → 4.54·10⁶ (1.40×; 471 structured rows) | 11 196 → 11 000 of n = 13 332 | 16 045 → 14 469 (**1.11×**) |
+
+**Decoding the outputs dominates (85–90 % of the gates) and its operators stay nearly dense** (about
+0.8 n after descent). The lightest check-space vectors are not the lightest Reed–Muller words: a check
+must vanish on every output, so the 294-point (p = 7) or 968-point (p = 11) RM words do not qualify,
+and the earlier "up to 4–12×" estimate was wrong. For these dense codes the Clifford cost per output
+per round is about (1 − 1/p)·n regardless of basis. The only route to a real reduction would be an
+encoder that uses the Reed–Muller structure (evaluation of a polynomial axis by axis, m·p gates per
+qudit, the analogue of the fast RM encoders); whether that is compatible with outputs at arbitrary
+points (for the weighted codes) or on a cubic surface (level sets) is open.
+
+**Bottom line for cost claims.** The large codes' magic-state savings (4.1–4.3× at p = 7) come with
+a Clifford bill of about 1 600 two-qudit gates per output per round against about 17 for [[7,1,3]]₇;
+the p = 11 level-set code needs about 14 500. A cost claim in the paper must state the price ratio
+of a magic state to a Clifford gate at which the large codes break even.
