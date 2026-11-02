@@ -12,7 +12,26 @@ pivots; a minimum-weight basis would be cheaper but is NP-hard to find. Codes to
 here use the dense-fraction law nnz ≈ r(n − r)(1 − 1/p), which the row-reduced codes follow to within
 15 %.
 
-CLIFFORD_TABLE
+| code | checks | mean check weight | two-qudit gates per round | per output | method |
+|---|---|---|---|---|---|
+| [[206,37,4]]_3 | 14 | 130 | 6,413 | **173** | row-reduced |
+| [[519,106,5]]_5 | 16 | 401 | 48,713 | **460** | row-reduced |
+| [[7,1,3]]_7 cyc-B | 2 | 6 | 17 | **17** | row-reduced |
+| [[1745,271,7]]_7 | 55 | 1206 | 455,805 | **1,682** | row-reduced |
+| [[1746,270,6]]_7 | 56 | 1227 | 456,412 | **1,690** | row-reduced |
+| [[1756,260,7]]_7 | 66 | 1268 | 457,274 | **1,759** | row-reduced |
+| [[2093,308,5]]_7 | 18 | 1782 | 579,863 | **1,883** | row-reduced |
+| [[9,2,3]]_11 | 2 | 8 | 30 | **15** | row-reduced |
+| [[100,21,4]]_11 | 7 | 86 | 2,301 | **110** | row-reduced |
+| [[13332,1309,22]]_11 | 1011 | 6278 | 20,997,783 | **16,041** | row-reduced |
+| [[13,4,3]]_17 | 2 | 12 | 68 | **17** | row-reduced |
+| [[237,52,6]]_17 | 14 | 210 | 13,500 | **260** | row-reduced |
+| [[78455,5066,≥68]]_17 | 7304 | 66967 | 828,372,358 | **163,516** | dense-fraction estimate |
+| [[15,4,3]]_19 | 2 | 14 | 80 | **20** | row-reduced |
+| [[296,65,6]]_19 | 13 | 269 | 20,513 | **316** | row-reduced |
+| [[123284,7037,≥57]]_19 | 10233 | 107102 | 1,849,643,593 | **262,846** | dense-fraction estimate |
+| [[22,7,4]]_29 | 3 | 20 | 193 | **28** | row-reduced |
+| [[666,175,6]]_29 | 15 | 628 | 117,789 | **673** | row-reduced |
 
 The large codes' checks are essentially dense: a row-reduced check touches about two thirds of the
 block. The magic-state saving of the large p = 7 codes (4.1–4.3× proved) therefore holds only while a
