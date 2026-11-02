@@ -97,3 +97,15 @@ p = 11 and 13 we do not cross 1 at all (the flat cap), while the paper crosses o
 (iii) From p = 23 the RS family is the whole story and gamma falls to 0.5 by p = 97 with n <= 73;
 the paper lists only the p = 23 member. (iv) p = 3 is unchanged from the paper in gamma; our
 contribution there is A_d and the exact performance engine.
+
+
+## γ against acceptance (2026-11-01)
+
+![gamma vs acceptance](runs/coverage/gamma_vs_acceptance.png)
+
+`scratchpad/gamma_vs_acceptance_plot.py` (data `runs/coverage/gamma_vs_acceptance.json`): every
+confirmed or partial catalog code (best γ per (p, n, k), 436 codes), γ against the input error at which
+half the blocks are accepted, ε½ = 1 − 2^(−1/n) ≈ ln2/n. Within one prime, lower γ is bought with block
+size and therefore with acceptance; the level-set codes sit at ε½ ≈ 10⁻⁵ to 5·10⁻⁵, which is why they only
+pay at very low targets (`LEVEL_SETS.md`, cost section). The Reed–Solomon codes at large p occupy the
+top-left corner (γ down to 0.506 at ε½ ≈ 10⁻²): across primes, γ is not comparable without fixing p.
