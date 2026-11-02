@@ -1081,6 +1081,18 @@
  },
  {
   "p": 23,
+  "n": 267513,
+  "k": 12328,
+  "d": 138,
+  "gamma": 0.6245456925707399,
+  "partial": true,
+  "group": "new constructions (weighted p = 7, level sets)",
+  "label": "[[267513,12328,>=138]]_23",
+  "id": "imported-p23-n267513-k12328-f6a531ab88db",
+  "eps_half": 2.5910751348945382e-06
+ },
+ {
+  "p": 23,
   "n": 424,
   "k": 105,
   "d": 6,
