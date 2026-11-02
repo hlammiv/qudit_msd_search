@@ -1,0 +1,35 @@
+{
+ "seconds": 2216.5,
+ "results": [
+  {
+   "d": 4,
+   "D": "3to5",
+   "p": 0.0005,
+   "shots": 9999990,
+   "accepted": 3499880,
+   "logical_failures": 789,
+   "qudits": 75,
+   "noise_locations": 365,
+   "rounds": 1,
+   "checks": 2,
+   "mode": "grow",
+   "accept_rate": 0.34998834998835,
+   "p_L": 0.00022543630067316595
+  },
+  {
+   "d": 4,
+   "D": "3to5",
+   "p": 0.001,
+   "shots": 9999990,
+   "accepted": 1225842,
+   "logical_failures": 2102,
+   "qudits": 75,
+   "noise_locations": 365,
+   "rounds": 1,
+   "checks": 2,
+   "mode": "grow",
+   "accept_rate": 0.12258432258432259,
+   "p_L": 0.0017147397462315699
+  }
+ ]
+}
