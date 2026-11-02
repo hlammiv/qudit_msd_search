@@ -11,7 +11,7 @@ control before the layer fires detectors in both patches (a weight-4 hyperedge) 
 build_dem.  The observables are decoded with one DEM per observable (same graph, same matching, different observable
 coefficients).  csum=False gives the baseline: two independent 2*rounds memories.
 
-    python -m primepower_msd.logical_csum sweep d jobs [Dlist] [plist] [shots_low shots_high]   -> runs/surface/csum_d{d}.jsonl
+    python -m primepower_msd.logical_csum sweep d jobs [Dlist] [plist] [shots_low shots_high] [indep|seq|base] [tick[f]]   -> runs/surface/csum_d{d}[_tick{f}].jsonl
     python -m primepower_msd.logical_csum fit d
 """
 from __future__ import annotations
@@ -30,7 +30,9 @@ from .zdsim import Circuit, FrameSim, check_determinism
 
 
 def csum_circuit(D: int, d: int, rounds_before: int, rounds_after: int, p: float, basis: str = "Z", idle: bool = True,
-                 csum: bool = True, w: int = 1) -> Memory:
+                 csum: bool = True, w: int = 1, tick_idle: float = 0.0) -> Memory:
+    """tick_idle = f: DEP1(f p) on every qudit a tick does not act on (surface_zd.memory_circuit); the transversal CSUM tick
+    acts on all data, and the ancillas idle through it just before their reset, so it adds nothing there."""
     checks = rotated_code(D, d)
     c = Circuit(d)
     data = [c.q(D * D), c.q(D * D)]
@@ -45,6 +47,14 @@ def csum_circuit(D: int, d: int, rounds_before: int, rounds_after: int, p: float
             locs.append((len(c.ops) - 1, kind, list(qs)))
 
     alld, alla, allx = data[0] + data[1], anc[0] + anc[1], xanc[0] + xanc[1]
+
+    def tick(acted):
+        if tick_idle:
+            acted = set(acted)
+            rest = [q for q in alld + alla if q not in acted]
+            if rest:
+                noise("DEP1", rest, tick_idle * p)
+
     c.R(alld); noise("XERR", alld, p)
     if basis == "X":
         c.F(alld); noise("DEP1", alld, p)
@@ -58,7 +68,7 @@ def csum_circuit(D: int, d: int, rounds_before: int, rounds_after: int, p: float
         if idle and r > 0:
             noise("DEP1", alld, p)
         c.R(alla); noise("XERR", alla, p)
-        c.F(allx); noise("DEP1", allx, p)
+        c.F(allx); noise("DEP1", allx, p); tick(allx)
         for step in range(4):
             pairs, ws = [], []
             for P in range(2):
@@ -67,9 +77,11 @@ def csum_circuit(D: int, d: int, rounds_before: int, rounds_after: int, p: float
                         if s != step:
                             continue
                         pairs.append((data[P][q], anc[P][i]) if ch.typ == "Z" else (anc[P][i], data[P][q])); ws.append(wq)
-            c.CSUM(pairs, ws); noise("DEP2", pairs, p)
-        c.FD(allx); noise("DEP1", allx, p)
+            c.CSUM(pairs, ws); noise("DEP2", pairs, p); tick([q for pq in pairs for q in pq])
+        c.FD(allx); noise("DEP1", allx, p); tick(allx)
         noise("XERR", alla, p)
+        if tick_idle:
+            noise("DEP1", alld, tick_idle * p)
         m = [c.M(anc[0]), c.M(anc[1])]
         for P in range(2):
             for i, ch in enumerate(checks):
@@ -183,10 +195,10 @@ class CsumExperiment:
     """Transversal logical CSUM (or its no-gate baseline) between two D-patches; run() fails when either logical is wrong."""
 
     def __init__(self, D: int, d: int, basis: str = "Z", rounds: int | None = None, csum: bool = True, idle: bool = True,
-                 decoder: str = "indep"):
-        self.D, self.d, self.basis, self.csum, self.decoder = D, d, basis, csum, decoder
+                 decoder: str = "indep", tick_idle: float = 0.0):
+        self.D, self.d, self.basis, self.csum, self.decoder, self.tick_idle = D, d, basis, csum, decoder, tick_idle
         self.rounds = D if rounds is None else rounds
-        self.mem = csum_circuit(D, d, self.rounds, self.rounds, P_BUILD, basis, idle, csum)
+        self.mem = csum_circuit(D, d, self.rounds, self.rounds, P_BUILD, basis, idle, csum, tick_idle=tick_idle)
         bad = check_determinism(self.mem.circ, 64, 0)
         assert bad == [], f"non-deterministic detectors {[self.mem.circ.det_tags[i] for i in bad[:8]]}"
         self.sector = "X" if basis == "Z" else "Z"
@@ -226,16 +238,16 @@ class CsumExperiment:
                 fails[0] += bad[0]; fails[1] += bad[1]; both += any(bad)
             done += n
         dem = self.dems[0]
-        return dict(D=self.D, d=d, p=p, rounds=self.rounds, basis=self.basis, csum=self.csum, decoder=self.decoder, shots=shots, fails=int(both),
+        return dict(D=self.D, d=d, p=p, rounds=self.rounds, basis=self.basis, csum=self.csum, decoder=self.decoder, tick_idle=self.tick_idle, shots=shots, fails=int(both),
                     fails_control=int(fails[0]), fails_target=int(fails[1]), p_fail=both / shots, n_det=int(len(self.sel)),
                     edges=len(dem.edges), hyper_share=dem.hyper_prob / dem.total_prob, conflicts=dem.conflicts,
                     undetectable_share=dem.undetectable_prob / dem.total_prob, locations=self.locations)
 
 
-def point(D, d, basis, p, shots, csum, seed, decoder="indep"):
+def point(D, d, basis, p, shots, csum, seed, decoder="indep", tick=0.0):
     t = time.time()
     try:
-        r = CsumExperiment(D, d, basis, csum=csum, decoder=decoder).run(p, shots, seed)
+        r = CsumExperiment(D, d, basis, csum=csum, decoder=decoder, tick_idle=tick).run(p, shots, seed)
     except MemoryError as e:                       # keep the sweep alive under ulimit -v
         r = dict(D=D, d=d, p=p, basis=basis, csum=csum, decoder=decoder, shots=0, fails=0, error=repr(e))
     r["seconds"] = round(time.time() - t, 1)
@@ -275,14 +287,15 @@ def main():
         ps = [float(x) for x in sys.argv[5].split(",")] if len(sys.argv) > 5 else [1e-3, 2e-3, 3e-3, 4e-3, 6e-3]
         lo, hi = (int(sys.argv[6]), int(sys.argv[7])) if len(sys.argv) > 7 else (100_000, 40_000)
         decoder = sys.argv[8] if len(sys.argv) > 8 else "indep"
+        tick = float(sys.argv[9][4:] or 1) if len(sys.argv) > 9 and sys.argv[9].startswith("tick") else 0.0   # tick[f] -> csum_d{d}_tick{f}.jsonl
         css = (True, False) if decoder == "indep" else (False,) if decoder == "base" else (True,)
         if decoder == "base":                          # the no-gate two-patch memory only (decoded independently)
             decoder = "indep"
         tasks = [(D, basis, p, lo if p <= 2e-3 else hi, cs) for D in Ds for basis in "ZX" for p in ps for cs in css]
         tasks.sort(key=lambda t: -t[0])
-        out = f"runs/surface/csum_d{d}.jsonl"
+        out = f"runs/surface/csum_d{d}{f'_tick{tick:g}' if tick else ''}.jsonl"
         gen = Parallel(n_jobs=jobs, verbose=0, return_as="generator_unordered")(
-            delayed(point)(D, d, b, p, s, cs, hash((D, b, p, cs, decoder)) % 2**31, decoder) for D, b, p, s, cs in tasks)
+            delayed(point)(D, d, b, p, s, cs, hash((D, b, p, cs, decoder)) % 2**31, decoder, tick) for D, b, p, s, cs in tasks)
         for r in gen:                                  # one line per finished point, so a crash loses nothing done
             if "error" in r:
                 print("ERROR", r["D"], r["basis"], r["p"], r["error"], flush=True)

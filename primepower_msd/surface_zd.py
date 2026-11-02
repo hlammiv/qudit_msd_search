@@ -104,8 +104,10 @@ class Memory:
 
 
 def memory_circuit(D: int, d: int, rounds: int, p: float, basis: str = "Z", idle: bool = True,
-                   code_capacity: bool = False) -> Memory:
-    """code_capacity: one DEP1(p) layer on the data before a single noiseless syndrome round (perfect measurement)."""
+                   code_capacity: bool = False, tick_idle: float = 0.0) -> Memory:
+    """code_capacity: one DEP1(p) layer on the data before a single noiseless syndrome round (perfect measurement).
+    tick_idle = f: DEP1(f p) on every qudit a tick does not act on (the F / FD ticks, each of the 4 CSUM steps, the ancilla
+    measurement), on top of the per-round data idle -- the circuit-level 'idle at every tick' model."""
     checks = rotated_code(D, d)
     c = Circuit(d)
     data = c.q(D * D)
@@ -120,6 +122,13 @@ def memory_circuit(D: int, d: int, rounds: int, p: float, basis: str = "Z", idle
             getattr(c, kind)(qs, pr)
             locs.append((len(c.ops) - 1, kind, list(qs)))
 
+    def tick(acted):                    # tick_idle: DEP1 on the qudits this tick leaves alone
+        if tick_idle:
+            acted = set(acted)
+            rest = [q for q in data + anc if q not in acted]
+            if rest:
+                noise("DEP1", rest, tick_idle * p)
+
     # data preparation
     c.R(data); noise("XERR", data, p)
     if basis == "X":
@@ -131,7 +140,7 @@ def memory_circuit(D: int, d: int, rounds: int, p: float, basis: str = "Z", idle
         if idle and r > 0:
             noise("DEP1", data, p)
         c.R(anc); noise("XERR", anc, p)
-        c.F(xanc); noise("DEP1", xanc, p)
+        c.F(xanc); noise("DEP1", xanc, p); tick(xanc)
         for step in range(4):
             pairs, ws = [], []
             for i, ch in enumerate(checks):
@@ -142,9 +151,11 @@ def memory_circuit(D: int, d: int, rounds: int, p: float, basis: str = "Z", idle
                         pairs.append((data[q], anc[i])); ws.append(w)
                     else:
                         pairs.append((anc[i], data[q])); ws.append(w)
-            c.CSUM(pairs, ws); noise("DEP2", pairs, p)
-        c.FD(xanc); noise("DEP1", xanc, p)
+            c.CSUM(pairs, ws); noise("DEP2", pairs, p); tick([q for pq in pairs for q in pq])
+        c.FD(xanc); noise("DEP1", xanc, p); tick(xanc)
         noise("XERR", anc, p)
+        if tick_idle:                    # data idle while the ancillas are measured
+            noise("DEP1", data, tick_idle * p)
         m = c.M(anc)
         for i, ch in enumerate(checks):
             if prev is None:
@@ -753,10 +764,10 @@ class Experiment:
     """Circuit + detector-error model for one (D, d, basis); run() simulates and decodes at any p."""
 
     def __init__(self, D: int, d: int, basis: str = "Z", rounds: int | None = None, idle: bool = True,
-                 code_capacity: bool = False):
-        self.D, self.d, self.basis = D, d, basis
+                 code_capacity: bool = False, tick_idle: float = 0.0):
+        self.D, self.d, self.basis, self.tick_idle = D, d, basis, tick_idle
         self.rounds = (1 if code_capacity else D) if rounds is None else rounds
-        self.mem = memory_circuit(D, d, self.rounds, P_BUILD, basis, idle, code_capacity)
+        self.mem = memory_circuit(D, d, self.rounds, P_BUILD, basis, idle, code_capacity, tick_idle)
         bad = check_determinism(self.mem.circ, 64, 0)
         assert bad == [], f"non-deterministic detectors {bad}"
         self.sector = "X" if basis == "Z" else "Z"
@@ -782,7 +793,7 @@ class Experiment:
                 leftovers += left
                 fails += ((O[s] + corr) % d) != 0
             done += n
-        return dict(D=self.D, d=d, p=p, rounds=self.rounds, basis=self.basis, shots=shots, fails=int(fails),
+        return dict(D=self.D, d=d, p=p, rounds=self.rounds, basis=self.basis, tick_idle=self.tick_idle, shots=shots, fails=int(fails),
                     p_fail=fails / shots, leftover=int(leftovers), n_det=int(len(self.sel)), edges=len(self.dem.edges),
                     hyper_share=self.dem.hyper_prob / self.dem.total_prob, conflicts=self.dem.conflicts,
                     undetectable_share=self.dem.undetectable_prob / self.dem.total_prob, locations=self.locations)

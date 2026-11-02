@@ -3,7 +3,7 @@
 Table of p_fail(D, p) per basis, threshold estimate (crossing of neighbouring D pairs, linear interpolation in log p),
 and a fit of the footprint model p_L(D) = A (p / p_th)^((D+1)/2) to the sub-threshold points (fails >= 5, p_fail < 0.1).
 
-python -m primepower_msd.surface_fit d [basis]
+python -m primepower_msd.surface_fit d [basis]      (d may carry a suffix: 4_tick0.1 -> zd_d4_tick0.1.jsonl)
 """
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def fit(pts, basis):
 
 
 def main():
-    d = int(sys.argv[1]); bases = [sys.argv[2]] if len(sys.argv) > 2 else ["Z", "X"]
+    d = sys.argv[1]; bases = [sys.argv[2]] if len(sys.argv) > 2 else ["Z", "X"]
     pts = load(d)
     for basis in bases:
         Ds = sorted({D for b, D, p in pts if b == basis}); ps = sorted({p for b, D, p in pts if b == basis})
