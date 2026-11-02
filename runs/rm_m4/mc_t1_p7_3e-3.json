@@ -1,0 +1,21 @@
+{
+ "code": "[[1745,271,7]]_7",
+ "eps": 0.003,
+ "shots": 200000,
+ "acc0": 1014,
+ "acc1": 6502,
+ "fail_out0": 0,
+ "fail_blk0": 0,
+ "fail_out1": 0,
+ "fail_blk1": 0,
+ "corrected": 5488,
+ "P_acc_t0": 0.00507,
+ "P_acc_t1": 0.03251,
+ "P_acc_t0_theory": 0.0052850762062257445,
+ "P_acc_t1_lower_theory": 0.03303570202326865,
+ "eps_out_t0": 0.0,
+ "eps_out_t1": 0.0,
+ "block_t0": 0.0,
+ "block_t1": 0.0,
+ "seconds": 85
+}

@@ -1,0 +1,114 @@
+# Beyond γ: Clifford cost, block error, and detect-and-correct rounds
+
+*2026-11-01. Companion to `LEVEL_SETS.md` (cost section) and `PERFORMANCE.md`. Scripts in
+`scratchpad/`, data in `runs/coverage/` and `runs/rm_m4/`.*
+
+## 1. Clifford cost per round (`scratchpad/clifford_cost.py`, `runs/coverage/clifford_cost.json`)
+
+Gate model, an upper bound with no circuit optimisation: after the transversal T layer, each X-type
+check (row of G0) costs one two-qudit gate per nonzero entry, and each output is decoded with one gate
+per nonzero of its logical row. G0 is row-reduced first and the logical rows are reduced against its
+pivots; a minimum-weight basis would be cheaper but is NP-hard to find. Codes too large to row-reduce
+here use the dense-fraction law nnz ≈ r(n − r)(1 − 1/p), which the row-reduced codes follow to within
+15 %.
+
+CLIFFORD_TABLE
+
+The large codes' checks are essentially dense: a row-reduced check touches about two thirds of the
+block. The magic-state saving of the large p = 7 codes (4.1–4.3× proved) therefore holds only while a
+raw magic state costs more than a few hundred two-qudit Clifford gates; with cultivated or injected
+inputs that is plausible, but it is an assumption every cost claim in `PERFORMANCE.md` makes and
+should state. A sparse basis for the checks (lower-weight generators of the same row space) is the
+obvious open question: the level-set and weighted codes have structured duals, so short generators may
+exist, and they would cut this cost by the same factor.
+
+## 2. Block error versus per-output error (`runs/weighted/block_error_p7.json`)
+
+From the complete weight-d censuses of the four large p = 7 codes; leading order in ε, block error =
+A_d (ε/(p−1))^d, per-output error = L_d (ε/(p−1))^d.
+
+| code | weight-d accepted vectors A_d | per-output count L_d | outputs wrong per failing block | block ÷ per-output |
+|---|---|---|---|---|
+| [[1746,270,7]]₇ (headline, seed 19) | 276 | 193 | 189 of 270 | 1.4 |
+| [[1756,260,7]]₇ | 24 | 1.29 | 14 of 260 | 18.6 |
+| [[1746,270,6]]₇ | 24 | 1.33 | 15 of 270 | 18.0 |
+| [[2093,308,5]]₇ | 1560 | 1338 | 264 of 308 | 1.2 |
+
+Failures come in clusters, from 14 outputs to most of the block. Per-output error is the right input
+to the next round only if each next-round block draws its inputs from different blocks of this round;
+if a factory feeds one block's outputs into one next-round block, the block error governs, and it is
+up to 19× worse. Aanha's Task B (`docs/aanha_mc_guide2`) measures this end to end.
+
+## 3. Detect-and-correct rounds (`qmsd/rigorous_curve.py: CorrectingBoundCurve`)
+
+A Z power is a Pauli, so instead of discarding every block with a nonzero syndrome one can decode to
+the lowest-weight error of weight ≤ t consistent with the syndrome (unique while 2t < d), undo it and
+keep the block. Rigorous, census-free consequences:
+- acceptance ≥ P(at most t input errors), against (1 − ε)ⁿ for detection;
+- a kept block fails only if the true error is within distance t of a nonzero logical kernel word, so
+  the suppression order drops from d to d − t. Two bounds, the smaller is used: P(wt(e) ≥ d − t), and
+  Σ_{w≥d} C(n,w) p^{w−d+1} Σ_{s≤t} C(w,s)(ε/(p−1))^{w−s} (Singleton count of kernel words).
+
+**Monte Carlo of the t = 1 lookup decoder** (`scratchpad/mc_correct_t1.py`; the syndrome must be a
+multiple of one column of G0, 10 470 keys for the p = 7 code, none ambiguous):
+
+| code, ε | acceptance, detect → correct | logical failures (kept blocks) |
+|---|---|---|
+| [[1745,271,7]]₇, 3·10⁻³ | 0.51 % → 3.25 % (theory 0.53 % → 3.30 %) | 0 in 6 502 |
+| [[100,21,4]]₁₁, 5·10⁻³ | 60.6 % → 91.0 % | detect 0; correct: 8 outputs in 2 blocks |
+| [[100,21,4]]₁₁, 10⁻² | 36.6 % → 73.6 % | detect 0; correct: per-output 1.3·10⁻⁵ |
+| [[100,21,4]]₁₁, 2·10⁻² | 13.3 % → 40.3 % | detect 0; correct: per-output 6.2·10⁻⁵ |
+
+The decoder raises acceptance exactly as predicted and costs one order of suppression: the distance-4
+code's failures under correction grow as about ε⁴ across the range (the proof guarantees order ≥ 3),
+while pure detection shows none at these shot counts.
+
+**Protocol costs with correction allowed** (`scratchpad/correcting_cost.py`,
+`runs/rm_m4/correcting_costs.json`; every t from 0 to ⌊(d−1)/2⌋ offered to the optimizer, baseline =
+standard library + Reed–Solomon family, rigorous bounds throughout):
+
+| code | 1e-2 → 1e-30 detect / correct | 1e-3 → 1e-30 detect / correct | chosen t |
+|---|---|---|---|
+| [[13332,1309,22]]₁₁ | 1.16× / 1.17× | 1.13× / 1.18× | 6–8 |
+| [[78455,5066,≥68]]₁₇ | unused / unused | unused / unused | — |
+| [[123284,7037,≥57]]₁₉ | unused / unused | unused / unused | — |
+
+**Correction does not rescue the large codes' cost.** It widens the window in which they accept, but
+at the input errors where they are used (10⁻⁵ to 10⁻⁴) acceptance is already near 1, and reaching that
+window is what costs; the cheap Reed–Solomon codes at p ≥ 17 still finish first. The idea is sound and
+cheap (t = 1 is a table lookup), it is worth keeping for codes with distance to spare, and it is the
+natural ingredient of a graded-output protocol (label kept blocks by correction weight, re-distil the
+heavily corrected ones), which is not yet modelled.
+
+## 4. Graded rounds with recycling (`qmsd/graded.py`, `scratchpad/graded_cost.py`, `runs/coverage/graded_cost_p7.json`)
+
+A graded round decodes each block to its lowest-weight explanation (weight ≤ t), labels the block with
+that weight (its *grade*), sends grades ≤ g forward, recycles grades g+1..t as inputs to the same round,
+and discards the rest. For the small p = 7 library codes the grade statistics are **exact**: a dynamic
+program over the qudits gives the joint distribution of syndrome and logical error on F_p^(r+k) (up to
+8·10⁵ states for [[28,1,5]]₇); grade 0 reproduces the exact engine to every printed digit. Recycling is
+a steady state in which recycled outputs join the inputs at their average error rate (offered for k = 1
+codes only, where this is accurate). The optimizer sees every (t, g, recycle) choice as a separate code.
+
+| ε₀ → target | library | library + graded | library + large codes | … + graded |
+|---|---|---|---|---|
+| 1e-2 → 1e-10 | 37.1 | 36.7 (1.01×, picks [[28,1,5]]₇ graded) | 37.1 | 36.7 |
+| 1e-2 → 1e-15 | 52.6 | 52.6 | 48.4 | 48.4 |
+| 1e-2 → 1e-30 | 210.3 | 210.3 | 48.4 | 48.4 |
+| 3e-3 → 1e-15 | 31.6 | 31.6 | 31.6 | 31.6 |
+| 1e-3 → 1e-15 | 28.8 | 28.8 | 28.8 | 28.8 |
+| 1e-3 → 1e-30 | 141.0 | 141.0 | 39.0 | 39.0 |
+
+**Grading saves at most about 1 %, for two structural reasons.**
+- *Distance-3 codes cannot recycle.* A corrected "single error" is too often a misread double error: at
+  ε = 1 % the grade-1 blocks of [[7,1,3]]₇ carry 2.5 % error, worse than the raw inputs, so the optimizer
+  declines. Grading needs d ≥ 4 and lower input error.
+- *A recycled output replaces one of n inputs.* With k = 1 the saving is bounded by k·P(recycle)/n,
+  about 1/28 × 0.25 ≈ 1 % for [[28,1,5]]₇ at ε = 1 %, which is what the optimizer finds. High-rate codes
+  would recycle more per block, but their failures are clustered (section 2), so their corrected blocks
+  carry many correlated output errors at once.
+
+Conclusion: syndrome-dependent grading and recycling is cheap and harmless but not worth building
+into a factory for these codes. Together with section 3, error correction inside distillation rounds is
+closed as a cost lever here; the remaining levers are cheaper Clifford circuits (sparse check bases)
+and better small codes at each prime.

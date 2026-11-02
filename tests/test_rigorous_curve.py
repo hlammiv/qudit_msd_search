@@ -54,3 +54,14 @@ def test_from_census_and_proved_chain_rechecks():
     row = res["rows"][0]
     assert row["uses_proved"] and row["reaches_target_check"]
     assert row["saving_proved"] > 4 and row["saving_optimistic"] >= row["saving_proved"] - 1e-9
+
+
+def test_correcting_curve_reduces_to_detection_and_trades_order_for_acceptance():
+    from qmsd.rigorous_curve import CorrectingBoundCurve
+    c0 = CorrectingBoundCurve("x", 11, 13332, 1309, 22, 0); c3 = CorrectingBoundCurve("x", 11, 13332, 1309, 22, 3)
+    eps = 1e-4
+    assert abs(c0.pacc_lo(eps) - (1 - eps) ** 13332) < 1e-9
+    assert c3.pacc_lo(eps) > 0.9 > c0.pacc_lo(eps)
+    assert c0.f_hi(eps) < c3.f_hi(eps) < 1e-12
+    with pytest.raises(AssertionError):
+        CorrectingBoundCurve("x", 7, 1745, 271, 7, 4)

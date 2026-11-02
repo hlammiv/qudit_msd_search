@@ -165,3 +165,91 @@ def rigorous_saving(candidate: RigorousBoundCurve, base, grid=None, max_depth=5)
                      "eps_chain_proved": [float(x) for x in up.eps] if up else None,
                      "reaches_target_check": bool(up and _chain_ok(up, candidate, target))})
     return {"rows": rows}
+
+
+# ---------------------------------------------------------------------------------------------
+# Detect-and-correct rounds (2026-11-01).  Instead of discarding every block with a nonzero syndrome,
+# decode to the lowest-weight error of weight <= t consistent with the syndrome (unique when 2t < d),
+# undo it (a Z power is a Pauli, so the correction is free) and keep the block.
+#   * acceptance >= P(wt(e) <= t)                                   (every such error is corrected)
+#   * a kept block fails only if e = c + u with wt(c) <= t and u a nonzero kernel word with a nonzero
+#     logical part, so wt(u) >= d.  Two rigorous bounds on P(fail and keep), the minimum is used:
+#       (A) P(wt(e) >= d - t)
+#       (B) sum_{w >= d} N_w sum_{s <= t} C(w, s) (eps/(p-1))^(w-s),  N_w <= C(n, w) p^(w-d+1) (Singleton)
+#     ((B): e must agree with u on at least w - s of u's w support points.)
+#   Per-output error is bounded by the block bound (conservative).  t = 0 reduces to pure detection with
+#   the census-free Singleton bound.
+@dataclass
+class CorrectingBoundCurve:
+    name: str
+    p: int
+    n: int
+    k: int
+    d: int
+    t: int
+    note: str = "detect-and-correct up to t errors; rigorous census-free bounds"
+    exact: bool = field(default=False, init=False)
+
+    def __post_init__(self):
+        assert 2 * self.t < self.d, "unique decoding needs 2t < d"
+
+    @property
+    def gamma(self) -> float:
+        return math.log(self.n / self.k) / math.log(self.d)
+
+    def _binom_tail(self, eps, w0):
+        e = mpmath.mpf(eps); n = self.n
+        if w0 <= 0:
+            return mpmath.mpf(1)
+        term = mpmath.binomial(n, w0) * e ** w0 * (1 - e) ** (n - w0); acc = mpmath.mpf(0); w = w0
+        while w <= n:
+            acc += term
+            if term < acc * mpmath.mpf(10) ** (-40) and w > n * float(e) + 5:
+                break
+            term = term * (n - w) / (w + 1) * e / (1 - e); w += 1
+        return acc
+
+    def _bound_B(self, eps):
+        e = mpmath.mpf(eps); p, n, d, t = self.p, self.n, self.d, self.t; q = e / (p - 1)
+        acc = mpmath.mpf(0); w = d
+        while w <= n:
+            inner = sum(mpmath.binomial(w, s) * q ** (w - s) for s in range(0, t + 1))
+            term = mpmath.binomial(n, w) * mpmath.mpf(p) ** (w - d + 1) * inner
+            acc += term
+            if w > d + 3 and term < acc * mpmath.mpf(10) ** (-40):
+                break
+            w += 1
+        return acc
+
+    def pacc_lo(self, eps) -> float:
+        with mpmath.workdps(DPS):
+            return float(1 - self._binom_tail(eps, self.t + 1))
+
+    def pacc_hi(self, eps) -> float:
+        return 1.0
+
+    def f_hi(self, eps):
+        with mpmath.workdps(DPS):
+            fail = min(self._binom_tail(eps, self.d - self.t), self._bound_B(eps))
+            return fail / mpmath.mpf(self.pacc_lo(eps))
+
+    def f_lo(self, eps):
+        return mpmath.mpf(0)
+
+    f = f_hi
+    pacc = pacc_lo
+
+    @property
+    def threshold_eps(self):
+        lo, hi = 1e-12, 0.5
+        if self.f_hi(lo) >= lo:
+            return None
+        for _ in range(60):
+            mid = math.sqrt(lo * hi)
+            if self.f_hi(mid) < mid: lo = mid
+            else: hi = mid
+        return lo
+
+    @property
+    def threshold_bounds(self):
+        return self.threshold_eps, None

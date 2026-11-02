@@ -1,0 +1,17 @@
+built [[7,1,3]]_7 cyc-B [t1g0r] (22s): f(1e-2)=1.01e-06 pacc_eff(1e-2)=0.932
+built [[7,1,3]]_7 cyc-B [t1g1] (22s): f(1e-2)=0.00169 pacc_eff(1e-2)=1.000
+built [[12,1,3]]_7 cyc-A [t1g0r] (22s): f(1e-2)=1.16e-06 pacc_eff(1e-2)=0.886
+built [[12,1,3]]_7 cyc-A [t1g1] (22s): f(1e-2)=0.00186 pacc_eff(1e-2)=0.996
+built [[20,1,4]]_7 dbl [t1g0r] (29s): f(1e-2)=9.4e-09 pacc_eff(1e-2)=0.826
+built [[20,1,4]]_7 dbl [t1g1] (31s): f(1e-2)=1.94e-05 pacc_eff(1e-2)=0.984
+built [[28,1,5]]_7 cyc-B [t1g0r] (142s): f(1e-2)=7.52e-11 pacc_eff(1e-2)=0.762
+built [[28,1,5]]_7 cyc-B [t1g1] (182s): f(1e-2)=1.84e-07 pacc_eff(1e-2)=0.968
+built [[28,1,5]]_7 cyc-B [t2g0r] (275s): f(1e-2)=7.51e-11 pacc_eff(1e-2)=0.763
+built [[28,1,5]]_7 cyc-B [t2g1r] (336s): f(1e-2)=1.84e-07 pacc_eff(1e-2)=0.969
+built [[28,1,5]]_7 cyc-B [t2g2] (371s): f(1e-2)=0.000217 pacc_eff(1e-2)=0.997
+0.01->1e-10: library 37.1 -> +graded 36.7 (1.01x) ['[[28,1,5]]_7 cyc-B [t2g0r]'] | with big codes 37.1 -> 36.7 (1.01x) ['[[28,1,5]]_7 cyc-B [t2g0r]']
+0.01->1e-15: library 52.6 -> +graded 52.6 (1.00x) ['[[7,1,3]]_7 cyc-B', '[[7,1,3]]_7 cyc-B'] | with big codes 48.4 -> 48.4 (1.00x) ['[[7,1,3]]_7 cyc-B', '[[1745,271,7]]_7']
+0.01->1e-30: library 210.3 -> +graded 210.3 (1.00x) ['[[7,1,3]]_7 cyc-B', '[[28,1,5]]_7 cyc-B [t2g0r]'] | with big codes 48.4 -> 48.4 (1.00x) ['[[7,1,3]]_7 cyc-B', '[[1745,271,7]]_7']
+0.003->1e-15: library 31.6 -> +graded 31.6 (1.00x) ['[[29,1,6]]_7 cyc-A'] | with big codes 31.6 -> 31.6 (1.00x) ['[[29,1,6]]_7 cyc-A']
+0.001->1e-15: library 28.8 -> +graded 28.8 (1.00x) ['[[28,1,5]]_7 cyc-B [t2g0r]'] | with big codes 28.8 -> 28.8 (1.00x) ['[[28,1,5]]_7 cyc-B [t2g0r]']
+0.001->1e-30: library 141.0 -> +graded 141.0 (1.00x) ['[[7,1,3]]_7 cyc-B', '[[20,1,4]]_7 dbl [t1g0r]'] | with big codes 39.0 -> 39.0 (1.00x) ['[[6,1,?]]_7 RS', '[[1745,271,7]]_7']
