@@ -108,6 +108,28 @@ and other δ are open.
   (success probability 4·10⁻⁹ per word per iteration). It found the 30x excess of weight-6 words in
   symmetric p = 7 blocks and confirmed the law on exact p = 11 restrictions.
 
+## Cost: γ is asymptotic, and these codes only pay at very low targets (2026-11-01)
+
+`scratchpad/levelset_cost.py`: proved protocol savings with no census (the weight-d term bounded by
+Singleton too, every heavier accepted error a failure), against the standard library **plus the
+whole Reed–Solomon family** (exact closed-form curves). Data: `runs/rm_m4/levelset_costs.json`,
+`levelset_costs_deep.json`.
+
+| code | rigorous threshold | 1e-2 → 1e-30 | 1e-3 → 1e-30 | 1e-3 → 1e-60 | 1e-3 → 1e-100 | 1e-3 → 1e-200 |
+|---|---|---|---|---|---|---|
+| [[13332,1309,22]]₁₁ | 0.30% | 1.16× | 1.13× | 3.03× | 3.14× | 3.77× |
+| [[78455,5066,≥68]]₁₇ | 0.22% | 1.00× (unused) | 1.00× | 1.00× | 1.00× | 2.02× (first used at 1e-150) |
+| [[123284,7037,≥57]]₁₉ | 0.12% | 1.00× (unused) | 1.00× | 1.00× | 1.14× | 2.31× |
+
+The obstacle is acceptance, not the bound: P_acc = (1 − ε)ⁿ, so a code with n ≈ 10⁵ is only usable once
+the input error is near 10⁻⁵, and at p ≥ 17 the Reed–Solomon codes ([[13,4,3]]₁₇, [[16,3,4]]₁₉, ...)
+reach 10⁻³⁰ for a total cost of 15–33 before the big code's n/k ≈ 15–18 can pay back. The level-set
+codes are therefore records in γ and in proved distance, not in practical cost at targets anyone needs;
+the p = 11 member is the exception (3× from 1e-60). Combined with the p = 7 result (the γ < 1 sphere
+codes save 4.1–4.3× at 1e-30, because the p = 7 standard library is weak), the lesson is that γ ranks
+codes in the n → ∞ limit while protocol cost at realistic targets is set by acceptance and by how good
+the small-code baseline at that prime is.
+
 ## Next
 
 1. Tighten the upper bound (exhaustive planar search; 3-flat words) and look for a better lower

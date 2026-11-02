@@ -18,7 +18,9 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   plus an explicit weight-22 word). Output set = the full zero set of a cubic; distance follows from a one-line
   theorem (g*e lies in RM_11(29,4), distance 22), no scan needed (`LEVEL_SETS.md`, 2026-10-31;
   catalog `imported-p11-n13332-k1309-c7aae3253e15`). Built at p = 17: [[78455,5066,>=68]]_17,
-  gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (proved).
+  gamma <= 0.649 (proved); at p = 19 a quartic gives [[123284,7037,>=57]]_19, gamma <= 0.708 (proved). Cost caveat: against the RS family the level-set codes save
+  1.1-1.2x at p = 11 and nothing at p = 17, 19 for targets 1e-30; they pay only from 1e-60 (p = 11) or
+  1e-100 to 1e-150 (p = 17, 19), because acceptance (1-eps)^n forces eps ~ 1e-5 (`LEVEL_SETS.md`).
 
 - **First gamma < 1 magic-state-distillation codes at p = 7**: [[1745,271,7]]_7, gamma 0.957 (nine independent
   draws d = 7 exact out of 13 filter survivors, 2026-11-01); [[1746,270,7]]_7, gamma 0.959 (two
