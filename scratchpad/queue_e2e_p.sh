@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 export OMP_NUM_THREADS=1
 [ -d pylib ] && export PYTHONPATH=pylib:. || export PYTHONPATH=.
 PY=python3; [ -x ~/cap_validate_work/venv/bin/python ] && PY=~/cap_validate_work/venv/bin/python
-ulimit -v 2600000
+ulimit -v ${ULIMIT_KB:-2600000}
 echo "start $(date)"
 nice -n 15 $PY -u scratchpad/cult_escape_e2e.py $1 $2 $3 $4 >> runs/cultivation/cult_escape_e2e.log 2>&1
 echo "done $(date)"
