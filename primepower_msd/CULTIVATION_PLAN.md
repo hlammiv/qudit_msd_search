@@ -438,8 +438,9 @@ part-way through one ancilla's fan-out) were never sampled.  With hook sampling 
 harmful single fault sits in the final round, and the ideal lookup decode used here gives 1.6×10⁻⁴ (serial) at p = 10⁻³
 instead of 9.1×10⁻⁷.  That decode is the wrong boundary: the cultivated state goes straight into the escape, whose
 postselection and gap cut see these faults.  Scored end to end (residual frames injected into the escape,
-`scratchpad/cult_escape_e2e.py`; MEAS_DISTILL §5k), the cultivation → escape input at 10⁻³ is < 1.7×10⁻⁶ (serial or
-parallel, f = 0) and ≈ 2×10⁻⁶ at full tick idle (f = 1, parallel schedule), for 1.3–11% extra escape discard.  The
-acceptances and attempts/output in §12 stand; the p_L column should be read as the hook-free model.  The footprint does not
-move (the [[7,1,3]] round is Clifford-floor limited).  Since p_cult barely matters there, the one-check recipe (r1c1) is
-worth rerunning end to end: it would save ~16% of the attempts.
+`scratchpad/cult_escape_e2e.py`, common escape noise; MEAS_DISTILL §5k), the cultivation → escape error per kept output
+at 10⁻³ is ≤ 3×10⁻⁶ (serial or parallel, f ≤ 0.1) and ≈ 2×10⁻⁶ at full tick idle (f = 1, parallel schedule).  The
+acceptances in §12 stand; the p_L column should be read as the hook-free model.  The footprint does not move (the [[7,1,3]]
+round is Clifford-floor limited).  The one-check recipe (r1c1) leaves ≈ 1.1×10⁻⁵ that the escape cannot see — still
+below the floor, so it remains the cheapest choice for the distilled pipeline (16% fewer attempts), but not for
+undistilled use.
