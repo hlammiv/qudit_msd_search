@@ -11,6 +11,10 @@ runs/cultivation/cult_escape_e2e.jsonl.
     config: serial | serial-hooks | par-hooks | par-hooks-f0.1 | par-hooks-f1, optionally + "-esc" (the escape gets the same
     tick idle, graft_run variant one+gap-tick{f}), and/or "-c1" before it (one T-check per stage, r1c1, instead of two);
     fails are also recorded at cuts CUTS.
+Both bases run with the SAME seed: their noise is then identical (only the noiseless prep and the final readout differ),
+so the joint keep decision is one escape's (checked: keep agreement 1.0); independent seeds would square the keep rate of
+residual frames.  N_TRIVIAL zero frames ride along to measure the escape's own keep rate a(cut), and the error per kept
+output is p_out(cut) = fails(cut) / ((accepted - nontrivial) a(cut) + kept_nontrivial(cut)).
 """
 import json
 import sys
@@ -30,6 +34,7 @@ CONFIGS = {"serial": ({}, 0.0), "serial-hooks": ({"hooks": True}, 0.0),
            "par-hooks-f0.1": ({"hooks": True, "parallel": True, "final_block": True}, 0.1),
            "par-hooks-f1": ({"hooks": True, "parallel": True, "final_block": True}, 1.0)}
 CUT = 15
+N_TRIVIAL = 20_000
 CUTS = (0, 8, 10, 12, 13, 14, 15, 16, 18)
 
 
@@ -104,21 +109,31 @@ def main():
         res = Parallel(n_jobs=jobs)(delayed(cult_chunk)(cfg, p, shots // nch, 1000 + k) for k in range(nch))
         acc = sum(r[0] for r in res); lookup = sum(r[1] for r in res)
         F = np.concatenate([r[2] for r in res])
-        inj = np.zeros((len(F), 19, 2), dtype=np.int64)
-        inj[:, perm, :] = F                                     # cultivation data i -> escape colour position perm[i]
-        (kz, az, gz), (kx, bx, gx) = Parallel(n_jobs=min(2, jobs))(delayed(escape_injected)(b, inj, p, 7 + i, parse(cfg)[2]) for i, b in enumerate("ZX"))
+        inj = np.zeros((len(F) + N_TRIVIAL, 19, 2), dtype=np.int64)
+        inj[:len(F), perm, :] = F                               # cultivation data i -> escape colour position perm[i]
+        (kz, az, gz), (kx, bx, gx) = Parallel(n_jobs=min(2, jobs))(delayed(escape_injected)(b, inj, p, 7, parse(cfg)[2]) for b in "ZX")
+        assert (kz == kx).all(), "common-noise runs disagree on keep"
+        nt = len(F)
+        triv = slice(nt, None)
+        gt = np.minimum(np.nan_to_num(gz[triv], nan=0), np.nan_to_num(gx[triv], nan=0))
+        a_triv = {c: float((kz[triv] & (gt >= c)).mean()) for c in CUTS}
+        tfail = {c: int((kz[triv] & (gt >= c) & ((bx[triv] - az[triv]) % 4 != 0)).sum()) for c in CUTS}
+        kz, kx, az, bx, gz, gx = kz[:nt], kx[:nt], az[:nt], bx[:nt], gz[:nt], gx[:nt]
         sigma = 1
         keep = kz & kx
         keep_cut = keep & (np.nan_to_num(gz, nan=0) >= CUT) & (np.nan_to_num(gx, nan=0) >= CUT)
         bad = (bx - sigma * az) % 4 != 0
         gmin = np.minimum(np.nan_to_num(gz, nan=0), np.nan_to_num(gx, nan=0))
         by_cut = {c: [int((keep & (gmin >= c)).sum()), int((keep & (gmin >= c) & bad).sum())] for c in CUTS}
+        p_out = {c: by_cut[c][1] / ((acc - nt) * a_triv[c] + by_cut[c][0]) for c in CUTS}
+        att = {c: shots / ((acc - nt) * a_triv[c] + by_cut[c][0]) for c in CUTS}     # cultivation attempts per kept escape
         out = dict(config=cfg, p=p, shots=shots, accepted=acc, accept=acc / shots, lookup_fails=lookup, nontrivial=len(F),
                    kept=int(keep.sum()), fails=int((keep & bad).sum()), kept_cut=int(keep_cut.sum()),
                    fails_cut=int((keep_cut & bad).sum()), cut=CUT,
                    e2e_fails_per_accepted=int((keep_cut & bad).sum()) / max(acc, 1),
                    e2e_fails_per_accepted_nocut=int((keep & bad).sum()) / max(acc, 1),
-                   extra_discard=int((~keep_cut).sum()) / max(acc, 1), escape=parse(cfg)[2], by_cut=by_cut, seconds=round(time.time() - t, 1))
+                   extra_discard=int((~keep_cut).sum()) / max(acc, 1), escape=parse(cfg)[2], by_cut=by_cut, a_trivial=a_triv,
+                   trivial_fails=tfail, p_out=p_out, attempts_per_kept=att, common_noise=True, seconds=round(time.time() - t, 1))
         with open("runs/cultivation/cult_escape_e2e.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
