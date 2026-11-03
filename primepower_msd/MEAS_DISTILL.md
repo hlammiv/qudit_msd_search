@@ -807,8 +807,39 @@ again, also under tick idle).  That still leaves ~1 600 idle qudit-ticks (≈ 0.
 
 Failures are second order (fault distance 2 holds): long waits compose into DEP1 of a few percent.  At f = 1 these
 circuits cannot feed the [[7,1,3]] round, and at f = 0.1 the input error rises 7–12×; the cultivation circuit's depth,
-not the host, is the f = 1 bottleneck.  Next: a depth-optimised schedule (interleaved hook-safe X/Z rounds, a T-check
-without a fresh cat per check).
+not the host, is the f = 1 bottleneck.  (Superseded by the next two paragraphs: that table was taken without hook
+sampling and with a just-in-time-prep bug in `add_tick_idle`; both are fixed, and the f = 1 acceptance at 10⁻³ is 0.29.)
+
+**Hook errors and the end-to-end boundary.**  The cultivation `CSUM` primitive used to apply DEP2 once after a whole
+fan-out layer, so an ancilla's hook (a fault part-way through its fan-out) was never sampled.  Only cultivation has such
+layers (surface, CSUM, escape and [[7,1,3]] gadgets do not).  With `hooks=True` (DEP2 after each pair) every harmful single
+fault sits in the final stabiliser round, where the ideal lookup decode of §12 has nothing after it to catch it: the
+lookup p_L at 10⁻³ becomes 1.6×10⁻⁴ (serial) / 4.4×10⁻⁴ (parallel), not 9×10⁻⁷.  That boundary is too pessimistic — in the
+pipeline the escape comes next.  `scratchpad/cult_escape_e2e.py` injects each accepted shot's bare residual frame
+(`FrameSim(gauge=False)`, qudits mapped by the plaquette isomorphism) into the escape after its noiseless colour-state
+prep, in both bases, then runs the escape's own noise, postselection, 2-adic matcher and gap cut 15; a shot fails iff
+the net logical (a′, b′) is not a power of the cultivated state's check operator, b′ ≢ a′ (mod 4) (calibrated by injecting
+X_L, Z_L, X_L Z_L).  The escape's intrinsic error on trivial frames (`ESCAPE_Z4_GAP`, 3×10⁻⁷) adds on top.
+Results (`runs/cultivation/cult_escape_e2e.jsonl`, 4×10⁶ cultivation shots each at p = 10⁻³, d = 4, grow 3 → 5 r1c2;
+serial / f = 0 configs on loranne, f > 0 local, 2026-11-02):
+
+| config | accept | lookup p_L | residual frames | e2e fails, no cut | e2e fails, cut 15 | extra discard |
+|---|---|---|---|---|---|---|
+| serial, no hooks (old model) | 0.452 | 1.1×10⁻⁶ (2) | 54 500 | 2 | 0 (< 1.7×10⁻⁶) | 2.6% |
+| serial + hooks | 0.435 | 1.6×10⁻⁴ (284) | 27 795 | 51 | 0 (< 1.7×10⁻⁶) | 1.3% |
+| parallel + hooks, f = 0 | 0.435 | 4.4×10⁻⁴ (774) | 28 415 | 43 | 0 (< 1.7×10⁻⁶) | 1.3% |
+| parallel + hooks, f = 0.1 | 0.417 | 4.6×10⁻⁴ (771) | 44 580 | 41 | 0 (< 1.8×10⁻⁶) | 2.3% |
+| parallel + hooks, f = 1 | 0.288 | 9.4×10⁻⁴ (1 085) | 134 546 | 163 | 2 (1.7×10⁻⁶, 95% < 5.5×10⁻⁶) | 10.9% |
+
+(Per accepted cultivation shot; bounds are 95% CL; "residual frames" = accepted shots with a nontrivial frame; extra
+discard = escape discards caused by residuals, on top of its own 44%.)  The escape removes the hook failures: its
+first-order postselection sees them, and the gap cut takes the rest.  At f = 1 the cultivation → escape input is
+≈ 2×10⁻⁶ (≤ 5.5×10⁻⁶), at f ≤ 0.1 below 1.8×10⁻⁶ — the same order as the old 9×10⁻⁷.  Footprint
+(`scratchpad/footprint_tick_proxy.py f cult=a,p escape-gap census-sparse`, a = accept × (1 − extra discard)): the
+[[7,1,3]] round is Clifford-floor limited, so the input change moves nothing — f = 0: 10⁻¹⁰ → D = 21, 7 112 qudits, 62
+attempts/output (was 59); f = 0.1: same, 66; **f = 1: 10⁻¹⁰ → D = 25, 10 056 qudits, 105 attempts/output; 10⁻¹² → D = 29,
+13 512** (also at p_cult = 5.5×10⁻⁶).  So at full-strength idle noise the program costs one host distance step and 1.8×
+the cultivation attempts.  Caveats: the escape itself is simulated without tick idle; 5×10⁻⁴ not run end to end.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
@@ -819,4 +850,4 @@ without a fresh cat per check).
 6. Done (§5h): the escape (Gidney's d₁ = 5 → D = 15 graft, signs consistent for all 2^k) simulated with decoder-certified first-order postselection: 1.8×10⁻⁴ per kept attempt at p = 10⁻³ with one colour class postselected (43% joint discard), 6.6×10⁻⁵ with all three (62%); fault distance 2 from colour-region decoding, not from hooks (flags tested, no gain).  Second-order (pair) certification with a cost cap: 9×10⁻⁵ at 43%.  A BP+LSD hypergraph decoder (hyperdecoder.py) is better at first order but 2–3× worse in bulk; BP-based gap is too slow / uninformative.  **Complementary-gap postselection with the 2-adic matcher** (split boundary + parity potential, exact two-class decode, 0.7 ms/shot): cut at 13 → no failure in 7.9M kept attempts per sector at p = 10⁻³ (< 6×10⁻⁷ total, 90% CL; floor run 2026-10-31) for 0.6 points of discard — the escape is no longer the bottleneck; one [[7,1,3]] round reaches 10⁻¹² at p = 10⁻³ (8 520 qudits, 59 attempts/output).  Gap recipe at 5×10⁻⁴: < 6×10⁻⁶ at 24.9% discard.  Open: idle noise during CSUM layers; margin of the cut (failing gaps reach 12.x).
 7. Done (§5i): the logical CSUM measured on two surface-code patches with a Pauli-frame (sequential) decoder: 1.1–1.2× the idle two-patch memory, same threshold; independent per-patch decoding has a first-order floor (24 p at D = 9) from source measurement errors leaking into the cross-layer detectors.  Footprint: 10⁻¹⁰ unchanged to +1 step (5 832–7 112 qudits), 10⁻¹² one step up (D = 25, 10 056).  Done: the d = 8 sweep (A 0.25/0.22, p_th 7.3/6.5×10⁻³) matches.  Open: idle census between CSUM layers.
 8. Done (§5h, d = 8 paragraph): the escape at d = 8 reproduces d = 4 (one class 1.6×10⁻⁴ at 45% discard; gap cut 13: 0 failures in 1.09×10⁵ kept per sector at p = 10⁻³).  d = 8 cultivation growth 3 → 5 at 2×10⁷ shots (CULTIVATION_PLAN §12): acceptance 0.439 / 0.662 at p = 10⁻³ / 5×10⁻⁴, 3 failures in 8.8M accepted (3.4×10⁻⁷, 90% CL 0.9–8.8×10⁻⁷) and 0 in 13.2M (< 1.7×10⁻⁷), consistent with d = 4 (9.1×10⁻⁷, 1.5×10⁻⁷).  Gap recipe measured at 5×10⁻⁴ (§5h).  Running: 10⁸-attempt floor of the gap recipe at d = 4.
-9. Done (§5j): host-code census of the Clifford layer — the depolarizing a_C = 0.357 under-counts the surface-code host by ~10× (single-wire Z-type failures are the surviving type; idle rounds never charged); floor = 4.67 q_gate + 5.33 q_round per output.  Footprint: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits; 10⁻¹² → D = 27 (11 720).  The CSUM excess measured at fixed D (10⁶ shots): 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7, ≈ 0.45 D — the fit's value, not one extra round.  Done (§5j, sparse census): the best of 200 sparse encoder networks has exposures 1.0 / 2.0 (4.3× lower floor), same at d = 8; 10⁻¹² at 10⁻³ → D = 25, 10 056.  Done (§5g): d = 16 host sweep — p_th unchanged, A +15–25%, no footprint change.  Done (§5g): d = 32 host sweep — A, p_th equal to d = 16 (saturated).  Done (§5j): two-wire CSUM failures — the best sparse gadget is immune (0 / 0); census exposures d-independent through d = 32.  Done (§5h): gap-cut margin — cut 13 gives 3.9×10⁻⁷ (8 events in 20.5M kept per sector), cut 15 gives 5×10⁻⁸ for +0.5 points of discard; the recipe now cuts at 15, no footprint change.  Running (lenore): p-dependence of the excess (D = 9 left); d = 32 escape.  Done (§5h): d = 16 escape reproduces d = 8.  Next: d = 32 escape (queued on lenore).  Done (§5k): idle noise at every tick — host costs one distance step at f = 1 (10⁻¹⁰ at 10⁻³ → 10 056), nothing at f = 0.1; the CSUM ratio is unchanged; cultivation is the f = 1 bottleneck (parallel circuit p_L 1.7×10⁻³ at 10⁻³).  Next: depth-optimised cultivation circuit.
+9. Done (§5j): host-code census of the Clifford layer — the depolarizing a_C = 0.357 under-counts the surface-code host by ~10× (single-wire Z-type failures are the surviving type; idle rounds never charged); floor = 4.67 q_gate + 5.33 q_round per output.  Footprint: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits; 10⁻¹² → D = 27 (11 720).  The CSUM excess measured at fixed D (10⁶ shots): 2.0 ± 0.3 patch-rounds at D = 5, 3.4 ± 0.4 at D = 7, ≈ 0.45 D — the fit's value, not one extra round.  Done (§5j, sparse census): the best of 200 sparse encoder networks has exposures 1.0 / 2.0 (4.3× lower floor), same at d = 8; 10⁻¹² at 10⁻³ → D = 25, 10 056.  Done (§5g): d = 16 host sweep — p_th unchanged, A +15–25%, no footprint change.  Done (§5g): d = 32 host sweep — A, p_th equal to d = 16 (saturated).  Done (§5j): two-wire CSUM failures — the best sparse gadget is immune (0 / 0); census exposures d-independent through d = 32.  Done (§5h): gap-cut margin — cut 13 gives 3.9×10⁻⁷ (8 events in 20.5M kept per sector), cut 15 gives 5×10⁻⁸ for +0.5 points of discard; the recipe now cuts at 15, no footprint change.  Running (lenore): p-dependence of the excess (D = 9 left); d = 32 escape.  Done (§5h): d = 16 escape reproduces d = 8.  Next: d = 32 escape (queued on lenore).  Done (§5k): idle noise at every tick — host costs one distance step at f = 1 (10⁻¹⁰ at 10⁻³ → 10 056), nothing at f = 0.1; the CSUM ratio is unchanged; cultivation scored with hooks against the escape (end to end): ≈ 2×10⁻⁶ at f = 1, < 1.8×10⁻⁶ at f ≤ 0.1, so f = 1 costs D = 25, 10 056 qudits for 10⁻¹⁰ at 10⁻³ and 105 cultivation attempts/output.  Next: tick idle inside the escape; shorter cultivation (acceptance 0.29 at f = 1).

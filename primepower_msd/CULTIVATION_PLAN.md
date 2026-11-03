@@ -430,3 +430,16 @@ checks the growth error is not set by undetected T-faults but by the growth / fi
 p_L 8.6× for 19 % more acceptance.  For the one-round [[7,1,3]] pipeline the distillation cubes the input error, so even
 7.8e-6 is far below the Clifford floor and the cheapest cultivation is the *one-check* recipe (49.6 vs 59 attempts per
 output, same qudits); p_cult only matters where the cultivated state is used undistilled.
+
+## 13. 2026-11-02 — CORRECTION: hook errors were not sampled; the right boundary is end to end
+
+The p_L values in §11–§12 come from a `CSUM` primitive that applied DEP2 once per fan-out layer, so hook errors (a fault
+part-way through one ancilla's fan-out) were never sampled.  With hook sampling (`ColorCult/GrowCult(hooks=True)`) every
+harmful single fault sits in the final round, and the ideal lookup decode used here gives 1.6×10⁻⁴ (serial) at p = 10⁻³
+instead of 9.1×10⁻⁷.  That decode is the wrong boundary: the cultivated state goes straight into the escape, whose
+postselection and gap cut see these faults.  Scored end to end (residual frames injected into the escape,
+`scratchpad/cult_escape_e2e.py`; MEAS_DISTILL §5k), the cultivation → escape input at 10⁻³ is < 1.7×10⁻⁶ (serial or
+parallel, f = 0) and ≈ 2×10⁻⁶ at full tick idle (f = 1, parallel schedule), for 1.3–11% extra escape discard.  The
+acceptances and attempts/output in §12 stand; the p_L column should be read as the hook-free model.  The footprint does not
+move (the [[7,1,3]] round is Clifford-floor limited).  Since p_cult barely matters there, the one-check recipe (r1c1) is
+worth rerunning end to end: it would save ~16% of the attempts.

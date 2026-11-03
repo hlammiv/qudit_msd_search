@@ -1,6 +1,7 @@
 """Footprint with idle noise at every tick (proxy until the tick CSUM runs land): the single-patch fits of
 runs/surface/zd_d4_tick{f}.jsonl replace HOST_Z4, and the CSUM / two-patch fits are rescaled by the same factors per basis
-(A ratio, p_th ratio).  python scratchpad/footprint_tick_proxy.py f [footprint args...]"""
+(A ratio, p_th ratio).  python scratchpad/footprint_tick_proxy.py f [cult=a,p_L] [footprint args...]
+(f = 0: no host patch; cult=a,p_L replaces the 1e-3 cultivation input, e.g. the end-to-end cultivation -> escape numbers)"""
 import sys
 
 from primepower_msd import footprint as FP, host_census as HC
@@ -10,7 +11,10 @@ TICK = {  # f: (both-basis A, p_th), X basis (A, p_th) from surface_fit 4_tick{f
     0.1: ((0.054, 7.12e-3), (0.0591, 7.07e-3)),
 }
 f = float(sys.argv.pop(1))
-(Ab, pb), (Ax, px) = TICK[f]
+if len(sys.argv) > 1 and sys.argv[1].startswith("cult="):
+    a_c, p_c = map(float, sys.argv.pop(1)[5:].split(","))
+    FP.CULT_D4[FP.CULT_KEY][1e-3] = (a_c, p_c)
+(Ab, pb), (Ax, px) = TICK.get(f, ((FP.HOST_Z4["A"], FP.HOST_Z4["p_th"]), (0.049, 7.2e-3)))
 ra_b, rp_b = Ab / FP.HOST_Z4["A"], pb / FP.HOST_Z4["p_th"]
 ra_x, rp_x = Ax / 0.049, px / 7.2e-3
 FP.HOST_Z4.update(A=Ab, p_th=pb)
