@@ -1,0 +1,40 @@
+{
+ "p": 13,
+ "r": 15,
+ "word_lines": 5,
+ "full_lines_total": 20,
+ "max_O_points_on_word": 32,
+ "upper_bound": 33,
+ "found": {
+  "direction": [
+   1,
+   8,
+   3,
+   9
+  ],
+  "quotient_base": [
+   7,
+   12,
+   7
+  ],
+  "quotient_line_dir": [
+   1,
+   1,
+   7
+  ],
+  "quotient_points": [
+   [
+    7,
+    12,
+    7
+   ],
+   [
+    9,
+    1,
+    8
+   ]
+  ]
+ },
+ "lower_bound": 13,
+ "seconds": 3
+}

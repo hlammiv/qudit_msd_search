@@ -15,7 +15,7 @@ full_t = sorted({next(t for t in range(p) if tuple((base + t * d3) % p) == tuple
 a1, b1 = divmod(m * (p - 1) - r - 1, p - 1); nl_word = p - b1
 plane = {t: [index[tuple(int(c) for c in (lift((base + t * d3) % p) + s * v) % p)] for s in range(p)] for t in range(p)}
 occ = {t: sum(1 for x in plane[t] if x in O) for t in range(p)}
-chosen = full_t + sorted([t for t in range(p) if t not in full_t], key=lambda t: occ[t])[: nl_word - len(full_t)]
+chosen = full_t + sorted([t for t in range(p) if t not in full_t], key=lambda t: -occ[t])[: nl_word - len(full_t)]
 excluded = [t for t in range(p) if t not in chosen]
 u = {}
 for t in chosen:

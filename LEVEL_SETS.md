@@ -79,7 +79,9 @@ distance.
 > their level sets contain 3 coplanar parallel lines, which turns a minimum-weight dual word into an explicit
 > kernel word of weight equal to the lower bound (`scratchpad/levelset_lines.py`, `levelset_witness.py`,
 > verified against every monomial of degree ≤ r with exact arithmetic): d = 68 at p = 17, d = 138 at p = 23.
-> The p = 19 quartic has no 4 coplanar parallel lines in its level set; its distance stays ≥ 57.
+> The p = 19 quartic has no 4 coplanar parallel lines in its level set. Best planar word through its full lines
+> (`scratchpad/levelset_upper.py`): **57 ≤ d ≤ 96** (γ ∈ [0.627, 0.708]); for the p = 13 quartic **13 ≤ d ≤ 33**
+> (γ ∈ [0.700, 0.954]). Both witness words verified with exact arithmetic.
 >
 > **Audit (2026-11-03).** Every power computation in `qmsd/` and `scratchpad/` was checked for the same
 > overflow. `qmsd` is clean (its one array power, `reedmuller.rm_generator`, runs in exact galois arithmetic;
