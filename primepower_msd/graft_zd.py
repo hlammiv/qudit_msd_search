@@ -452,10 +452,12 @@ class Escape:
         return HyperDecoder(self.dem, p, **kw)
 
     def run(self, p: float, shots: int = 10_000, seed: int = 0, chunk: int = 5_000, decoder: str = "peel", inject=None,
-            per_shot: bool = False, **dec_kw) -> dict:
+            per_shot: bool = False, chunk_seeded: bool = False, **dec_kw) -> dict:
         """inject: optional (shots, 19, 2) array of X / Z frames on the colour qudits (colour_q order), applied at the end of
         the noiseless colour-state preparation -- e.g. the residual frames of a simulated cultivation.  per_shot: also return
-        shot_keep (bool), shot_flip (decoded logical readout error mod d) and shot_gap (nan without a gap) arrays."""
+        shot_keep (bool), shot_flip (decoded logical readout error mod d) and shot_gap (nan without a gap) arrays.
+        chunk_seeded: a fresh generator per chunk, seeded by (seed, first shot), so Z- and X-basis runs with the same seed
+        share their noise shot by shot (the X readout draws extra numbers, which would shift a single stream)."""
         dec = self.make_decoder(p, decoder, **dec_kw)
         gaps = []                                     # (gap, failed) per kept shot when the decoder reports a gap
         rng = np.random.default_rng(seed)
@@ -471,6 +473,8 @@ class Escape:
             forced = None
             if inject is not None:
                 forced = {self.inject_op: [(np.ones(n, dtype=bool), list(range(len(self.colour_q))), inject[done:done + n])]}
+            if chunk_seeded:
+                rng = np.random.default_rng([seed, done])
             sim = FrameSim(self.mem.circ, n, rng).run(scale=p / P_BUILD, forced=forced)
             Dall = sim.detector_values()
             Dv = Dall[:, self.sel]

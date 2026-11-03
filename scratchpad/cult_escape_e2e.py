@@ -12,7 +12,7 @@ runs/cultivation/cult_escape_e2e.jsonl.
     tick idle, graft_run variant one+gap-tick{f}), and/or "-c1" before it (one T-check per stage, r1c1, instead of two);
     fails are also recorded at cuts CUTS.
 Both bases run with the SAME seed: their noise is then identical (only the noiseless prep and the final readout differ),
-so the joint keep decision is one escape's (checked: keep agreement 1.0); independent seeds would square the keep rate of
+so the joint keep decision is one escape's (per-chunk seeding, Escape.run(chunk_seeded); keep agreement 0.9998); independent seeds would square the keep rate of
 residual frames.  N_TRIVIAL zero frames ride along to measure the escape's own keep rate a(cut), and the error per kept
 output is p_out(cut) = fails(cut) / ((accepted - nontrivial) a(cut) + kept_nontrivial(cut)).
 """
@@ -96,7 +96,7 @@ def qudit_map():
 
 def escape_injected(basis, frames, p, seed, variant="one+gap"):
     ex = Escape(4, basis, **VARIANTS[variant])
-    r = ex.run(p, len(frames), seed=seed, decoder="peel-gap", inject=frames, per_shot=True)
+    r = ex.run(p, len(frames), seed=seed, decoder="peel-gap", inject=frames, per_shot=True, chunk_seeded=True)
     return r["shot_keep"], r["shot_flip"], r["shot_gap"]
 
 
@@ -112,7 +112,7 @@ def main():
         inj = np.zeros((len(F) + N_TRIVIAL, 19, 2), dtype=np.int64)
         inj[:len(F), perm, :] = F                               # cultivation data i -> escape colour position perm[i]
         (kz, az, gz), (kx, bx, gx) = Parallel(n_jobs=min(2, jobs))(delayed(escape_injected)(b, inj, p, 7, parse(cfg)[2]) for b in "ZX")
-        assert (kz == kx).all(), "common-noise runs disagree on keep"
+        keep_disagree = float((kz != kx).mean())      # ~2e-4: certified-pattern discards see the basis-dependent readout
         nt = len(F)
         triv = slice(nt, None)
         gt = np.minimum(np.nan_to_num(gz[triv], nan=0), np.nan_to_num(gx[triv], nan=0))
@@ -133,7 +133,7 @@ def main():
                    e2e_fails_per_accepted=int((keep_cut & bad).sum()) / max(acc, 1),
                    e2e_fails_per_accepted_nocut=int((keep & bad).sum()) / max(acc, 1),
                    extra_discard=int((~keep_cut).sum()) / max(acc, 1), escape=parse(cfg)[2], by_cut=by_cut, a_trivial=a_triv,
-                   trivial_fails=tfail, p_out=p_out, attempts_per_kept=att, common_noise=True, seconds=round(time.time() - t, 1))
+                   trivial_fails=tfail, p_out=p_out, attempts_per_kept=att, common_noise=True, keep_disagree=keep_disagree, seconds=round(time.time() - t, 1))
         with open("runs/cultivation/cult_escape_e2e.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
