@@ -9,7 +9,8 @@ runs/cultivation/cult_escape_e2e.jsonl.
 
     PYTHONPATH=. python scratchpad/cult_escape_e2e.py p shots jobs config[,config...]
     config: serial | serial-hooks | par-hooks | par-hooks-f0.1 | par-hooks-f1, optionally + "-esc" (the escape gets the same
-    tick idle, graft_run variant one+gap-tick{f}); fails are also recorded at cuts CUTS.
+    tick idle, graft_run variant one+gap-tick{f}), and/or "-c1" before it (one T-check per stage, r1c1, instead of two);
+    fails are also recorded at cuts CUTS.
 """
 import json
 import sys
@@ -35,13 +36,14 @@ CUTS = (0, 8, 10, 12, 13, 14, 15, 16, 18)
 def parse(cfg):
     """config -> (GrowCult kwargs, cultivation tick f, escape variant)"""
     base, esc = (cfg[:-4], True) if cfg.endswith("-esc") else (cfg, False)
+    base, checks = (base[:-3], 1) if base.endswith("-c1") else (base, 2)
     kw, f = CONFIGS[base]
-    return kw, f, (f"one+gap-tick{f:g}" if esc and f else "one+gap")
+    return dict(kw, checks3=checks, checks5=checks), f, (f"one+gap-tick{f:g}" if esc and f else "one+gap")
 
 
 def cult_chunk(cfg, p, shots, seed, batch=20_000):
     kw, f, _ = parse(cfg)
-    g = GrowCult(4, p, 1, 1, rounds3=1, checks3=2, rounds5=1, checks5=2, **kw)
+    g = GrowCult(4, p, 1, 1, rounds3=1, rounds5=1, **kw)
     if f:
         g.c = add_tick_idle(g.c, f * p)
     rng = np.random.default_rng(seed)
