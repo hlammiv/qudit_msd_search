@@ -80,6 +80,14 @@ distance.
 > kernel word of weight equal to the lower bound (`scratchpad/levelset_lines.py`, `levelset_witness.py`,
 > verified against every monomial of degree ≤ r with exact arithmetic): d = 68 at p = 17, d = 138 at p = 23.
 > The p = 19 quartic has no 4 coplanar parallel lines in its level set; its distance stays ≥ 57.
+>
+> **Audit (2026-11-03).** Every power computation in `qmsd/` and `scratchpad/` was checked for the same
+> overflow. `qmsd` is clean (its one array power, `reedmuller.rm_generator`, runs in exact galois arithmetic;
+> all other `**` are on Python integers or floats). The p ≥ 17 searches and certificates
+> (`m2_line_sweep.py`, `line_witness.py`, the RS scripts) build matrices from `rm_generator`. The MITM kernels
+> hash with wrapping 64-bit arithmetic, which can only cause false *matches*, and every match is confirmed by
+> an exact F_p rank test (`mindist_nb._dependent`). The remaining `np.power` uses have exponents ≤ 6 or
+> p ≤ 7. Only the three level-set scripts were affected, and they are fixed.
 
 `scratchpad/levelset_build.py` evaluates only the monomials at the output points, so it never forms
 the dense generator; `scratchpad/levelset_verify.py` recomputes the level set from the stored
