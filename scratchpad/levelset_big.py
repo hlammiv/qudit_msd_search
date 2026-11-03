@@ -34,6 +34,10 @@ for e, c in zip(cub, coef):
         t = np.full(len(P), c, dtype=np.int64)
         for i in range(m): t = (t * POW[P[:, i], e[i]]) % p
         vals = (vals + t) % p
+if not src:
+    json.dump({"best": {"p": p, "m": m, "r": r, "delta": delta, "k": int(k), "n": int(n), "d_lower_bound": int(dmin), "gamma_upper": float(np.log(n / k) / np.log(dmin)),
+                        "cubic_monomials": [list(e) for e in cub], "cubic_coeffs": [int(x) for x in coef], "level": int(lev), "puncture_columns_1indexed": [int(x) + 1 for x in O]}},
+              open(out.replace(".json", "_set.json"), "w"))
 print(f"level set recomputed equals O: {(np.nonzero(vals == lev)[0] == O).all() and len(np.nonzero(vals == lev)[0]) == k}", flush=True)
 E = np.ones((k, len(M_r)), dtype=np.int16)
 for j, e in enumerate(M_r):
@@ -44,7 +48,7 @@ for j, e in enumerate(M_r):
 print(f"E built {E.shape} ({E.nbytes/1e9:.1f} GB, {time.time()-t0:.0f}s)", flush=True)
 
 @nb.njit(parallel=True, cache=True)
-def rank_rows(A, p):
+def rank_rows(A, p, every):
     R, C = A.shape; inv = np.zeros(p, dtype=np.int64)
     for x in range(1, p):
         for y in range(1, p):
@@ -64,11 +68,12 @@ def rank_rows(A, p):
             if f != 0:
                 for j in range(c, C): A[i, j] = (np.int64(A[i, j]) - f * np.int64(A[rk, j])) % p
         rk += 1
+        if every > 0 and rk % every == 0: print('  pivots', rk, 'of', R)
         if rk == R: break
     return rk
 
 @nb.njit(parallel=True, cache=True)
-def rank_cols_rev(B, p):
+def rank_cols_rev(B, p, every):
     # B = E^T (C x R): eliminate on the transpose, pivot columns right to left
     R, C = B.shape; inv = np.zeros(p, dtype=np.int64)
     for x in range(1, p):
@@ -88,11 +93,22 @@ def rank_cols_rev(B, p):
             if f != 0:
                 for j in range(C): B[i, j] = (np.int64(B[i, j]) - f * np.int64(B[rk, j])) % p
         rk += 1
+        if every > 0 and rk % every == 0: print('  pivots', rk, 'of', R)
         if rk == R: break
     return rk
 
-if method == "row": rk = rank_rows(E, p)
-else: rk = rank_cols_rev(np.ascontiguousarray(E.T), p)
+EXTRA = 40
+seed = 1 if method == "row" else 2                     # different column subsets for the two routines
+cols = np.sort(np.random.default_rng(seed).choice(E.shape[1], size=min(E.shape[1], int(1.25 * k) + EXTRA), replace=False))
+Es = np.ascontiguousarray(E[:, cols]); print(f"column-subset certificate: {Es.shape[1]} of {E.shape[1]} columns (seed {seed}); full rank on the subset implies full rank of E", flush=True)
+import threading
+t_start = time.time()
+if method == "row": rk = rank_rows(Es, p, 1000)
+else: rk = rank_cols_rev(np.ascontiguousarray(Es.T), p, 1000)
+if rk < k:
+    print(f"subset rank {rk} < {k}: falling back to all columns", flush=True)
+    if method == "row": rk = rank_rows(E, p, 1000)
+    else: rk = rank_cols_rev(np.ascontiguousarray(E.T), p, 1000)
 print(f"rank ({method}): {rk} of {k} -> {'INDEPENDENT' if rk == k else 'DEPENDENT'} ({time.time()-t0:.0f}s)", flush=True)
 json.dump({"best": {"p": p, "m": m, "r": r, "delta": delta, "k": int(k), "n": int(n), "d_lower_bound": int(dmin), "gamma_upper": float(np.log(n / k) / np.log(dmin)),
                     "cubic_monomials": [list(e) for e in cub], "cubic_coeffs": [int(x) for x in coef], "level": int(lev), "puncture_columns_1indexed": [int(x) + 1 for x in O],
