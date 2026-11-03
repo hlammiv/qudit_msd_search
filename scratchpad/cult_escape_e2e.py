@@ -36,14 +36,17 @@ CONFIGS = {"serial": ({}, 0.0), "serial-hooks": ({"hooks": True}, 0.0),
 CUT = 15
 N_TRIVIAL = 20_000
 CUTS = (0, 8, 10, 12, 13, 14, 15, 16, 18)
+JOINT = ((12, 12), (13, 13), (14, 13), (14, 14), (15, 13), (15, 15))   # (cut_Z, cut_X), keep = Z and X keep (incl. trivial frames)
 
 
 def parse(cfg):
     """config -> (GrowCult kwargs, cultivation tick f, escape variant)"""
-    base, esc = (cfg[:-4], True) if cfg.endswith("-esc") else (cfg, False)
+    none = cfg.endswith("-noneesc")                  # escape without colour-region postselection (none+gap[-tick f])
+    base, esc = (cfg[:-8], True) if none else (cfg[:-4], True) if cfg.endswith("-esc") else (cfg, False)
     base, checks = (base[:-3], 1) if base.endswith("-c1") else (base, 2)
     kw, f = CONFIGS[base]
-    return dict(kw, checks3=checks, checks5=checks), f, (f"one+gap-tick{f:g}" if esc and f else "one+gap")
+    var = "none+gap" if none else "one+gap"
+    return dict(kw, checks3=checks, checks5=checks), f, (f"{var}-tick{f:g}" if esc and f else var)
 
 
 def cult_chunk(cfg, p, shots, seed, batch=20_000):
@@ -118,6 +121,7 @@ def main():
         gt = np.minimum(np.nan_to_num(gz[triv], nan=0), np.nan_to_num(gx[triv], nan=0))
         a_triv = {c: float((kz[triv] & (gt >= c)).mean()) for c in CUTS}
         tfail = {c: int((kz[triv] & (gt >= c) & ((bx[triv] - az[triv]) % 4 != 0)).sum()) for c in CUTS}
+        kz_t, kx_t, gz_t, gx_t = kz[triv], kx[triv], gz[triv], gx[triv]
         kz, kx, az, bx, gz, gx = kz[:nt], kx[:nt], az[:nt], bx[:nt], gz[:nt], gx[:nt]
         sigma = 1
         keep = kz & kx
@@ -125,15 +129,25 @@ def main():
         bad = (bx - sigma * az) % 4 != 0
         gmin = np.minimum(np.nan_to_num(gz, nan=0), np.nan_to_num(gx, nan=0))
         by_cut = {c: [int((keep & (gmin >= c)).sum()), int((keep & (gmin >= c) & bad).sum())] for c in CUTS}
-        p_out = {c: by_cut[c][1] / ((acc - nt) * a_triv[c] + by_cut[c][0]) for c in CUTS}
-        att = {c: shots / ((acc - nt) * a_triv[c] + by_cut[c][0]) for c in CUTS}     # cultivation attempts per kept escape
+        tz, tx = np.nan_to_num(gz_t, nan=0), np.nan_to_num(gx_t, nan=0)
+        hz, hx = np.nan_to_num(gz, nan=0), np.nan_to_num(gx, nan=0)
+        joint = {}
+        for cz, cx in JOINT:
+            a_j = float((kz_t & kx_t & (tz >= cz) & (tx >= cx)).mean())
+            k_j = keep & (hz >= cz) & (hx >= cx)
+            n_kept = (acc - nt) * a_j + int(k_j.sum()) or float("nan")     # nan: nothing survives this cut (none-escape X gap < 13.3)
+            joint[f"{cz},{cx}"] = dict(a_trivial=a_j, kept=int(k_j.sum()), fails=int((k_j & bad).sum()),
+                                       p_out=int((k_j & bad).sum()) / n_kept, attempts_per_kept=shots / n_kept)
+        n_c = {c: (acc - nt) * a_triv[c] + by_cut[c][0] or float("nan") for c in CUTS}
+        p_out = {c: by_cut[c][1] / n_c[c] for c in CUTS}
+        att = {c: shots / n_c[c] for c in CUTS}     # cultivation attempts per kept escape
         out = dict(config=cfg, p=p, shots=shots, accepted=acc, accept=acc / shots, lookup_fails=lookup, nontrivial=len(F),
                    kept=int(keep.sum()), fails=int((keep & bad).sum()), kept_cut=int(keep_cut.sum()),
                    fails_cut=int((keep_cut & bad).sum()), cut=CUT,
                    e2e_fails_per_accepted=int((keep_cut & bad).sum()) / max(acc, 1),
                    e2e_fails_per_accepted_nocut=int((keep & bad).sum()) / max(acc, 1),
                    extra_discard=int((~keep_cut).sum()) / max(acc, 1), escape=parse(cfg)[2], by_cut=by_cut, a_trivial=a_triv,
-                   trivial_fails=tfail, p_out=p_out, attempts_per_kept=att, common_noise=True, keep_disagree=keep_disagree, seconds=round(time.time() - t, 1))
+                   trivial_fails=tfail, p_out=p_out, attempts_per_kept=att, common_noise=True, keep_disagree=keep_disagree, joint=joint, seconds=round(time.time() - t, 1))
         with open("runs/cultivation/cult_escape_e2e.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
