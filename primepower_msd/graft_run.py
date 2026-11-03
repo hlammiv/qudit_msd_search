@@ -52,9 +52,13 @@ VARIANTS = {
     "one+pairs-cap+gap": dict(post_colours=(2, 0)),
     "one+gap-tick0.1": dict(post_colours=(2, 0), tick_idle=0.1),   # + idle at every tick (graft_zd.build tick_idle)
     "one+gap-tick1":   dict(post_colours=(2, 0), tick_idle=1.0),
+    "none+gap-tick1":  dict(post_colours=(None, None), tick_idle=1.0),            # no colour-region postselection
+    "none-nocert+gap-tick1": dict(post_colours=(None, None), hyper_post=False, tick_idle=1.0),   # gap cut only
+    "none+gap":        dict(post_colours=(None, None)),
 }
 DECODER = {"one+hyper": "hyper", "all+hyper": "hyper", "one+gap": "peel-gap", "one+pairs-cap+gap": "peel-gap",
-           "one+gap-tick0.1": "peel-gap", "one+gap-tick1": "peel-gap"}
+           "one+gap-tick0.1": "peel-gap", "one+gap-tick1": "peel-gap", "none+gap-tick1": "peel-gap",
+           "none-nocert+gap-tick1": "peel-gap", "none+gap": "peel-gap"}
 CERT = {  # variant -> (scope, cache tag, degenerate cap)
     "one+pairs": ("colour", "one", None), "all+pairs": ("colour", "all", None),
     "one+pairs-cap": ("colour", "one", 2.0), "one+pairs2": ("colour-all", "one_all", None),
