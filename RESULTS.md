@@ -14,6 +14,10 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 
 ## 1. Headline results
 
+- **Total cost, magic + Clifford (2026-11-03):** with the one-shot encoder, [[7,1,3]]_7 -> [[1746,270,7]]_7 beats the
+  best small-code protocol at 1e-3 -> 1e-30 by 2.2x (R = 1 Clifford gate per magic state) to 3.1x (R -> inf), and by
+  3.2-4.3x from 1e-2, with proved curves; at p >= 11 the RS family leaves the large codes at most 13 % (`CODE_METRICS.md` §8).
+
 - **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
   noisy T on non-outputs, X measurement) and an axis-by-axis Reed–Muller encoder, the large codes need
   98 ([[1745,271,7]]_7), 233 ([[13332,1309,22]]_11) and 567 ([[78455,5066,>=68]]_17) two-qudit gates per
