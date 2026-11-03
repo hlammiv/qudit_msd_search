@@ -884,7 +884,20 @@ tolerance (≈ 4×10⁻⁵): f = 1 everywhere would go from 374 to ≈ 290 culti
 adopted — the gain is small, its residual-frame (end-to-end) behaviour is untested, and its Z/X keep decisions disagree
 on 6% of shots (the certified-pattern discards see the basis-dependent readout), so its joint keep is uncertain at that
 level.  The f = 1 cost is set by the escape's colour-region decoding at 1.7× more locations, not by the cut.
-Open: 5×10⁻⁴ end to end.
+**End to end at 5×10⁻⁴** (lenore, 2×10⁷ cultivation shots per config, common-noise escape, `cult_escape_e2e.jsonl`):
+
+| config | escape | cult. accept | p_out no cut | cut 12 | cut 15 | attempts / kept escape (cut 15) |
+|---|---|---|---|---|---|---|
+| parallel + hooks, f = 0 | idle-free | 0.660 | 2.9×10⁻⁵ | 6.1×10⁻⁷ (6) | 2.0×10⁻⁷ (2) | 2.04 |
+| parallel + hooks, f = 0.1 | f = 0.1 | 0.646 | 5.2×10⁻⁵ | 3.3×10⁻⁷ (3) | 1.1×10⁻⁷ (1) | 2.21 |
+| parallel + hooks, f = 1 | idle-free | 0.536 | 2.5×10⁻⁴ | 2.7×10⁻⁶ (21) | 9.1×10⁻⁷ (7) | 2.60 |
+| parallel + hooks, f = 1 | f = 1 | 0.536 | 2.7×10⁻⁴ | 3.5×10⁻⁶ (15) | 1.7×10⁻⁶ (7) | 4.87 |
+
+The f = 1 escape keeps 40% of trivial frames at cut 15 (vs 14% at 10⁻³), so the escape cost that dominates at 10⁻³
+(34 attempts per kept escape) shrinks to 4.9 at 5×10⁻⁴.  Footprint (`footprint_tick_proxy.py f e2e5=attempts,p_out
+escape-gap census-sparse`, the end-to-end numbers replacing cultivation + escape): **10⁻¹⁰ at 5×10⁻⁴: f ≤ 0.1 → D = 15,
+3 656 qudits, 31–33 attempts/output; f = 1 → D = 17, 4 680 qudits, 39 attempts (idle-free escape) or 73 (f = 1
+everywhere); 10⁻¹² → D = 19, 5 832 (f ≤ 0.1) / D = 21, 7 112 (f = 1).**
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
