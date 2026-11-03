@@ -5,15 +5,14 @@
  "certificate": {
   "date": "2026-11-01",
   "exact": false,
-  "lower_bound": null,
-  "lower_method": "SUSPENDED 2026-11-02: the rank computations (builder and both checkers) evaluated x^e with int64 overflow for p >= 17, so the independence of the output columns was not established; the level-set argument itself and the zero-set check are unaffected. Recheck with exact powers running on lenore. Previous text: level-set theorem (LEVEL_SETS.md), delta = 4: O = full level set {g = 10} of a quartic g on F_19^4, so (g-c)*RM(19,4) lies in the checks and every kernel word e has (g-c)e in RM(52,4), minimum distance (19-16)*19 = 57; rank of RM(23,4) on O = 7037 by two independent eliminations (levelset_build.py numba, structured_ad._rank 2788 s)",
+  "lower_bound": 57,
+  "lower_method": "level-set theorem (LEVEL_SETS.md), delta = 4: O = full level set {g = 10} of a quartic g on F_19^4, so (g-c)*RM(19,4) lies in the checks and every kernel word e has (g-c)e in RM(52,4), minimum distance (19-16)*19 = 57; rank of RM(23,4) on O = 7037 by two independent eliminations (levelset_build.py numba, structured_ad._rank 2788 s) | RE-VERIFIED 2026-11-03 with exact modular powers (the original rank runs had an int64 overflow): rank = k by two independent routines (fast_matrices._rref and levelset_rank2.py column-major), runs/rm_m4/*RECHECK*.log",
   "machine": "local",
   "refuted": false,
   "stages": [],
   "upper_bound": null,
   "upper_method": null,
-  "witness": null,
-  "suspended_lower_bound": 57
+  "witness": null
  },
  "construction": {
   "family": "punctured_rm",
@@ -7061,7 +7060,7 @@
   "r": 23
  },
  "d": 57,
- "distance_evidence": "SUSPENDED: rank recheck pending (overflow bug)",
+ "distance_evidence": "d >= 57 proved (rank re-verified); exact value open",
  "family": "imported explicit search",
  "gamma_value": 0.7082048938493899,
  "geometry": {
@@ -14124,6 +14123,6 @@
  "r": 23,
  "schema": "qmsd.catalog-record.v2",
  "source": "p19_levelset_bundle.json",
- "status": "candidate",
+ "status": "partial",
  "w": null
 }

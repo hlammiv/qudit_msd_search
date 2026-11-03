@@ -72,6 +72,14 @@ distance.
 > The p = 11 code (10^10 fits) and the level-set argument are unaffected. Those three records are
 > suspended (catalog status `candidate`) until the ranks are recomputed with exact powers (two independent
 > routines per code, running on lenore).
+>
+> **RESOLVED (2026-11-03).** All four ranks were recomputed with exact modular powers by two independent
+> routines (`fast_matrices._rref`, `levelset_rank2.py`): every output set is independent, so all four codes
+> stand (`runs/rm_m4/*RECHECK*.log`). In addition the p = 17 and both p = 23 codes have **exact** distance:
+> their level sets contain 3 coplanar parallel lines, which turns a minimum-weight dual word into an explicit
+> kernel word of weight equal to the lower bound (`scratchpad/levelset_lines.py`, `levelset_witness.py`,
+> verified against every monomial of degree ≤ r with exact arithmetic): d = 68 at p = 17, d = 138 at p = 23.
+> The p = 19 quartic has no 4 coplanar parallel lines in its level set; its distance stays ≥ 57.
 
 `scratchpad/levelset_build.py` evaluates only the monomials at the output points, so it never forms
 the dense generator; `scratchpad/levelset_verify.py` recomputes the level set from the stored

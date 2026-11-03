@@ -1,0 +1,3 @@
+level set recomputed: 7037 points; equals O: True
+rank of RM(23,4) on O by fast_matrices._rref: 7037 (|O| = 7037) -> INDEPENDENT (4786s)
+dual RM(52,4): d >= 57; n = 123284, k = 7037, gamma <= 0.7082
