@@ -850,8 +850,26 @@ postselection, not the cultivation error, sets the cost.  Footprint (`footprint_
 census-sparse`): the [[7,1,3]] round is Clifford-floor limited up to p_in ≈ 4×10⁻⁵, so the qudits do not move —
 **f = 0: 10⁻¹⁰ at 10⁻³ → D = 21, 7 112 qudits, 63 cultivation attempts/output; f = 0.1 (both): D = 21, 81 attempts;
 f = 1, idle-free escape: D = 25, 10 056 qudits, 105 attempts; f = 1 everywhere: D = 25, 10 056 qudits, 511 attempts
-(cut 15) or 374 (cut 12); 10⁻¹² → D = 29, 13 512.**  Open: an escape with lighter postselection at f = 1 (the
-postselected colour checks discard 81.5%); 5×10⁻⁴ end to end.
+(cut 15) or 374 (cut 12); 10⁻¹² → D = 29, 13 512.**
+**Lighter escape postselection at f = 1** (variant `none+gap-tick1`: no colour-region postselection, first-order
+certification and the gap cut only).  Per sector (10⁶ shots/basis, `graft_variants.jsonl`): Z cut 13 / 14 / 15 →
+discard 52 / 61 / 68%, p_fail 2.1×10⁻⁵ / 7.7×10⁻⁶ / 0 (< 9×10⁻⁶); the X gap never reaches 14 (max 13.3), cut 12 / 13 →
+62 / 67%, 1.8×10⁻⁵ / 6×10⁻⁶.  Joint two-sector keep on trivial frames with common noise
+(`scratchpad/escape_joint_cut.py`, 3×10⁵ frames, `runs/surface/escape_joint_cut.jsonl`):
+
+| variant | cut (Z, X) | joint keep | error (per-sector runs, summed) |
+|---|---|---|---|
+| one+gap-tick1 (recipe) | (12, 12) | 0.149 | ≈ 4×10⁻⁶ |
+| one+gap-tick1 | (15, 15) | 0.108 | < 1.4×10⁻⁵ (0 events) |
+| none+gap-tick1 | (13, 13) | 0.223 | ≈ 2.7×10⁻⁵ |
+| none+gap-tick1 | (14, 13) | 0.191 | ≈ 1.4×10⁻⁵ |
+
+So dropping the colour postselection buys 1.3× keep at (14, 13) for ≈ 3× the escape error, still under the [[7,1,3]]
+tolerance (≈ 4×10⁻⁵): f = 1 everywhere would go from 374 to ≈ 290 cultivation attempts/output, same 10 056 qudits.  Not
+adopted — the gain is small, its residual-frame (end-to-end) behaviour is untested, and its Z/X keep decisions disagree
+on 6% of shots (the certified-pattern discards see the basis-dependent readout), so its joint keep is uncertain at that
+level.  The f = 1 cost is set by the escape's colour-region decoding at 1.7× more locations, not by the cut.
+Open: 5×10⁻⁴ end to end.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
