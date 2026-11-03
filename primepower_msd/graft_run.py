@@ -50,8 +50,11 @@ VARIANTS = {
     "all+hyper":       dict(post_colours=({0, 1, 2}, {0, 1, 2})),
     "one+gap":         dict(post_colours=(2, 0)),     # 2-adic matcher with the complementary gap recorded (gap_curve)
     "one+pairs-cap+gap": dict(post_colours=(2, 0)),
+    "one+gap-tick0.1": dict(post_colours=(2, 0), tick_idle=0.1),   # + idle at every tick (graft_zd.build tick_idle)
+    "one+gap-tick1":   dict(post_colours=(2, 0), tick_idle=1.0),
 }
-DECODER = {"one+hyper": "hyper", "all+hyper": "hyper", "one+gap": "peel-gap", "one+pairs-cap+gap": "peel-gap"}
+DECODER = {"one+hyper": "hyper", "all+hyper": "hyper", "one+gap": "peel-gap", "one+pairs-cap+gap": "peel-gap",
+           "one+gap-tick0.1": "peel-gap", "one+gap-tick1": "peel-gap"}
 CERT = {  # variant -> (scope, cache tag, degenerate cap)
     "one+pairs": ("colour", "one", None), "all+pairs": ("colour", "all", None),
     "one+pairs-cap": ("colour", "one", 2.0), "one+pairs2": ("colour-all", "one_all", None),

@@ -8,7 +8,8 @@ own floor (MEAS_DISTILL 5h), so only nontrivial frames are run.  One json line p
 runs/cultivation/cult_escape_e2e.jsonl.
 
     PYTHONPATH=. python scratchpad/cult_escape_e2e.py p shots jobs config[,config...]
-    config: serial | serial-hooks | par-hooks | par-hooks-f0.1 | par-hooks-f1
+    config: serial | serial-hooks | par-hooks | par-hooks-f0.1 | par-hooks-f1, optionally + "-esc" (the escape gets the same
+    tick idle, graft_run variant one+gap-tick{f}); fails are also recorded at cuts CUTS.
 """
 import json
 import sys
@@ -28,10 +29,18 @@ CONFIGS = {"serial": ({}, 0.0), "serial-hooks": ({"hooks": True}, 0.0),
            "par-hooks-f0.1": ({"hooks": True, "parallel": True, "final_block": True}, 0.1),
            "par-hooks-f1": ({"hooks": True, "parallel": True, "final_block": True}, 1.0)}
 CUT = 15
+CUTS = (0, 8, 10, 12, 13, 14, 15, 16, 18)
+
+
+def parse(cfg):
+    """config -> (GrowCult kwargs, cultivation tick f, escape variant)"""
+    base, esc = (cfg[:-4], True) if cfg.endswith("-esc") else (cfg, False)
+    kw, f = CONFIGS[base]
+    return kw, f, (f"one+gap-tick{f:g}" if esc and f else "one+gap")
 
 
 def cult_chunk(cfg, p, shots, seed, batch=20_000):
-    kw, f = CONFIGS[cfg]
+    kw, f, _ = parse(cfg)
     g = GrowCult(4, p, 1, 1, rounds3=1, checks3=2, rounds5=1, checks5=2, **kw)
     if f:
         g.c = add_tick_idle(g.c, f * p)
@@ -78,8 +87,8 @@ def qudit_map():
     return np.array([cq.index(qmap[i]) for i in range(H.shape[1])])
 
 
-def escape_injected(basis, frames, p, seed):
-    ex = Escape(4, basis, **VARIANTS["one+gap"])
+def escape_injected(basis, frames, p, seed, variant="one+gap"):
+    ex = Escape(4, basis, **VARIANTS[variant])
     r = ex.run(p, len(frames), seed=seed, decoder="peel-gap", inject=frames, per_shot=True)
     return r["shot_keep"], r["shot_flip"], r["shot_gap"]
 
@@ -95,17 +104,19 @@ def main():
         F = np.concatenate([r[2] for r in res])
         inj = np.zeros((len(F), 19, 2), dtype=np.int64)
         inj[:, perm, :] = F                                     # cultivation data i -> escape colour position perm[i]
-        (kz, az, gz), (kx, bx, gx) = Parallel(n_jobs=2)(delayed(escape_injected)(b, inj, p, 7 + i) for i, b in enumerate("ZX"))
+        (kz, az, gz), (kx, bx, gx) = Parallel(n_jobs=min(2, jobs))(delayed(escape_injected)(b, inj, p, 7 + i, parse(cfg)[2]) for i, b in enumerate("ZX"))
         sigma = 1
         keep = kz & kx
         keep_cut = keep & (np.nan_to_num(gz, nan=0) >= CUT) & (np.nan_to_num(gx, nan=0) >= CUT)
         bad = (bx - sigma * az) % 4 != 0
+        gmin = np.minimum(np.nan_to_num(gz, nan=0), np.nan_to_num(gx, nan=0))
+        by_cut = {c: [int((keep & (gmin >= c)).sum()), int((keep & (gmin >= c) & bad).sum())] for c in CUTS}
         out = dict(config=cfg, p=p, shots=shots, accepted=acc, accept=acc / shots, lookup_fails=lookup, nontrivial=len(F),
                    kept=int(keep.sum()), fails=int((keep & bad).sum()), kept_cut=int(keep_cut.sum()),
                    fails_cut=int((keep_cut & bad).sum()), cut=CUT,
                    e2e_fails_per_accepted=int((keep_cut & bad).sum()) / max(acc, 1),
                    e2e_fails_per_accepted_nocut=int((keep & bad).sum()) / max(acc, 1),
-                   extra_discard=int((~keep_cut).sum()) / max(acc, 1), seconds=round(time.time() - t, 1))
+                   extra_discard=int((~keep_cut).sum()) / max(acc, 1), escape=parse(cfg)[2], by_cut=by_cut, seconds=round(time.time() - t, 1))
         with open("runs/cultivation/cult_escape_e2e.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)

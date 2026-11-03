@@ -140,7 +140,7 @@ class Phase:
 
 
 def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float, idle: bool = True,
-          postselect=None, flag_weight: int = 0, flag_phases=None):
+          postselect=None, flag_weight: int = 0, flag_phases=None, tick_idle: float = 0.0):
     """phases: list of Phase.  The first phase is the (noiseless) preparation of `data` in `basis` + one round of its code.
     logical: qudit -> weight of the logical measured at the end (Z_L for basis 'Z', X_L for 'X').
     postselect: function(check, phase_index, round) -> bool marking detectors to postselect.
@@ -148,7 +148,9 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
     between its ancilla and the flag, right after the check's first data CSUM and right before its last, so an ancilla
     fault that would spread to >= 2 data qudits (a hook) changes the flag; the flag measurement is a postselected
     detector.  X-type check (ancilla = CSUM control): hooks are X^a on the ancilla -> flag |0>, CSUM(anc->flag, +1/-1),
-    measured in Z.  Z-type check (ancilla = CSUM target): hooks are Z^b -> flag |+>, CSUM(flag->anc, +1/-1), F^-1, Z."""
+    measured in Z.  Z-type check (ancilla = CSUM target): hooks are Z^b -> flag |+>, CSUM(flag->anc, +1/-1), F^-1, Z.
+    tick_idle = f: DEP1(f p) at every tick of a noisy phase on each live qudit the tick leaves alone (the F / FD ticks, each
+    CSUM layer, the ancilla readout), on top of the per-round data idle -- as surface_zd.memory_circuit(tick_idle)."""
     c = Circuit(d)
     qidx = {q: i for i, q in enumerate(data)}
     dq = c.q(len(data))
@@ -161,6 +163,12 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
         if pr > 0:
             getattr(c, kind)(qs, pr)
             noise_locs.append((len(c.ops) - 1, kind, list(qs)))
+
+    def tick(live, acted, pr):          # tick_idle: DEP1 on the live qudits this tick leaves alone
+        if tick_idle and pr > 0:
+            acted = set(acted)
+            rest = [q for q in live if q not in acted]
+            noise("DEP1", rest, tick_idle * pr)
 
     def det(terms, sector, post, tag):
         c.detector(terms, tag); det_sector.append(sector); det_post.append(post); det_tags.append(tag)
@@ -198,32 +206,39 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
             fx = [dq[qidx[q]] for q, b in ph.fresh.items() if b == "RX"]
             c.R(fz + fx); noise("XERR", fz + fx, pr)
             if fx:
-                c.F(fx); noise("DEP1", fx, pr)
+                c.F(fx); noise("DEP1", fx, pr); tick(dq, fx, pr)
         for r in range(ph.rounds):
             if idle and (r > 0 or pi > 0):
                 noise("DEP1", dq, pr)
             c.R(anc); noise("XERR", anc, pr)
+            fl = list(flag_of.values())
+            live = dq + anc + fl
             c.F(xanc); noise("DEP1", xanc, pr)
             if flagged:
-                fl = list(flag_of.values())
                 c.R(fl); noise("XERR", fl, pr)
                 if zflags:
                     c.F(zflags); noise("DEP1", zflags, pr)
+            tick(live, xanc + zflags, pr)
             for typ in ("Z", "X"):
                 for li, L in enumerate(LAYERS[pi][typ]):
                     if li in late[typ]:
                         cp = late[typ][li]; c.CSUM([pq for pq, _ in cp], [w for _, w in cp]); noise("DEP2", [pq for pq, _ in cp], pr)
+                        tick(live, [q for pq, _ in cp for q in pq], pr)
                     pairs = [((dq[qidx[q]], anc[ci]) if typ == "Z" else (anc[ci], dq[qidx[q]])) for ci, q, w in L]
                     ws = [w for ci, q, w in L]
-                    c.CSUM(pairs, ws); noise("DEP2", pairs, pr)
+                    c.CSUM(pairs, ws); noise("DEP2", pairs, pr); tick(live, [q for pq in pairs for q in pq], pr)
                     if li in early[typ]:
                         cp = early[typ][li]; c.CSUM([pq for pq, _ in cp], [w for _, w in cp]); noise("DEP2", [pq for pq, _ in cp], pr)
+                        tick(live, [q for pq, _ in cp for q in pq], pr)
             c.FD(xanc); noise("DEP1", xanc, pr)
+            if flagged and zflags:
+                c.FD(zflags); noise("DEP1", zflags, pr)
+            tick(live, xanc + zflags, pr)
             noise("XERR", anc, pr)
+            if tick_idle and pr > 0:            # data idle while the ancillas (and flags) are measured
+                noise("DEP1", dq, tick_idle * pr)
             m = c.M(anc)
             if flagged:
-                if zflags:
-                    c.FD(zflags); noise("DEP1", zflags, pr)
                 noise("XERR", fl, pr)
                 mf = c.M(fl)
                 for j, i in enumerate(flagged):
@@ -292,8 +307,9 @@ class Escape:
 
     def __init__(self, d: int = 4, basis: str = "Z", r1: int = 5, r2: int = 5, mode: str = "escape", idle: bool = True,
                  post_colours=(None, None), pre_rounds: int = 1, post_phases=(1,), hyper_post: bool = True,
-                 flag_weight: int = 0, flag_phases=(1,)):
+                 flag_weight: int = 0, flag_phases=(1,), tick_idle: float = 0.0):
         G = load_graft(d)
+        self.tick_idle = tick_idle
         self.hyper_post, self.flag_weight, self.flag_phases = hyper_post, flag_weight, flag_phases
         self.G, self.d, self.basis, self.mode = G, d, basis, mode
         codes, coords = G["codes"], G["coords"]
@@ -348,7 +364,7 @@ class Escape:
                           "X": [[e for e in L if ph.code[e[0]].typ == "X"] for L in lay]}
             LAYERS[pi] = {t: [L for L in LAYERS[pi][t] if L] for t in "ZX"}
         self.mem = build(d, data, phases, basis, logical, P_BUILD, idle, postselect, flag_weight=flag_weight,
-                         flag_phases=flag_phases)
+                         flag_phases=flag_phases, tick_idle=tick_idle)
         bad = check_determinism(self.mem.circ, 64, 0)
         self.nondet = [self.mem.det_tags[i] for i in bad]
         if bad:
@@ -498,7 +514,7 @@ class Escape:
                     hyper_post=self.hyper_post, n_hyper=len(getattr(self.dem, 'hyperedges', [])),
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
-                    locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight,
+                    locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight, tick_idle=self.tick_idle,
                     n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg) if per_shot else {}))
 
 
