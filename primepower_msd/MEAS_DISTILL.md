@@ -796,7 +796,8 @@ composed into one DEP1).
 
 **Logical CSUM** (`csum_d4_tick{1,0.1}.jsonl`, D = 5, 7, 2×10⁵ shots, loranne): CSUM / two-patch-memory ratio 1.03–1.33
 at f = 1 and 1.06–1.26 at f = 0.1, the same as without idle (§5i); the excess is 0.5–9 patch-rounds at these statistics
-(±2), consistent with ≈ 0.45 D.  So the CSUM and census fits scale with the host, which is what
+(±2), consistent with ≈ 0.45 D; D = 9, f = 1 (lenore, 4×10⁵ shots, p = 10⁻³ / 1.5×10⁻³): ratio 1.17 (95 / 81 fails) / 1.14
+(718 / 631).  So the CSUM and census fits scale with the host, which is what
 `scratchpad/footprint_tick_proxy.py` assumes.  Footprint at p = 10⁻³ (escape-gap, sparse census):
 
 | target | f = 0 | f = 0.1 | f = 1 |
@@ -894,10 +895,39 @@ level.  The f = 1 cost is set by the escape's colour-region decoding at 1.7× mo
 | parallel + hooks, f = 1 | f = 1 | 0.536 | 2.7×10⁻⁴ | 3.5×10⁻⁶ (15) | 1.7×10⁻⁶ (7) | 4.87 |
 
 The f = 1 escape keeps 40% of trivial frames at cut 15 (vs 14% at 10⁻³), so the escape cost that dominates at 10⁻³
-(34 attempts per kept escape) shrinks to 4.9 at 5×10⁻⁴.  Footprint (`footprint_tick_proxy.py f e2e5=attempts,p_out
+(34 attempts per kept escape) shrinks to 4.9 at 5×10⁻⁴.  Footprint (`footprint_tick_proxy.py f e2e=p,attempts,p_in
 escape-gap census-sparse`, the end-to-end numbers replacing cultivation + escape): **10⁻¹⁰ at 5×10⁻⁴: f ≤ 0.1 → D = 15,
 3 656 qudits, 31–33 attempts/output; f = 1 → D = 17, 4 680 qudits, 39 attempts (idle-free escape) or 73 (f = 1
 everywhere); 10⁻¹² → D = 19, 5 832 (f ≤ 0.1) / D = 21, 7 112 (f = 1).**
+
+**What p_out counts.**  p_out in the end-to-end tables has only the failures of frames that cultivation left nontrivial in
+its numerator; the clean frames, the great majority of kept outputs, enter the denominator only (20 000 of them per run, too
+few to see their failure rate).  The total input error is p_in = p_out + the escape's own floor on clean frames, taken from
+the separate per-sector runs (`graft_variants.jsonl`): negligible for an idle-free escape (5×10⁻⁸), ≈ 4×10⁻⁶ (cut 12) and
+< 2.8×10⁻⁵ summed (cut 15, 0 events) for one+gap-tick1 at 10⁻³; not measured at f = 1 below 10⁻³.  The footprints do not
+move: rerunning them with p_in = 3×10⁻⁵ at 5×10⁻⁴ and 7×10⁻⁴ gives the same D, since the round is Clifford-floor limited up
+to p_in ≈ 4×10⁻⁵.
+
+**End to end at 7×10⁻⁴** (lenore, 10⁷ shots): parallel + hooks, f = 0: accept 0.558, cut 15 2.7×10⁻⁷ (1), 2.73 attempts per
+kept escape; f = 1 everywhere: accept 0.418, cut 15 2.0×10⁻⁶ (2), escape keep 0.255, 10.0 attempts.  Attempts per kept
+escape at f = 1 everywhere, cut 15: 34.9 / 10.0 / 4.9 at 10⁻³ / 7×10⁻⁴ / 5×10⁻⁴.  Footprint: 10⁻¹⁰ → f = 0: D = 17, 4 680
+qudits, 41 attempts/output; f = 1: D = 19, 5 832, 151 attempts; 10⁻¹² → D = 21, 7 112 / D = 25, 10 056.
+
+**Lighter escape end to end at f = 1, 10⁻³** (lenore, 1.6×10⁷ shots, same cultivation frames, joint cuts (Z, X)):
+
+| escape | cut (Z, X) | joint keep | p_out (events) | floor (§ above, per-sector) | attempts per kept | attempts/output |
+|---|---|---|---|---|---|---|
+| one+gap-tick1 | (12, 12) | 0.150 | 6.4×10⁻⁶ (4) | ≈ 4×10⁻⁶ | 25.4 | 381 |
+| one+gap-tick1 | (15, 15) | 0.111 | 6.5×10⁻⁶ (3) | < 2.8×10⁻⁵ | 34.9 | 523 |
+| none+gap-tick1 | (14, 13) | 0.188 | 1.3×10⁻⁶ (1) | ≈ 1.4×10⁻⁵ | 20.4 | 305 |
+| none+gap-tick1 | (13, 13) | 0.221 | 1.1×10⁻⁶ (1) | ≈ 2.7×10⁻⁵ | 17.3 | 260 |
+
+The residual frames do not punish the lighter escape: its p_out is no worse than the recipe's, so the untested worry above
+is removed and the cost would fall by 20% at (14, 13) or 32% at (13, 13), with the same D = 25, 10 056 qudits.  Still not
+adopted: its error is dominated by a floor resting on few events, (13, 13) sits at ≈ 2.8×10⁻⁵ against the ≈ 4×10⁻⁵
+tolerance, and its Z and X keep decisions disagree on 10% of shots here (one+gap-tick1: 4×10⁻⁵).  The joint keep scores only
+shots both basis runs keep, so failures on the other 10% are unsampled and p_out for this variant is uncertain until a
+single-readout keep rule is defined and measured.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.

@@ -2,7 +2,7 @@
 runs/surface/zd_d4_tick{f}.jsonl replace HOST_Z4, and the CSUM / two-patch fits are rescaled by the same factors per basis
 (A ratio, p_th ratio).  python scratchpad/footprint_tick_proxy.py f [cult=a,p_L] [footprint args...]
 (f = 0: no host patch; cult=a,p_L replaces the 1e-3 cultivation input, e.g. the end-to-end cultivation -> escape numbers;
- e2e5=attempts_per_kept,p_out replaces cultivation and escape at 5e-4 by the end-to-end numbers)"""
+ e2e=p,attempts_per_kept,p_in replaces cultivation and escape at p by the end-to-end numbers)"""
 import sys
 
 from primepower_msd import footprint as FP, host_census as HC
@@ -15,10 +15,10 @@ f = float(sys.argv.pop(1))
 if len(sys.argv) > 1 and sys.argv[1].startswith("cult="):
     a_c, p_c = map(float, sys.argv.pop(1)[5:].split(","))
     FP.CULT_D4[FP.CULT_KEY][1e-3] = (a_c, p_c)
-if len(sys.argv) > 1 and sys.argv[1].startswith("e2e5="):  # e2e5=attempts,p_out: measured cultivation -> escape at 5e-4
-    att, p_c = map(float, sys.argv.pop(1)[5:].split(","))   # (escape discard and error are inside both numbers)
-    FP.CULT_D4[FP.CULT_KEY][5e-4] = (1 / att, p_c)
-    FP.ESCAPE_Z4_GAP[5e-4] = (0.0, 0.0)
+while len(sys.argv) > 1 and sys.argv[1].startswith("e2e="):  # e2e=p,attempts,p_in: measured cultivation -> escape at p; p_in = p_out + escape floor
+    p_e, att, p_c = map(float, sys.argv.pop(1)[4:].split(","))  # (p_out counts only residual-frame failures: add the floor on clean frames)
+    FP.CULT_D4[FP.CULT_KEY][p_e] = (1 / att, p_c)
+    FP.ESCAPE_Z4_GAP[p_e] = (0.0, 0.0)
 (Ab, pb), (Ax, px) = TICK.get(f, ((FP.HOST_Z4["A"], FP.HOST_Z4["p_th"]), (0.049, 7.2e-3)))
 ra_b, rp_b = Ab / FP.HOST_Z4["A"], pb / FP.HOST_Z4["p_th"]
 ra_x, rp_x = Ax / 0.049, px / 7.2e-3
