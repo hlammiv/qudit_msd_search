@@ -151,7 +151,8 @@ failures among them. Two numbers control the cost and the precision.
   everything else. Ten failures give $30\%$, a hundred give $10\%$. Near threshold
   $\eps_{\rm out}\sim\eps$, so a few hundred accepted blocks already contain
   failures; far below threshold you will see none, and the right statement is then an
-  upper bound ($\eps_{\rm out} < 3/N_{\rm acc}$ at 95\%).
+  upper bound ($\eps_{\rm out} < (1-1/p)\,3/N_{\rm acc}$ at 95\%, because a failing block
+  usually hits most of its outputs).
 \end{itemize}
 
 \begin{figure}[t]\centering
@@ -290,7 +291,9 @@ $\eps_{\rm out}^{\rm avg}/\eps$.
 About $2.8\times10^4$ accepted blocks. Whether you see failures depends on where the
 true threshold lies, which is exactly what we do not know; if the ratio
 $\eps_{\rm out}/\eps$ is clearly below~1 you are below threshold. Either way, write
-down the 95\% upper bound $3/(k N_{\rm acc})$ if you saw no failure.
+down the 95\% upper bound $(1-1/p)\,3/N_{\rm acc}$ if you saw no failure. (Corrected 4 November: this
+guide first said $3/(k N_{\rm acc})$, which assumes a failing block hits one output. A generic kernel word hits a
+fraction $1-1/p$ of them; on $[[1746,270,7]]_7$ the census gives about $0.7$.)
 \end{checkbox}
 
 Now the bisection. Do it on a cheap code first so that you can afford to be wasteful
@@ -331,10 +334,11 @@ your points and error bars, and a one-line table: code, rigorous threshold, samp
 threshold, ratio.
 \end{exercise}
 \begin{checkbox}
-The sampled threshold must exceed the rigorous one (if not, one of the two is wrong
+A measured crossing must exceed the rigorous threshold (if not, one of the two is wrong
 and it is almost certainly a convention: check that your $\eps$ is the probability of
-a nontrivial $Z$-power, not the repository's $\delta = p\eps/(p-1)$). The ratio is the
-paper's statement of how loose the proof is.
+a nontrivial $Z$-power, not the repository's $\delta = p\eps/(p-1)$). A lower bound from zero
+failures can lie below the rigorous threshold, and then it adds nothing to the proof; say so. Only a
+sampled value above the rigorous one measures how loose the proof is.
 \end{checkbox}
 
 \section{Task B: are the outputs of one block independent?}
