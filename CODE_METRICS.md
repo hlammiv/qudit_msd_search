@@ -232,9 +232,27 @@ of weight ≥ d.
 | [[519,106,5]]₅ | 10 343 | 223 (2.2 %) | 182 | 41 | 2.1 |
 | [[2093,308,5]]₇ | 55 519 | 811 (1.5 %) | 722 | 89 | 2.6 |
 
-**Spreading is not the problem.** Each output has 1–3 undetected first-order fault locations, almost all
-of them faults on the output qudit itself after its last gate, which every distillation circuit has; spreading
-adds 3–25 % on top. The encoder does not create the large correlated undetected errors one might fear,
+**Correction (2026-11-04): the table above counts Z faults only, and the X analysis below it was wrong.** An X
+image was treated as equivalent, modulo a codeword shift, to a shift on the measured qudits and hence detected. That
+fails: U acts on the inputs between the two, and an exact state-vector round shows an X on an output after its last
+gate is always accepted and leaves fidelity 1/p (`tests/test_sdim_round.py`). Counting these too:
+
+| code | Z harmful | X harmful | of which on an output directly | harmful locations per output (was) | input-escape term, Σ p^(−wt) (1 − 1/p) |
+|---|---|---|---|---|---|
+| [[100,21,4]]₁₁ | 63 | 118 | 117 | **8.6** (3.0) | 0.7 |
+| [[237,52,6]]₁₇ | 70 | 448 | 448 | **10.0** (1.3) | 0.7 |
+| [[519,106,5]]₅ | 223 | 361 | 346 | **5.5** (2.1) | 65 |
+| [[2093,308,5]]₇ | 811 | 1 180 | 1 168 | **6.5** (2.6) | 36 |
+
+The X count is higher because an output is the target of many gates, and an X on a target spreads only if that
+qudit is later a control. The last column is what the model drops: an X image touching few inputs escapes with probability
+about p^(−wt), since the random Z it becomes can be the identity. These location counts are for single-qudit Paulis of one
+power. A two-qudit depolarizing fault is usually rejected by its other parts, so the floor per gate error is much
+smaller; `qmsd/sdim_round.py` gets it jointly (about 0.004–0.12 p_gate on the codes tried).
+
+**Spreading is not the problem.** Each output has 5–10 undetected first-order fault locations, almost all
+of them faults on the output qudit itself, which every distillation circuit has; spreading
+adds under 12 % on top (Z and X together). The encoder does not create the large correlated undetected errors one might fear,
 because a fault early in the transform spreads to many qudits and is then caught by the checks.
 
 **Acceptance is the cost.** The other 97–99 % of fault locations are detected and discard the round.

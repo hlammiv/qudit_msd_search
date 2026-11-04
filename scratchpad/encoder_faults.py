@@ -66,8 +66,24 @@ def classify_z(z, q):
     if (G0 @ z[Nmask] % p).any(): counts["Z_detected"] += 1; return
     counts["Z_harmful"] += 1; zsupp_harm.append(int((z != 0).sum()))
     if (z[Nmask] == 0).all() and int((z != 0).sum()) == 1: counts["Z_harmful_direct_output"] += 1
+# X images (corrected 2026-11-04): x = c + y, c in C, y on outputs is accepted and wrong; test x_N against the dual of C|_N.
+# Random combinations of that dual catch any other image except with probability p^-24, then each hit is confirmed.
+from qmsd.sdim_round import dual_basis
+DN = dual_basis(G[:, Nmask], p); rng_ = np.random.default_rng(0)
+DR = (rng_.integers(0, p, (min(24, DN.shape[0]), DN.shape[0])) @ DN) % p
+counts.update({"X_in_C": 0, "X_harmful": 0, "X_harmful_direct_output": 0, "X_escape_sum": 0.0})
 def classify_x(x):
     xp = (x - x[O] @ H) % p; xw.append(int((xp[Nmask] != 0).sum()))
+    if (DR @ x[Nmask] % p).any():
+        if x[O].any(): counts["X_escape_sum"] += max(float(p) ** -int((x[Nmask] != 0).sum()), float(p) ** -G0.shape[0]) * (1 - 1 / p)
+        return
+    assert not (DN @ x[Nmask] % p).any()
+    if not (x[O] - 0).any() and not x[Nmask].any(): counts["X_in_C"] += 1; return
+    # y = residual on outputs after removing the codeword that matches x on the inputs
+    Ey = np.vstack([G, x[None, :]]) % p
+    if _rref(np.ascontiguousarray(Ey), p)[0].shape[0] == _rref(np.ascontiguousarray(G), p)[0].shape[0]: counts["X_in_C"] += 1; return
+    counts["X_harmful"] += 1
+    if (x != 0).sum() == 1 and x[O].any(): counts["X_harmful_direct_output"] += 1
 nf = 0
 for g in reversed(gates):
     if g[0] == "swap":
@@ -82,7 +98,8 @@ for g in reversed(gates):
 for q in range(W):      # preparation faults (before the first gate)
     classify_z(Lz[:, q].copy(), q); classify_x(Lx[:, q].copy()); nf += 1
 xw = np.array(xw); d = rec.d
-res = {"code": rec.label, "p": p, "m": m, "r": r, "fault_locations": nf, **counts,
+res = {"code": rec.label, "p": p, "m": m, "r": r, "fault_locations": nf, "k": k, **counts,
+       "harmful_per_output": (counts["Z_harmful"] + counts["X_harmful"]) / k,
        "Z_harmful_fraction": counts["Z_harmful"] / nf, "Z_harmful_from_spreading": counts["Z_harmful"] - counts["Z_harmful_direct_output"],
        "Z_harmful_support_median": float(np.median(zsupp_harm)) if zsupp_harm else None,
        "X_image_N_support_median": float(np.median(xw)), "X_images_with_N_support_below_d": int((xw < d).sum()), "d": d, "seconds": round(time.time() - t0)}

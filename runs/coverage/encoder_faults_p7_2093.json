@@ -4,15 +4,21 @@
  "m": 4,
  "r": 7,
  "fault_locations": 55519,
+ "k": 308,
  "Z_trivial": 26,
  "Z_detected": 54682,
  "Z_harmful": 811,
  "Z_harmful_direct_output": 722,
+ "X_in_C": 465,
+ "X_harmful": 1180,
+ "X_harmful_direct_output": 1168,
+ "X_escape_sum": 35.83408266402524,
+ "harmful_per_output": 6.464285714285714,
  "Z_harmful_fraction": 0.014607611808570039,
  "Z_harmful_from_spreading": 89,
  "Z_harmful_support_median": 1.0,
  "X_image_N_support_median": 1765.0,
  "X_images_with_N_support_below_d": 10458,
  "d": 5,
- "seconds": 97
+ "seconds": 250
 }

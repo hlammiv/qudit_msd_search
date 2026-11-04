@@ -11,6 +11,8 @@ dependencies = ["numpy>=1.24", "galois>=0.3", "scipy>=1.10", "psutil>=5.9"]
 [project.optional-dependencies]
 fast = ["numba>=0.58"]
 viz = ["streamlit>=1.35", "plotly>=5.18", "pandas>=2.0"]
+# Circuit-level rounds (qmsd/sdim_round.py). sdim is GPL-3.0-or-later and stays optional.
+sim = ["sdim>=1.4"]
 
 [build-system]
 requires = ["setuptools>=68"]
