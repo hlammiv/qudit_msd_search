@@ -452,18 +452,20 @@ class Escape:
         return HyperDecoder(self.dem, p, **kw)
 
     def run(self, p: float, shots: int = 10_000, seed: int = 0, chunk: int = 5_000, decoder: str = "peel", inject=None,
-            per_shot: bool = False, chunk_seeded: bool = False, **dec_kw) -> dict:
+            per_shot: bool = False, chunk_seeded: bool = False, flag_cert: bool = False, **dec_kw) -> dict:
         """inject: optional (shots, 19, 2) array of X / Z frames on the colour qudits (colour_q order), applied at the end of
         the noiseless colour-state preparation -- e.g. the residual frames of a simulated cultivation.  per_shot: also return
         shot_keep (bool), shot_flip (decoded logical readout error mod d) and shot_gap (nan without a gap) arrays.
         chunk_seeded: a fresh generator per chunk, seeded by (seed, first shot), so Z- and X-basis runs with the same seed
-        share their noise shot by shot (the X readout draws extra numbers, which would shift a single stream)."""
+        share their noise shot by shot (the X readout draws extra numbers, which would shift a single stream).
+        flag_cert: certified-pattern hits are not discarded but decoded and reported in shot_cert (per_shot)."""
         dec = self.make_decoder(p, decoder, **dec_kw)
         gaps = []                                     # (gap, failed) per kept shot when the decoder reports a gap
         rng = np.random.default_rng(seed)
         d = self.d
         fails = kept = leftovers = done = hyper_disc = 0
         sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
+        sc = np.zeros(shots, bool)
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
         bad = SZ.misdecoded_patterns(self.dem, dec) if self.hyper_post else {}
         pairs = getattr(self, "discard_pairs", {})
@@ -486,7 +488,11 @@ class Escape:
             keep = ~np.any(Dall[:, self.mask] != 0, axis=1) if len(self.mask) else np.ones(n, dtype=bool)
             if self.discard_patterns:
                 hm = SZ.pattern_mask(self.discard_patterns, Dv) & keep
-                hyper_disc += int(hm.sum()); keep &= ~hm
+                hyper_disc += int(hm.sum())
+                if flag_cert:
+                    sc[done:done + n] = hm
+                else:
+                    keep &= ~hm
             for s in np.nonzero(keep)[0]:
                 corr, left = dec.decode(Dv[s])
                 f = ((O[s] + corr) % d) != 0
@@ -519,7 +525,7 @@ class Escape:
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
                     locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight, tick_idle=self.tick_idle,
-                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg) if per_shot else {}))
+                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc) if per_shot else {}))
 
 
 if __name__ == "__main__":
