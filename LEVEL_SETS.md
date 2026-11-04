@@ -101,7 +101,7 @@ polynomial and re-checks the rank with a different elimination routine.
 | 17 | cubic, r = 21 | [[78455,5066,≥68]]₁₇ | ≥ 68 | **≤ 0.649** | 0.847 ([[237,52,6]]₁₇); paper 0.946 at n = 77540 | proved lower bound, rank checked twice (`imported-p17-n78455-k5066-2d7880c18fa5`) |
 | 19 | quartic, r = 23 | [[123284,7037,≥57]]₁₉ | ≥ 57 | **≤ 0.708** | 0.846 | proved lower bound, rank checked twice (`imported-p19-n123284-k7037-*`) |
 | 23 | cubic, r = 29 | [[267513,12328,≥138]]₂₃ | ≥ 138 | **≤ 0.625** | 0.779 ([[424,105,6]]₂₃) | proved lower bound, rank checked twice (`imported-p23-n267513-*`); a larger set [[267467,12374,≥138]]₂₃, γ ≤ **0.624**, is also proved (second check by `levelset_verify_fast.py`) |
-| 29 | cubic, r = 37 | [[682660,24621,≥232]]₂₉ | ≥ 232 | **≤ 0.610** | 0.746 ([[666,175,6]]₂₉) | proved; rank certified twice on random column subsets (`levelset_big.py`, 2026-11-04) |
+| 29 | cubic, r = 37 | [[682660,24621,232]]₂₉ | 232 exact | **0.610** | 0.746 ([[666,175,6]]₂₉) | proved; rank certified twice on random column subsets (`levelset_big.py`, 2026-11-04) |
 | 31 | cubic, r = 39 | [[893420,30101,≥248]]₃₁ | ≥ 248 | **≤ 0.615** | 0.764 ([[766,195,≥6]]₃₁) | proved; same method |
 | 13 | quartic, r = 15 | [[26287,2274,≥13]]₁₃ | ≥ 13 | **≤ 0.954** | 1.118 ([[145,24,5]]₁₃) | proved (exact powers; rank by three routines); first γ < 1 at p = 13. Cubic zero sets exceed the cap 1996, and all 60 structured (diagonal / near-diagonal) cubics under the cap have dependent outputs (`p13_levelset_diag.json`) |
 
