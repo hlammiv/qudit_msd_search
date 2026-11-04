@@ -1,0 +1,29 @@
+p=29 r=37 delta=3: cap 25979, |O| = 24621, dim RM(r) = 99290; dual RM(77,4) d >= 232; gamma <= 0.6100 (8s)
+level set recomputed equals O: True
+E built (24621, 99290) (4.9 GB, 213s)
+column-subset certificate: 30816 of 99290 columns (seed 1); full rank on the subset implies full rank of E
+  pivots 1000 of 24621
+  pivots 2000 of 24621
+  pivots 3000 of 24621
+  pivots 4000 of 24621
+  pivots 5000 of 24621
+  pivots 6000 of 24621
+  pivots 7000 of 24621
+  pivots 8000 of 24621
+  pivots 9000 of 24621
+  pivots 10000 of 24621
+  pivots 11000 of 24621
+  pivots 12000 of 24621
+  pivots 13000 of 24621
+  pivots 14000 of 24621
+  pivots 15000 of 24621
+  pivots 16000 of 24621
+  pivots 17000 of 24621
+  pivots 18000 of 24621
+  pivots 19000 of 24621
+  pivots 20000 of 24621
+  pivots 21000 of 24621
+  pivots 22000 of 24621
+  pivots 23000 of 24621
+  pivots 24000 of 24621
+rank (row): 24621 of 24621 -> INDEPENDENT (12579s)
