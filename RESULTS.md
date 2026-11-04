@@ -18,6 +18,14 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   best small-code protocol at 1e-3 -> 1e-30 by 2.2x (R = 1 Clifford gate per magic state) to 3.1x (R -> inf), and by
   3.2-4.3x from 1e-2, with proved curves; at p >= 11 the RS family leaves the large codes at most 13 % (`CODE_METRICS.md` §8).
 
+- **Species assumption behind every p = 7 sphere-charge figure (2026-11-04).** These codes consume U, U^2 and U^3 states. If
+  raw states of all three species are available at the same eps0 and cost, the savings stand exactly (rescaling charges gives
+  each species an identical tower). If only raw U is available, teleporting gives U^2 from 2 U and U^3 from 3 U (3762 U per
+  k = 270 round): [[1746,270,7]]_7 falls to 1.78x proved at 1e-3 -> 1e-30 and about 2x estimated at 1e-2 -> 1e-30 (proved 1.00x
+  there, a limit of the bound), its U-count exponent is 1.35 rather than gamma 0.959, and the unit-charge [[2093,308,5]]_7 becomes the best p = 7 code, 3.65x proved at
+  1e-3 -> 1e-30. The all-species saving reaches 1x when a U^2 or U^3 raw state costs about 5 U (`WEIGHTED_SUPPORTS.md`,
+  "Species accounting"; `runs/weighted/species_cost.json`).
+
 - **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
   noisy T on non-outputs, X measurement) and an axis-by-axis Reed–Muller encoder, the large codes need
   98 ([[1745,271,7]]_7), 233 ([[13332,1309,22]]_11) and 567 ([[78455,5066,>=68]]_17) two-qudit gates per
@@ -124,7 +132,7 @@ F_7^4, |X| = 2016, rank 326 of RM(7,4) on X; outputs are k random points of the 
 
 | code | gamma | d | certificate stages (machine, wall) | census (A_d, L_d per output, c_eps) | artifact_id / data |
 |---|---|---|---|---|---|
-| [[1746,270,7]]_7 seed 19 | 0.959 | 7 exact | block6 4899 s (82 min), full5 35 187 s (9.8 h), mixed6 186 s (0 of 1 197 504 line words extend), planar weight-7 witness G0 cols [141,473,717,857,921,1125,1354] coeffs (1,1,1,5,1,1,1); mixed7: no mixed word of weight <= 7 (6 hits, min weight 9). lenore, 8 threads nice 19, 2026-10-29/30 | weight-7 census RUNNING (`scratchpad/census7_draw.py`, lenore; ~30 weight-7 classes found so far vs 27 predicted) | `imported-p7-n1746-k270-c93a88f0735a`; `runs/certify/p7_k270_seed19.json`, `p7_k270_seed19_mixed7.json` |
+| [[1746,270,7]]_7 seed 19 | 0.959 | 7 exact | block6 4899 s (82 min), full5 35 187 s (9.8 h), mixed6 186 s (0 of 1 197 504 line words extend), planar weight-7 witness G0 cols [141,473,717,857,921,1125,1354] coeffs (1,1,1,5,1,1,1); mixed7: no mixed word of weight <= 7 (6 hits, min weight 9). lenore, 8 threads nice 19, 2026-10-29/30 | weight-7 census complete (2026-11-01): A_7 = 276 (46 classes), L_7 = 193.2, c_eps = 6.9e-4, 46 024 s; `runs/weighted/p7_m4_sphere_1746_270_7_census.json` | `imported-p7-n1746-k270-c93a88f0735a`; `runs/certify/p7_k270_seed19.json`, `p7_k270_seed19_mixed7.json` |
 | [[1746,270,7]]_7 seed 407 | 0.959 | 7 exact | block6 4375 s (73 min), full5 36 049 s (10.0 h), mixed6 209 s, mixed7 0 of 233 376 candidates extend, weight-7 word from the 3+4 block scan (820 s, 14 min on the indexed kernels) cols [177,337,492,14,20,651,1160] coeffs (1,1,3,3,3,4,1). d_plane = 8 (the only such draw; d = 8, gamma 0.898, is closed) | none (same n, k as [[1746,270,6]]_7, one more unit of distance) | `imported-p7-n1746-k270-c833577e4463`; `runs/certify/p7_k270_seed407.json`, `_mixed7.json`, `_bundle.json` |
 | [[1751,265,7]]_7 seed 8 | 0.970 | 7 exact | block6 5275 s (88 min), full5 skipped (implied by block6 + mixed6), mixed6 235 s, planar weight-7 witness cols [317,373,438,607,667,735,1630] coeffs (1,5,1,1,5,1,1); 2026-10-30 | none | `imported-p7-n1751-k265-0ecb29c584c7`; `runs/certify/p7_k265_seed8.json` |
 | [[1756,260,7]]_7 | 0.982 | 7 exact | (i) no weight <= 5 in the full code, 2+3 scan 12 243 s on lenore; (ii) no weight-6 word on the 412 class columns (3+3); (iii) mixed6: 76 242 point sets of span 2-4 enumerated, 1 197 504 line words tested, 428 s; witness 3+4 scan 5.8 h, cols [523,1045,1117,19,490,1260,1556] coeffs (3,3,1,1,1,3,1); mixed7 0 of 233 376 | A_7 = 24 (4 scalar classes, 140 raw hits / 35), L_7 = 1.29, c_eps = 4.6e-6; complete; 119 533 s (33 h) on lenore's indexed 3+4 kernel, 2026-10-31 | `imported-p7-n1756-k260-9d263f2240e4`; `runs/weighted/p7_m4_sphere_1756_260_cols.json`, `..._7_census.json`, `..._mixed_w6_check.json`, `..._mixed_w7_check.json`, `runs/certify/census7_1756.json` |
@@ -350,9 +358,8 @@ n ~ 10^7; from p = 23 the RS family is the whole story.
 
 ## 9. Open items (`NEXT_STEPS.md` H, `CERTIFY_P7.md`, `COVERAGE.md`, `PERFORMANCE.md`)
 
-- **Weight-7 census of [[1746,270,7]]_7 seed 19** (`scratchpad/census7_draw.py`, lenore): running; ~30 weight-7
-  classes found so far against 27 predicted; makes the seed-19 cost exact (at leading order the k = 270 d = 7
-  codes can only be cheaper than [[1746,270,6]]_7 unless L_7 exceeded ~1e5). Seed 407's census (~33 h) not started.
+- **Weight-7 census of [[1746,270,7]]_7 seed 407** (`scratchpad/census7_draw.py`): not started; seed 19 finished
+  2026-11-01 (A_7 = 276, L_7 = 193.2) and gives the proved 4.32x, so seed 407 would add only a second cost figure.
 - **Aanha's Monte Carlo tasks** (`docs/aanha_mc_guide/main.tex`, `docs/aanha_mc_guide2/main.tex`, figures and
   `numbers.json` from `make_figures.py`): guide I: the sampler `qmsd/mc_distill.py`, a point and a curve, the two
   numbers the paper quotes, threshold by bisection; guide II: Task A thresholds of the large codes by sampling
@@ -364,10 +371,10 @@ n ~ 10^7; from p = 23 the RS family is the whole story.
   arc-climb / cap-set / near-cap samplers stall at k = 15 at p = 13.
 - **Weight-8 words of RM_7(20,4)** (theory; needed only for d = 9 certificates, which also need a 4+4 kernel);
   the other degree-2 charges at m = 4; a charge with a vanishing-stabiliser block at r = 6.
-- **Cost model gaps** (`PERFORMANCE.md`): exact per-output curves for the large codes are out of reach (7^56-7^66,
-  19^10 words); costs count magic states only (no Clifford circuit cost, footprint or latency); the weighted
-  codes consume three species of U^mu magic state, counted as one raw state each (`WEIGHTED_SUPPORTS.md`,
-  "Caveats"); under a single-species accounting a conversion cost would be needed.
+- **Cost model gaps** (`PERFORMANCE.md`, `CODE_METRICS.md`): exact per-output curves for the large codes are out of
+  reach (7^56-7^66, 19^10 words); Clifford gate counts exist (`CODE_METRICS.md` §8) but footprint, connectivity and
+  latency do not. Species accounting is settled in `WEIGHTED_SUPPORTS.md`, apart from a proof of the single-species 2x at
+  1e-2 -> 1e-30 (needs a weight-8 count), per-column input errors, and the relative raw cost of U^2 and U^3, which is a hardware question.
 - **The unweighted p = 7 mid-k m = 4 RM window and the < 5% high-dimensional tail** of the p <= 13 no-go
   (`D_NEGATIVE_RESULT.md` section 7).
 - **Manuscript**: not started (`NEXT_STEPS.md` E: "Consolidate / write-up").

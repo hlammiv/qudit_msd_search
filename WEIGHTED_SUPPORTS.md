@@ -469,6 +469,61 @@ class-block structure either).
   per-output curves (7^{dim G0} words) are out of reach, and the Lemma-17 subcode bounds are
   too loose at this size.
 - The weighted codes consume three species of magic state (U^μ for μ in the three cube
-  classes). Under a stricter single-species accounting the comparison would need a conversion
-  cost.
+  classes). Their costs hold only if raw states of all three species are available at the same
+  ε₀; see "Species accounting" below.
 - d of a draw varies strongly at fixed k; the certified codes are single draws, not optima.
+
+## Species accounting (2026-11-04)
+
+At p = 7, U^a and U^b are Clifford-equivalent only if a/b = ±1, so there are three species: U (μ = 1, 6),
+U² (2, 5) and U³ (3, 4). A sphere-charge code with k outputs in the U class takes 672 − k U inputs, 672 U²
+inputs and 672 U³ inputs. The unit-charge [[2093,308,5]]₇ takes only U. The library [[20,1,4]]₇ also
+mixes species (10 U, 2 U², 8 U³ relative to its output class). All other library codes are unit-charge.
+
+**Rescaling.** Multiplying all charges by c leaves G0 and H1 unchanged and multiplies the logical exponent
+by c, so the same code with the same curve f(ε) makes U^c from rescaled inputs. Checked on the
+[[20,1,4]]₇ triple sums at c = 1, 2, 3. Each species therefore has an identical distillation tower.
+
+**Conversion.** Teleporting U^b onto |U^a⟩ gives |U^(a+b)⟩: map |s⟩|x⟩ → |s⟩|s−x⟩, measure y = s−x, and
+correct with the Clifford phase ω^(3b s²y − 3b s y²). Z errors add, so errors compose as
+ε₁ + ε₂ − ε₁ε₂ p/(p−1), and the result is again uniform on nonzero Z powers. The state-vector check over
+all a, b, y and error powers has worst infidelity 7e-16 (`tests/test_species.py`). From raw U alone,
+|U²⟩ costs 2 U at about 2ε and |U³⟩ costs 3 U at about 3ε. One sphere-charge round then costs
+(672 − k) + 2·672 + 3·672 U states: 3762 at k = 270, against n = 1746.
+
+**Two scenarios**, from `scratchpad/species_cost.py` (`runs/weighted/species_cost.json`). It is a forward
+Pareto search over (species, ε, cost) that allows conversion at any tier, and every round takes all inputs
+at the worst input error. Saving is cost(library) / cost(library + code) within the same scenario.
+
+| Code | ε₀ → target | All three species raw (proved / estimate) | Raw U only (proved / estimate) |
+|---|---|---|---|
+| [[1746,270,7]]₇ | 1e-2 → 1e-30 | 4.32× / 4.32× | 1.00× / 2.00× |
+| [[1746,270,7]]₇ | 1e-3 → 1e-30 | 3.09× / 3.60× | 1.78× / 2.05× |
+| [[1746,270,7]]₇ | 1e-2 → 1e-15 | 1.08× / 1.08× | 1.00× / 1.00× |
+| [[1756,260,7]]₇ | 1e-2 → 1e-30 | 4.14× / 4.14× | 1.00× / 1.92× |
+| [[1756,260,7]]₇ | 1e-3 → 1e-30 | 2.96× / 3.44× | 1.71× / 1.97× |
+| [[2093,308,5]]₇ | 1e-2 → 1e-30 | 1.27× / 4.11× | 1.00× / 4.11× |
+| [[2093,308,5]]₇ | 1e-3 → 1e-30 | 2.94× / 2.94× | 3.65× / 3.65× |
+| [[2093,308,5]]₇ | 1e-2 → 1e-15 | 1.03× / 1.03× | 1.03× / 1.03× |
+
+No code saves anything at 1e-3 → 1e-15 in either scenario. "Proved" uses f_hi, pacc_lo and "estimate"
+uses the leading-order surrogate. The library baselines are 52.6, 210.3 and 28.8 in both scenarios, and at
+1e-3 → 1e-30 they are 141.0 (all species) and 175.1 (raw U only), because [[20,1,4]]₇ stops being worthwhile.
+
+- **All species raw:** the search reproduces `best_protocol` and every earlier saving exactly. The old
+  "one raw state each" count is correct at every tier by rescaling, so the proved 4.32× and 3.09× stand. The
+  assumption is physical: U² and U³ can be prepared at the same ε₀ and cost as U. Charging w raw U-equivalents for
+  each U² or U³ raw state, the [[1746,270,7]]₇ saving reaches 1× at w ≈ 5.3 (1e-2 → 1e-30) and w ≈ 4.7
+  (1e-3 → 1e-30), ignoring any change in ε.
+- **Raw U only:** the sphere-charge codes keep about 2×, and γ loses its meaning as a raw-state exponent.
+  Counted in U states, [[1746,270,7]]₇ has log(3762/270)/log 7 = 1.35, so γ < 1 at p = 7 depends on the
+  all-species convention. The unit-charge [[2093,308,5]]₇ (γ 1.19 either way) becomes the best p = 7 code,
+  with a proved 3.65× at 1e-3 → 1e-30.
+- **The proved 1.00× at 1e-2 → 1e-30** is a limit of the bound. At the ε = 3.0e-6 this route needs, f_hi = 4e-28
+  (the Singleton tail) misses the 1e-30 target, while the leading term is 2e-42. A weight-8 count would be
+  needed to prove the 2×.
+
+**Not done.** Per-column input errors are not modelled, though the low-weight words all lie in the U class
+block, so U² and U³ columns could tolerate more noise. Conversions by a distillation code with
+charge-changing outputs were not looked at. Clifford cost under conversion is not recomputed: the
+2016 teleports per k = 270 round add about 7.5 per output, against 98 encoder gates per output.
