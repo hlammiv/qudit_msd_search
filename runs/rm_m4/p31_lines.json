@@ -1,0 +1,46 @@
+{
+ "p": 31,
+ "r": 39,
+ "delta": 3,
+ "lower_bound": 248,
+ "found": {
+  "direction": [
+   1,
+   9,
+   4,
+   27
+  ],
+  "quotient_points": [
+   [
+    6,
+    20,
+    5
+   ],
+   [
+    28,
+    0,
+    14
+   ],
+   [
+    23,
+    13,
+    19
+   ]
+  ],
+  "quotient_line_dir": [
+   22,
+   11,
+   9
+  ],
+  "quotient_base": [
+   6,
+   20,
+   5
+  ]
+ },
+ "full_lines_seen": 389,
+ "directions_scanned": 9794,
+ "seconds": 549,
+ "d_exact": 248,
+ "note": "3 coplanar parallel lines of O -> explicit kernel word of weight 248 = lower bound"
+}
