@@ -34,3 +34,16 @@ def test_error_composition_stays_uniform():
     conv = np.array([sum(d1[a] * d2[(z - a) % P] for a in range(P)) for z in range(P)])
     assert np.ptp(conv[1:]) < 1e-15
     assert abs((1 - conv[0]) - (e1 + e2 - e1 * e2 * P / (P - 1))) < 1e-15
+
+
+def test_pauli_noise_is_species_blind():
+    Z = np.diag([W ** x for x in range(P)])
+    X = np.roll(np.eye(P), 1, axis=0)
+    for i in range(P):
+        for j in range(P):
+            E = np.linalg.matrix_power(X, i) @ np.linalg.matrix_power(Z, j)
+            rows = []
+            for a in range(1, P):
+                psi = magic(a)
+                rows.append([abs(np.vdot(np.linalg.matrix_power(Z, k) @ psi, E @ psi)) ** 2 for k in range(P)])
+            assert np.ptp(np.array(rows), axis=0).max() < 1e-12

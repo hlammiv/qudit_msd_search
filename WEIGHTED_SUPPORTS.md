@@ -527,3 +527,52 @@ uses the leading-order surrogate. The library baselines are 52.6, 210.3 and 28.8
 block, so U² and U³ columns could tolerate more noise. Conversions by a distillation code with
 charge-changing outputs were not looked at. Clifford cost under conversion is not recomputed: the
 2016 teleports per k = 270 round add about 7.5 per output, against 98 encoder gates per output.
+
+### Testing the all-species assumption (2026-11-04)
+
+Scripts `scratchpad/species_verify.py`, `species_snap.py`, `species_sensitivity.py`; data
+`runs/weighted/species_verify.json`, `species_snap.json`, `species_sensitivity.json`.
+
+| Test | Result | Status |
+|---|---|---|
+| Exact state-vector round of a mixed-species code (g = x on F₇, charges 2-6, output in the U class, n = 5), rescaled by 1, 2, 3, ε = 1e-3 to 5e-2 | P_acc and P_fail match the G0, H1 prediction to about 1e-12 | confirmed on this code; the rescaling itself is an identity |
+| Pauli noise after the state (depolarizing, X, XZ², Z), and n-dephasing or coherent diagonal errors | same ε for all a, spread ≤ 1e-12 | confirmed |
+| Loss before an ideal diagonal gate | ε = 6.053e-4 for all a | confirmed; any noise before an ideal diagonal gate is species-blind |
+| Loss after the gate, coherent X rotation after the gate | ε spreads 30 % across species (loss g = 1e-3: U 2.76e-3, U² 2.86e-3, U³ 2.01e-3) | species-dependent |
+| Pulse-level SNAP on Fock 0-6, unoptimized Gaussian pulses, phases calibrated per target, χ/2π = 1 MHz, cavity T1 1 ms, transmon T1 = Tφ = 100 µs | coherent ε differs by 2.3× (3.9e-3 to 9.0e-3 at σχ = 16); with decoherence ε is 0.20-0.21 at σχ = 16 (spread 4 %), 0.10-0.14 at σχ = 6 (spread 25 %) | species-dependent, small once decoherence dominates |
+| Mana | U and U² 0.815, U³ 0.896 | conversion lower bound 1 U and 1.10 U, so the teleport's 2 and 3 are not shown optimal |
+
+The SNAP ε values are far above any ε₀ we use, because the pulses are unoptimized and the noise values are
+illustrative. Only the species dependence is the result, not the absolute ε. Landgraf et al. (arXiv:2310.10498) also report
+target-dependent SNAP coherent errors. Wigner positivity is reached at ε = 0.49, 0.70, 0.54 for U, U², U³, so the
+species do differ at large noise, far above any code threshold used here.
+
+**Hardware.** On a transmon qudit, diagonal gates can be software phase updates: Champion et al. (arXiv:2405.15857, d = 3, 5, 8)
+implement SNAP layers "by updating subsequent drive phases, producing virtual rather than physical phase rotations".
+That paper does not measure a SNAP fidelity ("close to unity" is a statement, not a benchmark) and does not address
+dependence on the phase values or d = 7. Its native displacement fidelity at d = 8 is 0.9895. With a virtual gate the
+state is prepared by physical pulses followed by a frame update, which is the species-blind ordering in the table.
+Nguyen et al. (arXiv:2312.17741, d ≤ 4) also use virtual Z gates. On a cavity, SNAP is a physical pulse whose duration is
+set by χ rather than the phases, and the phases enter only as tone phases, so the cost is the same but the error is not.
+
+**How much it matters** ([[1746,270,7]]₇, raw U at ε₀ cost 1, raw U² and U³ at r·ε₀ cost w; proved / estimate):
+
+| | 1e-2 → 1e-30 | 1e-3 → 1e-30 |
+|---|---|---|
+| r = 1, w = 1 | 4.32 / 4.32 | 3.09 / 3.60 |
+| r = 1.3, w = 1 | 1.49 / 4.24 | 3.09 / 3.58 |
+| r = 3, w = 1 | 1.08 / 3.68 | 3.08 / 3.46 |
+| r = 1, w = 2 | 2.44 / 2.44 | 2.17 / 2.52 |
+| r = 1, w = 3 | 1.70 / 1.70 | 1.51 / 1.76 |
+| r = 1, w = 5 | 1.06 / 1.06 | 1.00 / 1.09 |
+
+So error differences up to 3× barely move the estimates and leave the proved 3.09× at 1e-3 intact, while the proved 4.32×
+at 1e-2 is fragile because the proof tail is steep. Raw cost is what matters. Comparing like with like at w = 1, [[1746,270,7]]₇ leads the
+unit-charge [[2093,308,5]]₇ by 5 % proved at 1e-3 → 1e-30 (45.6 vs 47.9) and by 5 % and 18 % estimated (48.7 vs 51.1 at
+1e-2, 39.2 vs 47.9 at 1e-3), and falls behind it at w ≈ 1.1-1.3. Only the proved comparison at 1e-2 is large (48.7 vs 166.2),
+because the d = 5 proof tail is weak. The species assumption buys proved γ < 1 and that proved figure, not much estimated cost.
+
+**Still unverified.** (1) Raw states from anything other than a direct diagonal gate: no qudit cultivation is known to us,
+and its checks could depend on the species. (2) The measured fidelity of a virtual diagonal gate at d = 7. (3) Uniform Z
+powers: non-Pauli noise splits the orbits {1,2,4} and {3,5,6} by up to about 30 % (loss g = 1e-3 at a = 3: 0.83e-3 vs 1.18e-3), and the Clifford group
+cannot twirl across them. Every curve here assumes uniformity; the cost effect is not computed and affects all species.

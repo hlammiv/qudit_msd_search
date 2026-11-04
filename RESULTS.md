@@ -24,7 +24,10 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   k = 270 round): [[1746,270,7]]_7 falls to 1.78x proved at 1e-3 -> 1e-30 and about 2x estimated at 1e-2 -> 1e-30 (proved 1.00x
   there, a limit of the bound), its U-count exponent is 1.35 rather than gamma 0.959, and the unit-charge [[2093,308,5]]_7 becomes the best p = 7 code, 3.65x proved at
   1e-3 -> 1e-30. The all-species saving reaches 1x when a U^2 or U^3 raw state costs about 5 U (`WEIGHTED_SUPPORTS.md`,
-  "Species accounting"; `runs/weighted/species_cost.json`).
+  "Species accounting"; `runs/weighted/species_cost.json`). Tests of the assumption: confirmed for Pauli noise and for any noise
+  before an ideal diagonal gate; non-Pauli noise after the gate spreads eps by 30 %, which barely changes estimated costs (proved 3.09x
+  at 1e-3 unchanged, proved 4.32x at 1e-2 falls to 1.49x at 1.3 eps0). Virtual diagonal gates exist on transmon qudits, but no measured
+  fidelity at d = 7. [[1746,270,7]]_7 leads the species-free [[2093,308,5]]_7 by 5-18 % on like curves (w = 1) and falls behind it once a raw U^2 or U^3 costs about 1.1-1.3 U.
 
 - **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
   noisy T on non-outputs, X measurement) and an axis-by-axis Reed–Muller encoder, the large codes need
