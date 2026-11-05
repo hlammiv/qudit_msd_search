@@ -922,12 +922,32 @@ qudits, 41 attempts/output; f = 1: D = 19, 5 832, 151 attempts; 10⁻¹² → D 
 | none+gap-tick1 | (14, 13) | 0.188 | 1.3×10⁻⁶ (1) | ≈ 1.4×10⁻⁵ | 20.4 | 305 |
 | none+gap-tick1 | (13, 13) | 0.221 | 1.1×10⁻⁶ (1) | ≈ 2.7×10⁻⁵ | 17.3 | 260 |
 
-The residual frames do not punish the lighter escape: its p_out is no worse than the recipe's, so the untested worry above
-is removed and the cost would fall by 20% at (14, 13) or 32% at (13, 13), with the same D = 25, 10 056 qudits.  Still not
-adopted: its error is dominated by a floor resting on few events, (13, 13) sits at ≈ 2.8×10⁻⁵ against the ≈ 4×10⁻⁵
-tolerance, and its Z and X keep decisions disagree on 10% of shots here (one+gap-tick1: 4×10⁻⁵).  The joint keep scores only
-shots both basis runs keep, so failures on the other 10% are unsampled and p_out for this variant is uncertain until a
-single-readout keep rule is defined and measured.
+The residual frames do not punish the lighter escape.  Superseded below for the floor and the keep rule.
+
+**Keep rules, total error** (`scratchpad/escape_keep_rules.py`, `runs/surface/escape_keep_rules.jsonl`; lenore, residual frames
+of 1.6×10⁷ f = 1 cultivation shots + 4×10⁶ clean frames per escape, common noise; every mask-kept shot decoded, so failures
+on shots where the certified-pattern discards disagree are sampled; 15 inputs per output).  Total = (residual + clean failures,
+clean scaled to the accepted count) / kept:
+
+| escape, rule | cut (Z, X) | keep (clean) | total error (residual + clean events) | attempts/output |
+|---|---|---|---|---|
+| one+gap-tick1, either | (12, 12) | 0.149 | 9.7×10⁻⁶ (4 + 2) | 385 |
+| one+gap-tick1, either | (15, 13) | 0.121 | 4.0×10⁻⁶ (2 + 0) | 474 |
+| one+gap-tick1, either | (15, 15) | 0.108 | 0 events (< 6.7×10⁻⁶) | 535 |
+| none+gap-tick1, gap only | (12, 12) | 0.280 | 5.8×10⁻⁵ (5 + 62) | 204 |
+| **none+gap-tick1, gap only** | **(13, 13)** | **0.222** | **1.3×10⁻⁵ (2 + 10)** | **258** |
+| none+gap-tick1, gap only | (14, 13) | 0.191 | 5.1×10⁻⁶ (1 + 3) | 301 |
+| none+gap-tick1, gap only | (15, 13) | 0.164 | 2.9×10⁻⁶ (1 + 1) | 350 |
+
+The keep rule no longer matters: the two runs' mask keeps never disagree, certified-pattern hits disagree on 6.8% of shots, and
+the gap cut removes them.  At (14, 13) and (15, 13) the four rules (no certified discards, either basis, Z only, X only) give
+identical failures; at (13, 13) discarding on a hit changes 12 events to 10.  So the certified discards can be dropped and the
+Z / X keep disagreement is gone.  The earlier per-sector floors (≈ 2.7×10⁻⁵, ≈ 1.4×10⁻⁵) were pessimistic by 2–4×.
+**Adopted for f = 1 at 10⁻³: no colour postselection, gap only, (13, 13): 1.3×10⁻⁵, 258 attempts/output, against 385 for the
+old recipe at (12, 12), D = 25, 10 056 qudits unchanged (tolerance ≈ 4×10⁻⁵; (14, 13) is the choice for a 2.6× smaller
+error at 301 attempts).**  Limits: the X gap saturates at 13.3, just above the cut, so the keep is sensitive to it; each
+sector's gap is computed with that basis's own final readout, whereas a device continuing in the surface code gets it from
+later rounds (not simulated); measured at p = 10⁻³, f = 1 only, so the 7×10⁻⁴ and 5×10⁻⁴ lines above still use the recipe.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
