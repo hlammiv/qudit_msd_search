@@ -262,15 +262,19 @@ def _same_class(a, b, d):
     return any(all((lam * x - y) % d == 0 for x, y in zip(a, b)) for lam in range(1, d))
 
 
-def build_dem(mem: Memory, sector: str, exclude=None) -> DEM:
+def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = None) -> DEM:
     """Project every fault onto the detectors of one sector; group graphlike faults into edges with per-level
     probabilities at unit location probability (scale by p when decoding; uniform over the non-identity Paulis of
     the location).  A fault with > 2 detectors is decomposed into its single-generator components (X^a or Z^b on one qudit); each
     graphlike component's edge receives the fault's probability (stim's decompose_errors).  When several fault
     classes share an edge with patterns that are not scalar multiples (a boundary degeneracy), the most probable
     class fixes the pattern.  exclude: detector indices that are postselected; every fault firing one of them is left out
-    of the model (those shots are discarded), and its probability is reported as DEM.discarded_prob."""
+    of the model (those shots are discarded), and its probability is reported as DEM.discarded_prob.
+    obs_before: only faults at circuit ops < obs_before carry the observable (a commit time: later faults are left to
+    the decoding that follows, as in a sliding window)."""
     faults, per_loc, V, O = propagate_basis(mem)
+    if obs_before is not None:
+        O = O * np.array([k < obs_before for k, _, _ in faults], dtype=np.int64)
     Vx = V[:, exclude] if exclude is not None and len(exclude) else None
     discarded = 0.0
     d = mem.d

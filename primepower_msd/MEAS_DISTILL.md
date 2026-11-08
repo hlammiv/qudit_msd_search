@@ -949,6 +949,20 @@ error at 301 attempts).**  Limits: the X gap saturates at 13.3, just above the c
 sector's gap is computed with that basis's own final readout, whereas a device continuing in the surface code gets it from
 later rounds (not simulated); measured at p = 10⁻³, f = 1 only, so the 7×10⁻⁴ and 5×10⁻⁴ lines above still use the recipe.
 
+**Decision without the final readout** (`Escape(gap_window="syndrome")`, local smoke runs, 10⁵ cultivation shots + 10⁴ clean
+frames, same shots as the readout gap; `runs/surface/escape_gap_window_smoke.jsonl`).  A second decoder sees the same
+detectors minus the final data readout.  Its gap collapses: max 13.0 / 12.8 (Z / X) against 16.9 / 13.3, keep at a symmetric
+cut 10 is 1.9% (readout gap: 41%), with gap correlation 0.36 / 0.55.  Cause: with an open time boundary the split-boundary
+matcher labels each last-round time-boundary edge by its potential, so a last-round flip on either side of the logical
+representative gives a path B₀ → flip → one data edge → flip → B₁ for ≈ 2 measurement + 1 data weights in every shot,
+which caps the gap; a three-round buffer after the escape does not help (max 12.6 / 12.0).  A commit-time observable (only
+faults before the buffer count) is not a homology class (825 potential conflicts per level vs 5–8), so that construction is
+invalid.  On the same circuits the readout gap does not depend on a buffer between escape and readout: with 3 buffer rounds of
+the d₂ = 15 code, keep at (10, 10) / (12, 12) / (13, 13) / (14, 13) = 0.408 / 0.283 / 0.223 / 0.186 vs 0.410 / 0.284 / 0.223 /
+0.191 without.  So the gap's information is the escape region's, but it needs a closed time boundary somewhere later (a
+logical measurement, e.g. at consumption); an immediate decision with an open boundary is not available with this matcher.
+Open: how the deferred decision enters the [[7,1,3]] round's acceptance, or a gap estimator for open windows.
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).

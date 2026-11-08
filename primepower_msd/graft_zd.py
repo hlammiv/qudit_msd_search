@@ -174,6 +174,7 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
         c.detector(terms, tag); det_sector.append(sector); det_post.append(post); det_tags.append(tag)
 
     prev = {}            # Check -> measurement index of its last measurement
+    round_start = {}     # (phase, round) -> circuit op index where the round begins
     fresh_set, fresh_basis = set(), {}     # qudits prepared since the last measured round, and their basis
     for pi, ph in enumerate(phases):
         pr = p if ph.noisy else 0.0
@@ -208,6 +209,7 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
             if fx:
                 c.F(fx); noise("DEP1", fx, pr); tick(dq, fx, pr)
         for r in range(ph.rounds):
+            round_start[(pi, r)] = len(c.ops)
             if idle and (r > 0 or pi > 0):
                 noise("DEP1", dq, pr)
             c.R(anc); noise("XERR", anc, pr)
@@ -289,16 +291,17 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
     mem = Memory(c, d, 0, sum(ph.rounds for ph in phases), basis, np.array(det_sector), obs, noise_locs)
     mem.det_post = np.array(det_post, dtype=bool)
     mem.det_tags = det_tags
+    mem.round_start = round_start
     return mem
 
 
 LAYERS = {}
 
 
-def build_dem_masked(mem, sector, mask):
+def build_dem_masked(mem, sector, mask, obs_before=None):
     """surface_zd.build_dem with the faults that fire a postselected detector removed."""
     from .surface_zd import build_dem
-    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int))
+    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int), obs_before=obs_before)
 
 
 class Escape:
@@ -307,8 +310,16 @@ class Escape:
 
     def __init__(self, d: int = 4, basis: str = "Z", r1: int = 5, r2: int = 5, mode: str = "escape", idle: bool = True,
                  post_colours=(None, None), pre_rounds: int = 1, post_phases=(1,), hyper_post: bool = True,
-                 flag_weight: int = 0, flag_phases=(1,), tick_idle: float = 0.0):
+                 flag_weight: int = 0, flag_phases=(1,), tick_idle: float = 0.0, gap_window: str = "readout",
+                 commit_round: int | None = None):
+        """gap_window = 'syndrome': run() also reports the complementary gap of a second decoder that sees no final data
+        readout (its window ends at the last syndrome round, as a device deciding before any readout), in shot_gap_syn.
+        commit_round = c (with 'syndrome'): that decoder's logical class counts only faults before round c of the final
+        code; rounds c .. r2-1 are a buffer that resolves the latest errors (sliding-window commit).  NOT a valid gap: the
+        truncated observable is no longer a homology class (boundary_potential: 825 conflicts per level at r2 = 8 vs 5-8
+        otherwise), so the split-boundary gap is meaningless; kept for the record (MEAS_DISTILL 5k)."""
         G = load_graft(d)
+        self.gap_window, self.commit_round = gap_window, commit_round
         self.tick_idle = tick_idle
         self.hyper_post, self.flag_weight, self.flag_phases = hyper_post, flag_weight, flag_phases
         self.G, self.d, self.basis, self.mode = G, d, basis, mode
@@ -373,6 +384,13 @@ class Escape:
         mask = np.nonzero(self.mem.det_post)[0]
         self.mask = mask
         self.dem = build_dem_masked(self.mem, self.sector, mask)
+        if gap_window == "syndrome":
+            import copy
+            m2 = copy.copy(self.mem)
+            m2.det_sector = np.array([("-" if t.startswith("final") else s_) for s_, t in zip(self.mem.det_sector, self.mem.det_tags)])
+            self.sel_syn = np.nonzero(m2.det_sector == self.sector)[0]
+            t_c = self.mem.round_start[(2, commit_round)] if commit_round is not None and mode == "escape" else None
+            self.dem_syn = build_dem_masked(m2, self.sector, mask, obs_before=t_c)
         self.post_idx = np.nonzero(self.mem.det_post[self.sel])[0]        # within the sector
         self.locations = sum(len(qs) for _, _, qs in self.mem.noise_locs)
         self.n_data = len(data)
@@ -466,6 +484,8 @@ class Escape:
         fails = kept = leftovers = done = hyper_disc = 0
         sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
         sc = np.zeros(shots, bool)
+        sg2 = np.full(shots, np.nan)
+        dec_syn = PeelDecoder(self.dem_syn, p, gap=True) if self.gap_window == "syndrome" else None
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
         bad = SZ.misdecoded_patterns(self.dem, dec) if self.hyper_post else {}
         pairs = getattr(self, "discard_pairs", {})
@@ -500,6 +520,10 @@ class Escape:
                     sk[done + s] = True; sf[done + s] = (O[s] + corr) % d
                     if isinstance(left, float):
                         sg[done + s] = left
+                    if dec_syn is not None:
+                        _, l2 = dec_syn.decode(Dall[s, self.sel_syn])
+                        if isinstance(l2, float):
+                            sg2[done + s] = l2
                 if left is None or isinstance(left, float):
                     if left is not None:
                         gaps.append((left, bool(f)))
@@ -525,7 +549,7 @@ class Escape:
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
                     locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight, tick_idle=self.tick_idle,
-                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc) if per_shot else {}))
+                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc, shot_gap_syn=sg2) if per_shot else {}))
 
 
 if __name__ == "__main__":

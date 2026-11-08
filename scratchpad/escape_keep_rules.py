@@ -21,6 +21,12 @@ from primepower_msd.graft_zd import Escape
 SLICE = 50_000
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
+SYN_CUTS = tuple((c, c) for c in range(0, 17)) + ((12, 11), (13, 12), (14, 12), (14, 13), (15, 13), (15, 14), (16, 14))
+
+
+def RULES(cz, cx, only_none=False):
+    rules = (("none", np.zeros_like(cz)), ("either", cz | cx), ("z", cz), ("x", cx))
+    return rules[:1] if only_none else rules
 
 
 def run_slice(variant, basis, frames, n, p, seed):
@@ -29,7 +35,9 @@ def run_slice(variant, basis, frames, n, p, seed):
         _cache[(variant, basis)] = Escape(4, basis, **VARIANTS[variant])
     inj = np.zeros((n, 19, 2), dtype=np.int64) if frames is None else frames
     r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True)
-    return r["shot_keep"], r["shot_cert"], r["shot_flip"].astype(np.int8), np.nan_to_num(r["shot_gap"], nan=0).astype(np.float32)
+    g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window == "syndrome" else r["shot_gap"]
+    return (r["shot_keep"], r["shot_cert"], r["shot_flip"].astype(np.int8), np.nan_to_num(r["shot_gap"], nan=0).astype(np.float32),
+            np.nan_to_num(g2, nan=0).astype(np.float32))
 
 
 def run_all(variant, F, n_clean, p, jobs):
@@ -37,17 +45,17 @@ def run_all(variant, F, n_clean, p, jobs):
     tasks = [(F[i:i + SLICE], len(F[i:i + SLICE])) for i in range(0, len(F), SLICE)]
     tasks += [(None, min(SLICE, n_clean - i)) for i in range(0, n_clean, SLICE)]
     out = Parallel(n_jobs=jobs)(delayed(run_slice)(variant, b, fr, n, p, 7000 + k) for k, (fr, n) in enumerate(tasks) for b in "ZX")
-    return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(4)] for i in range(2)]
+    return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(5)] for i in range(2)]
 
 
-def analyse(Z, X, nt, acc, shots, n_clean):
-    (kz, cz, az, gz), (kx, cx, bx, gx) = Z, X
+def analyse(Z, X, nt, acc, shots, n_clean, cuts=CUTS, only_none=False):
+    (kz, cz, az, gz), (kx, cx, bx, gx) = Z, X          # (keep, cert hit, readout, gap)
     bad = (bx.astype(int) - az.astype(int)) % 4 != 0
     mask = kz & kx
     w = (acc - nt) / max(n_clean, 1)
     rows = {}
-    for rule, hit in (("none", np.zeros_like(cz)), ("either", cz | cx), ("z", cz), ("x", cx)):
-        for c_z, c_x in CUTS:
+    for rule, hit in RULES(cz, cx, only_none):
+        for c_z, c_x in cuts:
             k = mask & ~hit & (gz >= c_z) & (gx >= c_x)
             kr, kc = int(k[:nt].sum()), int(k[nt:].sum())
             fr, fc = int((k & bad)[:nt].sum()), int((k & bad)[nt:].sum())
@@ -74,7 +82,15 @@ def main():
         t = time.time()
         Z, X = run_all(variant, F, n_clean, p, jobs)
         out = dict(config=cfg, variant=variant, p=p, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
-                   **analyse(Z, X, len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
+                   **analyse(Z[:4], X[:4], len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
+        if VARIANTS[variant].get("gap_window") == "syndrome":    # the same shots, kept on the syndrome-only gap
+            syn = analyse(Z[:3] + Z[4:], X[:3] + X[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)
+            out["rules_readout_fine"] = analyse(Z[:4], X[:4], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)["rules"]
+            out["rules_syndrome_gap"] = syn["rules"]
+            gz, gx, sz, sx = Z[3], X[3], Z[4], X[4]
+            ok = Z[0] & X[0]
+            out["gap_corr"] = [float(np.corrcoef(gz[ok], sz[ok])[0, 1]), float(np.corrcoef(gx[ok], sx[ok])[0, 1])]
+            out["gap_max"] = dict(readout=[float(gz.max()), float(gx.max())], syndrome=[float(sz.max()), float(sx.max())])
         with open("runs/surface/escape_keep_rules.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
