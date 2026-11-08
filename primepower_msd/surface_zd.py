@@ -262,7 +262,7 @@ def _same_class(a, b, d):
     return any(all((lam * x - y) % d == 0 for x, y in zip(a, b)) for lam in range(1, d))
 
 
-def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = None) -> DEM:
+def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = None, drop=None) -> DEM:
     """Project every fault onto the detectors of one sector; group graphlike faults into edges with per-level
     probabilities at unit location probability (scale by p when decoding; uniform over the non-identity Paulis of
     the location).  A fault with > 2 detectors is decomposed into its single-generator components (X^a or Z^b on one qudit); each
@@ -271,7 +271,9 @@ def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = N
     class fixes the pattern.  exclude: detector indices that are postselected; every fault firing one of them is left out
     of the model (those shots are discarded), and its probability is reported as DEM.discarded_prob.
     obs_before: only faults at circuit ops < obs_before carry the observable (a commit time: later faults are left to
-    the decoding that follows, as in a sliding window)."""
+    the decoding that follows, as in a sliding window).
+    drop: detector indices (outside the sector); every basis fault that fires one of them AND a sector detector is removed
+    from the model (a window closed at its last round: the faults bridging it to a later readout are ignored)."""
     faults, per_loc, V, O = propagate_basis(mem)
     if obs_before is not None:
         O = O * np.array([k < obs_before for k, _, _ in faults], dtype=np.int64)
@@ -281,6 +283,7 @@ def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = N
     k = int(round(math.log2(d)))
     sel = np.nonzero(mem.det_sector == sector)[0]
     Vs = V[:, sel]
+    bridge = ((V[:, np.asarray(drop, dtype=int)] != 0).any(axis=1) & (Vs != 0).any(axis=1)) if drop is not None and len(drop) else None
     n_det = len(sel)
     edges, hyper, total, undet, conflicts = {}, 0.0, 0.0, 0.0, 0
 
@@ -324,6 +327,8 @@ def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = N
         # only the basis faults seen by this sector matter.  R1: those that fire a sector detector or the observable;
         # R2: those that only fire an excluded (postselected) detector.  Enumerate the R1 values (d^|R1| rows, not
         # d^m), each row weighted by the number of Paulis of the location that share them and survive the exclusion.
+        if bridge is not None:
+            ids = [i for i in ids if not bridge[i]]
         R1 = [i for i in ids if Vs[i].any() or O[i] % d]
         R2 = [i for i in ids if i not in R1 and Vx is not None and Vx[i].any()]
         if not R1 and not R2:

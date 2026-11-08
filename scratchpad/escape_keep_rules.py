@@ -36,7 +36,7 @@ def run_slice(variant, basis, frames, n, p, seed):
         _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant])
     inj = np.zeros((n, 19, 2), dtype=np.int64) if frames is None else frames
     r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True)
-    g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window == "syndrome" else r["shot_gap"]
+    g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window in ("syndrome", "closed") else r["shot_gap"]
     return (r["shot_keep"], r["shot_cert"], r["shot_flip"].astype(np.int8), np.nan_to_num(r["shot_gap"], nan=0).astype(np.float32),
             np.nan_to_num(g2, nan=0).astype(np.float32))
 
@@ -84,7 +84,7 @@ def main():
         Z, X = run_all(variant, F, n_clean, p, jobs)
         out = dict(config=cfg, variant=variant, p=p, d=D, seed_off=SEED_OFF, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
                    **analyse(Z[:4], X[:4], len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
-        if VARIANTS[variant].get("gap_window") == "syndrome":    # the same shots, kept on the syndrome-only gap
+        if VARIANTS[variant].get("gap_window") in ("syndrome", "closed"):    # the same shots, kept on the syndrome-only gap
             syn = analyse(Z[:3] + Z[4:], X[:3] + X[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)
             out["rules_readout_fine"] = analyse(Z[:4], X[:4], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)["rules"]
             out["rules_syndrome_gap"] = syn["rules"]

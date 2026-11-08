@@ -298,10 +298,10 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
 LAYERS = {}
 
 
-def build_dem_masked(mem, sector, mask, obs_before=None):
+def build_dem_masked(mem, sector, mask, obs_before=None, drop=None):
     """surface_zd.build_dem with the faults that fire a postselected detector removed."""
     from .surface_zd import build_dem
-    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int), obs_before=obs_before)
+    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int), obs_before=obs_before, drop=drop)
 
 
 class Escape:
@@ -317,7 +317,10 @@ class Escape:
         commit_round = c (with 'syndrome'): that decoder's logical class counts only faults before round c of the final
         code; rounds c .. r2-1 are a buffer that resolves the latest errors (sliding-window commit).  NOT a valid gap: the
         truncated observable is no longer a homology class (boundary_potential: 825 conflicts per level at r2 = 8 vs 5-8
-        otherwise), so the split-boundary gap is meaningless; kept for the record (MEAS_DISTILL 5k)."""
+        otherwise), so the split-boundary gap is meaningless; kept for the record (MEAS_DISTILL 5k).
+        gap_window = 'closed': as 'syndrome', but the window is closed at its last syndrome round: faults that bridge that round to
+        the readout (last-round measurement / idle errors) are dropped from the second decoder's model, so the last-round flips
+        must be explained inside the window (a heuristic open-window gap; validated against the readout gap)."""
         G = load_graft(d)
         self.gap_window, self.commit_round = gap_window, commit_round
         self.tick_idle = tick_idle
@@ -384,13 +387,14 @@ class Escape:
         mask = np.nonzero(self.mem.det_post)[0]
         self.mask = mask
         self.dem = build_dem_masked(self.mem, self.sector, mask)
-        if gap_window == "syndrome":
+        if gap_window in ("syndrome", "closed"):
             import copy
             m2 = copy.copy(self.mem)
             m2.det_sector = np.array([("-" if t.startswith("final") else s_) for s_, t in zip(self.mem.det_sector, self.mem.det_tags)])
             self.sel_syn = np.nonzero(m2.det_sector == self.sector)[0]
             t_c = self.mem.round_start[(2, commit_round)] if commit_round is not None and mode == "escape" else None
-            self.dem_syn = build_dem_masked(m2, self.sector, mask, obs_before=t_c)
+            fin = np.array([i for i, t in enumerate(self.mem.det_tags) if t.startswith("final")], dtype=int)
+            self.dem_syn = build_dem_masked(m2, self.sector, mask, obs_before=t_c, drop=fin if gap_window == "closed" else None)
         self.post_idx = np.nonzero(self.mem.det_post[self.sel])[0]        # within the sector
         self.locations = sum(len(qs) for _, _, qs in self.mem.noise_locs)
         self.n_data = len(data)
@@ -485,7 +489,7 @@ class Escape:
         sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
         sc = np.zeros(shots, bool)
         sg2 = np.full(shots, np.nan)
-        dec_syn = PeelDecoder(self.dem_syn, p, gap=True) if self.gap_window == "syndrome" else None
+        dec_syn = PeelDecoder(self.dem_syn, p, gap=True) if self.gap_window in ("syndrome", "closed") else None
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
         bad = SZ.misdecoded_patterns(self.dem, dec) if self.hyper_post else {}
         pairs = getattr(self, "discard_pairs", {})
