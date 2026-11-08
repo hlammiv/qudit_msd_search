@@ -986,9 +986,29 @@ escape with no gap cut (rule none, same shots): 3.59×10⁻³ per kept input, 20
 on the same 8 logical qudits, **10 056 qudits (unchanged), 4 877 cultivation attempts/output (vs 258 deferred)**; the same for
 10⁻¹².  The 19× is throughput, i.e. factory count or time, not qudits per factory.  Every gap-cut number in §5h–§5k (the cut-15
 recipe of record, the 5×10⁻⁴ / 7×10⁻⁴ tables, the (13, 13) adoption) assumes a decision that needs the final readout.  They hold
-only where the escaped state can be read out before it is used, which the HHPW round does not allow.  Open: (a) the one-class
-escape plus a syndrome-only gap (unmeasured; the none-escape's syndrome gap at cut 4 gives 2.2×10⁻² at 7 attempts, smoke run);
-(b) immediate-decision numbers at 5×10⁻⁴ and 7×10⁻⁴ (needs the cut-0 rows of a keep-rules run there).
+only where the escaped state can be read out before it is used, which the HHPW round does not allow.  
+**Immediate decision with a syndrome-only gap** (variant `one+gap-tick1-syn`: one colour class plus the complementary gap of a
+decoder that sees no final readout; f = 1; local, 2026-11-07; `runs/surface/escape_keep_rules.jsonl`, `escape_immediate.log`).
+Shots: 4×10⁶ cultivation + 10⁶ clean frames at 10⁻³ and 7×10⁻⁴, 2×10⁶ + 5×10⁵ at 5×10⁻⁴.  The cut-0 row at 10⁻³ (3.58×10⁻³,
+20.5 attempts per kept escape) reproduces the 1.6×10⁷-shot run.  At every p the input error drops 4–6× between symmetric cuts
+6 and 7, enough for a single [[7,1,3]] round.  Zero-failure points use 3/N_kept.
+
+| p | cut | input error (events) | attempts / kept | 10⁻¹⁰: D, qudits, rounds | attempts / output | 90% upper limit |
+|---|---|---|---|---|---|---|
+| 10⁻³ | 0 | 3.6×10⁻³ (688) | 20.5 | 25, 10 056, 2 | 4 876 | – |
+| 10⁻³ | 7 | 1.6×10⁻⁴ (5) | 128 | 25, 10 056, 1 | 1 919 | 3.4×10⁻⁴ → 2 rounds, 28.9k |
+| 10⁻³ | **8** | < 1.3×10⁻⁴ (0) | 172 | 25, 10 056, 1 | **2 589** | (bound) |
+| 7×10⁻⁴ | 0 | 1.4×10⁻³ (514) | 8.3 | 19, 5 832, 2 | 1 909 | – |
+| 7×10⁻⁴ | **7** | 1.0×10⁻⁴ (11) | 27.2 | 19, 5 832, 1 | **408** | 1.6×10⁻⁴ → 409 |
+| 5×10⁻⁴ | 0 | 7.1×10⁻⁴ (222) | 4.5 | 17, 4 680, 2 | 1 034 | – |
+| 5×10⁻⁴ | 6 | 2.8×10⁻⁴ (65) | 7.7 | 17, 4 680, 1 | 116 | 3.3×10⁻⁴ → 2 rounds, 1 741 |
+| 5×10⁻⁴ | **7** | 4.7×10⁻⁵ (6) | 9.4 | 17, 4 680, 1 | **141** | 8.4×10⁻⁵ → 141 |
+
+**Recipe of record (immediate decision, f = 1):** one colour class plus a syndrome-only gap cut 8 at 10⁻³ and cut 7 at 7×10⁻⁴
+and 5×10⁻⁴.  Qudits are unchanged everywhere (10 056 / 5 832 / 4 680 for 10⁻¹⁰).  Attempts/output are 2 589 / 408 / 141,
+against 258 / 151 / 73 for the deferred gap, which is infeasible: 10×, 2.7× and 1.9×.  At 5×10⁻⁴, cut 7 also gives 10⁻¹² in one
+round (D = 21, 7 112 qudits, 141 attempts).  Open: more statistics at the cut-7/8 points (5–11 events); a gap estimator for open
+windows that is not capped near 13.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.

@@ -18,7 +18,7 @@ from cult_escape_e2e import cult_chunk, qudit_map
 from primepower_msd.graft_run import VARIANTS
 from primepower_msd.graft_zd import Escape
 
-SLICE = 50_000
+SLICE = int(__import__("os").environ.get("EKR_SLICE", 50_000))
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
 SYN_CUTS = tuple((c, c) for c in range(0, 17)) + ((12, 11), (13, 12), (14, 12), (14, 13), (15, 13), (15, 14), (16, 14))

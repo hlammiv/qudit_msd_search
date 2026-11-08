@@ -56,12 +56,13 @@ VARIANTS = {
     "none-nocert+gap-tick1": dict(post_colours=(None, None), hyper_post=False, tick_idle=1.0),   # gap cut only
     "none+gap":        dict(post_colours=(None, None)),
     "none+gap-tick1-syn": dict(post_colours=(None, None), tick_idle=1.0, gap_window="syndrome"),   # + syndrome-only gap
+    "one+gap-tick1-syn": dict(post_colours=(2, 0), tick_idle=1.0, gap_window="syndrome"),     # one class + syndrome-only gap
     **{f"none+gap-tick1-b{k}": dict(post_colours=(None, None), tick_idle=1.0, gap_window="syndrome", r2=5 + k, commit_round=5)
        for k in (2, 3, 5, 8)},       # + k buffer rounds of the final code; decision gap commits at round 5, no readout
 }
 DECODER = {"one+hyper": "hyper", "all+hyper": "hyper", "one+gap": "peel-gap", "one+pairs-cap+gap": "peel-gap",
            "one+gap-tick0.1": "peel-gap", "one+gap-tick1": "peel-gap", "none+gap-tick1": "peel-gap",
-           "none-nocert+gap-tick1": "peel-gap", "none+gap": "peel-gap", "none+gap-tick1-syn": "peel-gap",
+           "none-nocert+gap-tick1": "peel-gap", "none+gap": "peel-gap", "none+gap-tick1-syn": "peel-gap", "one+gap-tick1-syn": "peel-gap",
            **{f"none+gap-tick1-b{k}": "peel-gap" for k in (2, 3, 5, 8)}}
 CERT = {  # variant -> (scope, cache tag, degenerate cap)
     "one+pairs": ("colour", "one", None), "all+pairs": ("colour", "all", None),
