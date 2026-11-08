@@ -1010,6 +1010,29 @@ against 258 / 151 / 73 for the deferred gap, which is infeasible: 10×, 2.7× an
 round (D = 21, 7 112 qudits, 141 attempts).  Open: more statistics at the cut-7/8 points (5–11 events); a gap estimator for open
 windows that is not capped near 13.
 
+**Qudits at a given output rate** (`scratchpad/attempt_time.py`, `scratchpad/rate_footprint.py`, `runs/surface/attempt_time.jsonl`,
+2026-11-08).  So far the footprint has counted one 56-qudit cultivation block and quoted attempts per output separately.
+- *Factory.* Cultivation then escape, run serially on the escape circuit's 702 qudits; cultivation runs in its colour region.
+- *Durations.* ASAP ticks of the tick-idle schedule, with 10 ticks per surface-code round.  A cultivation attempt is 59 ticks
+  and an escape is 125 ticks to its decision before the readout.
+- *Early abort.* An attempt stops at its first firing postselected detector (2 000-shot FrameSim; acceptances reproduce the
+  large runs, 0.288 and mask keep 0.176 at 10⁻³).  Mean duration: cultivation 43 / 47 / 50 ticks and escape 54 / 67 / 78
+  ticks at 10⁻³ / 7×10⁻⁴ / 5×10⁻⁴.
+- *Round.* One [[7,1,3]] s=1 round takes 15 kept inputs and 31 rounds (host-census schedule, τ_F = 0).
+- *Qudits.* 8 × 2D² plus F × 702 for F factories; routing is not counted.
+
+| p (D) | factory-rounds per output | one factory: qudits, output period | qudits at a period of 31 / 100 / 1 000 / 10 000 rounds | best rate under 10k qudits |
+|---|---|---|---|---|
+| 10⁻³ (25) | 15 270 | 10 702, 15 270 rounds | 356k / 117k / 21.2k / 11.4k | none (the 8 patches alone are 10 000) |
+| 7×10⁻⁴ (19) | 3 057 | 6 478, 3 057 rounds | 75k / 27.5k / 8.6k / 6.5k | 6 factories → 509 rounds |
+| 5×10⁻⁴ (17) | 1 290 | 5 326, 1 290 rounds | 34k / 13.8k / 6.0k / 5.3k | 7 factories → 184 rounds |
+
+So the "< 10k qudits" footprints are single-factory, slow-rate numbers.  At 10⁻³ one output takes about 15 000 rounds, 15 ms at
+1 µs per round.  The round itself could consume one output's inputs every 31 rounds, and keeping up with that takes 34k qudits at
+5×10⁻⁴ and 356k at 10⁻³.  The earlier 10 056 counted the factory as 56 qudits.  If instead the escape grafts into the input slot
+(the D = 15 graft fits inside the D = 25 patch), the single-factory figure is 10 000 + 75.  The cultivation attempts dominate
+the time: at 10⁻³ they are 74%, from 172 attempts per kept input, so the open-window gap estimator is also the throughput lever.
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).

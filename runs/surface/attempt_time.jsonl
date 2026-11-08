@@ -1,0 +1,3 @@
+{"p": 0.001, "shots": 2000, "cult_depth": 59, "cult_accept": 0.288, "cult_mean_ticks": 43.347, "cult_mean_ticks_rejected": 36.78140525195174, "esc_depth": 125, "esc_decision_tick": 125, "esc_mask_keep": 0.176, "esc_mean_ticks": 54.3075}
+{"p": 0.0007, "shots": 2000, "cult_depth": 59, "cult_accept": 0.4145, "cult_mean_ticks": 46.9855, "cult_mean_ticks_rejected": 38.24956822107081, "esc_depth": 125, "esc_decision_tick": 125, "esc_mask_keep": 0.309, "esc_mean_ticks": 67.4265}
+{"p": 0.0005, "shots": 2000, "cult_depth": 59, "cult_accept": 0.532, "cult_mean_ticks": 49.8355, "cult_mean_ticks_rejected": 39.18486486486486, "esc_depth": 125, "esc_decision_tick": 125, "esc_mask_keep": 0.4285, "esc_mean_ticks": 78.2405}

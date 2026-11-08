@@ -14,11 +14,12 @@ import time
 import numpy as np
 from joblib import Parallel, delayed
 
-from cult_escape_e2e import cult_chunk, qudit_map
+from cult_escape_e2e import D, cult_chunk, qudit_map
 from primepower_msd.graft_run import VARIANTS
 from primepower_msd.graft_zd import Escape
 
 SLICE = int(__import__("os").environ.get("EKR_SLICE", 50_000))
+SEED_OFF = int(__import__("os").environ.get("EKR_SEED", 0))   # offset of every seed: independent replicas
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
 SYN_CUTS = tuple((c, c) for c in range(0, 17)) + ((12, 11), (13, 12), (14, 12), (14, 13), (15, 13), (15, 14), (16, 14))
@@ -32,7 +33,7 @@ def RULES(cz, cx, only_none=False):
 def run_slice(variant, basis, frames, n, p, seed):
     """frames None: n clean frames."""
     if (variant, basis) not in _cache:
-        _cache[(variant, basis)] = Escape(4, basis, **VARIANTS[variant])
+        _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant])
     inj = np.zeros((n, 19, 2), dtype=np.int64) if frames is None else frames
     r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True)
     g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window == "syndrome" else r["shot_gap"]
@@ -44,13 +45,13 @@ def run_all(variant, F, n_clean, p, jobs):
     """(slices of residual frames, then clean) -> arrays by basis; both bases of a slice share a seed."""
     tasks = [(F[i:i + SLICE], len(F[i:i + SLICE])) for i in range(0, len(F), SLICE)]
     tasks += [(None, min(SLICE, n_clean - i)) for i in range(0, n_clean, SLICE)]
-    out = Parallel(n_jobs=jobs)(delayed(run_slice)(variant, b, fr, n, p, 7000 + k) for k, (fr, n) in enumerate(tasks) for b in "ZX")
+    out = Parallel(n_jobs=jobs)(delayed(run_slice)(variant, b, fr, n, p, 7000 + SEED_OFF + k) for k, (fr, n) in enumerate(tasks) for b in "ZX")
     return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(5)] for i in range(2)]
 
 
 def analyse(Z, X, nt, acc, shots, n_clean, cuts=CUTS, only_none=False):
     (kz, cz, az, gz), (kx, cx, bx, gx) = Z, X          # (keep, cert hit, readout, gap)
-    bad = (bx.astype(int) - az.astype(int)) % 4 != 0
+    bad = (bx.astype(int) - az.astype(int)) % D != 0
     mask = kz & kx
     w = (acc - nt) / max(n_clean, 1)
     rows = {}
@@ -72,7 +73,7 @@ def main():
     t = time.time()
     perm = qudit_map()
     nch = max(jobs, shots // 250_000)
-    res = Parallel(n_jobs=jobs)(delayed(cult_chunk)(cfg, p, shots // nch, 1000 + k) for k in range(nch))
+    res = Parallel(n_jobs=jobs)(delayed(cult_chunk)(cfg, p, shots // nch, 1000 + SEED_OFF + k) for k in range(nch))
     acc = sum(r[0] for r in res)
     Fc = np.concatenate([r[2] for r in res])
     F = np.zeros((len(Fc), 19, 2), dtype=np.int64)
@@ -81,7 +82,7 @@ def main():
     for variant in sys.argv[6].split(","):
         t = time.time()
         Z, X = run_all(variant, F, n_clean, p, jobs)
-        out = dict(config=cfg, variant=variant, p=p, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
+        out = dict(config=cfg, variant=variant, p=p, d=D, seed_off=SEED_OFF, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
                    **analyse(Z[:4], X[:4], len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
         if VARIANTS[variant].get("gap_window") == "syndrome":    # the same shots, kept on the syndrome-only gap
             syn = analyse(Z[:3] + Z[4:], X[:3] + X[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)

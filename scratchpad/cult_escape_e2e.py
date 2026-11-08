@@ -29,6 +29,8 @@ from primepower_msd.graft_run import VARIANTS
 from primepower_msd.graft_zd import Escape, load_graft
 from primepower_msd.zdsim import FrameSim, add_tick_idle
 
+D = int(__import__("os").environ.get("EKR_D", 4))   # qudit dimension 2^k (default 4)
+
 CONFIGS = {"serial": ({}, 0.0), "serial-hooks": ({"hooks": True}, 0.0),
            "par-hooks": ({"hooks": True, "parallel": True, "final_block": True}, 0.0),
            "par-hooks-f0.1": ({"hooks": True, "parallel": True, "final_block": True}, 0.1),
@@ -51,7 +53,7 @@ def parse(cfg):
 
 def cult_chunk(cfg, p, shots, seed, batch=20_000):
     kw, f, _ = parse(cfg)
-    g = GrowCult(4, p, 1, 1, rounds3=1, rounds5=1, **kw)
+    g = GrowCult(D, p, 1, 1, rounds3=1, rounds5=1, **kw)
     if f:
         g.c = add_tick_idle(g.c, f * p)
     rng = np.random.default_rng(seed)
@@ -71,7 +73,7 @@ def cult_chunk(cfg, p, shots, seed, batch=20_000):
 
 def qudit_map():
     """cultivation data index -> position in the escape's colour_q (plaquette-structure isomorphism; tau agrees)."""
-    G = load_graft(4)
+    G = load_graft(D)
     col = G["codes"]["colour"]
     cq = sorted(set(q for ch in col for q in ch.support))
     Xs = {frozenset(ch.support) for ch in col if ch.typ == "X"}
@@ -98,7 +100,7 @@ def qudit_map():
 
 
 def escape_injected(basis, frames, p, seed, variant="one+gap"):
-    ex = Escape(4, basis, **VARIANTS[variant])
+    ex = Escape(D, basis, **VARIANTS[variant])
     r = ex.run(p, len(frames), seed=seed, decoder="peel-gap", inject=frames, per_shot=True, chunk_seeded=True)
     return r["shot_keep"], r["shot_flip"], r["shot_gap"]
 
@@ -120,13 +122,13 @@ def main():
         triv = slice(nt, None)
         gt = np.minimum(np.nan_to_num(gz[triv], nan=0), np.nan_to_num(gx[triv], nan=0))
         a_triv = {c: float((kz[triv] & (gt >= c)).mean()) for c in CUTS}
-        tfail = {c: int((kz[triv] & (gt >= c) & ((bx[triv] - az[triv]) % 4 != 0)).sum()) for c in CUTS}
+        tfail = {c: int((kz[triv] & (gt >= c) & ((bx[triv] - az[triv]) % D != 0)).sum()) for c in CUTS}
         kz_t, kx_t, gz_t, gx_t = kz[triv], kx[triv], gz[triv], gx[triv]
         kz, kx, az, bx, gz, gx = kz[:nt], kx[:nt], az[:nt], bx[:nt], gz[:nt], gx[:nt]
         sigma = 1
         keep = kz & kx
         keep_cut = keep & (np.nan_to_num(gz, nan=0) >= CUT) & (np.nan_to_num(gx, nan=0) >= CUT)
-        bad = (bx - sigma * az) % 4 != 0
+        bad = (bx - sigma * az) % D != 0
         gmin = np.minimum(np.nan_to_num(gz, nan=0), np.nan_to_num(gx, nan=0))
         by_cut = {c: [int((keep & (gmin >= c)).sum()), int((keep & (gmin >= c) & bad).sum())] for c in CUTS}
         tz, tx = np.nan_to_num(gz_t, nan=0), np.nan_to_num(gx_t, nan=0)
