@@ -961,7 +961,34 @@ invalid.  On the same circuits the readout gap does not depend on a buffer betwe
 the d₂ = 15 code, keep at (10, 10) / (12, 12) / (13, 13) / (14, 13) = 0.408 / 0.283 / 0.223 / 0.186 vs 0.410 / 0.284 / 0.223 /
 0.191 without.  So the gap's information is the escape region's, but it needs a closed time boundary somewhere later (a
 logical measurement, e.g. at consumption); an immediate decision with an open boundary is not available with this matcher.
-Open: how the deferred decision enters the [[7,1,3]] round's acceptance, or a gap estimator for open windows.
+Open: a gap estimator for open windows.
+
+**Deferred decision in the [[7,1,3]] round** (analytic, f = 1, p = 10⁻³, the keep-rules shots above).  The O3 [[7,1,3]] s=1
+stage consumes 15 inputs per output, one at a time.  Each input's patch is measured when it is consumed, but the other sector's
+boundary closes only when the block is read out, so every input gap is known only when the round ends.  The per-input bins of the
+none-escape (weighted residual + clean frames): gap ≥ (13, 13) 20.2% of cultivation-accepted inputs at 1.3×10⁻⁵, [10, 13) 17.8%
+at 6.7×10⁻⁴, < 10 62.0% at 0.151.
+
+| policy at the round's end | round acceptance | output error | attempts / output |
+|---|---|---|---|
+| reject unless all 15 inputs have gap ≥ 13 | 3.9×10⁻¹¹ | 7×10⁻¹⁵ | 1.4×10¹² |
+| accept ≤ 1 / 2 / 8 inputs below 13 | 2.1×10⁻⁹ / 5.2×10⁻⁸ / 7.9×10⁻³ | 1.2×10⁻¹¹ / 1.5×10⁻⁸ / 5×10⁻⁴ | 2.5×10¹⁰ / 1.0×10⁹ / 6.6×10³ |
+| ignore the gap (inputs at 9.4×10⁻²) | 0.26 | 2.2×10⁻³ | 10⁻¹⁰ unreachable at D ≤ 41 |
+
+(Output error c e₃(q)/C(15,3) over the input errors q, c = 3.148, acceptance exp(−Σq); this averages over input positions.)  So
+a gap decision cannot be deferred to the round: 15 inputs at 20% keep each leave nothing.  The gap must be decided per input
+before it is consumed, and that needs a closed boundary on the input alone, which would destroy it.
+
+**Immediate-decision recipe.**  The colour-region postselection uses only syndrome-round detectors: final-readout detectors are
+built with post = False.  So it is decided before consumption, and frame decoding can still use the later readout.  The one-class
+escape with no gap cut (rule none, same shots): 3.59×10⁻³ per kept input, 20.5 attempts per kept escape.  Footprint
+(`footprint_tick_proxy.py 1 e2e=1e-3,20.54,3.59e-3 escape-gap census-sparse`): 10⁻¹⁰ at 10⁻³ → D = 25, two [[7,1,3]] rounds
+on the same 8 logical qudits, **10 056 qudits (unchanged), 4 877 cultivation attempts/output (vs 258 deferred)**; the same for
+10⁻¹².  The 19× is throughput, i.e. factory count or time, not qudits per factory.  Every gap-cut number in §5h–§5k (the cut-15
+recipe of record, the 5×10⁻⁴ / 7×10⁻⁴ tables, the (13, 13) adoption) assumes a decision that needs the final readout.  They hold
+only where the escaped state can be read out before it is used, which the HHPW round does not allow.  Open: (a) the one-class
+escape plus a syndrome-only gap (unmeasured; the none-escape's syndrome gap at cut 4 gives 2.2×10⁻² at 7 attempts, smoke run);
+(b) immediate-decision numbers at 5×10⁻⁴ and 7×10⁻⁴ (needs the cut-0 rows of a keep-rules run there).
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
