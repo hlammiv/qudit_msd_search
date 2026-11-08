@@ -989,26 +989,47 @@ recipe of record, the 5×10⁻⁴ / 7×10⁻⁴ tables, the (13, 13) adoption) a
 only where the escaped state can be read out before it is used, which the HHPW round does not allow.  
 **Immediate decision with a syndrome-only gap** (variant `one+gap-tick1-syn`: one colour class plus the complementary gap of a
 decoder that sees no final readout; f = 1; local, 2026-11-07; `runs/surface/escape_keep_rules.jsonl`, `escape_immediate.log`).
-Shots: 4×10⁶ cultivation + 10⁶ clean frames at 10⁻³ and 7×10⁻⁴, 2×10⁶ + 5×10⁵ at 5×10⁻⁴.  The cut-0 row at 10⁻³ (3.58×10⁻³,
+Shots: 4×10⁶ cultivation + 10⁶ clean frames at 10⁻³ and 7×10⁻⁴, 2×10⁶ + 5×10⁵ at 5×10⁻⁴; at 10⁻³ pooled with a replica (1.2×10⁷ + 3×10⁶, EKR_SEED = 100000, 2026-11-08), 1.6×10⁷ shots in all (`scratchpad/pool_syn.py`).  The cut-0 row at 10⁻³ (3.58×10⁻³,
 20.5 attempts per kept escape) reproduces the 1.6×10⁷-shot run.  At every p the input error drops 4–6× between symmetric cuts
 6 and 7, enough for a single [[7,1,3]] round.  Zero-failure points use 3/N_kept.
 
 | p | cut | input error (events) | attempts / kept | 10⁻¹⁰: D, qudits, rounds | attempts / output | 90% upper limit |
 |---|---|---|---|---|---|---|
 | 10⁻³ | 0 | 3.6×10⁻³ (688) | 20.5 | 25, 10 056, 2 | 4 876 | – |
-| 10⁻³ | 7 | 1.6×10⁻⁴ (5) | 128 | 25, 10 056, 1 | 1 919 | 3.4×10⁻⁴ → 2 rounds, 28.9k |
-| 10⁻³ | **8** | < 1.3×10⁻⁴ (0) | 172 | 25, 10 056, 1 | **2 589** | (bound) |
+| 10⁻³ | **7** | 1.7×10⁻⁴ (21) | 128 | 25, 10 056, 1 | **1 917** | 2.3×10⁻⁴ → 1 919 |
+| 10⁻³ | 8 | 7.6×10⁻⁵ (7) | 172 | 25, 10 056, 1 | 2 583 | 1.3×10⁻⁴ → 2 585 |
+| 10⁻³ | 9 | 2.1×10⁻⁵ (1) | 341 | 25, 10 056, 1 | 5 123 | – |
 | 7×10⁻⁴ | 0 | 1.4×10⁻³ (514) | 8.3 | 19, 5 832, 2 | 1 909 | – |
 | 7×10⁻⁴ | **7** | 1.0×10⁻⁴ (11) | 27.2 | 19, 5 832, 1 | **408** | 1.6×10⁻⁴ → 409 |
 | 5×10⁻⁴ | 0 | 7.1×10⁻⁴ (222) | 4.5 | 17, 4 680, 2 | 1 034 | – |
 | 5×10⁻⁴ | 6 | 2.8×10⁻⁴ (65) | 7.7 | 17, 4 680, 1 | 116 | 3.3×10⁻⁴ → 2 rounds, 1 741 |
 | 5×10⁻⁴ | **7** | 4.7×10⁻⁵ (6) | 9.4 | 17, 4 680, 1 | **141** | 8.4×10⁻⁵ → 141 |
 
-**Recipe of record (immediate decision, f = 1):** one colour class plus a syndrome-only gap cut 8 at 10⁻³ and cut 7 at 7×10⁻⁴
-and 5×10⁻⁴.  Qudits are unchanged everywhere (10 056 / 5 832 / 4 680 for 10⁻¹⁰).  Attempts/output are 2 589 / 408 / 141,
-against 258 / 151 / 73 for the deferred gap, which is infeasible: 10×, 2.7× and 1.9×.  At 5×10⁻⁴, cut 7 also gives 10⁻¹² in one
-round (D = 21, 7 112 qudits, 141 attempts).  Open: more statistics at the cut-7/8 points (5–11 events); a gap estimator for open
-windows that is not capped near 13.
+**Recipe of record (immediate decision, f = 1):** one colour class plus a syndrome-only gap cut 7 at every p.  The pooled 10⁻³
+run puts cut 7 at 1.7×10⁻⁴ (21 events; the first run's 5 events had suggested 3.4×10⁻⁴ at the upper limit, i.e. two rounds), so
+cut 7 replaces cut 8 there.  Qudits are unchanged everywhere (10 056 / 5 832 / 4 680 for 10⁻¹⁰).  Attempts/output are 1 917 / 408 /
+141, against 258 / 151 / 73 for the deferred gap, which is infeasible: 7.4×, 2.7× and 1.9×.  10⁻¹² at 10⁻³ needs D = 29 (13 512)
+at cut 7 or 8; cut 9 gets it in one round at 5 123 attempts.  At 5×10⁻⁴, cut 7 also gives 10⁻¹² in one round (D = 21, 7 112
+qudits, 141 attempts).
+
+**Closed-window gap** (variant `one+gap-tick1-closed`, `gap_window='closed'`, commit a245b37; smoke on loranne 2026-11-08, `runs/surface/escape_keep_rules_closed_smoke.jsonl`,
+10⁵ cultivation shots + 10⁴ clean frames at 10⁻³, same seeds as the syndrome-gap run).  The second decoder drops the basis faults
+that flip both a final-readout detector and a sector detector, i.e. it closes the time boundary at the last syndrome round
+without using the readout.  0 potential conflicts (`runs/surface/closed_window_conflicts.log`), so it is a well-defined homology
+window, but it is a heuristic and is scored only against the readout truth.  Its gap reaches 25.5 / 24.6 (the readout gap's
+maximum; the syndrome-only gap stops at 13.0 / 12.8).  Keep (clean frames, of all cultivation-accepted):
+
+| cut | 6 | 8 | 10 | 12 | 14 |
+|---|---|---|---|---|---|
+| readout gap | 0.183 | 0.177 | 0.169 | 0.152 | 0.127 |
+| closed window | 0.119 | 0.100 | 0.082 | 0.064 | 0.046 |
+| closed window + 3 buffer rounds | 0.126 | 0.107 | 0.091 | 0.074 | 0.054 |
+| syndrome only (1.6×10⁷ shots) | 0.040 | 0.022 | 0.0072 | 0.0024 | – |
+
+At cut 8 the closed window keeps 4.5× more than the syndrome-only gap (38 vs 172 attempts per kept escape).  Failures in the smoke
+are 1 clean event at cuts 7–8 and none from cut 9, so its error at a cut is not yet known at the 10⁻⁴ level.  If it matches the
+syndrome-only gap's error at equal cut, the 10⁻³ recipe drops from 1 917 to about 530 attempts/output (cut 7, 35 per kept).  Running: 4×10⁶ + 10⁶ at
+10⁻³ (local, queued after the d = 8 run).
 
 **Qudits at a given output rate** (`scratchpad/attempt_time.py`, `scratchpad/rate_footprint.py`, `runs/surface/attempt_time.jsonl`,
 2026-11-08).  So far the footprint has counted one 56-qudit cultivation block and quoted attempts per output separately.
@@ -1023,15 +1044,15 @@ windows that is not capped near 13.
 
 | p (D) | factory-rounds per output | one factory: qudits, output period | qudits at a period of 31 / 100 / 1 000 / 10 000 rounds | best rate under 10k qudits |
 |---|---|---|---|---|
-| 10⁻³ (25) | 15 270 | 10 702, 15 270 rounds | 356k / 117k / 21.2k / 11.4k | none (the 8 patches alone are 10 000) |
+| 10⁻³ (25, cut 7) | 11 310 | 10 702, 11 310 rounds | 266k / 90k / 18.4k / 11.4k | none (the 8 patches alone are 10 000) |
 | 7×10⁻⁴ (19) | 3 057 | 6 478, 3 057 rounds | 75k / 27.5k / 8.6k / 6.5k | 6 factories → 509 rounds |
 | 5×10⁻⁴ (17) | 1 290 | 5 326, 1 290 rounds | 34k / 13.8k / 6.0k / 5.3k | 7 factories → 184 rounds |
 
-So the "< 10k qudits" footprints are single-factory, slow-rate numbers.  At 10⁻³ one output takes about 15 000 rounds, 15 ms at
+So the "< 10k qudits" footprints are single-factory, slow-rate numbers.  At 10⁻³ one output takes about 11 000 rounds, 11 ms at
 1 µs per round.  The round itself could consume one output's inputs every 31 rounds, and keeping up with that takes 34k qudits at
-5×10⁻⁴ and 356k at 10⁻³.  The earlier 10 056 counted the factory as 56 qudits.  If instead the escape grafts into the input slot
+5×10⁻⁴ and 266k at 10⁻³.  The earlier 10 056 counted the factory as 56 qudits.  If instead the escape grafts into the input slot
 (the D = 15 graft fits inside the D = 25 patch), the single-factory figure is 10 000 + 75.  The cultivation attempts dominate
-the time: at 10⁻³ they are 74%, from 172 attempts per kept input, so the open-window gap estimator is also the throughput lever.
+the time: at 10⁻³ they are 74%, from 128 attempts per kept input, so the open-window gap estimator is also the throughput lever.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
