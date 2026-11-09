@@ -1047,8 +1047,33 @@ there too), while the keep is 3.7× higher at cut 7 and 12× at cut 10.  So drop
 information and removes the open-boundary cap.  Footprint (`footprint_tick_proxy.py 1 e2e=1e-3,A,q escape-gap census-sparse`):
 10⁻¹⁰ at 10⁻³ at cut 7 → D = 25, one round, **10 056 qudits, 517 attempts/output** (518 at the upper limit), against 1 917 for
 the syndrome-only gap and 258 for the infeasible deferred gap.  10⁻¹² at 10⁻³: cut 12 → D = 29, one round, 13 512 qudits, 867
-attempts (robust at the upper limit); cut 10 gives 678 at its central value but two rounds at its upper limit.  Running:
-closed window at 7×10⁻⁴ (4×10⁶ + 10⁶) and 5×10⁻⁴ (2×10⁶ + 5×10⁵), local, 2026-11-09.
+attempts (robust at the upper limit); cut 10 gives 678 at its central value but two rounds at its upper limit.
+
+*At 7×10⁻⁴ and 5×10⁻⁴* (local, 2026-11-09, 4×10⁶ + 10⁶ and 2×10⁶ + 5×10⁵, the syndrome-gap runs' seeds;
+`scratchpad/compare_gap.py p variant`).  Error (residual + clean events) and attempts per kept escape:
+
+| p | cut | closed window | syndrome only |
+|---|---|---|---|
+| 7×10⁻⁴ | 6 | 4.4×10⁻⁴ (151), 10.9 | 4.5×10⁻⁴ (88), 19.0 |
+| 7×10⁻⁴ | **7** | 6.5×10⁻⁵ (6+11), UL 1.0×10⁻⁴, **11.4** | 1.0×10⁻⁴ (11), 27.2 |
+| 7×10⁻⁴ | 8 | 3.5×10⁻⁵ (4+5), UL 6.4×10⁻⁵, 12.0 | 8.3×10⁻⁵ (8), 31.2 |
+| 7×10⁻⁴ | 10 | 6.6×10⁻⁶ (2+0), UL 2.7×10⁻⁵, 13.2 | 0, 59.4 |
+| 5×10⁻⁴ | 6 | 2.9×10⁻⁴ (98), 5.4 | 2.8×10⁻⁴ (65), 7.7 |
+| 5×10⁻⁴ | **7** | 2.8×10⁻⁵ (4+3), UL 6.6×10⁻⁵, **5.6** | 4.7×10⁻⁵ (6), 9.4 |
+| 5×10⁻⁴ | 12 | 6.6×10⁻⁶ (2+0), UL 3.5×10⁻⁵, 6.6 | 0, 25.5 |
+
+Same pattern as at 10⁻³: equal or lower error at each cut, 2.4× (7×10⁻⁴) and 1.7× (5×10⁻⁴) the keep at cut 7.  A few residual
+frames (1–2) fail with closed gaps up to 14; they set a floor near 5×10⁻⁶, well below what one round needs.
+
+**Recipe of record (immediate decision, f = 1, 2026-11-09):** one colour class + closed-window gap cut 7.
+
+| p | 10⁻¹⁰: D, qudits, attempts/output | 10⁻¹²: D, qudits, attempts/output | syndrome-only gap (10⁻¹⁰) | deferred (infeasible) |
+|---|---|---|---|---|
+| 10⁻³ | 25, 10 056, **517** | 29, 13 512, 867 (cut 12) | 1 917 | 258 |
+| 7×10⁻⁴ | 19, 5 832, **171** (171 at UL) | 25, 10 056, 198 (cut 10, robust; cut 8: 180) | 408 | 151 |
+| 5×10⁻⁴ | 17, 4 680, **84** (84 at UL) | 21, 7 112, 84 (cut 7; 99 at cut 12, robust) | 141 | 73 |
+
+The immediate decision now costs only 1.1–2× the deferred one, which cannot be built.
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
@@ -1070,11 +1095,11 @@ events) the cut-6 to cut-8 errors agree with d = 4 to a factor 1.5–3 either wa
 | p (D) | factory-rounds per output | one factory: qudits, output period | qudits at a period of 31 / 100 / 1 000 / 10 000 rounds | best rate under 10k qudits |
 |---|---|---|---|---|
 | 10⁻³ (25, closed cut 7) | 3 051 | 10 702, 3 051 rounds | 79k / 31.8k / 12.8k / 10.7k | none (the 8 patches alone are 10 000) |
-| 7×10⁻⁴ (19) | 3 057 | 6 478, 3 057 rounds | 75k / 27.5k / 8.6k / 6.5k | 6 factories → 509 rounds |
-| 5×10⁻⁴ (17) | 1 290 | 5 326, 1 290 rounds | 34k / 13.8k / 6.0k / 5.3k | 7 factories → 184 rounds |
+| 7×10⁻⁴ (19, closed cut 7) | 1 283 | 6 478, 1 283 rounds | 35k / 14.9k / 7.2k / 6.5k | 6 factories → 214 rounds |
+| 5×10⁻⁴ (17, closed cut 7) | 768 | 5 326, 768 rounds | 22k / 10.2k / 5.3k / 5.3k | 7 factories → 110 rounds |
 
 So the "< 10k qudits" footprints are single-factory, slow-rate numbers.  At 10⁻³ one output takes about 3 000 rounds, 3 ms at
-1 µs per round.  The round itself could consume one output's inputs every 31 rounds, and keeping up with that takes 34k qudits at
+1 µs per round.  The round itself could consume one output's inputs every 31 rounds, and keeping up with that takes 22k qudits at
 5×10⁻⁴ and 79k at 10⁻³ (closed window; 266k with the syndrome-only gap).  The earlier 10 056 counted the factory as 56 qudits.  If instead the escape grafts into the input slot
 (the D = 15 graft fits inside the D = 25 patch), the single-factory figure is 10 000 + 75.  The cultivation attempts dominate
 the time: with the syndrome-only gap at 10⁻³ they were 74%, from 128 attempts per kept input; the closed window cuts that to 34.
