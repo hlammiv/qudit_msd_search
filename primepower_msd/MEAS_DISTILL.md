@@ -1075,6 +1075,17 @@ frames (1–2) fail with closed gaps up to 14; they set a floor near 5×10⁻⁶
 
 The immediate decision now costs only 1.1–2× the deferred one, which cannot be built.
 
+*d = 8, closed window* (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, the d = 8 syndrome-gap run's seeds, local 2026-11-09).  The closed gap
+again reaches the readout gap's maximum (25.7 / 26.1) and keeps 3.7× more than the syndrome-only gap at cut 7.  But the error
+drop moves from cuts 6→7 to cuts 8→9: cut 7 / 8 / 9 / 10 = 3.4×10⁻⁴ (24+7) / 2.9×10⁻⁴ (21+4) / 3.9×10⁻⁵ (0+3, UL 8.6×10⁻⁵) /
+2.9×10⁻⁵ (0+2), attempts per kept 43.4 / 47.0 / 51.8 / 57.6.  The surviving failures at cuts 7–8 are residual (cultivation)
+frames; the clean-frame errors agree with d = 4.  So at d = 8 some residual-frame failures carry closed gaps of 7–9, about two
+units higher than at d = 4 (no such frames above cut 6 there).  The cut is therefore d-dependent and has to be calibrated per
+d.  Recipe at d = 8: closed gap cut 9 → 10⁻¹⁰ at 10⁻³ in D = 25, one round, **10 056 qudits, 778 attempts/output** (778 at the
+upper limit; d = 4: 517; d = 8 syndrome-only gap cut 7: 2 428, one round only at its central value).  10⁻¹² at 10⁻³: cut 9 or
+10 gives D = 29, 13 512 qudits, 778–864 attempts at the central value, two rounds at the upper limits.  Open: why the d = 8
+residual failures sit at higher gaps (likely the 2-adic split of Z₈ residual errors; not checked).
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
