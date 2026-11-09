@@ -12,7 +12,7 @@ TICKS_PER_ROUND = 10
 GADGET_ROUNDS = 31
 FACTORY_Q = 702
 # p: (cut, A = cultivation attempts per kept escape, attempts per output, D for 1e-10)
-RECIPE = {1e-3: (7, 127.5, 1917.4, 25), 7e-4: (7, 27.2, 407.9, 19), 5e-4: (7, 9.4, 141.1, 17)}
+RECIPE = {1e-3: (7, 34.4, 517.2, 25), 7e-4: (7, 27.2, 407.9, 19), 5e-4: (7, 9.4, 141.1, 17)}
 T = {r["p"]: r for r in map(json.loads, open("runs/surface/attempt_time.jsonl"))}
 PERIODS = (31, 100, 300, 1000, 3000, 10000)
 for p, (cut, A, att_out, D) in RECIPE.items():
