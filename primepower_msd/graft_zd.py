@@ -298,10 +298,10 @@ def build(d: int, data: list, phases: list, basis: str, logical: dict, p: float,
 LAYERS = {}
 
 
-def build_dem_masked(mem, sector, mask, obs_before=None, drop=None):
+def build_dem_masked(mem, sector, mask, obs_before=None, drop=None, extra=None):
     """surface_zd.build_dem with the faults that fire a postselected detector removed."""
     from .surface_zd import build_dem
-    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int), obs_before=obs_before, drop=drop)
+    return build_dem(mem, sector, exclude=np.asarray(mask, dtype=int), obs_before=obs_before, drop=drop, extra=extra)
 
 
 class Escape:
@@ -311,7 +311,7 @@ class Escape:
     def __init__(self, d: int = 4, basis: str = "Z", r1: int = 5, r2: int = 5, mode: str = "escape", idle: bool = True,
                  post_colours=(None, None), pre_rounds: int = 1, post_phases=(1,), hyper_post: bool = True,
                  flag_weight: int = 0, flag_phases=(1,), tick_idle: float = 0.0, gap_window: str = "readout",
-                 commit_round: int | None = None):
+                 commit_round: int | None = None, priors=None):
         """gap_window = 'syndrome': run() also reports the complementary gap of a second decoder that sees no final data
         readout (its window ends at the last syndrome round, as a device deciding before any readout), in shot_gap_syn.
         commit_round = c (with 'syndrome'): that decoder's logical class counts only faults before round c of the final
@@ -320,7 +320,10 @@ class Escape:
         otherwise), so the split-boundary gap is meaningless; kept for the record (MEAS_DISTILL 5k).
         gap_window = 'closed': as 'syndrome', but the window is closed at its last syndrome round: faults that bridge that round to
         the readout (last-round measurement / idle errors) are dropped from the second decoder's model, so the last-round flips
-        must be explained inside the window (a heuristic open-window gap; validated against the readout gap)."""
+        must be explained inside the window (a heuristic open-window gap; validated against the readout gap).
+        priors = (frames (m, 19, 2), probabilities (m,) at unit location probability, i.e. frequency / p): colour-qudit
+        frames injected at the end of the noiseless preparation (run(inject=...)) enter both decoders' models as fixed
+        error mechanisms -- the decoder of a joint cultivation + escape circuit would know them (MEAS_DISTILL 5k)."""
         G = load_graft(d)
         self.gap_window, self.commit_round = gap_window, commit_round
         self.tick_idle = tick_idle
@@ -386,7 +389,11 @@ class Escape:
         self.sel = np.nonzero(self.mem.det_sector == self.sector)[0]
         mask = np.nonzero(self.mem.det_post)[0]
         self.mask = mask
-        self.dem = build_dem_masked(self.mem, self.sector, mask)
+        first_noise = next(k for k, op in enumerate(self.mem.circ.ops) if op[0] in ("DEP1", "DEP2", "XERR", "ZERR"))
+        self.inject_op = first_noise - 1               # end of the noiseless colour-state preparation
+        self.colour_q = colour_q                       # circuit qudit of colour qudit colour_q[j] is j (data list order)
+        extra = self.prior_mechanisms(*priors) if priors is not None else None
+        self.dem = build_dem_masked(self.mem, self.sector, mask, extra=extra)
         if gap_window in ("syndrome", "closed"):
             import copy
             m2 = copy.copy(self.mem)
@@ -394,13 +401,20 @@ class Escape:
             self.sel_syn = np.nonzero(m2.det_sector == self.sector)[0]
             t_c = self.mem.round_start[(2, commit_round)] if commit_round is not None and mode == "escape" else None
             fin = np.array([i for i, t in enumerate(self.mem.det_tags) if t.startswith("final")], dtype=int)
-            self.dem_syn = build_dem_masked(m2, self.sector, mask, obs_before=t_c, drop=fin if gap_window == "closed" else None)
+            self.dem_syn = build_dem_masked(m2, self.sector, mask, obs_before=t_c, drop=fin if gap_window == "closed" else None, extra=extra)
         self.post_idx = np.nonzero(self.mem.det_post[self.sel])[0]        # within the sector
         self.locations = sum(len(qs) for _, _, qs in self.mem.noise_locs)
         self.n_data = len(data)
-        self.colour_q = colour_q                       # circuit qudit of colour qudit colour_q[j] is j (data list order)
-        first_noise = next(k for k, op in enumerate(self.mem.circ.ops) if op[0] in ("DEP1", "DEP2", "XERR", "ZERR"))
-        self.inject_op = first_noise - 1               # end of the noiseless colour-state preparation
+
+    def prior_mechanisms(self, frames, probs):
+        """(detector values, observable, probability) of injected colour-qudit frames (noise off, gauge off)."""
+        frames = np.asarray(frames, dtype=np.int64)
+        forced = {self.inject_op: [(np.ones(len(frames), dtype=np.int64), list(range(len(self.colour_q))), frames)]}
+        sim = FrameSim(self.mem.circ, len(frames), np.random.default_rng(0), gauge=False).run(scale=0.0, forced=forced)
+        O = np.zeros(len(frames), dtype=np.int64)
+        for i, cf in self.mem.obs:
+            O += cf * sim.meas[:, i]
+        return sim.detector_values() % self.d, O % self.d, np.asarray(probs, dtype=float)
 
     def colour_region_patterns(self, phases=(0, 1, 2)):
         """Kept single-fault patterns (dem.singles keys) that fire a detector of a check touching the colour-code qudits."""

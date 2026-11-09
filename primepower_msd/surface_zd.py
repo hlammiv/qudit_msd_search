@@ -262,7 +262,7 @@ def _same_class(a, b, d):
     return any(all((lam * x - y) % d == 0 for x, y in zip(a, b)) for lam in range(1, d))
 
 
-def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = None, drop=None) -> DEM:
+def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = None, drop=None, extra=None) -> DEM:
     """Project every fault onto the detectors of one sector; group graphlike faults into edges with per-level
     probabilities at unit location probability (scale by p when decoding; uniform over the non-identity Paulis of
     the location).  A fault with > 2 detectors is decomposed into its single-generator components (X^a or Z^b on one qudit); each
@@ -273,7 +273,10 @@ def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = N
     obs_before: only faults at circuit ops < obs_before carry the observable (a commit time: later faults are left to
     the decoding that follows, as in a sliding window).
     drop: detector indices (outside the sector); every basis fault that fires one of them AND a sector detector is removed
-    from the model (a window closed at its last round: the faults bridging it to a later readout are ignored)."""
+    from the model (a window closed at its last round: the faults bridging it to a later readout are ignored).
+    extra: optional (V_extra (m, n_detectors) mod d, O_extra (m,), P_extra (m,)) fixed error mechanisms (e.g. priors for
+    errors injected into the circuit from outside, at unit location probability like every other mechanism); each is one
+    specific Pauli, subject to the same exclude / drop rules."""
     faults, per_loc, V, O = propagate_basis(mem)
     if obs_before is not None:
         O = O * np.array([k < obs_before for k, _, _ in faults], dtype=np.int64)
@@ -376,6 +379,24 @@ def build_dem(mem: Memory, sector: str, exclude=None, obs_before: int | None = N
                         add(v, o, pr)
                     else:
                         leftover.append((v, int(o), pr))
+    if extra is not None:
+        for v_full, o, pr in zip(*extra):
+            v_full = np.asarray(v_full, dtype=np.int64) % d
+            total += float(pr)
+            if Vx is not None and (v_full[np.asarray(exclude, dtype=int)] != 0).any():
+                discarded += float(pr); continue
+            vs = v_full[sel]
+            if drop is not None and len(drop) and (v_full[np.asarray(drop, dtype=int)] != 0).any() and vs.any():
+                continue
+            if not vs.any() and not int(o) % d:
+                continue
+            nz = np.nonzero(vs)[0]
+            if len(nz):
+                key = tuple((int(j), int(vs[j])) for j in nz)
+                sd = singles.setdefault(key, {}); sd[int(o) % d] = sd.get(int(o) % d, 0.0) + float(pr)
+            if len(nz) <= 2 and add(vs, int(o) % d, float(pr)):
+                continue
+            leftover.append((vs, int(o) % d, float(pr)))
     for e in edges.values():
         e["classes"].sort(key=lambda cl: -cl[1])
         e["pat"] = e["classes"][0][0]

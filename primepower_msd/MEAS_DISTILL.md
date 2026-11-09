@@ -1083,8 +1083,20 @@ frames; the clean-frame errors agree with d = 4.  So at d = 8 some residual-fram
 units higher than at d = 4 (no such frames above cut 6 there).  The cut is therefore d-dependent and has to be calibrated per
 d.  Recipe at d = 8: closed gap cut 9 → 10⁻¹⁰ at 10⁻³ in D = 25, one round, **10 056 qudits, 778 attempts/output** (778 at the
 upper limit; d = 4: 517; d = 8 syndrome-only gap cut 7: 2 428, one round only at its central value).  10⁻¹² at 10⁻³: cut 9 or
-10 gives D = 29, 13 512 qudits, 778–864 attempts at the central value, two rounds at the upper limits.  Open: why the d = 8
-residual failures sit at higher gaps (likely the 2-adic split of Z₈ residual errors; not checked).
+10 gives D = 29, 13 512 qudits, 778–864 attempts at the central value, two rounds at the upper limits.  
+*Why the cut moves with d* (per-shot dumps of the residual frames, `EKR_DUMP=1`, same seeds, `scratchpad/diag_residual_gap.py`,
+`diag_pattern.py`, `runs/surface/ekr_dump_*.npz`, 2026-11-09).  The high-gap residual failures are one frame type: a pure Z
+error on colour positions {5, 8, 9, 12} (qudits 21, 33, 35, 46) with values (v, −v, −v, v).  It is not a logical: it fires two
+first-round X detectors (values 3v and v at d = 4) and has no logical effect itself.  But no single escape fault makes that
+detector pair, so the matcher joins the two defects through escape faults in the wrong class.  Every kept frame of this type
+fails: 70 / 70 at d = 4 (418 frames, 3.6×10⁻⁴ per accepted), 39 / 39 at d = 8 (215), and they are 22 of the 24 kept residual
+failures with closed gap ≥ 7 at d = 8.  Their closed X gap is pinned at 6.2 (d = 4) and 8.2 (d = 8), which is exactly where
+the error drops (cuts 6→7 and 8→9).  So the d-dependence is that of one deterministic misdecoding, not of the gap scale.  The
+frame presumably comes from a fault after cultivation's last detector.  A decoder of the joint cultivation + escape circuit would
+have it as an error mechanism; ours does not because the residuals are injected.  Fix under test: residual-frame priors
+(`Escape(priors=...)`, `build_dem(extra=...)`, `EKR_PRIORS`): every distinct residual frame of the seed-0 sample enters both
+decoders' models at its frequency (8 310 / 9 184 distinct frames at d = 4 / 8, `scratchpad/make_priors.py`).  It is evaluated
+on an independent cultivation sample (EKR_SEED = 100000), with and without priors on the same shots.
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /

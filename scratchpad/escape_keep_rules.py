@@ -19,6 +19,7 @@ from primepower_msd.graft_run import VARIANTS
 from primepower_msd.graft_zd import Escape
 
 SLICE = int(__import__("os").environ.get("EKR_SLICE", 50_000))
+PRIORS = __import__("os").environ.get("EKR_PRIORS")     # npz (frames, probs at unit location probability): residual-frame priors
 SEED_OFF = int(__import__("os").environ.get("EKR_SEED", 0))   # offset of every seed: independent replicas
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
@@ -33,7 +34,10 @@ def RULES(cz, cx, only_none=False):
 def run_slice(variant, basis, frames, n, p, seed):
     """frames None: n clean frames."""
     if (variant, basis) not in _cache:
-        _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant])
+        pri = None
+        if PRIORS:
+            z = np.load(PRIORS); pri = (z["frames"].astype(np.int64), z["probs"])
+        _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant], priors=pri)
     inj = np.zeros((n, 19, 2), dtype=np.int64) if frames is None else frames
     r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True)
     g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window in ("syndrome", "closed") else r["shot_gap"]
@@ -82,7 +86,7 @@ def main():
     for variant in sys.argv[6].split(","):
         t = time.time()
         Z, X = run_all(variant, F, n_clean, p, jobs)
-        out = dict(config=cfg, variant=variant, p=p, d=D, seed_off=SEED_OFF, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
+        out = dict(config=cfg, variant=variant, priors=PRIORS, p=p, d=D, seed_off=SEED_OFF, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
                    **analyse(Z[:4], X[:4], len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
         if VARIANTS[variant].get("gap_window") in ("syndrome", "closed"):    # the same shots, kept on the syndrome-only gap
             syn = analyse(Z[:3] + Z[4:], X[:3] + X[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)
@@ -92,6 +96,13 @@ def main():
             ok = Z[0] & X[0]
             out["gap_corr"] = [float(np.corrcoef(gz[ok], sz[ok])[0, 1]), float(np.corrcoef(gx[ok], sx[ok])[0, 1])]
             out["gap_max"] = dict(readout=[float(gz.max()), float(gx.max())], syndrome=[float(sz.max()), float(sx.max())])
+        if __import__("os").environ.get("EKR_DUMP"):    # per-shot residual-frame data (diagnostics), not appended to the jsonl
+            nt = len(F)
+            np.savez_compressed(f"runs/surface/ekr_dump_{variant}_d{D}_p{p:g}_s{SEED_OFF}.npz", frames=F.astype(np.int8),
+                                keep_z=Z[0][:nt], keep_x=X[0][:nt], a=Z[2][:nt], b=X[2][:nt], gap_z=Z[3][:nt], gap_x=X[3][:nt],
+                                gap2_z=Z[4][:nt], gap2_x=X[4][:nt], d=D)
+            print("dumped", nt, "residual shots", flush=True)
+            continue
         with open("runs/surface/escape_keep_rules.jsonl", "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
