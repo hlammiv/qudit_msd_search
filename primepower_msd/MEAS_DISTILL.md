@@ -1098,6 +1098,31 @@ have it as an error mechanism; ours does not because the residuals are injected.
 decoders' models at its frequency (8 310 / 9 184 distinct frames at d = 4 / 8, `scratchpad/make_priors.py`).  It is evaluated
 on an independent cultivation sample (EKR_SEED = 100000), with and without priors on the same shots.
 
+*Priors measured* (EKR_SEED = 100000, 4×10⁶ cultivation shots + 10⁵ clean frames per d, closed window, 10⁻³, 2026-11-09).
+Same shots per d, without → with priors; events are residual + clean (one clean event weighs w ≈ 10):
+
+| cut | d = 4 err (events), att/kept | d = 4 + priors | d = 8 | d = 8 + priors |
+|---|---|---|---|---|
+| 4 | 9.0×10⁻⁴ (82+5), 27.2 | 4.4×10⁻⁴ (12+5), 27.9 | 6.6×10⁻⁴ (29+5), 33.4 | 2.0×10⁻⁴ (4+2), 34.1 |
+| 5 | 8.0×10⁻⁴ (68+4), 29.5 | 2.9×10⁻⁴ (5+3), 32.5 | 5.9×10⁻⁴ (25+4), 36.3 | 1.2×10⁻⁴ (2+1), 40.1 |
+| 6 | 7.3×10⁻⁴ (61+3), 32.0 | 1.1×10⁻⁴ (1+1), 37.6 | 3.5×10⁻⁴ (25+1), 39.5 | 1.3×10⁻⁴ (1+1), 45.6 |
+| 7 | 1.4×10⁻⁴ (6+1), 34.9 | 1.0×10⁻⁵ (1+0), 41.2 | 3.5×10⁻⁴ (22+1), 43.5 | 1.3×10⁻⁴ (0+1), 51.4 |
+| 8 | 1.3×10⁻⁴ (4+1), 37.9 | 1.1×10⁻⁵ (1+0), 45.0 | 3.7×10⁻⁴ (21+1), 47.3 | 1.4×10⁻⁴ (0+1), 56.1 |
+| 9 | 1.4×10⁻⁴ (3+1), 41.7 | 0 (0), 52.1 | 1.3×10⁻⁵ (1+0), 52.1 | 0 (0), 63.9 |
+
+The priors remove the systematic failure: residual failures at cut 7 fall from 6 to 1 (d = 4) and from 22 to 0 (d = 8), and
+the d = 8 plateau at cuts 6–8 is gone.  The no-prior columns reproduce the seed-0 runs (d = 4 cut 7 1.4 vs 1.6×10⁻⁴; d = 8 drop
+at 8→9), so the earlier diagnosis holds on fresh shots.  The price is keep: at a fixed cut the priors lower the gap of many
+clean-ish shots, so attempts per kept rise by 2–18%.  What is left at cut ≥ 7 is the clean-floor event(s), and the clean sample
+(10⁵ frames, w ≈ 10) cannot resolve below ~10⁻⁵, so the small numbers are single events.  Footprints at 10⁻³
+(`footprint_tick_proxy.py 1 e2e=...`):
+- 10⁻¹⁰: still D = 25, 10 056 qudits.  d = 4 no priors cut 7: 525 attempts/output; with priors, cut 6: 565, cut 7: 618.
+  d = 8 with priors cut 5: 603, vs 782 without (cut 9).  So priors make the d = 8 recipe 1.3× cheaper and the cut nearly
+  d-independent (5–7), but they do not beat the d = 4 recipe at 10⁻¹⁰.
+- 10⁻¹²: d = 4 + priors cut 7 (1.0×10⁻⁵, one event) reaches it in one round: D = 29, 13 512 qudits, 618 attempts/output (vs 867 at
+  seed-0 cut 12 without priors, 782 for d = 8 without priors at cut 9, also one event).  This rests on single events and needs
+  a larger clean sample before it becomes the recipe of record.
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
