@@ -1123,6 +1123,22 @@ clean-ish shots, so attempts per kept rise by 2–18%.  What is left at cut ≥ 
   seed-0 cut 12 without priors, 782 for d = 8 without priors at cut 9, also one event).  This rests on single events and needs
   a larger clean sample before it becomes the recipe of record.
 
+*Larger clean sample* (d = 4 + priors, EKR_SEED = 200000, 4×10⁶ shots + 10⁶ clean frames, w ≈ 1.0, 2026-11-10).  The
+single-event 1.0×10⁻⁵ at cut 7 was a downward fluctuation of the clean floor:
+
+| cut | err (residual + clean events) | 90% UL | att/kept | 10⁻¹⁰ attempts/output | 10⁻¹² in one round? |
+|---|---|---|---|---|---|
+| 6 | 1.6×10⁻⁴ (1+16) | 2.5×10⁻⁴ | 37.2 | — | no |
+| 7 | 8.2×10⁻⁵ (1+7) | 1.6×10⁻⁴ | 40.6 | 610 | no (two rounds, 9 146) |
+| 8 | 3.4×10⁻⁵ (0+3) | 1.0×10⁻⁴ | 44.4 | 666 | central yes (666, 13 512 q); UL no |
+| 9 | 1.3×10⁻⁵ (0+1) | 8.0×10⁻⁵ | 51.1 | 767 | central yes (767); UL no |
+
+With priors the residual frames are no longer the limit: 1 residual failure at cut ≥ 7, against 7 clean ones.  The floor is now
+the escape's own clean-frame failures, which priors don't touch.  So: (i) at 10⁻¹⁰ the no-prior d = 4 recipe (cut 7, 1.4×10⁻⁴,
+525 attempts/output) stays the record, since at this keep the priors buy nothing that isn't needed.  (ii) at 10⁻¹² priors + cut 8
+gives 666 attempts/output at the central value (vs 867 at no-prior cut 12), but no cut has a 90% UL inside the one-round window
+(≲4×10⁻⁵).  Settling it needs ~10⁷ clean frames.  (iii) at d = 8, priors remain the fix for the moved cut (603 vs 782).
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
