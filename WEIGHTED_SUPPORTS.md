@@ -424,6 +424,21 @@ all 7¹⁰ of its codewords and taking the MacWilliams transform gives the dual 
 enumeration gives. The non-planar part (spans 3, 4 contribute nothing) rests on the frame enumeration, cross-checked
 at weight 8 by the span-3 brute force.
 
+**Sample check of the non-planar part (`scratchpad/rm20_w9_sample_check.py`).** For W = 8 and 9, 20 000 sets of span ≥ 3
+were drawn from each of six strata. Every dependent set was checked by a brute-force null space, and 0 of them
+carry a full-support word:
+
+| stratum | dependent (W = 8) | dependent (W = 9) |
+|---|---|---|
+| uniform on F₇⁴ | 0 | 0 |
+| inside a random 3-flat | 2 | 0 |
+| 5–7 points of a line, the rest in a 3-flat through it | 20 000 | 20 000 |
+| two skew lines | 16 091 | 20 000 |
+| W−2 or W−1 points of a plane conic + points off the plane | 456 | 8 287 |
+| W−1 points of a plane + 1 off it | 234 | 637 |
+
+Data: `runs/weighted/rm20_w{8,9}_sample_check.json`.
+
 | with the weight-8 and weight-9 bounds | [[1746,270,7]]₇ | [[1756,260,7]]₇ |
 |---|---|---|
 | f_hi(10⁻⁶) | 5.9e-38 | 7.2e-38 |

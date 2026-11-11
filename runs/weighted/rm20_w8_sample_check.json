@@ -1,0 +1,44 @@
+{
+ "W": 8,
+ "per_stratum": 20000,
+ "seed": 8,
+ "strata": {
+  "uniform": {
+   "sets": 20000,
+   "dependent": 0,
+   "full_support_nonplanar": 0,
+   "examples": []
+  },
+  "3-flat": {
+   "sets": 20000,
+   "dependent": 2,
+   "full_support_nonplanar": 0,
+   "examples": []
+  },
+  "line-heavy": {
+   "sets": 20000,
+   "dependent": 20000,
+   "full_support_nonplanar": 0,
+   "examples": []
+  },
+  "two-skew-lines": {
+   "sets": 20000,
+   "dependent": 16091,
+   "full_support_nonplanar": 0,
+   "examples": []
+  },
+  "conic+off": {
+   "sets": 20000,
+   "dependent": 456,
+   "full_support_nonplanar": 0,
+   "examples": []
+  },
+  "plane+off": {
+   "sets": 20000,
+   "dependent": 234,
+   "full_support_nonplanar": 0,
+   "examples": []
+  }
+ },
+ "violations": 0
+}

@@ -1,7 +1,7 @@
 """Sample check of "every weight-8 and weight-9 word of RM_7(20,4) is planar" (rm20_wW_count.py): random W-point
 sets from structured strata of span >= 3, brute-force null spaces of the 35 x W cubic evaluation matrices, and any
 full-support null vector on a non-planar set is a violation.
-usage: PYTHONPATH=. python scratchpad/rm20_w9_sample_check.py W PER_STRATUM SEED OUT.json"""
+usage: PYTHONPATH=. python scratchpad/rm20_w9_sample_check.py W PER_STRATUM SEED OUT.json [STRATA,comma,separated]"""
 import sys, json, time
 import numpy as np
 from qmsd.reedmuller import points, rm_generator
@@ -31,7 +31,7 @@ def conic_points():
         Q = rng.integers(0, p, 6)            # q(s,t) = Q0 s^2 + Q1 st + Q2 t^2 + Q3 s + Q4 t + Q5
         pts = [pt(a + s * D[0] + t * D[1]) for s in range(p) for t in range(p)
                if (Q[0]*s*s + Q[1]*s*t + Q[2]*t*t + Q[3]*s + Q[4]*t + Q[5]) % p == 0]
-        if len(pts) >= W - 2: return pts, a, D
+        if len(pts) >= W - 2 and span(pts) == 2: return pts, a, D     # a genuine plane conic, not a (double) line
 def span(S):
     D = (P[S[1:]] - P[S[0]]) % p
     return int(batched_rank_modp(D[None], p)[0])
@@ -58,9 +58,9 @@ def stratum(name):
         pts, a, D = conic_points(); k = int(rng.integers(W - 2, min(W, len(pts) + 1)))
         if k > len(pts): k = len(pts)
         S = list(rng.choice(pts, k, replace=False))
-        while len(S) < W:
+        while len(S) < W:                # any further points; the caller keeps sets of span >= 3
             x = int(rng.integers(0, p ** m))
-            if x not in S and span(S + [x]) >= 3: S.append(x)
+            if x not in S: S.append(x)
         return S
     if name == "plane+off":              # W-1 points of a random plane + 1 off it
         f = flat_points(2); S = list(rng.choice(f, W - 1, replace=False))
@@ -70,7 +70,8 @@ def stratum(name):
     raise ValueError(name)
 
 T0 = time.time(); res = {}
-for name in ("uniform", "3-flat", "line-heavy", "two-skew-lines", "conic+off", "plane+off"):
+STRATA = sys.argv[5].split(",") if len(sys.argv) > 5 else ["uniform", "3-flat", "line-heavy", "two-skew-lines", "conic+off", "plane+off"]
+for name in STRATA:
     sets = []
     while len(sets) < per:
         S = [int(v) for v in stratum(name)]

@@ -1,0 +1,6 @@
+[    7s] W=8 uniform: 20000 sets, 0 dependent, 0 full-support (violations)
+[   53s] W=8 3-flat: 20000 sets, 2 dependent, 0 full-support (violations)
+[  144s] W=8 line-heavy: 20000 sets, 20000 dependent, 0 full-support (violations)
+[  180s] W=8 two-skew-lines: 20000 sets, 16091 dependent, 0 full-support (violations)
+[  198s] W=8 conic+off: 20000 sets, 456 dependent, 0 full-support (violations)
+[  211s] W=8 plane+off: 20000 sets, 234 dependent, 0 full-support (violations)
