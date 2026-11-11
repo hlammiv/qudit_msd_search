@@ -1,0 +1,82 @@
+/usr/lib/python3/dist-packages/scipy/__init__.py:132: UserWarning: A NumPy version >=1.21.6 and <1.28.0 is required for this version of SciPy (detected version 2.5.4)
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.5.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "/home/hlamm/prime_msd_sweep/scratchpad/rm20_w8_brute.py", line 10, in <module>
+    from qmsd.reedmuller import points, rm_generator
+  File "/home/hlamm/prime_msd_sweep/qmsd/reedmuller.py", line 21, in <module>
+    from .field import GFp
+  File "/home/hlamm/prime_msd_sweep/qmsd/field.py", line 11, in <module>
+    import galois
+  File "/home/hlamm/prime_msd_sweep/deps/galois/__init__.py", line 24, in <module>
+    from ._fields import *
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/__init__.py", line 6, in <module>
+    from ._factory import *
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/_factory.py", line 24, in <module>
+    from ._ufunc import UFuncMixin_2_m, UFuncMixin_p_1, UFuncMixin_p_m
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_fields/_ufunc.py", line 9, in <module>
+    from .._domains import _calculate, _lookup
+  File "/home/hlamm/prime_msd_sweep/deps/galois/_domains/_calculate.py", line 22, in <module>
+    @numba.jit(["int64[:](int64, int64, int64)"], nopython=True, cache=True)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/decorators.py", line 234, in wrapper
+    disp.compile(sig)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/dispatcher.py", line 900, in compile
+    cres = self._cache.load_overload(sig, self.targetctx)
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/caching.py", line 749, in load_overload
+    target_context.refresh()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/base.py", line 267, in refresh
+    self.load_additional_registries()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/core/cpu.py", line 118, in load_additional_registries
+    from numba.np import linalg, arraymath, arrayobj # noqa F401
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/arraymath.py", line 45, in <module>
+    _HAVE_BLAS = _check_blas()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/arraymath.py", line 39, in _check_blas
+    ensure_blas()
+  File "/home/hlamm/prime_msd_sweep/deps/numba/np/linalg.py", line 115, in ensure_blas
+    import scipy.linalg.cython_blas
+  File "/usr/lib/python3/dist-packages/scipy/linalg/__init__.py", line 206, in <module>
+    from ._misc import *
+  File "/usr/lib/python3/dist-packages/scipy/linalg/_misc.py", line 3, in <module>
+    from .blas import get_blas_funcs
+  File "/usr/lib/python3/dist-packages/scipy/linalg/blas.py", line 213, in <module>
+    from scipy.linalg import _fblas
+Traceback (most recent call last):
+  File "/home/hlamm/prime_msd_sweep/deps/numpy/core/_multiarray_umath.py", line 46, in __getattr__
+    raise ImportError(msg)
+ImportError: 
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.5.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+
+[  1238s] x=5 sets 6099006 dependent 90
+[  2208s] x=25 sets 11160842 dependent 442
+[  3002s] x=45 sets 15310308 dependent 482
+[  3652s] x=65 sets 18664204 dependent 546
+[  4170s] x=85 sets 21331330 dependent 606
+[  4579s] x=105 sets 23412486 dependent 640
+[  4887s] x=125 sets 25000472 dependent 674
+[  5117s] x=145 sets 26180088 dependent 687
+[  5275s] x=165 sets 27028134 dependent 697
+[  5359s] x=185 sets 27613410 dependent 704
+[  5389s] x=205 sets 27996716 dependent 705
+[  5412s] x=225 sets 28230852 dependent 705
+[  5423s] x=245 sets 28360618 dependent 705
+[  5429s] x=265 sets 28422814 dependent 705
+[  5431s] x=285 sets 28446240 dependent 705
+[  5432s] x=305 sets 28451696 dependent 705
+[  5432s] x=325 sets 28451982 dependent 705
+done 28451982 705

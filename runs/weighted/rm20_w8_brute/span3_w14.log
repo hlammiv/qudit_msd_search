@@ -1,0 +1,18 @@
+[  1000s] x=14 sets 5616324 dependent 66
+[  1820s] x=34 sets 10252628 dependent 106
+[  2720s] x=54 sets 14030112 dependent 176
+[  3282s] x=74 sets 17061976 dependent 236
+[  3727s] x=94 sets 19453420 dependent 1708
+[  3978s] x=114 sets 21301644 dependent 1742
+[  4172s] x=134 sets 22695848 dependent 1776
+[  4306s] x=154 sets 23717232 dependent 1786
+[  4410s] x=174 sets 24438996 dependent 1796
+[  4476s] x=194 sets 24926340 dependent 1798
+[  4516s] x=214 sets 25236464 dependent 1799
+[  4541s] x=234 sets 25418568 dependent 1799
+[  4559s] x=254 sets 25513852 dependent 1799
+[  4565s] x=274 sets 25555516 dependent 1799
+[  4566s] x=294 sets 25568760 dependent 1799
+[  4566s] x=314 sets 25570784 dependent 1799
+[  4566s] x=334 sets 25570788 dependent 1799
+done 25570788 1799

@@ -370,8 +370,9 @@ also agree with independent closed forms:
 This is the finite-field Cayley–Bacharach picture at 2d + 2 = 8 points: the 8-point sets that fail to
 impose independent conditions on cubics and carry a full-support relation are conics.
 
-**Cross-check (`rm20_w8_brute.py`).** A brute-force rank test of all 5.4 × 10⁸ span-3 frame sets is running
-on loranne (4 workers).
+**Cross-check (`rm20_w8_brute.py`, `rm20_w8_compare.py`).** A brute-force rank test of the 35 × 8 evaluation matrices of
+all C(339,4) = 540 597 876 span-3 frame sets (20 shards, loranne + local, ~3.5 h) finds exactly the 23 310 dependent
+sets of the residual method, none missing on either side (`runs/weighted/rm20_w8_brute*/`).
 
 **Effect on the proved numbers (`w8_proved.py`).** These are the curves with the census at weight 7, the bound
 above at weight 8, and Singleton from weight 9:
@@ -414,6 +415,14 @@ containing a dependent smaller subset whose last point lies in its span, plus th
 (71 397 and 29 750 candidates). Span 2 (C(46,6) sets) has 42 881 full-support frame sets in 8 types: 6 types
 of nullity 1, plus 2 100 sets of nullity 2 with 12 full-support vectors and 1 200 sets of nullity 2 with 30.
 Orbit check: 139 650 · C(49,9).
+
+**Independent check of the planar counts (`scratchpad/rm20_plane_macwilliams.py`, 7 min).** A planar word of weight ≥ 8
+lies in exactly one plane and is a word of the dual of the plane-cubic code, a [49,10] code over F₇. Enumerating
+all 7¹⁰ of its codewords and taking the MacWilliams transform gives the dual weights 5..9 = 7 056, 4 704, 7 392,
+3 124 044, 65 897 160. The first three are the 56 lines × 21/14/22 projective line words × 6. Then
+139 650 × 3 124 044 = 436 272 744 600 = A₈ and 139 650 × 65 897 160 = 9 202 538 394 000 = A₉, exactly as the frame
+enumeration gives. The non-planar part (spans 3, 4 contribute nothing) rests on the frame enumeration, cross-checked
+at weight 8 by the span-3 brute force.
 
 | with the weight-8 and weight-9 bounds | [[1746,270,7]]₇ | [[1756,260,7]]₇ |
 |---|---|---|
