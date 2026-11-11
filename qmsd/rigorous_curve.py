@@ -49,7 +49,16 @@ class RigorousBoundCurve:
     L_d: float          # per-output average number of weight-d failing vectors (complete census)
     A_d: int            # total number of weight-d vectors of ker G0 (complete census)
     note: str = "rigorous bounds from a complete weight-d census + Singleton tail"
+    # proved upper bounds for heavier weights, {w: (N_w bound, per-output failing bound)} for w = d+1, d+2, ...
+    # (consecutive); the Singleton tail then starts after the last of them.  They enter f_hi and pacc_hi.
+    heavier: dict = field(default_factory=dict)
     exact: bool = field(default=False, init=False)
+
+    def __post_init__(self):
+        ws = sorted(self.heavier)
+        assert ws == list(range(self.d + 1, self.d + 1 + len(ws))), "heavier weights must be d+1, d+2, ... consecutive"
+        for w, (N, L) in self.heavier.items():
+            assert 0 <= L <= N, "per-output bound cannot exceed the word bound"
 
     @property
     def c_eps(self) -> float:
@@ -60,13 +69,25 @@ class RigorousBoundCurve:
         return math.log(self.n / self.k) / math.log(self.d)
 
     # ---- pieces
+    def _vec(self, eps, w):
+        e = mpmath.mpf(eps)
+        return (e / (self.p - 1)) ** w * (1 - e) ** (self.n - w)
+
+    def _known(self, eps, which):
+        """sum over the proved heavier weights of bound * (eps/(p-1))^w (1-eps)^(n-w); which = 0 words, 1 per output."""
+        return sum((mpmath.mpf(v[which]) * self._vec(eps, w) for w, v in self.heavier.items()), mpmath.mpf(0))
+
     def _tail(self, eps):
-        """sum_{w>d} C(n,w) p^(w-d+1) (eps/(p-1))^w (1-eps)^(n-w), unnormalised by P_acc."""
+        """sum_{w>w0} C(n,w) p^(w-d+1) (eps/(p-1))^w (1-eps)^(n-w), unnormalised by P_acc, with w0 = d or the last
+        weight in ``heavier``."""
         e = mpmath.mpf(eps); p, n, d = self.p, self.n, self.d
+        w0 = d + len(self.heavier)
         eta = p * e / (p - 1); q = 1 - e
         acc = mpmath.mpf(0)
-        term = mpmath.binomial(n, d + 1) * eta ** (d + 1) * q ** (n - d - 1)
-        for w in range(d + 1, n + 1):
+        if w0 >= n:
+            return acc
+        term = mpmath.binomial(n, w0 + 1) * eta ** (w0 + 1) * q ** (n - w0 - 1)
+        for w in range(w0 + 1, n + 1):
             acc += term
             if w == n:
                 break
@@ -86,13 +107,13 @@ class RigorousBoundCurve:
 
     def pacc_hi(self, eps) -> float:
         with mpmath.workdps(DPS):
-            v = (1 - mpmath.mpf(eps)) ** self.n + self.A_d * self._lead_vectors(eps) + self._tail(eps)
+            v = (1 - mpmath.mpf(eps)) ** self.n + self.A_d * self._lead_vectors(eps) + self._known(eps, 0) + self._tail(eps)
             return min(1.0, max(float(v), self.pacc_lo(eps)))
 
     def f_hi(self, eps):
         with mpmath.workdps(DPS):
             e = mpmath.mpf(eps)
-            return (self.L_d * self._lead_vectors(eps) + self._tail(eps)) / (1 - e) ** self.n
+            return (self.L_d * self._lead_vectors(eps) + self._known(eps, 1) + self._tail(eps)) / (1 - e) ** self.n
 
     def f_lo(self, eps):
         with mpmath.workdps(DPS):
@@ -126,14 +147,32 @@ class RigorousBoundCurve:
         return self.threshold_eps, None
 
 
-def from_census(path_or_dict, name=None) -> RigorousBoundCurve:
-    """Build from a census json (runs/weighted/*_census.json: code label, L_d, classes)."""
+def from_census(path_or_dict, name=None, heavier=None) -> RigorousBoundCurve:
+    """Build from a census json (runs/weighted/*_census.json: code label, L_d, classes); ``heavier`` as in
+    RigorousBoundCurve."""
     import json
     j = path_or_dict if isinstance(path_or_dict, dict) else json.load(open(path_or_dict))
     lab = j["code"]; n, k, d = [int(x) for x in lab.split("]]")[0][2:].split(",")]
     p = int(lab.split("_")[-1])
     A = j.get("A_d") or j.get("A_7") or j["classes"] * (p - 1)
-    return RigorousBoundCurve(name or lab, p, n, k, d, float(j["L_d"]), int(A))
+    return RigorousBoundCurve(name or lab, p, n, k, d, float(j["L_d"]), int(A), heavier=dict(heavier or {}))
+
+
+# ---------------------------------------------------------------------------------------------
+# Weight-8 bound for the d = 7 sphere-charge codes at p = 7 (WEIGHTED_SUPPORTS.md, "Weight-8 words of RM(20,4)").
+# A weight-8 kernel word is either a class-block word (<= p-1 per 8-set: the subcode on an 8-set has distance
+# >= 7, so dimension <= 2, and a [8,2,7] MDS code has no weight-8 word), or a mixed word whose non-class part,
+# reweighted by (g-1)(g-6), is a word of RM_7(20,4): of weight 8 (A_8 below, all conics) or a line word of weight
+# 5-7 whose class completion of weight <= 3 is unique (two completions differ by a block word of weight <= 6).
+RM20_A8 = 436_272_744_600                       # scratchpad/rm20_w8_count.py, runs/weighted/rm20_w8_count.json
+RM20_A567 = 17_287_200 + 11_524_800 + 18_110_400
+
+
+def sphere_weight8_bound(block_columns: int, p: int = 7) -> int:
+    """Proved upper bound on the number of weight-8 kernel words of a d = 7 sphere-charge code (p = 7, m = 4,
+    r = 7) whose class block has ``block_columns`` input columns."""
+    assert p == 7
+    return (p - 1) * math.comb(block_columns, 8) + RM20_A8 + RM20_A567
 
 
 def _chain_ok(protocol, candidate, target) -> bool:

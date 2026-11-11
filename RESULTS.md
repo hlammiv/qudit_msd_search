@@ -14,19 +14,26 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 
 ## 1. Headline results
 
-- **Total cost, magic + Clifford (2026-11-03):** with the one-shot encoder, [[7,1,3]]_7 -> [[1746,270,7]]_7 beats the
-  best small-code protocol at 1e-3 -> 1e-30 by 2.2x (R = 1 Clifford gate per magic state) to 3.1x (R -> inf), and by
+- **Proved = optimistic for the p = 7 gamma < 1 codes (2026-11-11):** every weight-8 word of RM_7(20,4) is a conic
+  (8 points of an ellipse or a 4 + 4 line pair), A_8 = 436 272 744 600 exactly by frame enumeration. With the class-block
+  structure and d = 7 this bounds the weight-8 kernel words of [[1746,270,7]]_7 by 9.5e16, against the Singleton 1e23 that
+  held back the proof. Proved savings: 3.60x at 1e-3 -> 1e-30 (was 3.09x), equal to the optimistic bound on the whole grid;
+  raw-U-only 2.00x at 1e-2 -> 1e-30 (was 1.00x); rigorous threshold 0.355 % (was 0.340 %); [[1756,260,7]]_7 likewise
+  (3.44x). `WEIGHTED_SUPPORTS.md`, "Weight-8 words of RM(20,4)".
+- **Total cost, magic + Clifford (2026-11-03):** with the one-shot encoder, [[6,1,?]]_7 RS -> [[1746,270,7]]_7 beats the
+  best small-code protocol at 1e-3 -> 1e-30 by 2.6x (R = 1 Clifford gate per magic state) to 3.6x (R -> inf; 2.2-3.1x before the
+  weight-8 bound of 2026-11-11), and by
   3.2-4.3x from 1e-2, with proved curves; at p >= 11 the RS family leaves the large codes at most 13 % (`CODE_METRICS.md` §8).
 
 - **Species assumption behind every p = 7 sphere-charge figure (2026-11-04).** These codes consume U, U^2 and U^3 states. If
   raw states of all three species are available at the same eps0 and cost, the savings stand exactly (rescaling charges gives
   each species an identical tower). If only raw U is available, teleporting gives U^2 from 2 U and U^3 from 3 U (3762 U per
-  k = 270 round): [[1746,270,7]]_7 falls to 1.78x proved at 1e-3 -> 1e-30 and about 2x estimated at 1e-2 -> 1e-30 (proved 1.00x
-  there, a limit of the bound), its U-count exponent is 1.35 rather than gamma 0.959, and the unit-charge [[2093,308,5]]_7 becomes the best p = 7 code, 3.65x proved at
+  k = 270 round): [[1746,270,7]]_7 falls to 1.90x proved at 1e-3 -> 1e-30 (estimate 2.05x) and 2.00x proved at 1e-2 -> 1e-30
+  (was 1.00x before the weight-8 bound of 2026-11-11), its U-count exponent is 1.35 rather than gamma 0.959, and the unit-charge [[2093,308,5]]_7 becomes the best p = 7 code, 3.65x proved at
   1e-3 -> 1e-30. The all-species saving reaches 1x when a U^2 or U^3 raw state costs about 5 U (`WEIGHTED_SUPPORTS.md`,
   "Species accounting"; `runs/weighted/species_cost.json`). Tests of the assumption: confirmed for Pauli noise and for any noise
-  before an ideal diagonal gate; non-Pauli noise after the gate spreads eps by 30 %, which barely changes estimated costs (proved 3.09x
-  at 1e-3 unchanged, proved 4.32x at 1e-2 falls to 1.49x at 1.3 eps0). Virtual diagonal gates exist on transmon qudits, but no measured
+  before an ideal diagonal gate; non-Pauli noise after the gate spreads eps by 30 %, which barely changes estimated costs (at 1.3 eps0 the
+  proved 1e-3 saving goes 3.60x -> 3.18x and the proved 1e-2 saving 4.32x -> 4.24x; 1.49x before the weight-8 bound). Virtual diagonal gates exist on transmon qudits, but no measured
   fidelity at d = 7. [[1746,270,7]]_7 leads the species-free [[2093,308,5]]_7 by 5-18 % on like curves (w = 1) and falls behind it once a raw U^2 or U^3 costs about 1.1-1.3 U.
 
 - **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
@@ -203,7 +210,8 @@ Singleton count N_w <= C(n,w) p^(w-d+1)); data `runs/weighted/rigorous_savings.j
 |---|---|---|---|---|
 | [[2093,308,5]]_7 | 1.4e-3 | 1.27x / 4.11x (4.11x) | 2.94x / 2.94x (2.94x) | [[20,1,4]]_7 dbl -> code (166.2 vs 210.3) |
 | [[1746,270,6]]_7 | 2.5e-3 | 1.33x / 4.32x (4.32x) | 3.09x / 3.60x (3.60x) | [[20,1,4]]_7 dbl -> code (158.1 vs 210.3) |
-| [[1756,260,7]]_7 | 3.4e-3 | 4.14x / 4.14x (4.14x) | 2.96x / 3.44x (3.44x) | [[7,1,3]]_7 cyc-B -> code (50.8 vs 210.3) |
+| [[1756,260,7]]_7 | 3.4e-3 | 4.14x / 4.14x (4.14x) | 2.96x / 3.44x (3.44x); **3.44x proved** with the weight-8 bound | [[7,1,3]]_7 cyc-B -> code (50.8 vs 210.3) |
+| [[1746,270,7]]_7 | 3.4e-3 (3.55e-3) | 4.32x / 4.32x (4.32x) | 3.09x / 3.60x (3.60x); **3.60x proved** with the weight-8 bound | [[7,1,3]]_7 cyc-B -> code (48.7 vs 210.3) |
 
 Surrogate table for the whole weighted family (`PERFORMANCE.md`, "Weighted-support caps at p = 7"):
 [[263,24,5]]_7 2.55x (210 -> 82) / 2.02x (28.8 -> 14.3) / 2.13x (141 -> 66) at 1e-2 -> 1e-30 / 1e-3 -> 1e-15 /

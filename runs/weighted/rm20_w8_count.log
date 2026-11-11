@@ -1,0 +1,20 @@
+[    72s] span2: 38382 dependent sets [69s]
+[   112s] span2: full-support sets 1521, types {'nullity1:full6:frames288': 1500, 'nullity1:full6:frames336': 21}, weight-8 words 436272744600
+[   120s] span3: 23310 dependent sets [9s]
+[   144s] span3: full-support sets 0, types {}, weight-8 words 0
+[   144s]   span4: x=0/2396, dependent so far 6
+[   150s]   span4: x=200/2396, dependent so far 59
+[   156s]   span4: x=400/2396, dependent so far 60
+[   161s]   span4: x=600/2396, dependent so far 60
+[   165s]   span4: x=800/2396, dependent so far 78
+[   169s]   span4: x=1000/2396, dependent so far 84
+[   173s]   span4: x=1200/2396, dependent so far 93
+[   176s]   span4: x=1400/2396, dependent so far 99
+[   178s]   span4: x=1600/2396, dependent so far 100
+[   180s]   span4: x=1800/2396, dependent so far 100
+[   182s]   span4: x=2000/2396, dependent so far 100
+[   183s]   span4: x=2200/2396, dependent so far 100
+[   183s] span4: 100 dependent sets [39s]
+[   183s] span4: full-support sets 0, types {}, weight-8 words 0
+[   207s] orbit check span 2: {'sum': '62979086916900', 'expected': 62979086916900, 'ok': True, 'seconds': 24}
+[   207s] A_8(RM_7(20,4)) = 436272744600

@@ -1,0 +1,116 @@
+{
+ "[[1746,270,7]]_7": {
+  "N8_bound": 94624130680166700,
+  "threshold_old": 0.0033993747806256545,
+  "threshold_new": 0.003547784228865594,
+  "f_hi_1e-6_old": 6.151006304674588e-32,
+  "f_hi_1e-6_new": 1.3914026585363172e-35,
+  "surrogate_1e-6": 6.9016258146651194e-46,
+  "rows": [
+   {
+    "eps0": 0.01,
+    "target": 1e-15,
+    "proved_old": 1.0805801297638011,
+    "proved_new": 1.0805801297638011,
+    "optimistic": 1.0805801297638011,
+    "protocol_new": [
+     "[[7,1,3]]_7 cyc-B",
+     "[[1746,270,7]]_7"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.01,
+    "target": 1e-30,
+    "proved_old": 4.322411931678593,
+    "proved_new": 4.322411931678593,
+    "optimistic": 4.322411931678593,
+    "protocol_new": [
+     "[[7,1,3]]_7 cyc-B",
+     "[[1746,270,7]]_7"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.001,
+    "target": 1e-15,
+    "proved_old": 1.0,
+    "proved_new": 1.0,
+    "optimistic": 1.0,
+    "protocol_new": [
+     "[[28,1,5]]_7 cyc-B"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.001,
+    "target": 1e-30,
+    "proved_old": 3.092778297088281,
+    "proved_new": 3.5960915318076663,
+    "optimistic": 3.5960915318076663,
+    "protocol_new": [
+     "[[6,1,?]]_7 RS",
+     "[[1746,270,7]]_7"
+    ],
+    "chain_check": true
+   }
+  ]
+ },
+ "[[1756,260,7]]_7": {
+  "N8_bound": 115375660711689870,
+  "threshold_old": 0.003377789191791819,
+  "threshold_new": 0.0035254723919401166,
+  "f_hi_1e-6_old": 6.439152168782637e-32,
+  "f_hi_1e-6_new": 1.4659016306004695e-35,
+  "surrogate_1e-6": 4.616472116832856e-48,
+  "rows": [
+   {
+    "eps0": 0.01,
+    "target": 1e-15,
+    "proved_old": 1.0346224913214868,
+    "proved_new": 1.0346224913214868,
+    "optimistic": 1.0346224913214868,
+    "protocol_new": [
+     "[[7,1,3]]_7 cyc-B",
+     "[[1756,260,7]]_7"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.01,
+    "target": 1e-30,
+    "proved_old": 4.138577490082621,
+    "proved_new": 4.138577490082621,
+    "optimistic": 4.138577490082621,
+    "protocol_new": [
+     "[[7,1,3]]_7 cyc-B",
+     "[[1756,260,7]]_7"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.001,
+    "target": 1e-15,
+    "proved_old": 1.0,
+    "proved_new": 1.0,
+    "optimistic": 1.0,
+    "protocol_new": [
+     "[[28,1,5]]_7 cyc-B"
+    ],
+    "chain_check": true
+   },
+   {
+    "eps0": 0.001,
+    "target": 1e-30,
+    "proved_old": 2.961270610917763,
+    "proved_new": 3.443096224873872,
+    "optimistic": 3.443096224873872,
+    "protocol_new": [
+     "[[6,1,?]]_7 RS",
+     "[[1756,260,7]]_7"
+    ],
+    "chain_check": true
+   }
+  ]
+ }
+}

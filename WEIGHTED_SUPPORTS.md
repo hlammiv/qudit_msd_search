@@ -314,6 +314,83 @@ direction table, change.) Run on the certified [[1756,260,7]]₇ draw as well
 233 376 candidates extend, so every weight-7 word of that code is a class-block word and the
 queued weight-7 census of its class block counts all of them.
 
+## Weight-8 words of RM(20,4) and a proved weight-8 bound (2026-11-11)
+
+*Scripts `scratchpad/rm20_w8_count.py`, `scratchpad/rm20_w8_brute.py` (cross-check), `scratchpad/w8_proved.py`;
+data `runs/weighted/rm20_w8_count.json`, `runs/weighted/w8_proved.json`.*
+
+**Why.** The rigorous curve (`qmsd/rigorous_curve.py`) uses the exact weight-7 census and the Singleton bound
+N_w ≤ C(n,w) p^(w−d+1) for every heavier weight. At the input errors the protocols use (10⁻⁶ to 10⁻⁵) the
+weight-8 term of that bound, about 10²³ words, is what keeps the proved savings below the estimate. Replacing
+it by any bound below about 1.5 × 10²¹, with Singleton kept from weight 9 on, already gives the optimistic
+saving. An exact weight-8 count is not needed, only an upper bound.
+
+**Bound.** Let e be a weight-8 word of ker G0 for [[1746,270,7]]₇ (class block of b = 402 columns), and e_N its
+part on the non-class points N. Then u = (g−1)(g−6)·e_N is a word of RM_7(20,4) with the support of e_N, so
+|e_N| ∈ {0, 5, 6, 7, 8}.
+
+- |e_N| = 0: a block word. Its 8-set carries a subcode of length 8 and distance ≥ 7, so of dimension ≤ 2. A
+  [8,2,7] code is MDS and has no word of weight 8, so each 8-set carries at most p − 1 = 6 such words:
+  at most 6·C(402,8) = 9.46 × 10¹⁶.
+- |e_N| = 5, 6, 7: u is a line word (weight-7 lemma), and the block part has weight 3, 2, 1. Two completions
+  of the same e_N differ by a block word of weight ≤ 6, which does not exist (d = 7). So there are at most
+  A₅ + A₆ + A₇ (RM(20,4)) = 4.69 × 10⁷ such words.
+- |e_N| = 8: u is a weight-8 word of RM(20,4). There are exactly A₈ = 436 272 744 600 of these (below).
+
+So N₈ ≤ 9.46 × 10¹⁶ for [[1746,270,7]]₇ and 1.15 × 10¹⁷ for [[1756,260,7]]₇ (b = 412), and L₈ ≤ N₈.
+
+**A₈ of RM_7(20,4), by frame enumeration (`rm20_w8_count.py`, 3.5 min, one core).** This is the method of the
+weight-7 lemma with 8 points: frame 0, e₁..e_j plus 8 − (j+1) extras of the coordinate j-flat, with
+dependence decided from the extras' residuals after the frame columns are row-reduced.
+
+| span j | frame sets | method | dependent | full-support sets | weight-8 words |
+|---|---|---|---|---|---|
+| 2 | C(46,5) = 1 370 754 | batched rank | 38 382 | 1 521 | 436 272 744 600 |
+| 3 | C(339,4) = 5.4 × 10⁸ | 60 dependent triples + pair-direction collisions | 23 310 | 0 | 0 |
+| 4 | C(2396,3) = 2.3 × 10⁹ | pair directions against single directions | 100 | 0 | 0 |
+
+Span 4 has no proportional residual pair (weight 7), so a set there is dependent iff c′ ∝ a′ + βb′. The 100
+dependent sets are exactly the "2 frame points + 3 extras on their line" sets (10 · C(5,3)). Span 3 adds
+the 4-sets containing one of the 60 dependent triples and the collisions a′ + βb′ ∝ c′ + δd′. None of
+these carries a full-support annihilator. Every weight-8 word is planar, and the annihilator of its
+support is unique up to scale (nullity 1):
+
+| support | frame sets | ordered frames per set | count |
+|---|---|---|---|
+| 8 points of an ellipse | 21 | 336 | 139 650 planes × 6 174 ellipses × 6 = 5 173 194 600 |
+| two lines, 4 + 4 points (intersection point not used) | 1 500 | 288 | 139 650 × 514 500 × 6 = 431 099 550 000 |
+
+Orbit counting: #(8-sets of span j) = Σ over frame sets R of N_j / F(R), where N_j is the number of
+ordered affinely independent (j+1)-tuples of F_7⁴ and F(R) is the number of ordered frames inside R.
+Summed over all C(46,5) span-2 frame sets this gives exactly 139 650 · C(49,8) (asserted). Both rows
+also agree with independent closed forms:
+- **Ellipses:** a fixed line is external to q³(q−1)²/2 = 6 174 conics of PG(2,7).
+- **Line pairs:** 1 372 intersecting pairs × C(6,4)² + 168 parallel pairs × C(7,4)² = 514 500 per plane.
+
+This is the finite-field Cayley–Bacharach picture at 2d + 2 = 8 points: the 8-point sets that fail to
+impose independent conditions on cubics and carry a full-support relation are conics.
+
+**Cross-check (`rm20_w8_brute.py`).** A brute-force rank test of all 5.4 × 10⁸ span-3 frame sets is running
+on loranne (4 workers).
+
+**Effect on the proved numbers (`w8_proved.py`).** These are the curves with the census at weight 7, the bound
+above at weight 8, and Singleton from weight 9:
+
+| | [[1746,270,7]]₇ | [[1756,260,7]]₇ |
+|---|---|---|
+| f_hi(10⁻⁶), before → now (surrogate) | 6.2e-32 → 1.4e-35 (6.9e-46) | 6.4e-32 → 1.5e-35 (4.6e-48) |
+| rigorous threshold | 0.340 % → 0.355 % | 0.338 % → 0.353 % |
+| proved saving 1e-3 → 1e-30, all species | 3.09× → **3.60×** (= optimistic) | 2.96× → **3.44×** (= optimistic) |
+| proved saving 1e-2 → 1e-30, raw U only | 1.00× → **2.00×** (= estimate) | 1.00× → **1.92×** (= estimate) |
+| proved saving 1e-3 → 1e-30, raw U only | 1.78× → **1.90×** (estimate 2.05×) | 1.71× → **1.83×** (estimate 1.97×) |
+
+On the default grid the proved all-species savings now equal the optimistic bound for both codes. The
+proved 1e-3 protocol becomes [[6,1,?]]₇ RS → code, at 39.2 states and 171 gates per output, against
+[[7,1,3]]₇ → code at 45.6 and 209. The remaining raw-U-only gap at 1e-3 sits at ε = 7.5 × 10⁻⁶, where the
+weight-9 Singleton term binds. A weight-9 bound would need block completions of weight 4, which are no
+longer unique. The argument needs d = 7 and the class-block structure. It does not apply to
+[[1746,270,6]]₇ or to the unit-charge [[2093,308,5]]₇.
+
 ## Orbit-union output sets (2026-10-31, in progress)
 
 Output sets that are unions of orbits of a group Γ ≤ O(4, F₇) (so g(Mx) = g(x) and the cube
@@ -497,11 +574,11 @@ at the worst input error. Saving is cost(library) / cost(library + code) within 
 
 | Code | ε₀ → target | All three species raw (proved / estimate) | Raw U only (proved / estimate) |
 |---|---|---|---|
-| [[1746,270,7]]₇ | 1e-2 → 1e-30 | 4.32× / 4.32× | 1.00× / 2.00× |
-| [[1746,270,7]]₇ | 1e-3 → 1e-30 | 3.09× / 3.60× | 1.78× / 2.05× |
+| [[1746,270,7]]₇ | 1e-2 → 1e-30 | 4.32× / 4.32× | 1.00× → **2.00×** / 2.00× |
+| [[1746,270,7]]₇ | 1e-3 → 1e-30 | 3.09× → **3.60×** / 3.60× | 1.78× → **1.90×** / 2.05× |
 | [[1746,270,7]]₇ | 1e-2 → 1e-15 | 1.08× / 1.08× | 1.00× / 1.00× |
-| [[1756,260,7]]₇ | 1e-2 → 1e-30 | 4.14× / 4.14× | 1.00× / 1.92× |
-| [[1756,260,7]]₇ | 1e-3 → 1e-30 | 2.96× / 3.44× | 1.71× / 1.97× |
+| [[1756,260,7]]₇ | 1e-2 → 1e-30 | 4.14× / 4.14× | 1.00× → **1.92×** / 1.92× |
+| [[1756,260,7]]₇ | 1e-3 → 1e-30 | 2.96× → **3.44×** / 3.44× | 1.71× → **1.83×** / 1.97× |
 | [[2093,308,5]]₇ | 1e-2 → 1e-30 | 1.27× / 4.11× | 1.00× / 4.11× |
 | [[2093,308,5]]₇ | 1e-3 → 1e-30 | 2.94× / 2.94× | 3.65× / 3.65× |
 | [[2093,308,5]]₇ | 1e-2 → 1e-15 | 1.03× / 1.03× | 1.03× / 1.03× |
@@ -519,9 +596,9 @@ uses the leading-order surrogate. The library baselines are 52.6, 210.3 and 28.8
   Counted in U states, [[1746,270,7]]₇ has log(3762/270)/log 7 = 1.35, so γ < 1 at p = 7 depends on the
   all-species convention. The unit-charge [[2093,308,5]]₇ (γ 1.19 either way) becomes the best p = 7 code,
   with a proved 3.65× at 1e-3 → 1e-30.
-- **The proved 1.00× at 1e-2 → 1e-30** is a limit of the bound. At the ε = 3.0e-6 this route needs, f_hi = 4e-28
-  (the Singleton tail) misses the 1e-30 target, while the leading term is 2e-42. A weight-8 count would be
-  needed to prove the 2×.
+- **The proved 1.00× at 1e-2 → 1e-30** was a limit of the bound. At the ε = 3.0e-6 this route needs, f_hi = 4e-28
+  (the Singleton tail) missed the 1e-30 target, while the leading term is 2e-42. The weight-8 bound of 2026-11-11
+  ("Weight-8 words of RM(20,4)" above) proves the 2.00× (arrows in the table; `runs/weighted/species_cost_w8.json`).
 
 **Not done.** Per-column input errors are not modelled, though the low-weight words all lie in the U class
 block, so U² and U³ columns could tolerate more noise. Conversions by a distillation code with
@@ -559,16 +636,20 @@ set by χ rather than the phases, and the phases enter only as tone phases, so t
 
 | | 1e-2 → 1e-30 | 1e-3 → 1e-30 |
 |---|---|---|
-| r = 1, w = 1 | 4.32 / 4.32 | 3.09 / 3.60 |
-| r = 1.3, w = 1 | 1.49 / 4.24 | 3.09 / 3.58 |
-| r = 3, w = 1 | 1.08 / 3.68 | 3.08 / 3.46 |
-| r = 1, w = 2 | 2.44 / 2.44 | 2.17 / 2.52 |
-| r = 1, w = 3 | 1.70 / 1.70 | 1.51 / 1.76 |
-| r = 1, w = 5 | 1.06 / 1.06 | 1.00 / 1.09 |
+| r = 1, w = 1 | 4.32 / 4.32 | 3.60 / 3.60 |
+| r = 1.3, w = 1 | 4.24 / 4.24 | 3.18 / 3.58 |
+| r = 3, w = 1 | 1.08 / 3.68 | 3.17 / 3.46 |
+| r = 1, w = 2 | 2.44 / 2.44 | 2.52 / 2.52 |
+| r = 1, w = 3 | 1.70 / 1.70 | 1.76 / 1.76 |
+| r = 1, w = 5 | 1.06 / 1.06 | 1.09 / 1.09 |
 
-So error differences up to 3× barely move the estimates and leave the proved 3.09× at 1e-3 intact, while the proved 4.32×
-at 1e-2 is fragile because the proof tail is steep. Raw cost is what matters. Comparing like with like at w = 1, [[1746,270,7]]₇ leads the
-unit-charge [[2093,308,5]]₇ by 5 % proved at 1e-3 → 1e-30 (45.6 vs 47.9) and by 5 % and 18 % estimated (48.7 vs 51.1 at
+(Proved column with the weight-8 bound of 2026-11-11, `runs/weighted/species_sensitivity_w8.json`. Before it the proved
+entries were 4.32, 1.49, 1.08, 2.44, 1.70, 1.06 at 1e-2 and 3.09, 3.09, 3.08, 2.17, 1.51, 1.00 at 1e-3.)
+
+So error differences up to 3× barely move the estimates. A 30 % difference leaves the proved 1e-2 saving at 4.24×
+(1.49× before the weight-8 bound) and lowers the proved 1e-3 saving to 3.18×; at 3× the proved 1e-2 figure falls to 1.08×,
+because the proof tail is still steep from weight 9 on. Raw cost is what matters. Comparing like with like at w = 1, [[1746,270,7]]₇ leads the
+unit-charge [[2093,308,5]]₇ by 18 % proved at 1e-3 → 1e-30 (39.2 vs 47.9; 5 % before the weight-8 bound) and by 5 % and 18 % estimated (48.7 vs 51.1 at
 1e-2, 39.2 vs 47.9 at 1e-3), and falls behind it at w ≈ 1.1-1.3. Only the proved comparison at 1e-2 is large (48.7 vs 166.2),
 because the d = 5 proof tail is weak. The species assumption buys proved γ < 1 and that proved figure, not much estimated cost.
 

@@ -270,21 +270,23 @@ state in Clifford gates. Per round attempt a code costs n raw states and g gates
 for grid RM/RS codes, systematic encoder count for cyclic and doubled codes); per output of round i,
 M_i = a_i M_{i−1} and Y_i = a_i Y_{i−1} + g_i/(k_i P_i) with a_i = n_i/(k_i P_i). The optimizer searches chains
 of up to five rounds. Baselines: the standard library plus the whole Reed–Solomon family (exact curves). Large
-codes: rigorous curves (p = 7: complete weight-7 censuses; p ≥ 11: census-free Singleton bounds).
+codes: rigorous curves (p = 7: complete weight-7 censuses plus the weight-8 bound; p ≥ 11: census-free Singleton bounds).
 
 Saving = cost(small codes only) / cost(with the large codes):
 
 | p, ε₀ → target | R = 1 | R = 10 | R = 100 | R = 10⁴ | protocol with large codes |
 |---|---|---|---|---|---|
 | 7, 1e-3 → 1e-15 | 1.00 | 1.00 | 1.00 | 1.00 | small codes only |
-| 7, 1e-3 → 1e-30 | **2.16×** | **2.73×** | **3.04×** | **3.09×** | [[7,1,3]]₇ → [[1746,270,7]]₇ (45.6 states, 209 gates per output) |
+| 7, 1e-3 → 1e-30 | **2.62×** | **3.23×** | **3.55×** | **3.60×** | [[6,1,?]]₇ RS → [[1746,270,7]]₇ (39.2 states, 171 gates per output) |
 | 7, 1e-2 → 1e-30 | **3.24×** | **3.92×** | **4.27×** | **4.32×** | [[7,1,3]]₇ → [[1746,270,7]]₇ (48.7 states, 217 gates) |
 | 11, 1e-3 → 1e-30 | 1.00 | 1.00 | 1.06× | 1.13× | [[8,3,2]]₁₁ → [[13332,1309,22]]₁₁ for R ≥ 100 |
 | 17, 1e-3 → 1e-30 | 1.00 | 1.00 | 1.00 | 1.02× | [[13,4,3]]₁₇ → [[237,52,6]]₁₇ for R ≥ 1000 |
 | 11, 17 at 1e-15 | 1.00 | 1.00 | 1.00 | 1.00 | small codes only |
 
-**The p = 7 γ < 1 code wins at every price ratio**, by 2.2× even when a magic state costs one Clifford gate:
+**The p = 7 γ < 1 code wins at every price ratio**, by 2.6× even when a magic state costs one Clifford gate:
 with the one-shot encoder it adds only ~200 gates per output, while the small-code chains it replaces need
 several more rounds. At p ≥ 11 the Reed–Solomon family is already so good that the large codes add at most
 13 %, and only when magic states are expensive. At 1e-15 targets no large code is used anywhere. (The p = 7
-surrogate gives 2.6–3.6× at 1e-3 → 1e-30; the proved numbers above are the ones to quote.)
+surrogate gives 2.6–3.6× at 1e-3 → 1e-30. Since 2026-11-11 the proved curve carries the rigorous weight-8 bound of
+`WEIGHTED_SUPPORTS.md`, and the proved 1e-3 row equals the surrogate one; before it the row was 2.16 / 2.73 / 3.04 / 3.09× via
+[[7,1,3]]₇ at 45.6 states and 209 gates. `scratchpad/total_cost_w8.py`, `runs/coverage/total_cost_w8.json`.)

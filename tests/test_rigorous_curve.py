@@ -65,3 +65,34 @@ def test_correcting_curve_reduces_to_detection_and_trades_order_for_acceptance()
     assert c0.f_hi(eps) < c3.f_hi(eps) < 1e-12
     with pytest.raises(AssertionError):
         CorrectingBoundCurve("x", 7, 1745, 271, 7, 4)
+
+
+def test_heavier_weights_reduce_to_singleton_and_tighten():
+    """A heavier-weight bound equal to the Singleton count reproduces the plain curve; a smaller one tightens f_hi
+    and pacc_hi (so f_lo can only rise)."""
+    import mpmath
+    from qmsd.rigorous_curve import RigorousBoundCurve, sphere_weight8_bound
+    n, d, p = 1746, 7, 7
+    plain = RigorousBoundCurve("c", p, n, 270, d, 193.2, 276)
+    sing = int(mpmath.binomial(n, d + 1) * p ** 2)
+    same = RigorousBoundCurve("c", p, n, 270, d, 193.2, 276, heavier={d + 1: (sing, sing)})
+    for e in (1e-6, 1e-4, 3e-3):
+        assert abs(float(same.f_hi(e)) / float(plain.f_hi(e)) - 1) < 1e-12
+        assert abs(same.pacc_hi(e) - plain.pacc_hi(e)) < 1e-15
+    N8 = sphere_weight8_bound(402)
+    assert 9.4e16 < N8 < 9.5e16
+    tight = RigorousBoundCurve("c", p, n, 270, d, 193.2, 276, heavier={d + 1: (N8, N8)})
+    assert float(tight.f_hi(1e-6)) < 1e-3 * float(plain.f_hi(1e-6))
+    assert float(tight.f_hi(1e-6)) > float(plain.f_lo(1e-6))
+    for e in (1e-6, 3e-3):
+        assert float(tight.f_lo(e)) >= float(plain.f_lo(e)) and tight.pacc_hi(e) <= plain.pacc_hi(e)
+    assert tight.threshold_eps > plain.threshold_eps
+
+
+def test_heavier_weights_validation():
+    import pytest
+    from qmsd.rigorous_curve import RigorousBoundCurve
+    with pytest.raises(AssertionError):
+        RigorousBoundCurve("c", 7, 100, 5, 7, 1.0, 6, heavier={9: (10, 10)})
+    with pytest.raises(AssertionError):
+        RigorousBoundCurve("c", 7, 100, 5, 7, 1.0, 6, heavier={8: (10, 11)})
