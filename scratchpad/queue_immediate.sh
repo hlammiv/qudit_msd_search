@@ -10,6 +10,6 @@ J=$1; shift
 for spec in "$@"; do
   set -- $spec
   echo "start $spec $(date)"
-  nice -n 15 $PY -u scratchpad/escape_keep_rules.py $1 $2 $3 $J par-hooks-f1 ${EKR_VARIANT:-one+gap-tick1-syn} >> runs/surface/escape_immediate.log 2>&1
+  nice -n 15 $PY -u scratchpad/escape_keep_rules.py $1 $2 $3 $J par-hooks-f1 ${EKR_VARIANT:-one+gap-tick1-syn} >> runs/surface/escape_immediate${EKR_LOGTAG:+_$EKR_LOGTAG}.log 2>&1
   echo "done $spec $(date)"
 done

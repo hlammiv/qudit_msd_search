@@ -13,3 +13,4 @@ literature/
 # OS / editor
 .DS_Store
 *.swp
+runs/surface/ckpt/

@@ -8,6 +8,7 @@ failure b' != a' (mod d) as in cult_escape_e2e.  One json line per variant -> ru
     PYTHONPATH=.:scratchpad python scratchpad/escape_keep_rules.py p shots n_clean jobs cult_config variant[,variant...]
 """
 import json
+import os
 import sys
 import time
 
@@ -20,6 +21,7 @@ from primepower_msd.graft_zd import Escape
 
 SLICE = int(__import__("os").environ.get("EKR_SLICE", 50_000))
 PRIORS = __import__("os").environ.get("EKR_PRIORS")     # npz (frames, probs at unit location probability): residual-frame priors
+CKPT = __import__("os").environ.get("EKR_CKPT", "runs/surface/ckpt")   # per-slice saves; a rerun skips finished slices ("" = off)
 SEED_OFF = int(__import__("os").environ.get("EKR_SEED", 0))   # offset of every seed: independent replicas
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
@@ -49,7 +51,28 @@ def run_all(variant, F, n_clean, p, jobs):
     """(slices of residual frames, then clean) -> arrays by basis; both bases of a slice share a seed."""
     tasks = [(F[i:i + SLICE], len(F[i:i + SLICE])) for i in range(0, len(F), SLICE)]
     tasks += [(None, min(SLICE, n_clean - i)) for i in range(0, n_clean, SLICE)]
-    out = Parallel(n_jobs=jobs)(delayed(run_slice)(variant, b, fr, n, p, 7000 + SEED_OFF + k) for k, (fr, n) in enumerate(tasks) for b in "ZX")
+    jobs_all = [(k, b) for k in range(len(tasks)) for b in "ZX"]
+    ck = CKPT and f"{CKPT}/{variant}_d{D}_p{p:g}_s{SEED_OFF}_c{n_clean}"
+    done = {}
+    if ck:
+        os.makedirs(ck, exist_ok=True)
+        for k, b in jobs_all:
+            fn = f"{ck}/t{k}_{b}.npz"
+            if os.path.exists(fn):
+                z = np.load(fn); done[(k, b)] = tuple(z[f"a{c}"] for c in range(5))
+        print("checkpoint", ck, len(done), "/", len(jobs_all), "slices already done", flush=True)
+    todo = [kb for kb in jobs_all if kb not in done]
+    t0 = time.time(); B = 2 * jobs
+    for i in range(0, len(todo), B):
+        batch = todo[i:i + B]
+        res = Parallel(n_jobs=jobs)(delayed(run_slice)(variant, b, tasks[k][0], tasks[k][1], p, 7000 + SEED_OFF + k) for k, b in batch)
+        for (k, b), r in zip(batch, res):
+            done[(k, b)] = r
+            if ck:
+                np.savez(f"{ck}/t{k}_{b}.tmp.npz", **{f"a{c}": r[c] for c in range(5)}); os.replace(f"{ck}/t{k}_{b}.tmp.npz", f"{ck}/t{k}_{b}.npz")
+        nd = i + len(batch); el = time.time() - t0
+        print(f"progress {variant} d{D} {len(done)}/{len(jobs_all)} slices, {el/60:.1f} min, eta {el/nd*(len(todo)-nd)/60:.1f} min", flush=True)
+    out = [done[kb] for kb in jobs_all]
     return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(5)] for i in range(2)]
 
 
