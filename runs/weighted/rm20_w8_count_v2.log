@@ -1,0 +1,27 @@
+[   173s] span2: 1521 candidates [171s]
+[   185s] span2: full-support sets 1521, types {'nullity1:full6:frames288': 1500, 'nullity1:full6:frames336': 21}, words 436272744600
+[   185s] span3: building pair table (339 extras)
+[   188s] span3: pair table 343746 rows [3s]
+[   193s] span3: 60 dependent 3-subsets
+[   199s] span3: 3270 candidates [14s]
+[   209s] span3: full-support sets 0, types {}, words 0
+[   210s] span4: building pair table (2396 extras)
+[   354s] span4: pair table 17215260 rows [145s]
+[   354s] span4: 0 dependent 2-subsets
+Traceback (most recent call last):
+  File "/home/hlamm/Desktop/QC/prime_msd/scratchpad/rm20_wW_count.py", line 206, in <module>
+    circ = circuits5(resid, table)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hlamm/Desktop/QC/prime_msd/scratchpad/rm20_wW_count.py", line 138, in circuits5
+    V = (resid[c][None, :] + g * resid[d_] + dl * resid[e_]) % p
+                                             ~~~^~~~~~~~~~~
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 656. MiB for an array with shape (2866815, 30) and data type int64
+[     3s] span2: done
+[     3s] span3: done
+[     3s] span4: building pair table (2396 extras)
+[   103s] span4: pair table 17215260 rows [99s]
+[   103s] span4: 0 dependent 2-subsets
+[   179s] span4: 100 candidates [175s]
+[   179s] span4: full-support sets 0, types {}, words 0
+[   213s] orbit check: True
+[   213s] A_8(RM_7(20,4)) = 436272744600

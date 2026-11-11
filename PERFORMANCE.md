@@ -365,8 +365,8 @@ show. Data: `runs/weighted/rigorous_savings.json` (`scratchpad/rigorous_saving.p
 |---|---|---|---|
 | [[2093,308,5]]_7 | 1.4e-3 | **1.27x** / 4.11x (4.11x) | **2.94x** / 2.94x (2.94x) |
 | [[1746,270,6]]_7 | 2.5e-3 | **1.33x** / 4.32x (4.32x) | **3.09x** / 3.60x (3.60x) |
-| **[[1746,270,7]]_7** (seed 19, census 2026-11-01: A_7 = 276, L_7 = 193) | 3.4e-3 (3.55e-3 with the weight-8 bound) | **4.32x** / 4.32x (4.32x) | ~~3.09x~~ **3.60x** / 3.60x (3.60x) |
-| [[1756,260,7]]_7 | 3.4e-3 (3.53e-3) | **4.14x** / 4.14x (4.14x) | ~~2.96x~~ **3.44x** / 3.44x (3.44x) |
+| **[[1746,270,7]]_7** (seed 19, census 2026-11-01: A_7 = 276, L_7 = 193) | 3.4e-3 (3.70e-3 with the weight-8 and weight-9 bounds) | **4.32x** / 4.32x (4.32x) | ~~3.09x~~ **3.60x** / 3.60x (3.60x) |
+| [[1756,260,7]]_7 | 3.4e-3 (3.68e-3) | **4.14x** / 4.14x (4.14x) | ~~2.96x~~ **3.44x** / 3.44x (3.44x) |
 
 **Weight-8 bound (2026-11-11, `WEIGHTED_SUPPORTS.md`).** For the two d = 7 sphere codes the weight-8 Singleton term
 (~1e23 words) is replaced by a proved N_8 <= 9.5e16 (block words <= 6 C(402,8); mixed words from the exact
@@ -390,7 +390,7 @@ keep only 1.3x. At 1e-3 -> 1e-30 all three are entered at 1e-9 and prove 3.0-3.1
 *the gamma < 1 code is the one whose cost saving survives a proof*, because distance is what the
 rigorous tail rewards; the surrogate's preference for rate rests on the (unproved, but
 random-model-expected) absence of weight-8 words. Both statements belong in a cost claim. The
-rigorous thresholds (one round provably improves below 0.14-0.34%) are the first rigorous
+rigorous thresholds (one round provably improves below 0.14-0.34%; 0.370% for [[1746,270,7]]_7 with the 2026-11-11 weight-8 and weight-9 bounds) are the first rigorous
 threshold statements for these codes.
 
 **[[1746,270,6]]₇ (m = 4, sphere charge, 2026-10-26)**: γ = 1.042, the best p = 7 γ before that

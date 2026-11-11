@@ -168,6 +168,21 @@ RM20_A8 = 436_272_744_600                       # scratchpad/rm20_w8_count.py, r
 RM20_A567 = 17_287_200 + 11_524_800 + 18_110_400
 
 
+RM20_A9 = 9_202_538_394_000                     # scratchpad/rm20_wW_count.py 9, runs/weighted/rm20_w9_count_v2.json
+
+
+def sphere_weight9_bound(block_columns: int, p: int = 7) -> int:
+    """Proved upper bound on the weight-9 kernel words of a d = 7 sphere-charge code (as sphere_weight8_bound):
+    block words <= 126 per 9-set (subcode of dimension <= 3 and distance >= 7; a [9,3,7] MDS code has 126 words of
+    weight 9, smaller dimensions fewer); mixed words with a weight-5 line part and 4 block columns <= A_5 (p-1)^4
+    C(b,4) (completions not unique); with 6, 7, 8 non-class points the completion of weight 3, 2, 1 is unique (two
+    differ by a block word of weight <= 6), <= A_6 + A_7 + A_8; with 9 non-class points <= A_9(RM_7(20,4))."""
+    assert p == 7
+    b = block_columns
+    return (126 * math.comb(b, 9) + 17_287_200 * (p - 1) ** 4 * math.comb(b, 4)
+            + 11_524_800 + 18_110_400 + RM20_A8 + RM20_A9)
+
+
 def sphere_weight8_bound(block_columns: int, p: int = 7) -> int:
     """Proved upper bound on the number of weight-8 kernel words of a d = 7 sphere-charge code (p = 7, m = 4,
     r = 7) whose class block has ``block_columns`` input columns."""

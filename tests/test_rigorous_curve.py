@@ -96,3 +96,16 @@ def test_heavier_weights_validation():
         RigorousBoundCurve("c", 7, 100, 5, 7, 1.0, 6, heavier={9: (10, 10)})
     with pytest.raises(AssertionError):
         RigorousBoundCurve("c", 7, 100, 5, 7, 1.0, 6, heavier={8: (10, 11)})
+
+
+def test_weight9_bound_tightens_further():
+    from qmsd.rigorous_curve import RigorousBoundCurve, sphere_weight8_bound, sphere_weight9_bound, RM20_A9
+    from math import comb
+    N8, N9 = sphere_weight8_bound(402), sphere_weight9_bound(402)
+    assert RM20_A9 == 9_202_538_394_000
+    assert 1.0e20 < N9 < 1.2e20 and N9 < comb(1746, 9) * 7 ** 3 * 1e-5      # far below Singleton
+    c8 = RigorousBoundCurve("c", 7, 1746, 270, 7, 193.2, 276, heavier={8: (N8, N8)})
+    c9 = RigorousBoundCurve("c", 7, 1746, 270, 7, 193.2, 276, heavier={8: (N8, N8), 9: (N9, N9)})
+    for e in (1e-6, 1e-5, 1e-4):
+        assert float(c9.f_hi(e)) < float(c8.f_hi(e)) and float(c9.f_hi(e)) > float(c9.f_lo(e))
+    assert c9.threshold_eps >= c8.threshold_eps

@@ -1,0 +1,21 @@
+[  1835s] span2: 42881 candidates [1832s]
+[  1987s] span2: full-support sets 42881, types {'nullity2:full12:frames420': 2100, 'nullity2:full30:frames384': 1200, 'nullity1:full6:frames456': 9633, 'nullity1:full6:frames462': 11858, 'nullity1:full6:frames444': 407, 'nullity1:full6:frames468': 16965, 'nullity1:full6:frames450': 700, 'nullity1:full6:frames432': 18}, words 9202538394000
+[  1987s] span3: building pair table (339 extras)
+[  1988s] span3: pair table 343746 rows [1s]
+[  1990s] span3: 23310 dependent 4-subsets
+[  2365s]     circuits5: c=0/339, found 1221
+[  3150s]     circuits5: c=50/339, found 39412
+[  3577s]     circuits5: c=100/339, found 53364
+[  3834s]     circuits5: c=150/339, found 57292
+[  3972s]     circuits5: c=200/339, found 58672
+[  4034s]     circuits5: c=250/339, found 59907
+[  4067s]     circuits5: c=300/339, found 61118
+[  4076s] span3: 71397 candidates [2089s]
+[  4194s] span3: full-support sets 0, types {}, words 0
+[  4194s] span4: building pair table (2396 extras)
+[  4273s] span4: pair table 17215260 rows [79s]
+[  4319s] span4: 100 dependent 3-subsets
+[  4369s] span4: 29750 candidates [175s]
+[  4405s] span4: full-support sets 0, types {}, words 0
+[  4648s] orbit check: True
+[  4648s] A_9(RM_7(20,4)) = 9202538394000

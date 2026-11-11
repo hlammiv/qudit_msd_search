@@ -387,9 +387,46 @@ above at weight 8, and Singleton from weight 9:
 On the default grid the proved all-species savings now equal the optimistic bound for both codes. The
 proved 1e-3 protocol becomes [[6,1,?]]₇ RS → code, at 39.2 states and 171 gates per output, against
 [[7,1,3]]₇ → code at 45.6 and 209. The remaining raw-U-only gap at 1e-3 sits at ε = 7.5 × 10⁻⁶, where the
-weight-9 Singleton term binds. A weight-9 bound would need block completions of weight 4, which are no
-longer unique. The argument needs d = 7 and the class-block structure. It does not apply to
+weight-9 Singleton term binds; the weight-9 bound below closes most of it. The argument needs d = 7 and the class-block structure. It does not apply to
 [[1746,270,6]]₇ or to the unit-charge [[2093,308,5]]₇.
+
+### Weight 9 (2026-11-11, `scratchpad/rm20_wW_count.py 9`, `runs/weighted/rm20_w9_count_v2.json`)
+
+The weight-9 bound does not need unique completions everywhere. With crude counts where completions are not unique,
+it gives
+
+N₉ ≤ 126·C(b,9) + A₅·6⁴·C(b,4) + A₆ + A₇ + A₈ + A₉(RM₇(20,4)).
+
+- **Block words.** The subcode on a 9-set has dimension ≤ 3 and distance ≥ 7. The [9,3,7] MDS code has
+  342 − 9·48 + 36·6 = 126 words of weight 9, and smaller dimensions have fewer.
+- **Weight-5 line part plus 4 class columns.** Each completion is one of the 6⁴·C(b,4) weight-4 block vectors, so no
+  uniqueness is needed.
+- **6, 7 or 8 non-class points.** The completion has weight 3, 2 or 1 and is unique.
+- **9 non-class points.** These are the weight-9 words of RM₇(20,4).
+
+The bound gives N₉ ≤ 1.11 × 10²⁰ for [[1746,270,7]]₇ and 1.35 × 10²⁰ for [[1756,260,7]]₇, against the Singleton
+1.4 × 10²⁶.
+
+**A₉ of RM₇(20,4) = 9 202 538 394 000, all planar.** The counter generalises the weight-8 enumeration, and
+rerun at W = 8 it reproduces A₈ exactly. In span 3 and span 4 it takes every candidate set, including those
+containing a dependent smaller subset whose last point lies in its span, plus the extras that form a circuit
+(collisions between pair directions and pair or triple directions). Neither span yields a full-support set
+(71 397 and 29 750 candidates). Span 2 (C(46,6) sets) has 42 881 full-support frame sets in 8 types: 6 types
+of nullity 1, plus 2 100 sets of nullity 2 with 12 full-support vectors and 1 200 sets of nullity 2 with 30.
+Orbit check: 139 650 · C(49,9).
+
+| with the weight-8 and weight-9 bounds | [[1746,270,7]]₇ | [[1756,260,7]]₇ |
+|---|---|---|
+| f_hi(10⁻⁶) | 5.9e-38 | 7.2e-38 |
+| rigorous threshold | **0.370 %** | **0.368 %** |
+| raw U only, 1e-3 → 1e-30 | 1.90× → **2.00×** (estimate 2.05×) | 1.83× → **1.92×** (estimate 1.97×) |
+| 30 % species spread (r = 1.3), 1e-3 → 1e-30 | 3.18× → **3.58×** (= estimate) | – |
+
+All other grid entries are unchanged, because weight 8 had already made them optimal. With up to 30 % species
+spread, proved now equals the estimate at every entry of the sensitivity table. At r = 2–3 the 1e-2 entries
+(1.31×, 1.08× proved against 4.04×, 3.68× estimated) would need weights ≥ 10. Data:
+`runs/weighted/w89_proved.json`, `species_cost_w89.json`, `species_sensitivity_w89.json`,
+`runs/coverage/total_cost_w89.json` (unchanged from weight 8).
 
 ## Orbit-union output sets (2026-10-31, in progress)
 
@@ -575,10 +612,10 @@ at the worst input error. Saving is cost(library) / cost(library + code) within 
 | Code | ε₀ → target | All three species raw (proved / estimate) | Raw U only (proved / estimate) |
 |---|---|---|---|
 | [[1746,270,7]]₇ | 1e-2 → 1e-30 | 4.32× / 4.32× | 1.00× → **2.00×** / 2.00× |
-| [[1746,270,7]]₇ | 1e-3 → 1e-30 | 3.09× → **3.60×** / 3.60× | 1.78× → **1.90×** / 2.05× |
+| [[1746,270,7]]₇ | 1e-3 → 1e-30 | 3.09× → **3.60×** / 3.60× | 1.78× → 1.90× → **2.00×** / 2.05× |
 | [[1746,270,7]]₇ | 1e-2 → 1e-15 | 1.08× / 1.08× | 1.00× / 1.00× |
 | [[1756,260,7]]₇ | 1e-2 → 1e-30 | 4.14× / 4.14× | 1.00× → **1.92×** / 1.92× |
-| [[1756,260,7]]₇ | 1e-3 → 1e-30 | 2.96× → **3.44×** / 3.44× | 1.71× → **1.83×** / 1.97× |
+| [[1756,260,7]]₇ | 1e-3 → 1e-30 | 2.96× → **3.44×** / 3.44× | 1.71× → 1.83× → **1.92×** / 1.97× |
 | [[2093,308,5]]₇ | 1e-2 → 1e-30 | 1.27× / 4.11× | 1.00× / 4.11× |
 | [[2093,308,5]]₇ | 1e-3 → 1e-30 | 2.94× / 2.94× | 3.65× / 3.65× |
 | [[2093,308,5]]₇ | 1e-2 → 1e-15 | 1.03× / 1.03× | 1.03× / 1.03× |
@@ -637,13 +674,14 @@ set by χ rather than the phases, and the phases enter only as tone phases, so t
 | | 1e-2 → 1e-30 | 1e-3 → 1e-30 |
 |---|---|---|
 | r = 1, w = 1 | 4.32 / 4.32 | 3.60 / 3.60 |
-| r = 1.3, w = 1 | 4.24 / 4.24 | 3.18 / 3.58 |
+| r = 1.3, w = 1 | 4.24 / 4.24 | 3.18 → **3.58** / 3.58 |
 | r = 3, w = 1 | 1.08 / 3.68 | 3.17 / 3.46 |
 | r = 1, w = 2 | 2.44 / 2.44 | 2.52 / 2.52 |
 | r = 1, w = 3 | 1.70 / 1.70 | 1.76 / 1.76 |
 | r = 1, w = 5 | 1.06 / 1.06 | 1.09 / 1.09 |
 
-(Proved column with the weight-8 bound of 2026-11-11, `runs/weighted/species_sensitivity_w8.json`. Before it the proved
+(Proved column with the weight-8 bound of 2026-11-11, `runs/weighted/species_sensitivity_w8.json`; the arrow is the weight-9 bound,
+`species_sensitivity_w89.json`, which changes no other row. Before it the proved
 entries were 4.32, 1.49, 1.08, 2.44, 1.70, 1.06 at 1e-2 and 3.09, 3.09, 3.08, 2.17, 1.51, 1.00 at 1e-3.)
 
 So error differences up to 3× barely move the estimates. A 30 % difference leaves the proved 1e-2 saving at 4.24×

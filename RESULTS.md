@@ -18,8 +18,9 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
   (8 points of an ellipse or a 4 + 4 line pair), A_8 = 436 272 744 600 exactly by frame enumeration. With the class-block
   structure and d = 7 this bounds the weight-8 kernel words of [[1746,270,7]]_7 by 9.5e16, against the Singleton 1e23 that
   held back the proof. Proved savings: 3.60x at 1e-3 -> 1e-30 (was 3.09x), equal to the optimistic bound on the whole grid;
-  raw-U-only 2.00x at 1e-2 -> 1e-30 (was 1.00x); rigorous threshold 0.355 % (was 0.340 %); [[1756,260,7]]_7 likewise
-  (3.44x). `WEIGHTED_SUPPORTS.md`, "Weight-8 words of RM(20,4)".
+  raw-U-only 2.00x at 1e-2 -> 1e-30 (was 1.00x); [[1756,260,7]]_7 likewise (3.44x). A weight-9 bound (A_9(RM_7(20,4)) =
+  9 202 538 394 000, all planar) adds raw-U-only 2.00x at 1e-3 (was 1.78x; estimate 2.05x), proved = estimate up to a 30 % species
+  error spread, and rigorous threshold 0.370 % (was 0.340 %). `WEIGHTED_SUPPORTS.md`, "Weight-8 words of RM(20,4)".
 - **Total cost, magic + Clifford (2026-11-03):** with the one-shot encoder, [[6,1,?]]_7 RS -> [[1746,270,7]]_7 beats the
   best small-code protocol at 1e-3 -> 1e-30 by 2.6x (R = 1 Clifford gate per magic state) to 3.6x (R -> inf; 2.2-3.1x before the
   weight-8 bound of 2026-11-11), and by
@@ -28,12 +29,12 @@ Source documents: `COVERAGE.md`, `WEIGHTED_SUPPORTS.md`, `CERTIFY_P7.md`, `PERFO
 - **Species assumption behind every p = 7 sphere-charge figure (2026-11-04).** These codes consume U, U^2 and U^3 states. If
   raw states of all three species are available at the same eps0 and cost, the savings stand exactly (rescaling charges gives
   each species an identical tower). If only raw U is available, teleporting gives U^2 from 2 U and U^3 from 3 U (3762 U per
-  k = 270 round): [[1746,270,7]]_7 falls to 1.90x proved at 1e-3 -> 1e-30 (estimate 2.05x) and 2.00x proved at 1e-2 -> 1e-30
+  k = 270 round): [[1746,270,7]]_7 falls to 2.00x proved at 1e-3 -> 1e-30 (estimate 2.05x) and 2.00x proved at 1e-2 -> 1e-30
   (was 1.00x before the weight-8 bound of 2026-11-11), its U-count exponent is 1.35 rather than gamma 0.959, and the unit-charge [[2093,308,5]]_7 becomes the best p = 7 code, 3.65x proved at
   1e-3 -> 1e-30. The all-species saving reaches 1x when a U^2 or U^3 raw state costs about 5 U (`WEIGHTED_SUPPORTS.md`,
   "Species accounting"; `runs/weighted/species_cost.json`). Tests of the assumption: confirmed for Pauli noise and for any noise
   before an ideal diagonal gate; non-Pauli noise after the gate spreads eps by 30 %, which barely changes estimated costs (at 1.3 eps0 the
-  proved 1e-3 saving goes 3.60x -> 3.18x and the proved 1e-2 saving 4.32x -> 4.24x; 1.49x before the weight-8 bound). Virtual diagonal gates exist on transmon qudits, but no measured
+  proved savings are 3.58x at 1e-3 and 4.24x at 1e-2, equal to the estimates, with the weight-8 and weight-9 bounds; 1.49x at 1e-2 before them). Virtual diagonal gates exist on transmon qudits, but no measured
   fidelity at d = 7. [[1746,270,7]]_7 leads the species-free [[2093,308,5]]_7 by 5-18 % on like curves (w = 1) and falls behind it once a raw U^2 or U^3 costs about 1.1-1.3 U.
 
 - **Clifford cost is not prohibitive (2026-11-02).** With a one-shot round (code state on the whole grid,
@@ -227,7 +228,7 @@ and 1e16 (d = 7) above the respective surrogates, but its absolute level falls w
 4.14x, while the d = 5, 6 codes must enter from a [[20,1,4]]_7 round and keep 1.3x. The surrogate prefers
 rate ([[1746,270,6]]_7 at 48.7 beats 50.8) because it assumes the random-model-expected absence of
 weight-8 words; the proof favours distance, and the rigorous thresholds (one round provably improves
-below 0.14-0.34%) are the first rigorous threshold statements for these codes (`PERFORMANCE.md`).
+below 0.14-0.34%; 0.370% for [[1746,270,7]]_7 with the 2026-11-11 weight-8 and weight-9 bounds) are the first rigorous threshold statements for these codes (`PERFORMANCE.md`).
 
 Exact-engine context (`PERFORMANCE.md`): the exact per-output coefficient is 2.6-5x A_d/k on small codes and
 ~85x on [[519,106,5]]_5 (1.49 eps^5, eps* = 0.04314); A_d optimisation lowers the leading coefficient

@@ -8,14 +8,23 @@ import json
 from qmsd.rigorous_curve import RigorousBoundCurve, from_census, rigorous_saving
 from qmsd.objective import standard_library
 
-from qmsd.rigorous_curve import sphere_weight8_bound, RM20_A8
+from qmsd.rigorous_curve import sphere_weight8_bound, sphere_weight9_bound, RM20_A8, RM20_A9
+import os
 assert RM20_A8 == json.load(open("runs/weighted/rm20_w8_count.json"))["A8_RM20"]
+assert RM20_A9 == json.load(open("runs/weighted/rm20_w9_count_v2.json"))["A9_RM20"]
+W9 = os.environ.get("W8_ONLY") is None          # default since 2026-11-11 03:00: weights 8 and 9
 
 def upgrade(c, block):
     """the census curve c with the proved weight-8 bound (library: RigorousBoundCurve.heavier)"""
     assert c.d == 7
     N8 = sphere_weight8_bound(block)
-    return RigorousBoundCurve(c.name, c.p, c.n, c.k, c.d, c.L_d, c.A_d, heavier={8: (N8, N8)}), N8
+    h = {8: (N8, N8)}
+    if W9:
+        N9 = sphere_weight9_bound(block); h[9] = (N9, N9)
+    import os
+    if os.environ.get("W9_TEST") and not W9:                     # hypothetical weight-9 bound, for sensitivity tests only
+        X = int(float(os.environ["W9_TEST"])); h[9] = (X, X)
+    return RigorousBoundCurve(c.name, c.p, c.n, c.k, c.d, c.L_d, c.A_d, heavier=h), N8
 
 if __name__ == "__main__":
     base = standard_library(7); out = {}
@@ -31,4 +40,4 @@ if __name__ == "__main__":
             out[c.name]["rows"].append({"eps0": a["eps0"], "target": a["target"], "proved_old": a["saving_proved"], "proved_new": b["saving_proved"],
                                         "optimistic": a["saving_optimistic"], "protocol_new": b["protocol_proved"], "chain_check": b["reaches_target_check"]})
             print(f"   {a['eps0']:g} -> {a['target']:g}: proved {a['saving_proved']:.3f} -> {b['saving_proved']:.3f} (optimistic {a['saving_optimistic']:.3f}) {b['protocol_proved']} check={b['reaches_target_check']}")
-    json.dump(out, open("runs/weighted/w8_proved.json", "w"), indent=1)
+    json.dump(out, open("runs/weighted/w8_proved.json" if not W9 else "runs/weighted/w89_proved.json", "w"), indent=1)
