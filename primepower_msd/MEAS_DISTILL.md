@@ -1139,6 +1139,23 @@ the escape's own clean-frame failures, which priors don't touch.  So: (i) at 10�
 gives 666 attempts/output at the central value (vs 867 at no-prior cut 12), but no cut has a 90% UL inside the one-round window
 (≲4×10⁻⁵).  Settling it needs ~10⁷ clean frames.  (iii) at d = 8, priors remain the fix for the moved cut (603 vs 782).
 
+**d = 16, closed window, no priors** (lenore, EKR_D = 16, 4×10⁶ + 10⁶ clean, 10⁻³, 2026-11-11; w ≈ 0.99):
+
+| cut | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|---|
+| err | 4.0×10⁻⁴ | 3.4×10⁻⁴ | 2.1×10⁻⁴ | 1.9×10⁻⁴ | 1.8×10⁻⁴ | 1.8×10⁻⁵ | 2.1×10⁻⁵ |
+| events (res + clean) | 15+22 | 14+14 | 12+4 | 11+2 | 10+1 | 1+0 | 1+0 |
+| 90% UL | 5.5×10⁻⁴ | 4.9×10⁻⁴ | 3.5×10⁻⁴ | 3.2×10⁻⁴ | 3.2×10⁻⁴ | 1.1×10⁻⁴ | 1.3×10⁻⁴ |
+| att/kept | 43.9 | 49.1 | 53.7 | 59.2 | 66.0 | 73.2 | 83.6 |
+
+The residual-frame plateau continues one step further: the error drop is at cut 10→11 (d = 4: 6→7, d = 8: 8→9), i.e. the
+cut moves by 2 per doubling of d, as the pinned gap of the misdecoded frame would (6.2, 8.2, ~10.2; not yet confirmed by a
+d = 16 dump).  The clean floor is d-independent (clean events at cut ≥ 8 are 4 / 2 / 1, as at d = 4).  Footprints at 10⁻³
+without priors: 10⁻¹⁰ = 10 056 qudits at cut 11, 1 098 attempts/output (one round also at the UL); cut 8 is one round only at
+its central value (808).  10⁻¹² at cut 11 is one round at the central value (13 512 q, 1 098), two at the UL.  So without
+priors the 10⁻¹⁰ cost per output grows 525 → 782 → 1 098 for d = 4 → 8 → 16; priors (d = 8: 603) are expected to remove most
+of that, which needs a d = 16 dump → priors → run.
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
