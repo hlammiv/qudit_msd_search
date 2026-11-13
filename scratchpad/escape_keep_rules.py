@@ -52,7 +52,7 @@ def run_all(variant, F, n_clean, p, jobs):
     tasks = [(F[i:i + SLICE], len(F[i:i + SLICE])) for i in range(0, len(F), SLICE)]
     tasks += [(None, min(SLICE, n_clean - i)) for i in range(0, n_clean, SLICE)]
     jobs_all = [(k, b) for k in range(len(tasks)) for b in "ZX"]
-    ck = CKPT and f"{CKPT}/{variant}_d{D}_p{p:g}_s{SEED_OFF}_c{n_clean}"
+    ck = CKPT and f"{CKPT}/{variant}_d{D}_p{p:g}_s{SEED_OFF}_c{n_clean}" + (f"_pri-{os.path.basename(PRIORS)[:-4]}" if PRIORS else "") + (f"_sl{SLICE}" if SLICE != 50_000 else "")
     done = {}
     if ck:
         os.makedirs(ck, exist_ok=True)
@@ -106,6 +106,9 @@ def main():
     F = np.zeros((len(Fc), 19, 2), dtype=np.int64)
     F[:, perm, :] = Fc
     print("cultivation", cfg, "accepted", acc, "nontrivial", len(F), "s", round(time.time() - t), flush=True)
+    if os.environ.get("EKR_FRAMES_ONLY"):    # residual frames only (input to make_priors.py), no escape decoding
+        np.savez_compressed(os.environ["EKR_FRAMES_ONLY"], frames=F.astype(np.int8), d=D, accepted=acc)
+        print("saved frames", len(F), flush=True); return
     for variant in sys.argv[6].split(","):
         t = time.time()
         Z, X = run_all(variant, F, n_clean, p, jobs)
