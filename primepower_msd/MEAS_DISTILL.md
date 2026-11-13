@@ -1139,6 +1139,21 @@ the escape's own clean-frame failures, which priors don't touch.  So: (i) at 10�
 gives 666 attempts/output at the central value (vs 867 at no-prior cut 12), but no cut has a 90% UL inside the one-round window
 (≲4×10⁻⁵).  Settling it needs ~10⁷ clean frames.  (iii) at d = 8, priors remain the fix for the moved cut (603 vs 782).
 
+*10⁷ clean frames* (d = 4 + priors, EKR_SEED = 300000, 4×10⁶ shots + 10⁷ clean, w ≈ 0.10; lenore 100 slices + local 306,
+per-slice checkpoints; 2026-11-13).  Pooled with seed 200000 (90% UL = residual and clean Poisson limits added):
+
+| cut | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|
+| err (res + clean events) | 1.03×10⁻⁴ (4+98) | 5.2×10⁻⁵ (1+55) | 3.1×10⁻⁵ (1+29) | 1.4×10⁻⁵ (0+9) | 1.3×10⁻⁵ (0+6) | 1.2×10⁻⁵ (0+2) |
+| 90% UL | 1.5×10⁻⁴ | 8.9×10⁻⁵ | 6.9×10⁻⁵ | 3.7×10⁻⁵ | 3.7×10⁻⁵ | 3.4×10⁻⁵ |
+| att/kept | 40.7 | 44.5 | 51.2 | 60.6 | 69.1 | 83.3 |
+
+Settled: **10⁻¹² at 10⁻³ in one [[7,1,3]] round at the 90% UL = d = 4 + priors, closed cut 10: D = 29, 13 512 qudits, 909
+attempts/output** (cut 9: one round only at the central value, 768).  Above cut 9 the error is almost all clean-frame (escape
+intrinsic) failures, and the UL floor ~3.5×10⁻⁵ is now set by the residual sample (0 events in 2×10⁵ kept), so a further gain
+needs more cultivation shots, not more clean frames.  The earlier no-prior 10⁻¹² figure (cut 12, 867) rests on 10⁵ clean
+frames and is superseded.  At 10⁻¹⁰ the priors cut 7 gives 611 (UL one round) vs 525 for the no-prior cut 7 at 1.4–1.6×10⁻⁴.
+
 **d = 16, closed window, no priors** (lenore, EKR_D = 16, 4×10⁶ + 10⁶ clean, 10⁻³, 2026-11-11; w ≈ 0.99):
 
 | cut | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
