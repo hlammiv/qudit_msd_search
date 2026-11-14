@@ -1183,7 +1183,12 @@ closed window).
   and drops to 11 at cut 7; with priors 1 at cut 6.  Cut 6 with priors: 1.5×10⁻⁵ (1+5, UL 3.1×10⁻⁵) at 5.6 att/kept; no priors
   cut 7: 3.5×10⁻⁵ (11+7) at 5.6, reproducing seed 0's 2.8×10⁻⁵.  Footprints unchanged (10⁻¹⁰ = 4 680 q, 84 attempts; 10⁻¹² = 7 112
   q, 84 attempts, either way): at 5×10⁻⁴ the escape is not the limit.
-- 7×10⁻⁴: priors built, the validation pair was stopped at 8/46 slices each (checkpointed on lenore) to let the others finish.
+- d = 4, 7×10⁻⁴ (4×10⁶ + 10⁶ clean, w ≈ 1.5; resumed from 8/46 checkpointed slices, 2026-11-14).  Without priors the plateau is
+  113 residual events at cut 6, 9 at cut 7 (7.8×10⁻⁵, UL 1.2×10⁻⁴, 11.4 att/kept; seed 0: 6.5×10⁻⁵); with priors 0 residual
+  events from cut 6 (6.9×10⁻⁵, all clean, 12.0 att/kept).  10⁻¹⁰ unchanged: 5 832 qudits, 171 attempts/output (no priors cut 7).
+  10⁻¹² in one round at the 90% UL: no priors cut 9 (2.5×10⁻⁵, UL 5.5×10⁻⁵): D = 25, 10 056 qudits, 189 attempts/output; with
+  priors cut 9 (UL 2.9×10⁻⁵): 213.  So at 7×10⁻⁴ (as at 5×10⁻⁴) the priors remove the residual failures but do not change the
+  recipe; they matter at 10⁻³ and above d = 4.
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
