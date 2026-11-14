@@ -1171,6 +1171,20 @@ its central value (808).  10⁻¹² at cut 11 is one round at the central value 
 priors the 10⁻¹⁰ cost per output grows 525 → 782 → 1 098 for d = 4 → 8 → 16; priors (d = 8: 603) are expected to remove most
 of that, which needs a d = 16 dump → priors → run.
 
+*d = 16 priors and 5×10⁻⁴ priors* (lenore, 2026-11-14; priors from the seed-0 residual frames, `EKR_FRAMES_ONLY` +
+`make_priors.py`: 11 724 / 4 847 distinct frames; validated at EKR_SEED = 100000 without → with priors on the same shots,
+closed window).
+- d = 16, 10⁻³ (4×10⁶ + 10⁵ clean, w ≈ 9.9).  Without priors the replica reproduces seed 0: residual plateau 12 / 12 / 10 / 8 / 8
+  events at cuts 6–10, zero from cut 11.  With priors: residual failures 0 from cut 5 (cut 4: 2+3, cut 5: 0+1 → 1.1×10⁻⁴ at
+  43.7 att/kept; cut 6: 0+1, 1.2×10⁻⁴; cut 7: 0 events, 57.2).  The cut is d-independent again (5–7 at d = 4, 8, 16).
+  10⁻¹⁰ at 10⁻³: cut 5 → 10 056 qudits, 657 attempts/output at the central value (no priors: 1 098), close to d = 8's 603.
+  The UL (single clean event of weight 9.9, UL 4.5×10⁻⁴) is limited by the 10⁵-frame clean sample, not by residual frames.
+- d = 4, 5×10⁻⁴ (4×10⁶ + 10⁶ clean, w ≈ 2.0).  Same frame type: without priors the residual plateau is 176 events at cut 6
+  and drops to 11 at cut 7; with priors 1 at cut 6.  Cut 6 with priors: 1.5×10⁻⁵ (1+5, UL 3.1×10⁻⁵) at 5.6 att/kept; no priors
+  cut 7: 3.5×10⁻⁵ (11+7) at 5.6, reproducing seed 0's 2.8×10⁻⁵.  Footprints unchanged (10⁻¹⁰ = 4 680 q, 84 attempts; 10⁻¹² = 7 112
+  q, 84 attempts, either way): at 5×10⁻⁴ the escape is not the limit.
+- 7×10⁻⁴: priors built, the validation pair was stopped at 8/46 slices each (checkpointed on lenore) to let the others finish.
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
