@@ -1,0 +1,6 @@
+t=40: off-Y columns 303, rank H5 16, rank H6 44
+d'-words (weight 4, projective): 120 [9s]
+full code: n=606 k=80 rank G0=60
+(i) cross words: 340 (of which (a'|-a') type: 120) [9s]
+(ii) line-pair 8-sets tested 9829, d''-words found 110 [64s]
+{'t': 40, 'sample': 0, 'n': 606, 'k': 80, 'd': 8, 'dprime_words': 120, 'cross_words_i': 340, 'paired_type': 120, 'dpp_words_found_ii_lines': 110, 'dpp_words_ii_vectors_in_code': 220, 'A8_found': 3360, 'L8_found': 252.0, 'fails_max': 372, 'fails_min': 108, 'part_ii_complete': False, 'seconds': 63.74369215965271}

@@ -1,0 +1,7 @@
+t=46 s=0: [[594,92]] d'=4 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.041; full-code weight<=4 word: None [17s]
+t=46 s=1: [[594,92]] d'=4 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.041; full-code weight<=4 word: None [27s]
+t=46 s=2: [[594,92]] d'=3 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.041; full-code weight<=4 word: None [21s]
+t=48 s=0: [[590,96]] d'=3 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.013; full-code weight<=4 word: None [19s]
+t=48 s=1: [[590,96]] d'=3 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.013; full-code weight<=4 word: None [25s]
+t=48 s=2: [[590,96]] d'=3 d''=>5 -> d=min(2d',d'') >=6; gamma<=1.013; full-code weight<=4 word: None [28s]
+t=50 s=0: [[586,100]] d'=2 d''=>5 -> d=min(2d',d'') >=4; gamma<=1.275; full-code weight<=4 word: 4 [23s]

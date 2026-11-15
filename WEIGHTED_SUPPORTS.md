@@ -568,6 +568,93 @@ on: with only 205 - k checks over ~930 columns, the distance collapses quickly a
 0.982, unless a charge with a vanishing-stabiliser block at r = 6 is found (the sphere * x1 x2 x3
 charge has 2 such stabilisers; sphere (sphere+1) x1 has 16 but a larger support).
 
+## Single-species codes: paired caps on two parallel hyperplanes (2026-11-14)
+
+**Result.** [[596,90,8]]₇ (γ = 0.909) and [[606,80,8]]₇ (γ = 0.974), both d = 8 exactly, both using only the U species
+(charges ±1). These are the first γ < 1 codes at p = 7 that do not need raw U² or U³ states, and γ 0.909 is below the
+all-species [[1746,270,7]]₇ (0.959).
+
+**Why the sphere route cannot give this.** At r = 7, m = 4 the charge budget is degree 2. A nonconstant univariate polynomial of
+degree ≤ 2 over F₇ takes at least 4 values, so a {0, ±1}-valued charge is constant on every line, and therefore constant. The only
+single-species support at r = 7 is the full unweighted space ([[2093,308,5]]₇, γ 1.19). At r = 6 (budget 5),
+g = x₁(x₁−1)(x₁−2)(x₁−3)(x₁−4) equals +1 on x₁ = 5 and −1 on x₁ = 6. Its support is two parallel hyperplanes (686 points). U and
+U⁻¹ are Clifford-equivalent, so this is one species. Its rank is 140.
+
+**Structure.** On the two hyperplanes RM(6,4) restricts to the Plotkin code C = {(a, a+b): a ∈ RM(6,3), b ∈ RM(5,3)}, whose dual is
+{(e₁, e₂): e₁ ∈ RM(12,3), e₁+e₂ ∈ RM(11,3)} (dual distance 14). A word e of ker G0 is the off-S part of a dual word. With random
+outputs one hyperplane's outputs absorb the RM(11,3) coset, so a line of the other hyperplane carrying 2 outputs leaves a weight-5 word
+(probe: k = 105, 35 checks, d = 5; `runs/weighted/p7_m4_r6_2hp_probe.log`).
+
+**Paired outputs.** Put the outputs over the same set Y ⊂ AG(3,7) in both hyperplanes, S = Y × {5, 6}, with Y independent for RM(6,3)
+and RM(5,3) (k = 2|Y|). For a dual word (a, b), with a, b ∈ RM(12,3) and a + b ∈ RM(11,3), the off-S weight is |a∖Y| + |b∖Y|. So
+
+  **d = min(2d′(Y), d″(Y))**, with d′ (d″) the least number of points off Y over nonzero words of RM(12,3) = RM(5,3)^⊥
+  (RM(11,3) = RM(6,3)^⊥),
+
+that is, the distances of the m = 3 codes RM(5,3) and RM(6,3) shortened at Y. The lower bound comes from the cases (both a and b
+nonzero ⇒ ≥ 2d′; a = 0 or b = 0 ⇒ ≥ d″). Equality holds because (a, −a) with a a d′-word, and (a, 0) with a a d″-word, are dual words.
+Consequences:
+- Any two points of Y lie on a line (7 points, a word of RM(12,3)), so d′ ≤ 5 and d ≤ 10. Two parallel coplanar lines form a
+  weight-14 word of RM(11,3), so d″ ≤ 14 − (points of Y on them).
+- d = 10 needs a cap (no 3 collinear). Random greedy caps saturate at about 22 points (γ ≈ 1.16), and large caps (the elliptic
+  quadric, 42 affine points) are dependent for RM(5,3). The useful regime is d = 8: Y with no 4 collinear, d′ = 4, d″ ≥ 8.
+  γ < 1 at d = 8 needs |Y| ≥ 39.
+
+**Certification is cheap.** The certificate is on F₇³ (≤ 303 columns), not on the ~600-column code:
+
+| \|Y\| (no 4 collinear, random) | code | d′ | d″ | d | γ |
+|---|---|---|---|---|---|
+| 40 | [[606,80,8]]₇ | 4 | ≥ 8 (no word of weight ≤ 7; 3+4 witness, 4.5 h on lenore) | **8** | **0.974** |
+| 45 | [[596,90,8]]₇ | 4 | ≥ 8 (same, 4.3 h) | **8** | **0.909** |
+| 46 | [[594,92]] | 4, 4, 3 (3 draws) | – | ≤ 8 | (≤ 0.926 if d″ ≥ 8) |
+| 48 | [[590,96]] | 3, 3, 3 | – | ≤ 6 | – |
+| 50 | [[586,100]] | 2 | – | 4 | – |
+
+Independent checks of the formula on the full 4-variable code:
+- t = 50, d′ = 2: the full-code MITM finds weight 4 and nothing lighter.
+- t = 46 (third draw), d′ = 3: the d′ word lifted as (a | −a) is a weight-6 word of ker G0, and the full code has no word of weight ≤ 5
+  (`scratchpad/validate_paired_constructive.py`).
+- t = 40, 45: the full code has no word of weight ≤ 4.
+
+Scripts:
+- `scratchpad/probe_2hp.py` (random outputs)
+- `scratchpad/probe_paired_cap.py` (Y builder, d′, d″ to weight 5)
+- `scratchpad/cert_d2_paired.py` (d″ to weight 7)
+- `scratchpad/validate_paired_*.py`
+
+Data: `runs/weighted/pc_smoke.json` (the two certified Y sets), `pc_cert_t{40,45}.{json,log}`, `p7_r6_paired_cap_sweep.{json,log}`.
+
+**Weight-8 census (2026-11-14, `scratchpad/census_paired_w8.py`, `isd_paired_w8.py`, `isd_compare.py`).** Every weight-8 word is
+either (i) a pair (a′, b′) of weight-4 d′-words, one on each hyperplane, with matching G0 syndromes (this includes (a′ | −a′)), or
+(ii) a weight-8 d″-word on one hyperplane (counted on both). Part (i) is exact (2+2 MITM). For part (ii), the words supported on two
+lines that carry 6 points of Y were found by testing every such pair of lines. A Stern ISD found the same set: 6 seeds × 3,500
+iterations per code, about 2.3 h per seed on lenore. The union of the seeds equals the line-pair family. Each [[596,90,8]] seed alone
+finds 98.8% of it, and nothing outside it turned up. So L₈ is complete numerically but not proved:
+
+| code | d′-words | (i) words (paired) | (ii) d″-words | A₈ | L₈ (mean / min / max per output) |
+|---|---|---|---|---|---|
+| [[596,90,8]]₇ | 203 | 633 (203) | 215 | 6,378 | 599 / 426 / 786 |
+| [[606,80,8]]₇ | 120 | 340 (120) | 110 | 3,360 | 252 / 108 / 372 |
+
+**Cost (leading-order estimate; `scratchpad/paired_cap_cost.py`, `runs/weighted/paired_cap_cost.json`).** Saving against the p = 7
+library in the two species scenarios of "Species accounting". The paired-cap codes need only U, so their figure is the same in both.
+
+| ε₀ → target | [[1746,270,7]]₇ all species (proved) | [[1746,270,7]]₇ raw U only (proved / est.) | **[[596,90,8]]₇** | [[606,80,8]]₇ |
+|---|---|---|---|---|
+| 1e-2 → 1e-15 | 1.08× | 1.00× | 1.07× | 1.00× |
+| 1e-2 → 1e-30 | 4.32× | 2.00× | **4.28×** | 3.73× |
+| 1e-3 → 1e-15 | 1.00× | 1.00× | **2.40×** | 2.07× |
+| 1e-3 → 1e-30 | 3.60× | 2.00× / 2.05× | **3.52×** (4.37× against the raw-U-only base, 175.1) | 3.08× (3.82×) |
+
+The single-species [[596,90,8]]₇ matches the all-species sphere code and about doubles its saving when only U is available raw. It is
+the first code to save at 1e-3 → 1e-15. These are estimates: unlike the sphere figures, there is no proved tail yet.
+
+**Open:**
+1. A proof of part (ii): every weight-8 word of RM(11,3) off Y lies on two lines.
+2. Proved curves (the `heavier` bound of `rigorous_curve.py` needs N₉, N₁₀ for this code).
+3. Optimised Y. Random sets lose d′ = 4 at |Y| ≈ 46–48. |Y| = 50 would give [[586,100,8]]₇, γ 0.851.
+4. Threshold and Clifford cost.
+
 ## Do weighted supports reopen p = 3, 11, 13? (2026-10-28, exploratory)
 
 The no-go of `D_NEGATIVE_RESULT.md` is for unweighted evaluation codes; the p = 7 code is weighted.
