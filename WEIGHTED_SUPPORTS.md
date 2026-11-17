@@ -695,6 +695,10 @@ Proved (`scratchpad/proved_paired_cost.py`, `runs/weighted/proved_paired_cost.js
 L₈ = 599 are proved. Proved savings with the same bounds: 1.07×, 4.23× (estimate 4.28×), 2.40×, 3.52× (4.37× against the raw-U base).
 Proved threshold 1.46%. [[592,94,8]]₇ is better in every cell.
 
+[[606,80,8]]₇ exact census (lenore and local agree, 2026-11-17): **110 d″-words, exactly the line-pair family**. A₈ = 3,360 and
+L₈ = 252 are proved. Proved savings: 1.00×, 3.69× (estimate 3.73×), 2.07×, 3.08× (3.82× against the raw-U base). Proved threshold 1.44%.
+All three paired-cap codes are now proved (`runs/weighted/proved_paired_cost.json`).
+
 **Open:**
 1. A proof of part (ii): every weight-8 word of RM(11,3) off Y lies on two lines.
 2. Proved curves (the `heavier` bound of `rigorous_curve.py` needs N₉, N₁₀ for this code).
