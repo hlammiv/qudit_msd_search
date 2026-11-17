@@ -606,7 +606,7 @@ Consequences:
 |---|---|---|---|---|---|
 | 40 | [[606,80,8]]₇ | 4 | ≥ 8 (no word of weight ≤ 7; 3+4 witness, 4.5 h on lenore) | **8** | **0.974** |
 | 45 | [[596,90,8]]₇ | 4 | ≥ 8 (same, 4.3 h) | **8** | **0.909** |
-| 46 | [[594,92]] | 4, 4, 3 (3 draws) | – | ≤ 8 | (≤ 0.926 if d″ ≥ 8) |
+| 46 | [[594,92]] | 4, 4, 3 (3 draws) | – | ≤ 8 | (0.897 if d″ ≥ 8) |
 | 48 | [[590,96]] | 3, 3, 3 | – | ≤ 6 | – |
 | 50 | [[586,100]] | 2 | – | 4 | – |
 
@@ -648,6 +648,52 @@ library in the two species scenarios of "Species accounting". The paired-cap cod
 
 The single-species [[596,90,8]]₇ matches the all-species sphere code and about doubles its saving when only U is available raw. It is
 the first code to save at 1e-3 → 1e-15. These are estimates: unlike the sphere figures, there is no proved tail yet.
+
+**Grown Y (2026-11-16, `scratchpad/grow_paired_Y.py`).** A greedy search with 1-out-2-in swap moves keeps no 4 collinear, independence and
+d′ = 4. All 1,200 restarts end at |Y| = 47 (random sets stop at 45–46). One such set (`runs/weighted/grow_Y47_a.json`) has d″ ≥ 8
+(no word of weight ≤ 7, 3+4 witness, 14.6 h on a shared lenore), so it gives **[[592,94,8]]₇, γ = 0.885**, also U only. Its H₅ has rank 9,
+so it has many more d′-words: 1,860 against 203. Census: (i) 2,424 words, (ii) 282 line-pair words, A₈ = 17,928, **L₈ = 9,110**. The
+line-pair part has not been checked by ISD, and the exact census is running (`runs/weighted/mitm44/v2_dpp_Y47a.*`). L₈ is 15× that of
+[[596,90,8]]₇, but the leading-order cost is still better (`runs/weighted/paired_cap_cost_y47.json`). It also beats the all-species sphere code:
+
+| ε₀ → target | [[1746,270,7]]₇ all species / raw U | [[596,90,8]]₇ | **[[592,94,8]]₇** |
+|---|---|---|---|
+| 1e-2 → 1e-30 | 4.32× / 2.00× | 4.28× | **4.50×** |
+| 1e-3 → 1e-15 | 1.00× / 1.00× | 2.40× | **2.53×** |
+| 1e-3 → 1e-30 | 3.60× / 2.00× | 3.52× | **3.70×** (4.60× against the raw-U base) |
+
+**Exact weight-8 census of part (ii) (in progress).** `scratchpad/w8_mitm44v2.py` is an exhaustive 4+4 meet-in-the-middle with exact packed
+mod-7 syndromes. Each 4-sum is generated once as a join of two pair lists bucketed on 4 syndrome coordinates (2,401 passes). It checks
+itself in two ways: hits = 70 × words, and left entries = C(N,4)·216. It agrees with brute force on random matrices. When it
+finishes, A₈ and L₈ are exact and `rigorous_curve.py` gives proved curves.
+
+**[[592,94,8]]₇ proved (2026-11-16).** The exact census (`runs/weighted/mitm44/v2_dpp_Y47a.json`, 15,927 s on local) finds 289
+d″-words. These are the 282 line-pair words plus 7 more, all inside the plane x₂ = 3. So the line-pair family is not complete in
+general, though it holds for the two |Y| = 40, 45 draws on ISD evidence. Exact: **A₈ = 18,012, L₈ = 9,121**
+(`runs/weighted/pc_census_w8_Y47a_exact.json`).
+
+Weight-9 and weight-10 bounds (`scratchpad/paired_heavier.py`). By d = min(2d′, d″), a weight-w word has off-Y weights (x, y) with
+x, y ∈ {0} ∪ [4, ∞), and x = 0 or y = 0 puts the other side in ker H₆.
+- **One-sided words:** on a w-set the ker H₆ subcode has distance ≥ 8. The Griesmer bound excludes [9,2,8]₇ and [10,3,8]₇, so the
+  dimension is ≤ 1 (w = 9) or ≤ 2 (w = 10).
+- **Cross words:** for a fixed side-1 vector the side-2 completions form a coset of ker H₆. Two completions of weight y therefore share
+  at most y − 4 support points, which allows at most C(N, y−3)/C(y, y−3) of them. Side-1 vectors are the exact d′-words at weight 4,
+  and at most 48·C(N,5) at weight 5 (Singleton with d′ = 4).
+- **Result:** N₉ ≈ 5.1e17 and N₁₀ ≈ 1.2e20, against the generic tail's 1.1e21 and 5e23.
+
+Proved (`scratchpad/proved_paired_cost.py`, `runs/weighted/proved_paired_cost.json`):
+
+| ε₀ → target | sphere [[1746,270,7]]₇ proved, all species / raw U | **[[592,94,8]]₇ proved** (estimate) |
+|---|---|---|
+| 1e-2 → 1e-15 | 1.08× / 1.00× | **1.13×** (1.13×) |
+| 1e-2 → 1e-30 | 4.32× / 2.00× | **4.44×** (4.50×) |
+| 1e-3 → 1e-15 | 1.00× / 1.00× | **2.53×** (2.53×) |
+| 1e-3 → 1e-30 | 3.60× / 2.00× | **3.70×**, **4.60×** against the raw-U base (= estimate) |
+| proved threshold | 0.370% | **1.47%** |
+
+[[596,90,8]]₇ exact census (local, 23,037 s): **215 d″-words, exactly the line-pair family**, matching the ISD. So A₈ = 6,378 and
+L₈ = 599 are proved. Proved savings with the same bounds: 1.07×, 4.23× (estimate 4.28×), 2.40×, 3.52× (4.37× against the raw-U base).
+Proved threshold 1.46%. [[592,94,8]]₇ is better in every cell.
 
 **Open:**
 1. A proof of part (ii): every weight-8 word of RM(11,3) off Y lies on two lines.

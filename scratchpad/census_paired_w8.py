@@ -8,7 +8,7 @@ By d = min(2d', d'') every weight-8 word of ker(G0) is one of
 (ii) structural family only: off-Y parts of two lines carrying 6 points of Y between them (each such 8-set is tested for a
 full-support dependency).  Completeness of (ii) is NOT claimed; see isd_paired_w8.py.
 Every word is classified against the canonical logical rows H1: per-output failure counts give L_8.
-usage: PYTHONPATH=. python scratchpad/census_paired_w8.py SWEEP.json T SAMPLE OUT.json"""
+usage: PYTHONPATH=. python scratchpad/census_paired_w8.py SWEEP.json T SAMPLE OUT.json [EXACT_II.json from w8_mitm44v2.py]"""
 import sys, json, time, itertools, numpy as np
 from collections import defaultdict
 from qmsd.reedmuller import points, rm_generator
@@ -113,6 +113,16 @@ for a_, b_ in itertools.combinations(cand, 2):
             nz = int(np.nonzero(v)[0][0]); inv = pow(int(v[nz]), p - 2, p)
             d2words.add(tuple(zip(off, (int(x) * inv % p for x in v))))
 print(f"(ii) line-pair 8-sets tested {tested}, d''-words found {len(d2words)} [{time.time()-T0:.0f}s]", flush=True)
+exact_ii = None
+if len(sys.argv) > 5:                              # exact part (ii) from w8_mitm44v2.py (words as [[point, coeff], ...])
+    ex = json.load(open(sys.argv[5])); assert ex["complete"]
+    exact_ii = {tuple((int(x), int(a)) for x, a in w) for w in ex["words"]}
+    extra = exact_ii - d2words
+    print(f"(ii) exact census: {len(exact_ii)} words; line-pair family {len(d2words)} (all contained: {d2words <= exact_ii}); outside it: {len(extra)}", flush=True)
+    for w in sorted(extra):
+        pts = [tuple(int(v) for v in P3[x]) for x, _ in w]
+        print("   extra word points", pts, flush=True)
+    d2words = exact_ii
 for w in d2words:
     for hyper in (5, 6):
         e = vec([(kpos[idxX[(hyper,) + tuple(int(v) for v in P3[x])]], a) for x, a in w])
@@ -129,5 +139,5 @@ A8_found = (p - 1) * len(full_words)
 res = {"t": t, "sample": s, "n": n, "k": kk, "d": 8, "dprime_words": len(words), "cross_words_i": by_type["i"],
        "paired_type": paired, "dpp_words_found_ii_lines": len(d2words), "dpp_words_ii_vectors_in_code": by_type["ii"],
        "A8_found": A8_found, "L8_found": float(fails.mean()), "fails_max": int(fails.max()), "fails_min": int(fails.min()),
-       "part_ii_complete": False, "seconds": time.time() - T0}
+       "part_ii_complete": exact_ii is not None, "seconds": time.time() - T0}
 print(res, flush=True); json.dump(res, open(out, "w"), indent=1)

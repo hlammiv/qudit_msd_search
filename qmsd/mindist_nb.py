@@ -606,10 +606,11 @@ def _scan_right4_full(H, p, powers, lcodes, lsupp, i_lo, i_hi, found, witness):
     return found[0] != 0
 
 
-def weight7_witness_3x4(H, p, block=8, i_max=None, log=None, method="index"):
+def weight7_witness_3x4(H, p, block=8, i_max=None, log=None, method="index", i_min=0):
     """Weight-7 witness by a 3+4 split: normalised left-3 table, thread-parallel right-4 scan with
     all (p-1)^4 patterns in blocks of leading columns (early exit).  Returns 7 columns or None
-    (None = no weight-7 word with leading right column < i_max).  Assumes no weight < 7.
+    (None = no weight-7 word with leading right column in [i_min, i_max)).  Assumes no weight < 7.
+    ``i_min`` resumes a scan whose blocks below it were already done (multiple of ``block``).
     ``method``: "index" (bucket-indexed scan, default) or "searchsorted" (original kernel)."""
     import time as _time
 
@@ -625,7 +626,7 @@ def weight7_witness_3x4(H, p, block=8, i_max=None, log=None, method="index"):
     found = np.zeros(1, dtype=np.int64)
     witness = np.full(7, -1, dtype=np.int32)
     i_max = n if i_max is None else int(i_max)
-    for i_lo in range(0, i_max, block):
+    for i_lo in range(int(i_min), i_max, block):
         t0 = _time.time()
         if fast:
             hit = _scan_right4_idx(H, p, powers, lcodes, lsupp, bstart, shift, found, witness,

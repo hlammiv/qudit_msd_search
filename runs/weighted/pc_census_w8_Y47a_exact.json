@@ -1,0 +1,18 @@
+{
+ "t": 47,
+ "sample": 0,
+ "n": 592,
+ "k": 94,
+ "d": 8,
+ "dprime_words": 1860,
+ "cross_words_i": 2424,
+ "paired_type": 1860,
+ "dpp_words_found_ii_lines": 289,
+ "dpp_words_ii_vectors_in_code": 578,
+ "A8_found": 18012,
+ "L8_found": 9120.893617021276,
+ "fails_max": 9414,
+ "fails_min": 8880,
+ "part_ii_complete": true,
+ "seconds": 26.605161428451538
+}
