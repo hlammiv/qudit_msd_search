@@ -1189,6 +1189,24 @@ closed window).
   10⁻¹² in one round at the 90% UL: no priors cut 9 (2.5×10⁻⁵, UL 5.5×10⁻⁵): D = 25, 10 056 qudits, 189 attempts/output; with
   priors cut 9 (UL 2.9×10⁻⁵): 213.  So at 7×10⁻⁴ (as at 5×10⁻⁴) the priors remove the residual failures but do not change the
   recipe; they matter at 10⁻³ and above d = 4.
+- d = 16 priors, larger clean sample (lenore, EKR_SEED = 200000, 4×10⁶ + 10⁶ clean, w ≈ 0.99, 10⁴-shot checkpointed slices,
+  2026-11-18), pooled with the seed-100000 priors line (syndrome gap, closed window):
+
+  | cut | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+  |---|---|---|---|---|---|---|---|
+  | err | 2.4×10⁻⁴ | 1.6×10⁻⁴ | 5.1×10⁻⁵ | 4.2×10⁻⁵ | 3.1×10⁻⁵ | 1.8×10⁻⁵ | 0 |
+  | events (res + clean) | 0+25 | 0+14 | 0+4 | 0+3 | 0+2 | 0+1 | 0+0 |
+  | 90% UL | 3.3×10⁻⁴ | 2.4×10⁻⁴ | 1.2×10⁻⁴ | 1.1×10⁻⁴ | 1.0×10⁻⁴ | 9.4×10⁻⁵ | 7.6×10⁻⁵ |
+  | att/kept | 43.3 | 49.5 | 56.3 | 61.8 | 69.3 | 80.7 | 94.8 |
+
+  Residual failures stay at 0 from cut 5 (seed 200000: 1 at cut 4, 0 above).  The 10⁵-clean estimate at cut 5 (1 event,
+  1.1×10⁻⁴) was low by 2×: with 10⁶ clean frames the clean floor is 2.4×10⁻⁴ at cut 5, as at d = 4.  10⁻¹⁰ at 10⁻³ in one
+  round at the 90% UL: **cut 6, D = 25, 10 056 qudits, 745 attempts/output** (cut 5: one round only at the central value, 652;
+  cut 7 at the UL: 846).  No priors (seed 0 + seed 100000 pooled, cut 11: 1 + 0 events, UL 7.4×10⁻⁵): 1 099.  So priors save
+  1.5× at d = 16, and the 10⁻¹⁰ cost per output with priors is 611 → 603 → 745 for d = 4 → 8 → 16 (no priors 525 → 782 →
+  1 098; d = 4 needs no priors at 10⁻¹⁰).  10⁻¹² at d = 16 is not settled: no cut is one round at the UL with or without priors
+  (UL floor 7.4–7.6×10⁻⁵ from zero events); no priors cut 11 is one round at the central value (13 512 q, 1 098).  Settling it
+  needs ~3× more of both samples (target UL ≈ 3.5×10⁻⁵, as at d = 4).
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
