@@ -1,0 +1,19 @@
+{
+ "rank_GX": 140,
+ "n_X": 686,
+ "A_value_domain": {
+  "gates_per_round": 6058,
+  "rank_image": 140,
+  "rank_union": 140,
+  "verified": true
+ },
+ "B_coeff_domain": {
+  "gates_per_round": 6434,
+  "rank_image": 140,
+  "rank_union": 140,
+  "verified": true
+ },
+ "old_model_two_3D_plus_686": 7036,
+ "grid_model": 23355,
+ "best": 6058
+}

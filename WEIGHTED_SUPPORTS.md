@@ -699,11 +699,41 @@ Proved threshold 1.46%. [[592,94,8]]₇ is better in every cell.
 L₈ = 252 are proved. Proved savings: 1.00×, 3.69× (estimate 3.73×), 2.07×, 3.08× (3.82× against the raw-U base). Proved threshold 1.44%.
 All three paired-cap codes are now proved (`runs/weighted/proved_paired_cost.json`).
 
+### Encoder and combined magic + Clifford cost (2026-11-18)
+
+The round state is Σ|f|_X⟩ over f ∈ RM(6,4)|X = {(a, a+b) : a ∈ RM(6,3), b ∈ RM(5,3)}, so it does not need the 2,401-qudit grid.
+`scratchpad/paired_encoder.py` builds two circuits and simulates each one as a sequence of line maps and CSUMs acting on the
+support basis. Both images equal rowspace(GX) (rank 140, union rank 140). Gates are counted as in `fast_encoder.py`.
+
+| circuit | two-qudit gates per round |
+|---|---|
+| **A: RM(6,3) fast encoder on x1 = 5, RM(5,3) on x1 = 6, then 343 CSUMs 5 → 6** | **6,058** (3,175 + 2,540 + 343) |
+| B: CSUM the 84 coefficient registers first, then RM(6,3) on both slices | 6,434 |
+| old estimate (two RM(6,3) encoders + 686) | 7,036 |
+| grid model (prepare RM(6,4) on F₇⁴, measure 5 slices) | 23,355 |
+| sphere [[1746,270,7]]₇, grid | 26,559 |
+
+The circuit is the same for all three paired codes: the outputs only choose which qudits are kept.
+
+Combined cost (`scratchpad/total_cost_paired_proved.py`, `GATES=circuit`, `runs/coverage/total_cost_paired_proved_circuit.{json,log}`).
+It uses all-species accounting, cost = magic + Clifford/R. All four large codes are proved curves. The saving is over the p = 7
+small-code library:
+
+| ε₀ → target | R = 1 | R = 10 | R = 100 | R = 10⁴ | previous best (R = 10⁴, 2026-11-15) |
+|---|---|---|---|---|---|
+| 1e-3 → 1e-15 | 1.07× | 1.87× | 2.41× | 2.53× | 2.39×, [[596,90,8]] surrogate, grid encoder |
+| 1e-3 → 1e-30 | 3.19× | 3.53× | 3.68× | 3.70× | 3.60×, sphere |
+| 1e-2 → 1e-30 | 3.80× | 4.22× | 4.41× | 4.44× | 4.32×, sphere |
+
+- **The winner is [[592,94,8]]₇ in every cell:** alone at 1e-3 → 1e-15, after a [[6,1]] or [[7,1,3]] round at 1e-30.
+- **Clifford gates per output:** 117 to 179, against 471 before.
+- With the grid encoder (`GATES=grid`), [[592,94,8]] still wins at R ≥ 100–1000, but the sphere keeps the 1e-30 targets at low R.
+
 **Open:**
-1. A proof of part (ii): every weight-8 word of RM(11,3) off Y lies on two lines.
-2. Proved curves (the `heavier` bound of `rigorous_curve.py` needs N₉, N₁₀ for this code).
-3. Optimised Y. Random sets lose d′ = 4 at |Y| ≈ 46–48. |Y| = 50 would give [[586,100,8]]₇, γ 0.851.
-4. Threshold and Clifford cost.
+1. A proof of part (ii) for every Y: every weight-8 word of RM(11,3) off Y lies on two lines. This is no longer needed per code,
+   since the exact census settles each one, and it fails for grown Y (the 7 planar words of [[592,94,8]]).
+2. Optimised Y. Greedy growth with swap moves stops at |Y| = 47 in all 1,200 restarts. |Y| = 50 would give [[586,100,8]]₇, γ 0.851,
+   and would probably need a structured construction.
 
 ## Do weighted supports reopen p = 3, 11, 13? (2026-10-28, exploratory)
 
