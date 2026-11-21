@@ -1243,7 +1243,22 @@ e-distribution of the escape's kept failures replaces the uniform one (the T gat
 - So at high gap cuts the escape's surviving clean failures are order-2 (top 2-adic level), and they are the ones the
   [[7,1,3]] round does not suppress as a qudit code.  The peel-gap decoder takes the minimum over 2-adic levels of each level's
   binary complementary gap, computed conditional on the lower levels' chosen correction; an over-confident top-level gap is
-  the first suspect (next: record per-level gaps, separate top-level cut).
+  the first suspect (tested below: it is not).
+
+**Per-level gaps of the clean failures** (`scratchpad/escape_level_gaps.py`, `PeelDecoder.last_level_gaps`; d = 4, 10⁻³,
+priors_d4_s0, 2×10⁶ clean frames, seeds 500000 (lenore) + 600000 (local), 2026-11-21).  Of 371 278 mask-kept shots, 1 004
+fail, with e = 1 / 2 / 3 in 335 / 344 / 325 (π(2) = 0.34 at cut 0, 0.45 at cuts 4–5, 11 / 28 at cut 6, 8 / 18 at cut 7,
+5 / 13 at cut 8; cuts 9–13: 5 → 1 events, half to all e = 2).  The min over levels equals the stored gap on every shot.
+- **The top-level gap is not over-confident.**  For e = 2 failures the top level carries the minimal gap in 287 / 344 at cut 0
+  and 36 / 50 at cut 4: the top-level gap flags them correctly, and the gap cut removes them at the rate it removes odd ones.
+  The e = 2 failures that survive cuts ≥ 6 have both levels' gaps ≥ 6 in both bases, and often one basis is saturated at
+  15.3 / 15.9 on both levels: one basis is decoded with full confidence and the other is wrong with high gap on both levels.
+- **A separate top-level cut gains nothing.**  The best (c₀, c₁) pair (lower-level, top-level cut) at no lower keep matches
+  the uniform cut to within one event at every cut 4–12 (cut 8: (7, 9) gives 12 fails at 177 928 kept vs 13 at 173 595; cut 12:
+  (10, 13) gives 1 at 109 309 vs 1 at 93 516, chosen in-sample).
+- So the high-cut clean floor is high-confidence miscorrection, not a gap-estimate artefact of the level-by-level decoder.
+  Lowering it needs a better decoder (joint across 2-adic levels or bases), not a different cut.  The order-2 enrichment at
+  high cuts stays as measured above (pooled d = 4 cut 10: 8 / 10 e = 2 events).
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
