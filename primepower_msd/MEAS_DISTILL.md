@@ -1222,6 +1222,29 @@ closed window).
   (1 049).  10⁻¹⁰ unchanged: cut 6 at the UL, 10 056 qudits, 748 attempts/output (cut 5 central 656).  The d = 16 clean floor
   sits ~1.5× above d = 4 at cuts 7–11, so 10⁻¹² costs 1.9× d = 4 per output; the footprint in qudits is d-independent.
 
+**The escape's failure types in the [[7,1,3]] round** (`scratchpad/e2e_713_weighted.py`, 2026-11-21).  The planner's
+c = 3.148 (d = 4; 0.539 / 0.114 at d = 8 / 16) assumes every input and T-gate error is Z^e with e uniform on 1..d−1.  A
+residual frame (a′, b′) shifts the check eigenvalue by e = b′ − σa′ (σ = 1, the cultivation proxy convention), so the measured
+e-distribution of the escape's kept failures replaces the uniform one (the T gates are teleported from the same inputs).
+- Exact W = 3 count with value weights (input term + inner term, as `meas_sim.leading_order`; uniform weights reproduce
+  3.148 / 0.539 / 0.114): **any single value e ≠ d/2 gives c = 0; e = d/2 alone gives c = 35, the qubit 15-to-1 value**.  The
+  ring advantage of the uniform c comes from mixed values; order-2 errors behave as qubit errors.
+- Measured mix (kept failures, clean frames weighted by w): d = 4 (seed 300000 priors, 10⁷ clean) π(e = 2) = 0.45–0.52 at
+  cuts 5–9 (c = 4.0–4.3) but 7 / 8 at cut 10 and 6 / 6 above (c ≈ 23 at cut 10); d = 16 (seeds 200000–400000 priors) π(e = 8)
+  = 0.15–0.22 at cuts 4–6 vs 1/15 uniform (c = 0.24–0.45), cuts 7–9 18 events, c = 1.33; cut 12: no events.
+- The first-order Clifford floor is value-independent (census exposures 1.0 gate / 2.0 rounds for odd, d/2 and other even
+  values at d = 4, 8), so only the third-order term moves.
+- Footprints with the measured c (`footprint_tick_proxy.py ... c713=c`): **10⁻¹⁰ unchanged** — d = 4 no priors cut 7: 517
+  attempts/output (one round at the UL with c = 4.3), priors cut 7: 612, d = 16 priors cut 6: 748.  With c = 35 (all-order-2
+  worst case) each needs two rounds at the UL, but the measured mix at those cuts rests on 37–91 events.  **10⁻¹²: d = 4 cut
+  10 is one round only at the central value (908); at the UL (3.1×10⁻⁵, c = 23) it needs two** — the "settled" d = 4 entry
+  above is withdrawn.  d = 16 cut 12 is one round at the UL with the cuts-7–9 mix (c = 1.3; 1 696) and two with c = 35; its
+  own mix is unmeasured (0 events).
+- So at high gap cuts the escape's surviving clean failures are order-2 (top 2-adic level), and they are the ones the
+  [[7,1,3]] round does not suppress as a qudit code.  The peel-gap decoder takes the minimum over 2-adic levels of each level's
+  binary complementary gap, computed conditional on the lower levels' chosen correction; an over-confident top-level gap is
+  the first suspect (next: record per-level gaps, separate top-level cut).
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8

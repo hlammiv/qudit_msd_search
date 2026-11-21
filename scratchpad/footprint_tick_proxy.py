@@ -2,7 +2,8 @@
 runs/surface/zd_d4_tick{f}.jsonl replace HOST_Z4, and the CSUM / two-patch fits are rescaled by the same factors per basis
 (A ratio, p_th ratio).  python scratchpad/footprint_tick_proxy.py f [cult=a,p_L] [footprint args...]
 (f = 0: no host patch; cult=a,p_L replaces the 1e-3 cultivation input, e.g. the end-to-end cultivation -> escape numbers;
- e2e=p,attempts_per_kept,p_in replaces cultivation and escape at p by the end-to-end numbers)"""
+ e2e=p,attempts_per_kept,p_in replaces cultivation and escape at p by the end-to-end numbers;
+ c713=c sets the W=3 coefficient of the [[7,1,3]] stages)"""
 import sys
 
 from primepower_msd import footprint as FP, host_census as HC
@@ -19,6 +20,10 @@ while len(sys.argv) > 1 and sys.argv[1].startswith("e2e="):  # e2e=p,attempts,p_
     p_e, att, p_c = map(float, sys.argv.pop(1)[4:].split(","))  # (p_out counts only residual-frame failures: add the floor on clean frames)
     FP.CULT_D4[FP.CULT_KEY][p_e] = (1 / att, p_c)
     FP.ESCAPE_Z4_GAP[p_e] = (0.0, 0.0)
+while len(sys.argv) > 1 and sys.argv[1].startswith("c713="):   # c713=c: [[7,1,3]] W=3 coefficient for the measured input-error values
+    c713 = float(sys.argv.pop(1)[5:])                             # (scratchpad/e2e_713_weighted.py; uniform d=4 value 3.148, order-2 inputs 35)
+    from primepower_msd import msd_planner as _MP
+    _MP.STAGES_D4[:] = [st[:4] + (c713,) + st[5:] if "[[7,1,3]]" in st[0] and st[3] == 3 else st for st in _MP.STAGES_D4]
 (Ab, pb), (Ax, px) = TICK.get(f, ((FP.HOST_Z4["A"], FP.HOST_Z4["p_th"]), (0.049, 7.2e-3)))
 ra_b, rp_b = Ab / FP.HOST_Z4["A"], pb / FP.HOST_Z4["p_th"]
 ra_x, rp_x = Ax / 0.049, px / 7.2e-3
