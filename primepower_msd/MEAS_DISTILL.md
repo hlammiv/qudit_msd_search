@@ -1260,6 +1260,26 @@ fail, with e = 1 / 2 / 3 in 335 / 344 / 325 (π(2) = 0.34 at cut 0, 0.45 at cuts
   Lowering it needs a better decoder (joint across 2-adic levels or bases), not a different cut.  The order-2 enrichment at
   high cuts stays as measured above (pooled d = 4 cut 10: 8 / 10 e = 2 events).
 
+**p = 1.5×10⁻³** (d = 4, f = 1, closed window, 4×10⁶ shots + 10⁶ clean, seed 100000, priors from the seed-0 frames
+`priors_d4_p1.5e-3_s0`; local, 2026-11-21, `scratchpad/queue_step2.sh B`).  Acceptance 615 697 (15.4%), 105 641 nontrivial.
+Error per input (90% UL) / attempts per kept, syndrome gap:
+
+| cut | priors | no priors |
+|---|---|---|
+| 0 | 1.33×10⁻² (1.40) / 93 | (1.55×10⁻² UL) / 93 |
+| 4 | 2.76×10⁻³ (3.28) / 172 | 3.75×10⁻³ (4.40) / 157 |
+| 7 | 8.8×10⁻⁴ (14.3) / 329 | 8.4×10⁻⁴ (12.9) / 254 |
+| 9 | 2.8×10⁻⁴ (8.8) / 552 | 3.4×10⁻⁴ (8.1) / 377 |
+| 10 | 1.9×10⁻⁴ (9.5) / 760 | 1.2×10⁻⁴ (6.0) / 480 |
+
+(ULs in units of 10⁻⁴ from cut 7.)  The floor stops falling at cut 9–10 (2–5 clean events), and priors do not help here
+(the residual failures are already ≤ 2 from cut 7 without them).
+- Footprint (`footprint_tick_proxy.py 1 e2e=1.5e-3,A,q escape-gap census-sparse`): **10⁻¹⁰ needs D = 31, 15 432 qudits at
+  every cut**, with two [[7,1,3]] rounds at the UL; the fewest attempts is cut 0, 25 800 attempts/output.  10⁻¹² is D = 39,
+  24 392 q.  One round (max_levels = 1) reaches 10⁻¹⁰ only at the central values (cut 10 no priors: D = 33, 17 480 q, 7 213
+  att/out; cut 9 priors: 8 315), never at the UL.  The distance is set by the host's Clifford floor at p/p_th = 0.28, not by
+  the escape.  **p = 1.5×10⁻³ is outside the < 10k-qudit target**; 10⁻³ stays the highest p inside it.
+
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
 128 / 172 (the d = 8 escape keeps 1.25× less).  The syndrome gap caps at 13.1 / 13.0 as at d = 4.  Within the statistics (3–8
