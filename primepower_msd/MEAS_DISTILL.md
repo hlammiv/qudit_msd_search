@@ -1207,6 +1207,20 @@ closed window).
   1 098; d = 4 needs no priors at 10⁻¹⁰).  10⁻¹² at d = 16 is not settled: no cut is one round at the UL with or without priors
   (UL floor 7.4–7.6×10⁻⁵ from zero events); no priors cut 11 is one round at the central value (13 512 q, 1 098).  Settling it
   needs ~3× more of both samples (target UL ≈ 3.5×10⁻⁵, as at d = 4).
+- d = 16 priors, 10⁻¹² settled (lenore, EKR_SEED = 300000 and 400000, each 4×10⁶ + 10⁶ clean, nice 19, 2026-11-20); pooled
+  over the four priors runs (1.6×10⁷ shots, 3.1×10⁶ clean):
+
+  | cut | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+  |---|---|---|---|---|---|---|---|---|
+  | err | 2.2×10⁻⁴ | 1.5×10⁻⁴ | 6.3×10⁻⁵ | 4.5×10⁻⁵ | 2.2×10⁻⁵ | 2.0×10⁻⁵ | 1.5×10⁻⁵ | 0 |
+  | events (res + clean) | 1+61 | 1+36 | 0+14 | 0+9 | 0+4 | 0+3 | 0+2 | 0+0 |
+  | 90% UL | 2.6×10⁻⁴ | 1.9×10⁻⁴ | 9.9×10⁻⁵ | 7.9×10⁻⁵ | 5.5×10⁻⁵ | 5.5×10⁻⁵ | 5.4×10⁻⁵ | 3.7×10⁻⁵ |
+  | att/kept | 43.6 | 49.7 | 56.5 | 62.1 | 69.9 | 81.3 | 95.6 | 113.0 |
+
+  Residual failures: 1 event each at cuts 5–6 in 1.6×10⁷ shots, none from cut 7.  **10⁻¹² at 10⁻³ in one [[7,1,3]] round
+  at the 90% UL: cut 12, D = 29, 13 512 qudits, 1 696 attempts/output** (d = 4: 909); at the central value cut 9 suffices
+  (1 049).  10⁻¹⁰ unchanged: cut 6 at the UL, 10 056 qudits, 748 attempts/output (cut 5 central 656).  The d = 16 clean floor
+  sits ~1.5× above d = 4 at cuts 7–11, so 10⁻¹² costs 1.9× d = 4 per output; the footprint in qudits is d-independent.
 
 **d = 8, syndrome-only gap** (EKR_D = 8, 4×10⁶ + 10⁶ at 10⁻³, 2026-11-08).  Cut 0: 3.1×10⁻³ (516 events) vs 3.6×10⁻³ at d = 4.
 Cut 6 / 7 / 8: 2.4×10⁻⁴ (8) / 2.4×10⁻⁴ (6) / 1.7×10⁻⁴ (3) vs 7.9 / 1.7 / 0.76×10⁻⁴; attempts per kept 121 / 161 / 222 vs 96 /
