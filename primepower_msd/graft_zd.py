@@ -503,6 +503,7 @@ class Escape:
         sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
         sc = np.zeros(shots, bool)
         sg2 = np.full(shots, np.nan)
+        sgl = np.full((shots, int(round(math.log2(d)))), np.nan)   # per-level syndrome-window gaps (PeelDecoder.last_level_gaps)
         dec_syn = PeelDecoder(self.dem_syn, p, gap=True) if self.gap_window in ("syndrome", "closed") else None
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
         bad = SZ.misdecoded_patterns(self.dem, dec) if self.hyper_post else {}
@@ -542,6 +543,7 @@ class Escape:
                         _, l2 = dec_syn.decode(Dall[s, self.sel_syn])
                         if isinstance(l2, float):
                             sg2[done + s] = l2
+                            sgl[done + s] = dec_syn.last_level_gaps
                 if left is None or isinstance(left, float):
                     if left is not None:
                         gaps.append((left, bool(f)))
@@ -567,7 +569,7 @@ class Escape:
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
                     locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight, tick_idle=self.tick_idle,
-                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc, shot_gap_syn=sg2) if per_shot else {}))
+                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc, shot_gap_syn=sg2, shot_gap_syn_levels=sgl) if per_shot else {}))
 
 
 if __name__ == "__main__":

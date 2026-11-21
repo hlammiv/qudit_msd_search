@@ -731,6 +731,7 @@ class PeelDecoder:
         sigma = sigma.copy()
         obs = 0
         gap_min = math.inf
+        self.last_level_gaps = [math.inf] * self.k      # per 2-adic level binary complementary gap (inf: no syndrome at that level)
         for lev in range(self.k):
             binsyn = ((sigma >> lev) & 1).astype(np.uint8)
             if not binsyn.any():
@@ -747,6 +748,7 @@ class PeelDecoder:
                     sols.append((w, syn))
                 sols.sort(key=lambda t: t[0])
                 gap_min = min(gap_min, sols[1][0] - sols[0][0])
+                self.last_level_gaps[lev] = sols[1][0] - sols[0][0]
                 # walk the charges along the edge set the matcher chose (its strings may end on either boundary)
                 obs, sigma, ok = self._walk_edges(lev, MG.decode_to_edges_array(sols[0][1]), binsyn, sigma, obs)
                 if not ok:
