@@ -361,7 +361,7 @@ def colorcult_hybrid(d, p, distance=3, cfg="serial", **kw):
     ckw, f = CONFIGS[cfg]
     cc = ColorCult(distance, d, p, **{**ckw, **kw})
     if f:
-        cc.c = add_tick_idle(cc.c, f * p)
+        cc.c = add_tick_idle(cc.c, f * p, no_anchor=cc.vanc or ())   # verified cat stays just-in-time
     assert cc.sigma == 1 and cc.inj == 1
     S_ops = [k for k, op in enumerate(cc.c.ops) if op[0] == "S"]
     tl = {S_ops[0]: {cc.data[cc.qstar]: 1}}

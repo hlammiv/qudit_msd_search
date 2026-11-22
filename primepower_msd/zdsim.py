@@ -143,7 +143,7 @@ class FrameSim:
         return D % self.d
 
 
-def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
+def add_tick_idle(circ: Circuit, p_idle: float, no_anchor=()) -> Circuit:
     """Copy of `circ` with idle noise at every tick: the gates are scheduled as soon as possible in circuit order (one tick
     per gate; the pairs of one CSUM op take one tick each, in order, so a fan-out serialises on its shared qudit); a qudit
     is live from its reset until it is measured, and every tick a live qudit waits gets DEP1(p_idle) -- k waiting ticks
@@ -152,7 +152,9 @@ def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
     tree), keep their ASAP timeline (gaps inside count) but the whole cluster is shifted later so that it is ready when it
     first meets a non-fresh qudit; a measurement on a fresh cluster anchors it unshifted (so the initial data / encoder
     cluster anchors at the first syndrome readout).  Noise, detector and feed-forward ops take no time.  Measurement indices and detectors are
-    unchanged."""
+    unchanged.  no_anchor: qudits whose measurement does NOT anchor their fresh cluster (verification ancillas of a cat:
+    the verified cat is still prepared just in time; only the measured ancilla leaves the cluster)."""
+    no_anchor = set(int(q) for q in no_anchor)
     if p_idle <= 0:
         return circ
     d = circ.d
@@ -192,7 +194,7 @@ def add_tick_idle(circ: Circuit, p_idle: float) -> Circuit:
                     root[q] = q
             elif name == "M":
                 for q in op[1]:
-                    if fresh[q]:
+                    if fresh[q] and q not in no_anchor:
                         rq = find(q)
                         for m in range(circ.nq):
                             if fresh[m] and find(m) == rq:
