@@ -78,9 +78,10 @@ class ColorCult:
     def __init__(self, distance: int = 3, d: int = 4, p: float = 1e-3, sigma: int = 1, inj: int | None = None,
                  checks_per_round: int = 2, rounds: int = 2, noisy_injection: bool = True, parallel: bool = False,
                  schedule=None, final_by_colour: bool = False, hooks: bool = False,
-                 final_block: bool = False):
+                 final_block: bool = False, verify_cat: bool = False):
         self.parallel, self.schedule = parallel or schedule is not None, schedule
         self.final_by_colour, self.hooks, self.final_block = final_by_colour, hooks, final_block
+        self.verify_cat = verify_cat
         H, xy = color_code_plaquettes(distance)
         self.H, self.tau, self.d, self.n = H, honeycomb_signs(H, xy), d, H.shape[1]
         self.distance, self._tab = distance, None
@@ -92,6 +93,7 @@ class ColorCult:
         self.data = c.q(self.n)
         self.xa = c.q(len(H)); self.za = c.q(len(H)); self.cat = c.q(self.n)
         self.cat2 = c.q(self.n) if self.parallel else None     # second cat register: consecutive checks overlap
+        self.vanc = c.q(self.n - 1) if verify_cat else None     # cat verification ancillas (one per tree edge)
         self.encode(noisy_injection)
         for _ in range(rounds):
             self.stab_round()
@@ -249,6 +251,40 @@ class ColorCult:
                 m_x[r], m_z[r] = m[j], m[len(P) + j]
         return m_x, m_z
 
+    def _cat_edges(self, C):
+        """edges (parent, child) of the cat's encoding tree (log-depth tree if parallel, else the star from C[0])."""
+        if not self.parallel:
+            return [(C[0], C[i]) for i in range(1, len(C))]
+        out, k = [], 1
+        while k < len(C):
+            out += [(C[i], C[i + k]) for i in range(k) if i + k < len(C)]; k *= 2
+        return out
+
+    def _verify_cat(self, C):
+        """verified cat (Balada Gaggioli & Marecek arXiv:2611.24852 Sec VIII; Z_d version of the Z flags of Chan et al.
+        arXiv:2609.17706): measure Z_a Z_b^{-1} on every tree edge onto a fresh ancilla before the cat touches the data, and
+        post-select 0.  An X fault inside the encoding tree spreads X^a onto a subtree (a hook, which a real T gate can turn
+        into an undetected error); the edge into that subtree sees parity a.  One ancilla per edge, layered so that each
+        layer's CSUMs act on distinct cat qudits."""
+        E = self._cat_edges(C)
+        V = self.vanc[:len(E)]
+        self.R(V)
+        layers = []
+        for e in E:                                  # greedy layering: no cat qudit twice in a layer
+            for L in layers:
+                if all(e[0] not in f and e[1] not in f for f in L):
+                    L.append(e); break
+            else:
+                layers.append([e])
+        idx = {e: j for j, e in enumerate(E)}
+        for L in layers:
+            self.CSUM([(a, V[idx[(a, b)]]) for a, b in L], 1)
+        for L in layers:
+            self.CSUM([(b, V[idx[(a, b)]]) for a, b in L], (-1) % self.d)
+        m = self.M(V)
+        for mi in m:
+            self.c.detector([(mi, 1)], "cat-verify")
+
     def _cat_tree(self, C, sign):
         """log-depth Z_d cat (sign = +1, C[0] carries the value) or its inverse (sign = -1)."""
         levels, k = [], 1
@@ -290,6 +326,8 @@ class ColorCult:
             self._cat_tree(C, 1)
         else:
             self.CSUM([(C[0], C[i]) for i in range(1, n)], 1)
+        if getattr(self, "verify_cat", False):
+            self._verify_cat(C)
         a = [int(-self.sigma * t) % d for t in self.tau]
         self.S(D, a)
         self.CSUM([(C[i], D[i]) for i in range(n)], 1)

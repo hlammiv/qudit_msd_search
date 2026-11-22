@@ -112,9 +112,10 @@ class GrowCult(ColorCult):
                  rounds3: int = 1, checks3: int = 2, rounds5: int = 1, checks5: int = 2,
                  zset=None, noisy_injection: bool = True, parallel: bool = False, schedule=None,
                  final_by_colour: bool = False, hooks: bool = False,
-                 final_block: bool = False):
+                 final_block: bool = False, verify_cat: bool = False):
         self.parallel, self.schedule = parallel or schedule is not None, schedule
         self.final_by_colour, self.hooks, self.final_block = final_by_colour, hooks, final_block
+        self.verify_cat = verify_cat
         Hs, Hb, xb, emb = embedding(3, 5)
         tau5 = honeycomb_signs(Hb, xb)
         self.d, self.p, self.sigma = d, p, sigma
@@ -135,6 +136,7 @@ class GrowCult(ColorCult):
         self.data5 = c.q(Hb.shape[1])
         xa5, za5, cat5 = c.q(len(Hb)), c.q(len(Hb)), c.q(Hb.shape[1])
         cat5b = c.q(Hb.shape[1]) if self.parallel else None
+        self.vanc = c.q(Hb.shape[1] - 1) if verify_cat else None
         # ---- D=3 stage
         self._phase(Hs, tau3, [self.data5[i] for i in emb], xa5[:len(Hs)], za5[:len(Hs)], cat5[:len(emb)], 3)
         self.cat2 = cat5b[:len(emb)] if self.parallel else None

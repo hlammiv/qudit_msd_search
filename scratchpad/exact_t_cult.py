@@ -348,8 +348,20 @@ class Hybrid:
 
 
 # ----------------------------------------------------------------------------------------------- ColorCult wrapper
-def colorcult_hybrid(d, p, distance=3, **kw):
-    cc = ColorCult(distance, d, p, **kw)
+CONFIGS = {   # the D = 3 stage of cult_escape_e2e's configs (one stabiliser round + 2 checks, as GrowCult's D=3 part), + final round
+    "serial": (dict(rounds=2, checks_per_round=2), 0.0),        # CULTIVATION_PLAN section 11 circuit
+    "par-hooks": (dict(rounds=1, checks_per_round=2, hooks=True, parallel=True, final_block=True), 0.0),
+    "par-hooks-f1": (dict(rounds=1, checks_per_round=2, hooks=True, parallel=True, final_block=True), 1.0),
+    "par-hooks-f1-vcat": (dict(rounds=1, checks_per_round=2, hooks=True, parallel=True, final_block=True, verify_cat=True), 1.0),
+}
+
+
+def colorcult_hybrid(d, p, distance=3, cfg="serial", **kw):
+    from primepower_msd.zdsim import add_tick_idle
+    ckw, f = CONFIGS[cfg]
+    cc = ColorCult(distance, d, p, **{**ckw, **kw})
+    if f:
+        cc.c = add_tick_idle(cc.c, f * p)
     assert cc.sigma == 1 and cc.inj == 1
     S_ops = [k for k, op in enumerate(cc.c.ops) if op[0] == "S"]
     tl = {S_ops[0]: {cc.data[cc.qstar]: 1}}
@@ -581,11 +593,11 @@ def selftest():
 
 
 # ----------------------------------------------------------------------------------------------- Monte Carlo
-def run(d, p, shots, out, seed=0, batch=20000, sub=128):
-    cc, H = colorcult_hybrid(d, p)
+def run(d, p, shots, out, seed=0, batch=20000, sub=128, cfg="serial"):
+    cc, H = colorcult_hybrid(d, p, cfg=cfg)
     dec = Decoder(cc, H.out0)
     rng = np.random.default_rng(seed)
-    tot = dict(d=d, p=p, distance=3, seed=seed, shots=0, dense_shots=0, w=0.0, Fraw=0.0, w_triv=0.0, Ftriv=0.0,
+    tot = dict(d=d, p=p, distance=3, cfg=cfg, seed=seed, shots=0, dense_shots=0, w=0.0, Fraw=0.0, w_triv=0.0, Ftriv=0.0,
                proxy_acc=0, proxy_fail=0, proxy_acc_triv=0, proxy_fail_triv=0, w_on_proxy_fail=0.0, inf_on_proxy_ok=0.0)
     if os.path.exists(out):
         tot = json.load(open(out)); rng = np.random.default_rng([seed, tot["shots"]])
@@ -645,4 +657,5 @@ if __name__ == "__main__":
         d, p, shots, out = int(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]), sys.argv[5]
         seed = int(sys.argv[6]) if len(sys.argv) > 6 else 0
         batch = int(sys.argv[7]) if len(sys.argv) > 7 else 20000
-        run(d, p, shots, out, seed, batch)
+        cfg = sys.argv[8] if len(sys.argv) > 8 else "serial"
+        run(d, p, shots, out, seed, batch, cfg=cfg)
