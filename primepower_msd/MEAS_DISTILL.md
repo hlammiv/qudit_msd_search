@@ -1260,6 +1260,19 @@ fail, with e = 1 / 2 / 3 in 335 / 344 / 325 (π(2) = 0.34 at cut 0, 0.45 at cuts
   Lowering it needs a better decoder (joint across 2-adic levels or bases), not a different cut.  The order-2 enrichment at
   high cuts stays as measured above (pooled d = 4 cut 10: 8 / 10 e = 2 events).
 
+**d = 8 priors with 10⁶ clean** (EKR_D = 8, seed 200000, priors_d8_s0, pooled with the seed-100000 10⁵-clean run; local,
+2026-11-21, `scratchpad/queue_step2.sh A`).  Pooled error per input (90% UL) / attempts per kept: cut 6 1.8×10⁻⁴ (2.7) / 45.4,
+cut 7 9.3×10⁻⁵ (1.65×10⁻⁴) / 51.3, cut 8 3.8×10⁻⁵ (1.0×10⁻⁴) / 55.9, cut 9 1.4×10⁻⁵ (7.4×10⁻⁵) / 63.4, cut 10 0 events
+(6.05×10⁻⁵) / 74.7.  Residual failures are 0 from cut 7 (no priors: 46 at cut 7, so priors remove the residual floor at d = 8
+as at d = 4, 16).
+- Failure values (kept failures, clean weighted by w, cuts 4–9, 35 weighted events): π(e = 4) = 0.18 vs 1/7 uniform, so no
+  order-2 enrichment at d = 8 as at d = 4; c = 0.77 (`e2e_713_weighted.py`; uniform 0.539; cuts 6–7 alone 0.38).
+- Footprint at 10⁻³ (`footprint_tick_proxy.py 1 e2e=1e-3,A,q c713=c escape-gap census-sparse`): **10⁻¹⁰ one round at the UL:
+  cut 7, 10 056 q, 771 attempts/output (c = 0.77); cut 8, 840, one round even with c = 35** (was 2 428 at the central value
+  without priors).  **10⁻¹²: one round at the UL at cut 10, D = 29, 13 512 q, 1 122 attempts/output with c = 0.77**; with
+  c = 35 it needs two (16 823); the cut-10 mix itself is unmeasured (0 events).  At the central values cut 9 is one round
+  for either c (951).
+
 **p = 1.5×10⁻³** (d = 4, f = 1, closed window, 4×10⁶ shots + 10⁶ clean, seed 100000, priors from the seed-0 frames
 `priors_d4_p1.5e-3_s0`; local, 2026-11-21, `scratchpad/queue_step2.sh B`).  Acceptance 615 697 (15.4%), 105 641 nontrivial.
 Error per input (90% UL) / attempts per kept, syndrome gap:
