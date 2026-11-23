@@ -1350,7 +1350,36 @@ outcome is post-selected (Z_d form of the Chan et al. Z flags and the Balada Gag
   coupling.  That gave a spurious 5× worse error and acceptance 0.415.  `no_anchor=` keeps the verified cat just in time.
 - *d = 2, 2×10⁻³, 10⁷ exact.* Acceptance falls from 0.589 to 0.499, while ε_triv is 3.20e-5 exact / 3.24e-5 proxy (150 events),
   no better than without the check.  At D = 3 there is no hook gap for it to close.
-- *d = 4.* Acceptance 0.488 (vs 0.577); the error runs are in progress.  Its value, if any, is at d₁ = 5.
+- *d = 4, 2×10⁻³, 4×10⁶ exact.* Acceptance 0.487 (vs 0.577); ε 3.20e-3 exact / 3.21e-3 proxy; ε_triv 0 events in both
+  (90% UL 1.2e-6, the no-check value is 1.2e-6 from 4 events), so no measurable gain.  Its value, if any, is at d₁ = 5.
+
+**Sensitivity of the footprint to a d₁ = 5 proxy under-count** (`scratchpad/proxy_sens_split.py`, `proxy_sens_footprint.py`,
+`runs/surface/proxy_sens/`, 2026-11-23).  The exact check cannot reach d₁ = 5 (dense D = 5 at d = 2 is 5.7 s per shot; d = 4
+is 4¹⁹).  So we ask instead what a literature-sized under-count would cost.
+- *Split.* The closed-window escape error is p_total = (fails_res + w·fails_clean) / kept.  Residual-frame failures (the
+  cultivation's errors, after the escape) are 10–23% of p_total at cuts 4–9 at 10⁻³ (d = 4, priors, three seeds pooled; 5 of
+  103 weighted events at cut 7) and 0 events from cut 10.  The rest is the escape's own floor on clean frames.
+- *Model.* Multiply fails_res by X = 3, 10, 30, the range the qubit papers report at d = 5.  The extra errors are taken to
+  look like the proxy's surviving residuals, which at high cuts are syndrome-free logicals, the hardest kind for the escape.
+  The UL is X·UL(res) + w·UL(clean).
+
+| p, target | X = 1 | X = 3 | X = 10 | X = 30 |
+|---|---|---|---|---|
+| 10⁻³, 10⁻¹⁰ (UL) | 10 056 q, 562 att/out | 10 056, 563 | 10 056, 672 | 10 056, 7 475 (two rounds) |
+| 10⁻³, 10⁻¹⁰ (central) | 10 056, 562 | 10 056, 563 | 10 056, 615 | 10 056, 672 |
+| 7×10⁻⁴, 10⁻¹⁰ (UL) | 5 832, 163 | 5 832, 181 | 5 832, 181 | 5 832, 2 475 (two rounds) |
+| 5×10⁻⁴, 10⁻¹⁰ (UL) | 4 680, 79 | 4 680, 79 | 4 680, 84 | 4 680, 84 |
+| 10⁻³, 10⁻¹² (UL) | 13 512, 773 | 13 512, 7 313 (two rounds) | same | same |
+| 10⁻³, 10⁻¹² (central) | 13 512, 670 | 13 512, 773 | 13 512, 915 | 13 512, 915 |
+
+**The qudit counts do not move at any X**: the host's Clifford floor sets D.  A 10× under-count costs at most 1.2× attempts
+at 10⁻¹⁰, because the escape's gap cut removes the cultivation residuals and the optimal cut moves up by 1–2.  The
+two-round entries at the UL are driven by X times a zero-event or few-event upper limit, not by measured failures.  At the
+central values every case stays one round.
+- *Caveat.* The residual statistics are thin (5 events at cut 7).  Extra errors with a different gap distribution, such as
+  syndrome-free errors that survive high cuts at the clean keep rate, would make the attempts cost larger.  This bounds the
+  cost under the stated model; it does not replace the exact d₁ = 5 check.
+
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
