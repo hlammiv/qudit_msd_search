@@ -198,6 +198,27 @@ class Rows:
                 Z = (Z - q[:, None] * row[None, :]) % d
         self.Z = Z.astype(np.int16)
 
+    def reduce_x(self, gens, sweeps=3):
+        """lower the X weight of each row by X-stabilisers h of the ideal state (X^h psi = psi):
+        X^{x+u} Z^z psi = w^{-u.z} X^x Z^z psi.  Greedy weight descent over the generators and their multiples."""
+        if gens is None or not len(self.a):
+            return
+        d = self.d
+        X = self.X.astype(np.int64); Z = self.Z.astype(np.int64)
+        U = np.zeros_like(X)
+        for _ in range(sweeps):
+            changed = False
+            for h in gens:
+                for c in range(1, d):
+                    cand = (X - c * h[None, :]) % d
+                    better = (cand != 0).sum(1) < (X != 0).sum(1)
+                    if better.any():
+                        X[better] = cand[better]; U[better] = (U[better] + c * h[None, :]) % d; changed = True
+            if not changed:
+                break
+        self.a = self.a * np.exp(2j * np.pi * ((-(U * Z).sum(1)) % d) / d)
+        self.X = X.astype(np.int16)
+
     def merge(self, red=None):
         self.reduce_z(red)
         if len(self.a) < 2:
@@ -288,7 +309,7 @@ class Plan:
     """c, data (all data qudits, final code order), tlayers {op: {qudit: t}}, carrier q; final: dict(H, MZ, xl, zl,
     tables=(tx, tz)); e_fn(tables) -> e[a, b]."""
 
-    def __init__(self, c: Circuit, data, tlayers, q, final, e_fn, proxy=False, zgroups=None, gauge_gens=None):
+    def __init__(self, c: Circuit, data, tlayers, q, final, e_fn, proxy=False, zgroups=None, gauge_gens=None, xgroups=None):
         self.c, self.d, self.data = c, c.d, list(data)
         self.n = len(self.data)
         self.pos = {qq: i for i, qq in enumerate(self.data)}
@@ -329,6 +350,8 @@ class Plan:
         self._observables()
         self._random()
         self._zred(zgroups)
+        self.xgens = [(None if xgroups is None else xgroups(s, self)) for s in range(len(self.bounds) - 1)]
+        self.xgens = [None if g is None else [np.asarray(r, np.int64) % self.d for r in g] for g in self.xgens]
         self.final = final
         self.e = e_fn(self)
         self._final_prep()
@@ -535,6 +558,8 @@ class Plan:
                     for j in [self.pos[qq] for qq in self.c.ops[k][1]]:
                         assert not rows.X[:, j].any() and not rows.Z[:, j].any(), "branch on a reset qudit"
                 if k in self.tl:
+                    if self.xgens[s] is not None:
+                        rows.reduce_x(self.xgens[s]); rows.merge(self.zred[s])
                     for j, t in self.tl[k].items():
                         rows.texpand(j, self.tab.tcoef(t))
                         rows.merge(self.zred[s])
@@ -638,6 +663,12 @@ def _tlayers(c, inj_q, taumap):
     return tl
 
 
+def _a1_points(tl):
+    """first T layer of each check (the ideal state is the code state just before it)."""
+    ks = sorted(tl)
+    return set(ks[1::2])
+
+
 def colorcult_plan(d, p, distance=3, cfg="par-hooks-f1", proxy=False, rounds=1, checks=2):
     kw, f = CONFIGS[cfg]
     cc = ColorCult(distance, d, p, rounds=rounds, checks_per_round=checks, **kw)
@@ -650,7 +681,8 @@ def colorcult_plan(d, p, distance=3, cfg="par-hooks-f1", proxy=False, rounds=1, 
     final = dict(H=cc.H % d, MZ=cc.MZ % d, xl=xl, zl=zl, tables=cc._tables())
     MZ = cc.MZ % d
     plan = Plan(cc.c, cc.data, tl, escaping_carrier(d), final, lambda P: encoder_expectation(P, xl, zl), proxy=proxy,
-                zgroups=lambda s, P: MZ if s >= 2 else None)
+                zgroups=lambda s, P: MZ if s >= 2 else None,
+                xgroups=lambda s, P: (cc.H % d) if P.bounds[s] in _a1_points(tl) else None)
     return cc, plan
 
 
@@ -687,7 +719,15 @@ def growcult_plan(d, p, cfg="par-hooks-f1", proxy=False):
         gx = np.zeros(nb, np.int64); gx[emb] = r; gg.append((gx, np.zeros(nb, np.int64)))
     for r in g.MZs % d:
         gz = np.zeros(nb, np.int64); gz[emb] = r; gg.append((np.zeros(nb, np.int64), gz))
-    plan = Plan(g.c, g.data5, tl, escaping_carrier(d), final, efn, proxy=proxy, zgroups=zg, gauge_gens=gg)
+    H3 = np.zeros((g.Hs.shape[0], nb), np.int64); H3[:, emb] = g.Hs % d
+    a1 = _a1_points(tl)
+
+    def xg(s, P):
+        k = P.bounds[s]
+        if k not in a1:
+            return None
+        return H3 if set(P.tl[k]) <= set(emb) else (g.Hb % d)
+    plan = Plan(g.c, g.data5, tl, escaping_carrier(d), final, efn, proxy=proxy, zgroups=zg, gauge_gens=gg, xgroups=xg)
     return g, plan
 
 
@@ -706,7 +746,7 @@ def proxy_outcome(cc, plan, fp):
     return okp, fail, nontriv
 
 
-def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=2000, cap=2_000_000):
+def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=200, cap=400_000):
     cc, plan = (growcult_plan(d, p, cfg) if circuit == "grow" else colorcult_plan(d, p, 5, cfg))
     rng = np.random.default_rng(seed)
     tot = dict(d=d, p=p, cfg=cfg, circuit=circuit, seed=seed, shots=0, branch_shots=0, w=0.0, Fraw=0.0, w_triv=0.0, Ftriv=0.0,
@@ -734,15 +774,20 @@ def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow
             sel = ia[i:i + sub]
             try:
                 ev, mr = plan.run_rows(fp, sel, cap=cap)
-            except OverflowError:
+            except (OverflowError, MemoryError):
                 ev = np.zeros((0, 4)); mr = 0
                 for s1 in sel:                               # one by one; a single shot above the cap is counted, not run
                     try:
                         e1, m1 = plan.run_rows(fp, np.array([s1]), cap=cap)
                         ev = np.concatenate([ev, e1]); mr = max(mr, m1)
-                    except OverflowError:
+                    except (OverflowError, MemoryError):
                         tot["overflow"] += 1
+                        ev = np.concatenate([ev, np.full((1, 4), np.nan)])
             tot["max_rows"] = max(tot["max_rows"], int(mr))
+            ovf = np.isnan(ev[:, 0])
+            if ovf.any():                                    # overflow shots: counted, excluded (bounded by their number)
+                tot["overflow_proxy_acc"] = tot.get("overflow_proxy_acc", 0) + int(okp[sel][ovf].sum())
+                ev = np.nan_to_num(ev, nan=0.0)
             if len(ev) == len(sel):
                 g_, f_, r_ = pgood[sel], pfail[sel], ~okp[sel]
                 tot["inf_on_proxy_ok"] += float((ev[g_, 0] - ev[g_, 1]).sum())
