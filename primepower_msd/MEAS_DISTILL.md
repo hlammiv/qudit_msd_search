@@ -1322,6 +1322,36 @@ So the "< 10k qudits" footprints are single-factory, slow-rate numbers.  At 10�
 (the D = 15 graft fits inside the D = 25 patch), the single-factory figure is 10 000 + 75.  The cultivation attempts dominate
 the time: with the syndrome-only gap at 10⁻³ they were 74%, from 128 attempts per kept input; the closed window cuts that to 34.
 
+**Exact-T check of the Clifford proxy, D = 3 stage** (`scratchpad/exact_t_cult.py`, `runs/cultivation/exact_t/`, 2026-11-22).
+Recent qubit papers find that the S-gate proxy under-counts cultivation's logical error by 3–30× (arXiv 2609.18922, 2611.24852,
+2609.17706, 2604.27058).  Mechanism: an X fault in the cat's GHZ tree spreads onto a branch of data, and the real T removes the
+Z part the proxy relies on to detect it.  Our §11 validation had no cat faults, so we re-checked.
+- *Simulator.* Hybrid: a Pauli frame carries every Clifford part; at each T layer the data frame is flushed onto a dense
+  7-qudit register, the exact T is applied, and each detector is projected on its data observable.  It is exact for Pauli
+  noise, and both the exact and the proxy evaluation use the same noise draws.  Self-tests against brute-force dense
+  simulation (toy d = 4/8; ColorCult D = 3 at d = 2, 2²⁰ amplitudes) agree to 1e-15.
+- *Circuit.* The D = 3 part of the pipeline: one stabiliser round, two checks, then a final round.  Parallel log-depth cat, hook
+  sampling, final block, f = 1 tick idle.
+
+| d, p | shots | acceptance, exact / proxy | ε, exact / proxy | ε with a trivial final syndrome, exact / proxy (events) |
+|---|---|---|---|---|
+| 2, 10⁻³ | 10⁷ | 0.7672 / 0.7672 | 1.810e-3 / 1.839e-3 | 6.67e-6 / 6.99e-6 (50 / 52) |
+| 2, 2×10⁻³ | 10⁷ | 0.5886 / 0.5885 | 4.069e-3 / 4.174e-3 | 2.73e-5 / 2.64e-5 (151 / 146) |
+| 4, 2×10⁻³ | 6×10⁶ | 0.5765 / 0.5765 | 3.166e-3 / 3.176e-3 | 1.24e-6 / 1.22e-6 (4 / 4) |
+
+The proxy is accurate at this stage: exact ÷ proxy is 0.95 and 1.03 at d = 2, and the 4 d = 4 failures coincide shot for shot.
+This is unlike the qubit result (2.8× at d = 3 under SI1000).  Infidelity on shots the proxy calls correct is only
+0.3–1.4% of ε.
+- *Caveat.* This is the D = 3 stage only; the papers' large gaps are at d₁ = 5, which we cannot reach densely.
+
+**Verified cat** (`verify_cat=True`).  Z_a Z_b⁻¹ is measured on every cat-tree edge before the cat touches the data, and the
+outcome is post-selected (Z_d form of the Chan et al. Z flags and the Balada Gaggioli–Mareček verified cats).
+- *Scheduling.* `add_tick_idle` had anchored the cat cluster at its verification measurement, so the cat idled before
+  coupling.  That gave a spurious 5× worse error and acceptance 0.415.  `no_anchor=` keeps the verified cat just in time.
+- *d = 2, 2×10⁻³, 10⁷ exact.* Acceptance falls from 0.589 to 0.499, while ε_triv is 3.20e-5 exact / 3.24e-5 proxy (150 events),
+  no better than without the check.  At D = 3 there is no hook gap for it to close.
+- *d = 4.* Acceptance 0.488 (vs 0.577); the error runs are in progress.  Its value, if any, is at d₁ = 5.
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
