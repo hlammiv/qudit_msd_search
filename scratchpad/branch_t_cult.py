@@ -309,7 +309,7 @@ class Plan:
     """c, data (all data qudits, final code order), tlayers {op: {qudit: t}}, carrier q; final: dict(H, MZ, xl, zl,
     tables=(tx, tz)); e_fn(tables) -> e[a, b]."""
 
-    def __init__(self, c: Circuit, data, tlayers, q, final, e_fn, proxy=False, zgroups=None, gauge_gens=None, xgroups=None):
+    def __init__(self, c: Circuit, data, tlayers, q, final, e_fn, proxy=False, zgroups=None, gauge_gens=None, xgroups=None, free_tags=()):
         self.c, self.d, self.data = c, c.d, list(data)
         self.n = len(self.data)
         self.pos = {qq: i for i, qq in enumerate(self.data)}
@@ -347,6 +347,7 @@ class Plan:
                         assert all(not (a in ds and b in ds) for a, b in op[1]), "mixed CSUM layer"
             self.dgates.append(g)
         self.gauge_gens = gauge_gens
+        self.free_tags = set(free_tags)
         self._observables()
         self._random()
         self._zred(zgroups)
@@ -385,14 +386,18 @@ class Plan:
         s = FrameSim(c, 512, np.random.default_rng(7), gauge=True).run(scale=0.0)
         self.rnd = [m for m in range(c.n_meas) if s.meas[:, m].any()]
         det = {}
+        self.free = set()                                    # recorded, not post-selected (incoherent split by outcome)
         for j, t in enumerate(c.detectors):
             assert len(t) == 1 and t[0][1] == 1, "multi-term detector"
-            det[t[0][0]] = j
+            if c.det_tags[j] in self.free_tags:
+                self.free.add(t[0][0])
+            else:
+                det[t[0][0]] = j
         for m in range(c.n_meas):
-            assert (m in det) != (m in self.rnd), f"measurement {m}: detector / random mismatch"
+            assert (m in det) + (m in self.rnd) + (m in self.free) == 1, f"measurement {m}: detector / random mismatch"
         for m in self.rnd:
             assert np.gcd.reduce(np.append(s.meas[:, m] % d, d)) == 1, "random outcome not uniform on Z_d"
-        self.trivial = [m for m in range(c.n_meas) if m not in self.seg_of and m not in self.rnd]
+        self.trivial = [m for m in range(c.n_meas) if m not in self.seg_of and m not in self.rnd and m not in self.free]
         self.E, self.G = {}, {}
         if not self.rnd:
             return
@@ -569,6 +574,8 @@ class Plan:
                 sh = (rows.X.astype(np.int64) @ self.V[m] - rows.Z.astype(np.int64) @ self.U[m]) % d
                 if m in self.rnd:
                     rows.shift[m] = sh.astype(np.int16)
+                elif m in self.free:
+                    rows.cls = rows.cls * 1000003 + (sh + flips[rows.sid, m]) % d
                 else:
                     keep = (sh + flips[rows.sid, m]) % d == 0
                     if not keep.all():
@@ -669,7 +676,7 @@ def _a1_points(tl):
     return set(ks[1::2])
 
 
-def colorcult_plan(d, p, distance=3, cfg="par-hooks-f1", proxy=False, rounds=1, checks=2):
+def colorcult_plan(d, p, distance=3, cfg="par-hooks-f1", proxy=False, rounds=1, checks=2, free_tags=()):
     kw, f = CONFIGS[cfg]
     cc = ColorCult(distance, d, p, rounds=rounds, checks_per_round=checks, **kw)
     if f:
@@ -682,11 +689,11 @@ def colorcult_plan(d, p, distance=3, cfg="par-hooks-f1", proxy=False, rounds=1, 
     MZ = cc.MZ % d
     plan = Plan(cc.c, cc.data, tl, escaping_carrier(d), final, lambda P: encoder_expectation(P, xl, zl), proxy=proxy,
                 zgroups=lambda s, P: MZ if s >= 2 else None,
-                xgroups=lambda s, P: (cc.H % d) if P.bounds[s] in _a1_points(tl) else None)
+                xgroups=lambda s, P: (cc.H % d) if P.bounds[s] in _a1_points(tl) else None, free_tags=free_tags)
     return cc, plan
 
 
-def growcult_plan(d, p, cfg="par-hooks-f1", proxy=False):
+def growcult_plan(d, p, cfg="par-hooks-f1", proxy=False, free_tags=()):
     kw, f = CONFIGS[cfg]
     g = GrowCult(d, p, 1, 1, rounds3=1, rounds5=1, checks3=2, checks5=2, **kw)
     if f:
@@ -727,7 +734,7 @@ def growcult_plan(d, p, cfg="par-hooks-f1", proxy=False):
         if k not in a1:
             return None
         return H3 if set(P.tl[k]) <= set(emb) else (g.Hb % d)
-    plan = Plan(g.c, g.data5, tl, escaping_carrier(d), final, efn, proxy=proxy, zgroups=zg, gauge_gens=gg, xgroups=xg)
+    plan = Plan(g.c, g.data5, tl, escaping_carrier(d), final, efn, proxy=proxy, zgroups=zg, gauge_gens=gg, xgroups=xg, free_tags=free_tags)
     return g, plan
 
 
@@ -738,16 +745,21 @@ def g_qstar(g):
 # ----------------------------------------------------------------------------------------------- Monte Carlo
 def proxy_outcome(cc, plan, fp):
     det = np.zeros(fp["measp"].shape[0], bool)
-    for t in cc.c.detectors:
+    for j, t in enumerate(cc.c.detectors):
         (m, cf), = t
+        if cc.c.det_tags[j] in plan.free_tags:
+            continue
         det |= (cf * fp["measp"][:, m]) % plan.d != 0
     okp = ~det
     fail, nontriv = cc.logical_failures(fp["xp"][okp], fp["zp"][okp])
     return okp, fail, nontriv
 
 
-def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=200, cap=400_000):
-    cc, plan = (growcult_plan(d, p, cfg) if circuit == "grow" else colorcult_plan(d, p, 5, cfg))
+def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=200, cap=400_000, free_tags=()):
+    if circuit == "grow":
+        cc, plan = growcult_plan(d, p, cfg, free_tags=free_tags)
+    else:                                                    # "color3" / "color5": ColorCult at that distance
+        cc, plan = colorcult_plan(d, p, int(circuit[-1]), cfg, free_tags=free_tags)
     rng = np.random.default_rng(seed)
     tot = dict(d=d, p=p, cfg=cfg, circuit=circuit, seed=seed, shots=0, branch_shots=0, w=0.0, Fraw=0.0, w_triv=0.0, Ftriv=0.0,
                proxy_acc=0, proxy_fail=0, proxy_acc_triv=0, proxy_fail_triv=0, max_rows=0, overflow=0, seconds=0.0,
@@ -813,4 +825,5 @@ if __name__ == "__main__":
     if sys.argv[1] == "run":
         a = sys.argv[2:]
         run(int(a[0]), float(a[1]), int(a[2]), a[3], int(a[4]) if len(a) > 4 else 0, int(a[5]) if len(a) > 5 else 20000,
-            a[6] if len(a) > 6 else "par-hooks-f1", a[7] if len(a) > 7 else "grow")
+            a[6] if len(a) > 6 else "par-hooks-f1", a[7] if len(a) > 7 else "grow",
+            free_tags=tuple(a[8].split(",")) if len(a) > 8 and a[8] != "-" else ())
