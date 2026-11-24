@@ -755,7 +755,8 @@ def proxy_outcome(cc, plan, fp):
     return okp, fail, nontriv
 
 
-def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=200, cap=400_000, free_tags=()):
+def run(d, p, shots, out, seed=0, batch=20000, cfg="par-hooks-f1", circuit="grow", sub=200, cap=None, free_tags=()):
+    cap = cap or int(os.environ.get("BT_CAP", 400_000))
     if circuit == "grow":
         cc, plan = growcult_plan(d, p, cfg, free_tags=free_tags)
     else:                                                    # "color3" / "color5": ColorCult at that distance

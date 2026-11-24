@@ -1381,6 +1381,37 @@ central values every case stays one round.
   cost under the stated model; it does not replace the exact d₁ = 5 check.
 
 
+**Exact-T check at d₁ = 5** (`scratchpad/branch_t_cult.py`, `runs/cultivation/branch_t/`, 2026-11-23/24).  The circuit is the
+pipeline's own cultivation, GrowCult 3 → 5 (par-hooks, f = 1), at d = 4.
+- *Simulator.* Branch-sum, exact for Pauli noise.
+  - The data register is a sum of Pauli branches on the ideal state.  A real T expands an X-hit qudit into d Z branches;
+    detectors post-select branches by their eigen-index shift.
+  - Data Cliffords use phase-exact tables.  Branches are merged modulo Z-stabilisers, and X-stabiliser parts are removed
+    (with phase) before each check.
+  - The growth round's random outcomes and feed-forward are exact: each gauge stabiliser multiplies its branch, and the sum
+    over outcome records makes branches with different commutation with the feed-forward Paulis incoherent.
+- *Validation.* Shot by shot against the dense hybrid: D = 3 at d = 2 and 4 (2e-15), and D = 5 at d = 2 on 150 accepted
+  branching shots (3e-14).  GrowCult in proxy mode (T → S) matches the frame proxy with 0 mismatches in 20k shots, and the
+  noiseless run gives w = F = 1.  Speed is 1.2 ms/shot at 10⁻³.
+
+| p | shots | acceptance, exact / proxy | ε, exact / proxy (events) | exact error on proxy-correct shots | ε_triv, exact / proxy (events) |
+|---|---|---|---|---|---|
+| 10⁻³ | 1.2×10⁸ | 0.28419 / 0.28392 | 9.809e-4 / 9.809e-4, ratio 1.0000 (33 420) | 3.3 (0.01% of ε) | 7.4e-8 / 6.6e-8 (2.2 / 2) |
+| 2×10⁻³ | 2×10⁷ | 0.08068 / 0.08053 | 3.092e-3 / 3.093e-3, ratio 0.9994 (4 982) | 0.0 | (0.6 / 0) |
+
+**No proxy gap at d₁ = 5 either.**  The exact run accepts 0.1% more shots, at the same error rate.  The qubit papers find 6–10×
+at d = 5 (arXiv 2609.18922, 2611.24852).  So the X factor of the sensitivity table above is 1: the 10 056 / 5 832 / 4 680
+footprints need no proxy correction.
+- *Overflows.* 50 shots in 1.2×10⁸ exceed the 400k-branch cap and are excluded; 10 of them are proxy-accepted.  The bound on ε
+  is ≤ 0.15% even if all were accepted failures.
+- *Why: the cat flags.*  Every cat qudit is measured and post-selected after the uncompute.  An X fault in the GHZ tree (the
+  papers' hook) flips cat qudits whatever the T does.  Control with the flags recorded but not post-selected
+  (`free_tags=flag`), D = 3, d = 2, 10⁻³, 10⁷ shots: ε_triv exact / proxy = 9.05e-6 / 6.73e-6 = **1.34** (68.6 vs 51 events),
+  against 0.95 with flags.  The excess comes from shots the proxy rejects that the exact T accepts with an error, which is
+  the papers' mechanism.  The flags are the Z_d version of the Z flags / verified cats those papers add; this is also why
+  `verify_cat` bought nothing.
+- *d₁ = 5 flags-off control.* Running with the cap raised to 3M rows (at 400k: 18 proxy-rejected overflows in 1.6×10⁵).
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
