@@ -1410,7 +1410,14 @@ footprints need no proxy correction.
   against 0.95 with flags.  The excess comes from shots the proxy rejects that the exact T accepts with an error, which is
   the papers' mechanism.  The flags are the Z_d version of the Z flags / verified cats those papers add; this is also why
   `verify_cat` bought nothing.
-- *d₁ = 5 flags-off control.* Running with the cap raised to 3M rows (at 400k: 18 proxy-rejected overflows in 1.6×10⁵).
+- *d₁ = 5 flags-off control: inconclusive, stopped.* GrowCult d = 4, 10⁻³, flags recorded but not post-selected, branch cap
+  3M rows, 9.7×10⁶ shots (2026-11-24).
+  - Acceptance 0.3036 / 0.3033; ε exact / proxy = 1.0088e-3 / 1.0080e-3, ratio 1.0008 (2 960 events).
+  - The exact error on proxy-correct shots is 0, and no shot overflowed (peak 2.1M rows).
+  - ε_triv events 3.0 exact / 1 proxy: too few to compare.  At d₁ = 5 these errors are ~10⁻⁶, so a resolving run needs ~10⁸
+    shots.  The D = 3 control carries the mechanism.
+  - One of the three workers was killed by the kernel OOM killer (3.7 GB on one shot) and not restarted.  A larger run would
+    need a lower cap and a per-worker memory limit below the OOM threshold.
 
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
