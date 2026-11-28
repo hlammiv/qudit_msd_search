@@ -113,6 +113,7 @@ class CorrGap:
 
     def __init__(self, dem_main, dem_other, J, p, cap=0.45):
         self.base = PeelDecoder(dem_main, p, gap=True)
+        self.base.enable_edge_weights()
         self.other = PeelDecoder(dem_other, p)
         self.p, self.cap, self.n = p, cap, dem_main.n_det
         self.labels = [SZ.boundary_potential(dem_main, lev)[1] for lev in range(self.base.k)]
@@ -130,19 +131,24 @@ class CorrGap:
         return math.log((1 - P) / P)
 
     def _set(self, lev, key, P):
-        MG = self.base.gap_matchers[lev]
+        G = self.base.gap_matchers[lev]._matching_graph     # compiled graph (Matching.add_edge minus argument handling)
         a, b = key
         w = self._w(P)
-        if b == -1:
-            MG.add_edge(a, self.n + self.labels[lev][key], weight=w, merge_strategy="replace")
-        else:
-            MG.add_edge(a, b, weight=w, merge_strategy="replace")
+        b = self.n + self.labels[lev][key] if b == -1 else b
+        G.add_edge(a, b, set(), w, -1.0, "replace")
+        self.base.wmap[lev][(a, b) if a < b else (b, a)] = w
 
-    def decode(self, sig_main, sig_other):
+    def other_used(self, sig_other):
+        """Edge set of the plain decode of the other sector (shareable between CorrGap objects on the same dem_other)."""
         self.other.trace = []
         self.other.decode(sig_other)
         used = set(k for k, _ in self.other.trace)
         self.other.trace = None
+        return used
+
+    def decode(self, sig_main, sig_other, used=None):
+        if used is None:
+            used = self.other_used(sig_other)
         delta = {}
         for ok in used:
             for mk, lev, dj in self.inv.get(ok, ()):

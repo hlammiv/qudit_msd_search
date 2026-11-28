@@ -598,6 +598,7 @@ class PeelDecoder:
         self.edges = dem.edges
         self.gap = gap
         self.trace = None                             # when a list: (edge key, multiplier) of every traversed edge
+        self.wmap = None                              # enable_edge_weights(): per-level {gap-graph edge: weight}
         B = self.n                                    # boundary node for the shortest-path graph
         self.matchers, self.pred, self.gap_matchers, self.potential, self.conflicts = [], [], [], [], []
         wmax = 0.0
@@ -638,6 +639,14 @@ class PeelDecoder:
             for q in range(self.d):
                 sol = [w for w in range(self.d) if (w * cc + q) % self.d == 0]
                 self.solve[(cc, q)] = sol[0] if sol else None
+
+    def enable_edge_weights(self):
+        """Gap decodes from decode_to_edges_array alone, the solution weights summed from self.wmap (kept in step by
+        whoever changes the gap graphs' weights, e.g. corr_escape.CorrGap).  For graphs reweighted per shot: pymatching
+        rebuilds its search structures after any edge change, once for decode and once more for decode_to_edges_array."""
+        self.wmap = []
+        for MG in self.gap_matchers:
+            self.wmap.append({(u, -1) if v is None else ((u, v) if u < v else (v, u)): dt["weight"] for u, v, dt in MG.edges()})
 
     def _path(self, pred, u, v):
         path = [v]
@@ -738,19 +747,29 @@ class PeelDecoder:
                 continue
             if self.gap:
                 # force the parity of matchings to boundary node B_1 (node n+1): the two logical classes
-                MG = self.gap_matchers[lev]
+                # (the compiled graph is called directly: same result as MG.decode / decode_to_edges_array on the
+                # syndrome vector, without the wrapper's per-call size check and boundary-set copy)
+                G = self.gap_matchers[lev]._matching_graph
                 par = int(binsyn.sum() % 2)
+                ev0 = np.flatnonzero(binsyn)
                 sols = []
+                wm = self.wmap[lev] if self.wmap is not None else None
                 for s1 in (0, 1):
                     s0 = (par + s1) % 2
-                    syn = np.concatenate([binsyn, [s0, s1, 0]]).astype(np.uint8)
-                    _, w = MG.decode(syn, return_weight=True)
-                    sols.append((w, syn))
+                    ev = np.concatenate([ev0, [B + i for i, v in enumerate((s0, s1)) if v]]).astype(np.int64)
+                    if wm is None:
+                        _, w = G.decode(ev, enable_correlations=False)
+                        sols.append((w, ev, None))
+                    else:      # edges only (a graph whose weights change per shot rebuilds once per call type, not twice)
+                        E = G.decode_to_edges_array(ev, enable_correlations=False)
+                        w = sum(wm[(u, -1) if v < 0 else ((u, v) if u < v else (v, u))] for u, v in E.tolist())
+                        sols.append((w, ev, E))
                 sols.sort(key=lambda t: t[0])
                 gap_min = min(gap_min, sols[1][0] - sols[0][0])
                 self.last_level_gaps[lev] = sols[1][0] - sols[0][0]
                 # walk the charges along the edge set the matcher chose (its strings may end on either boundary)
-                obs, sigma, ok = self._walk_edges(lev, MG.decode_to_edges_array(sols[0][1]), binsyn, sigma, obs)
+                E = sols[0][2] if sols[0][2] is not None else G.decode_to_edges_array(sols[0][1], enable_correlations=False)
+                obs, sigma, ok = self._walk_edges(lev, E, binsyn, sigma, obs)
                 if not ok:
                     return obs % d, 0.0
                 continue

@@ -551,12 +551,13 @@ class Escape:
                             sgl[done + s] = dec_syn.last_level_gaps
                     if cdec is not None:
                         Do = Dall[s, cdec[2]]
-                        c1, l1 = cdec[0].decode(Dv[s], Do)
+                        used = cdec[0].other_used(Do)          # one other-sector decode serves both correlated decoders
+                        c1, l1 = cdec[0].decode(Dv[s], Do, used)
                         cf_[done + s] = (O[s] + c1) % d
                         if isinstance(l1, float):
                             cg_[done + s] = l1
                         if cdec[1] is not None:
-                            _, l3 = cdec[1].decode(Dall[s, self.sel_syn], Do)
+                            _, l3 = cdec[1].decode(Dall[s, self.sel_syn], Do, used)
                             if isinstance(l3, float):
                                 cg2_[done + s] = l3
                 if left is None or isinstance(left, float):
