@@ -1,6 +1,7 @@
 """Keep rules for the f = 1 escape at one cultivation input: every mask-kept shot of both basis runs is decoded (Escape.run
 flag_cert), so failures on shots where the certified-pattern discards of the two bases disagree are sampled.  Residual
 frames of cultivation and N_CLEAN zero frames (the escape's floor) go through the same rules with common noise per slice.
+EKR_CORR=1: also the correlated X<->Z decoder (corr_escape.py) on the same shots (corr_rules*, EKR_CORR_DUMP npz of per-shot arrays).
 Rules: cert = none (gap only), either (discard on a hit in either basis), z, x (hits of one basis only); cuts = (cut_Z, cut_X).
 p_total = (fails_res + w fails_clean) / (kept_res + w kept_clean), w = (accepted - nontrivial) / N_CLEAN;
 failure b' != a' (mod d) as in cult_escape_e2e.  One json line per variant -> runs/surface/escape_keep_rules.jsonl.
@@ -23,6 +24,7 @@ SLICE = int(__import__("os").environ.get("EKR_SLICE", 50_000))
 PRIORS = __import__("os").environ.get("EKR_PRIORS")     # npz (frames, probs at unit location probability): residual-frame priors
 CKPT = __import__("os").environ.get("EKR_CKPT", "runs/surface/ckpt")   # per-slice saves; a rerun skips finished slices ("" = off)
 SEED_OFF = int(__import__("os").environ.get("EKR_SEED", 0))   # offset of every seed: independent replicas
+CORR = bool(__import__("os").environ.get("EKR_CORR"))    # also decode with the correlated X<->Z decoder (corr_escape.CorrGap) on the same shots
 CUTS = ((0, 0), (10, 10), (12, 12), (13, 13), (14, 13), (15, 13), (14, 14), (15, 15), (16, 16))
 _cache = {}
 SYN_CUTS = tuple((c, c) for c in range(0, 17)) + ((12, 11), (13, 12), (14, 12), (14, 13), (15, 13), (15, 14), (16, 14))
@@ -35,16 +37,31 @@ def RULES(cz, cx, only_none=False):
 
 def run_slice(variant, basis, frames, n, p, seed):
     """frames None: n clean frames."""
+    corr = None
     if (variant, basis) not in _cache:
-        pri = None
-        if PRIORS:
-            z = np.load(PRIORS); pri = (z["frames"].astype(np.int64), z["probs"])
-        _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant], priors=pri)
+        if CORR:      # the pickled corr_escape setup carries the same Escape (variant, priors) + the other sector's model
+            import corr_escape as CE
+            ex, sel_o, dem_o, J, J2 = CE.cached_setup(D, basis, p, variant, PRIORS)
+            _cache[(variant, basis)] = ex
+            _cache[(variant, basis, "corr", p)] = (CE.CorrGap(ex.dem, dem_o, J, p),
+                                                   CE.CorrGap(ex.dem_syn, dem_o, J2, p) if ex.gap_window in ("syndrome", "closed") else None, sel_o)
+        else:
+            pri = None
+            if PRIORS:
+                z = np.load(PRIORS); pri = (z["frames"].astype(np.int64), z["probs"])
+            _cache[(variant, basis)] = Escape(D, basis, **VARIANTS[variant], priors=pri)
+    if CORR:
+        corr = _cache[(variant, basis, "corr", p)]
     inj = np.zeros((n, 19, 2), dtype=np.int64) if frames is None else frames
-    r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True)
+    r = _cache[(variant, basis)].run(p, n, seed=seed, decoder="peel-gap", inject=inj, per_shot=True, chunk_seeded=True, flag_cert=True, corr=corr)
     g2 = r["shot_gap_syn"] if _cache[(variant, basis)].gap_window in ("syndrome", "closed") else r["shot_gap"]
-    return (r["shot_keep"], r["shot_cert"], r["shot_flip"].astype(np.int8), np.nan_to_num(r["shot_gap"], nan=0).astype(np.float32),
-            np.nan_to_num(g2, nan=0).astype(np.float32))
+    out = (r["shot_keep"], r["shot_cert"], r["shot_flip"].astype(np.int8), np.nan_to_num(r["shot_gap"], nan=0).astype(np.float32),
+           np.nan_to_num(g2, nan=0).astype(np.float32))
+    if CORR:
+        g2c = r["shot_gap_syn_corr"] if corr[1] is not None else r["shot_gap_corr"]
+        out += (r["shot_flip_corr"].astype(np.int8), np.nan_to_num(r["shot_gap_corr"], nan=0).astype(np.float32),
+                np.nan_to_num(g2c, nan=0).astype(np.float32))
+    return out
 
 
 def run_all(variant, F, n_clean, p, jobs):
@@ -52,14 +69,14 @@ def run_all(variant, F, n_clean, p, jobs):
     tasks = [(F[i:i + SLICE], len(F[i:i + SLICE])) for i in range(0, len(F), SLICE)]
     tasks += [(None, min(SLICE, n_clean - i)) for i in range(0, n_clean, SLICE)]
     jobs_all = [(k, b) for k in range(len(tasks)) for b in "ZX"]
-    ck = CKPT and f"{CKPT}/{variant}_d{D}_p{p:g}_s{SEED_OFF}_c{n_clean}" + (f"_pri-{os.path.basename(PRIORS)[:-4]}" if PRIORS else "") + (f"_sl{SLICE}" if SLICE != 50_000 else "")
+    ck = CKPT and f"{CKPT}/{variant}_d{D}_p{p:g}_s{SEED_OFF}_c{n_clean}" + (f"_pri-{os.path.basename(PRIORS)[:-4]}" if PRIORS else "") + (f"_sl{SLICE}" if SLICE != 50_000 else "") + ("_corr" if CORR else "")
     done = {}
     if ck:
         os.makedirs(ck, exist_ok=True)
         for k, b in jobs_all:
             fn = f"{ck}/t{k}_{b}.npz"
             if os.path.exists(fn):
-                z = np.load(fn); done[(k, b)] = tuple(z[f"a{c}"] for c in range(5))
+                z = np.load(fn); done[(k, b)] = tuple(z[f"a{c}"] for c in range(len(z.files)))
         print("checkpoint", ck, len(done), "/", len(jobs_all), "slices already done", flush=True)
     todo = [kb for kb in jobs_all if kb not in done]
     t0 = time.time(); B = 2 * jobs
@@ -69,11 +86,11 @@ def run_all(variant, F, n_clean, p, jobs):
         for (k, b), r in zip(batch, res):
             done[(k, b)] = r
             if ck:
-                np.savez(f"{ck}/t{k}_{b}.tmp.npz", **{f"a{c}": r[c] for c in range(5)}); os.replace(f"{ck}/t{k}_{b}.tmp.npz", f"{ck}/t{k}_{b}.npz")
+                np.savez(f"{ck}/t{k}_{b}.tmp.npz", **{f"a{c}": r[c] for c in range(len(r))}); os.replace(f"{ck}/t{k}_{b}.tmp.npz", f"{ck}/t{k}_{b}.npz")
         nd = i + len(batch); el = time.time() - t0
         print(f"progress {variant} d{D} {len(done)}/{len(jobs_all)} slices, {el/60:.1f} min, eta {el/nd*(len(todo)-nd)/60:.1f} min", flush=True)
     out = [done[kb] for kb in jobs_all]
-    return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(5)] for i in range(2)]
+    return [[np.concatenate([out[2 * k + i][c] for k in range(len(tasks))]) for c in range(len(out[0]))] for i in range(2)]
 
 
 def analyse(Z, X, nt, acc, shots, n_clean, cuts=CUTS, only_none=False):
@@ -111,17 +128,31 @@ def main():
         print("saved frames", len(F), flush=True); return
     for variant in sys.argv[6].split(","):
         t = time.time()
+        if CORR:      # build / load the pickled setup here, once, before any worker (each build needs ~3 GB)
+            import corr_escape as CE
+            for b in "ZX":
+                CE.cached_setup(D, b, p, variant, PRIORS)
+            print("corr setup", variant, PRIORS, round(time.time() - t), "s", flush=True)
         Z, X = run_all(variant, F, n_clean, p, jobs)
         out = dict(config=cfg, variant=variant, priors=PRIORS, p=p, d=D, seed_off=SEED_OFF, shots=shots, accepted=acc, nontrivial=len(F), n_clean=n_clean,
                    **analyse(Z[:4], X[:4], len(F), acc, shots, n_clean), seconds=round(time.time() - t, 1))
         if VARIANTS[variant].get("gap_window") in ("syndrome", "closed"):    # the same shots, kept on the syndrome-only gap
-            syn = analyse(Z[:3] + Z[4:], X[:3] + X[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)
+            syn = analyse(Z[:3] + Z[4:5], X[:3] + X[4:5], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)
             out["rules_readout_fine"] = analyse(Z[:4], X[:4], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)["rules"]
             out["rules_syndrome_gap"] = syn["rules"]
             gz, gx, sz, sx = Z[3], X[3], Z[4], X[4]
             ok = Z[0] & X[0]
             out["gap_corr"] = [float(np.corrcoef(gz[ok], sz[ok])[0, 1]), float(np.corrcoef(gx[ok], sx[ok])[0, 1])]
             out["gap_max"] = dict(readout=[float(gz.max()), float(gx.max())], syndrome=[float(sz.max()), float(sx.max())])
+        if CORR:      # the same shots through the correlated decoder: (keep, cert, flip_corr, gap_corr, gap_syn_corr)
+            Zc, Xc = Z[:2] + Z[5:8], X[:2] + X[5:8]
+            out["corr"] = True
+            out["corr_rules"] = analyse(Zc[:4], Xc[:4], len(F), acc, shots, n_clean)["rules"]
+            if VARIANTS[variant].get("gap_window") in ("syndrome", "closed"):
+                out["corr_rules_syndrome_gap"] = analyse(Zc[:3] + Zc[4:], Xc[:3] + Xc[4:], len(F), acc, shots, n_clean, SYN_CUTS, only_none=True)["rules"]
+            if os.environ.get("EKR_CORR_DUMP"):   # per-shot arrays of both decoders (matched-keep analysis)
+                np.savez_compressed(os.environ["EKR_CORR_DUMP"], nt=len(F), acc=acc, shots=shots, n_clean=n_clean,
+                                    **{f"{b}{c}": A[c] for b, A in (("Z", Z), ("X", X)) for c in range(8)})
         if __import__("os").environ.get("EKR_DUMP"):    # per-shot residual-frame data (diagnostics), not appended to the jsonl
             nt = len(F)
             np.savez_compressed(f"runs/surface/ekr_dump_{variant}_d{D}_p{p:g}_s{SEED_OFF}.npz", frames=F.astype(np.int8),
@@ -129,7 +160,7 @@ def main():
                                 gap2_z=Z[4][:nt], gap2_x=X[4][:nt], d=D)
             print("dumped", nt, "residual shots", flush=True)
             continue
-        with open("runs/surface/escape_keep_rules.jsonl", "a") as f:
+        with open(os.environ.get("EKR_OUT", "runs/surface/escape_keep_rules.jsonl"), "a") as f:
             f.write(json.dumps(out) + "\n")
         print(json.dumps(out), flush=True)
 

@@ -89,6 +89,25 @@ def joint_table(mem, sel_main, sel_other, exclude, main_edges, other_edges, drop
     return J
 
 
+def joint_extra(J, extra, d, sel_main, sel_other, exclude, main_edges, other_edges, drop=None):
+    """Add fixed mechanisms (prior frames: V (m, n_det), O, P at unit location probability) to the joint table J, with the
+    build_dem exclude / drop rules: a frame firing a postselected detector is out; with drop, a frame firing a dropped
+    detector and a main-sector one has no main projection."""
+    V, _, P = extra
+    V = np.asarray(V, dtype=np.int64) % d
+    Vm = V[:, sel_main]; Vo = V[:, sel_other]
+    ok = ~((V[:, exclude] != 0).any(axis=1)) if exclude is not None and len(exclude) else np.ones(len(V), bool)
+    if drop is not None and len(drop):
+        ok &= ~(((V[:, np.asarray(drop, dtype=int)] != 0).any(axis=1)) & (Vm != 0).any(axis=1))
+    n = 0
+    for r in np.nonzero(ok & (Vm != 0).any(axis=1) & (Vo != 0).any(axis=1))[0]:
+        km = _edge_key(Vm[r], d); ko = _edge_key(Vo[r], d)
+        if km in (None, "empty") or ko in (None, "empty") or km[0] not in main_edges or ko[0] not in other_edges:
+            continue
+        dct = J.setdefault(km, {}); dct[ko[0]] = dct.get(ko[0], 0.0) + float(P[r]); n += 1
+    return n
+
+
 class CorrGap:
     """Gap peel decoder of `dem_main` reweighted by the other sector's decoded edges."""
 
@@ -140,15 +159,25 @@ class CorrGap:
         return out
 
 
-def setup(d, basis, p, variant="one+gap-tick1-closed"):
-    ex = Escape(d, basis, **VARIANTS[variant])
+def setup(d, basis, p, variant="one+gap-tick1-closed", priors=None):
+    """priors: npz path (frames, probs) as escape_keep_rules EKR_PRIORS: the frames enter both sectors' models and the joint
+    table (a residual frame X^a Z^b on the colour qudits fires both sectors, like a circuit fault)."""
+    pri = None
+    if priors:
+        z = np.load(priors); pri = (z["frames"].astype(np.int64), z["probs"])
+    ex = Escape(d, basis, **VARIANTS[variant], priors=pri)
+    extra = ex.prior_mechanisms(*pri) if pri is not None else None
     other = "Z" if ex.sector == "X" else "X"
     sel_o = np.nonzero(ex.mem.det_sector == other)[0]
-    dem_o = build_dem_masked(ex.mem, other, ex.mask)
+    dem_o = build_dem_masked(ex.mem, other, ex.mask, extra=extra)
     prop = propagate_basis(ex.mem)
     J = joint_table(ex.mem, ex.sel, sel_o, ex.mask, ex.dem.edges, dem_o.edges, prop=prop)
     fin = np.array([i for i, t in enumerate(ex.mem.det_tags) if t.startswith("final")], dtype=int)
     J2 = joint_table(ex.mem, ex.sel_syn, sel_o, ex.mask, ex.dem_syn.edges, dem_o.edges, drop=fin, prop=prop)
+    if extra is not None:
+        n1 = joint_extra(J, extra, d, ex.sel, sel_o, ex.mask, ex.dem.edges, dem_o.edges)
+        n2 = joint_extra(J2, extra, d, ex.sel_syn, sel_o, ex.mask, ex.dem_syn.edges, dem_o.edges, drop=fin)
+        print("prior frames in joint tables", n1, n2, "of", len(extra[2]), flush=True)
     return ex, sel_o, dem_o, J, J2
 
 
@@ -158,14 +187,16 @@ _ctx = {}
 CACHE = os.environ.get("CORR_CACHE", "runs/surface/corr_cache")
 
 
-def cached_setup(d, basis, p):
-    """setup() once per (d, basis), pickled (the basis-fault propagation needs ~3 GB; workers only load the result)."""
+def cached_setup(d, basis, p, variant="one+gap-tick1-closed", priors=None):
+    """setup() once per (d, basis, variant, priors), pickled (the basis-fault propagation needs ~3 GB; workers only load the
+    result).  The model is p-independent (unit location probability)."""
     import pickle
-    fn = f"{CACHE}/corr_d{d}_{basis}.pkl"
+    tag = ("" if variant == "one+gap-tick1-closed" else f"_{variant}") + (f"_pri-{os.path.basename(priors)[:-4]}" if priors else "")
+    fn = f"{CACHE}/corr_d{d}_{basis}{tag}.pkl"
     if os.path.exists(fn):
         return pickle.load(open(fn, "rb"))
     os.makedirs(CACHE, exist_ok=True)
-    obj = setup(d, basis, p)
+    obj = setup(d, basis, p, variant, priors)
     pickle.dump(obj, open(fn + ".tmp", "wb")); os.replace(fn + ".tmp", fn)
     return obj
 

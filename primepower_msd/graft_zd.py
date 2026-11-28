@@ -488,14 +488,18 @@ class Escape:
         return HyperDecoder(self.dem, p, **kw)
 
     def run(self, p: float, shots: int = 10_000, seed: int = 0, chunk: int = 5_000, decoder: str = "peel", inject=None,
-            per_shot: bool = False, chunk_seeded: bool = False, flag_cert: bool = False, **dec_kw) -> dict:
+            per_shot: bool = False, chunk_seeded: bool = False, flag_cert: bool = False, corr=None, **dec_kw) -> dict:
         """inject: optional (shots, 19, 2) array of X / Z frames on the colour qudits (colour_q order), applied at the end of
         the noiseless colour-state preparation -- e.g. the residual frames of a simulated cultivation.  per_shot: also return
         shot_keep (bool), shot_flip (decoded logical readout error mod d) and shot_gap (nan without a gap) arrays.
         chunk_seeded: a fresh generator per chunk, seeded by (seed, first shot), so Z- and X-basis runs with the same seed
         share their noise shot by shot (the X readout draws extra numbers, which would shift a single stream).
-        flag_cert: certified-pattern hits are not discarded but decoded and reported in shot_cert (per_shot)."""
+        flag_cert: certified-pattern hits are not discarded but decoded and reported in shot_cert (per_shot).
+        corr = (main decoder, syndrome-window decoder, other-sector detector indices): correlated decoders (corr_escape.CorrGap,
+        decode(sig_main, sig_other)) run on the same kept shots besides the plain ones (per_shot: shot_flip_corr, shot_gap_corr,
+        shot_gap_syn_corr)."""
         dec = self.make_decoder(p, decoder, **dec_kw)
+        cdec = corr                                   # (the loop below rebinds `corr` to the plain decoder's correction)
         gaps = []                                     # (gap, failed) per kept shot when the decoder reports a gap
         rng = np.random.default_rng(seed)
         d = self.d
@@ -503,6 +507,7 @@ class Escape:
         sk, sf, sg = np.zeros(shots, bool), np.zeros(shots, np.int64), np.full(shots, np.nan)
         sc = np.zeros(shots, bool)
         sg2 = np.full(shots, np.nan)
+        cf_, cg_, cg2_ = np.zeros(shots, np.int64), np.full(shots, np.nan), np.full(shots, np.nan)
         sgl = np.full((shots, int(round(math.log2(d)))), np.nan)   # per-level syndrome-window gaps (PeelDecoder.last_level_gaps)
         dec_syn = PeelDecoder(self.dem_syn, p, gap=True) if self.gap_window in ("syndrome", "closed") else None
         # first-order certification: single-fault patterns the decoder gets wrong are postselected away
@@ -544,6 +549,16 @@ class Escape:
                         if isinstance(l2, float):
                             sg2[done + s] = l2
                             sgl[done + s] = dec_syn.last_level_gaps
+                    if cdec is not None:
+                        Do = Dall[s, cdec[2]]
+                        c1, l1 = cdec[0].decode(Dv[s], Do)
+                        cf_[done + s] = (O[s] + c1) % d
+                        if isinstance(l1, float):
+                            cg_[done + s] = l1
+                        if cdec[1] is not None:
+                            _, l3 = cdec[1].decode(Dall[s, self.sel_syn], Do)
+                            if isinstance(l3, float):
+                                cg2_[done + s] = l3
                 if left is None or isinstance(left, float):
                     if left is not None:
                         gaps.append((left, bool(f)))
@@ -569,7 +584,8 @@ class Escape:
                     n_bad_patterns=len(bad), bad_pattern_mass=bad_mass, n_pair_patterns=len(pairs),
                     pair_mass=sum(pairs.values()),
                     locations=self.locations, n_data=self.n_data, flag_weight=self.flag_weight, tick_idle=self.tick_idle,
-                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc, shot_gap_syn=sg2, shot_gap_syn_levels=sgl) if per_shot else {}))
+                    n_qudits=self.mem.circ.nq, **(dict(shot_keep=sk, shot_flip=sf, shot_gap=sg, shot_cert=sc, shot_gap_syn=sg2, shot_gap_syn_levels=sgl) if per_shot else {}),
+                    **(dict(shot_flip_corr=cf_, shot_gap_corr=cg_, shot_gap_syn_corr=cg2_) if per_shot and cdec is not None else {}))
 
 
 if __name__ == "__main__":
