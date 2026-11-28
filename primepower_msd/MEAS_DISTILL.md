@@ -1451,6 +1451,21 @@ Consequence for 10⁻¹² in one round (needs ε ≲ 3.5×10⁻⁵ with c = 23):
 - Base at keep 0.5 (6.5×10⁻⁵) is not inside the window.
 - Settling it needs ~10⁷ shots and integration with the escape_keep_rules pipeline (priors + residual frames).
 
+**Tick-idle logical CSUM at D = 9, 11** (f = 1, `logical_csum.py sweep 4 ... tick1`, lenore, done 2026-11-28; merged into
+`runs/surface/csum_d4_tick1.jsonl`, 56 records, D = 5–11, p = 5×10⁻⁴–3×10⁻³).  This replaces the footprint's tick proxy
+(untick CSUM fits rescaled by the single-patch tick factors).
+- CSUM (Pauli-frame decoder) over two-patch memory, both bases pooled: 1.06–1.24× at 11 of 13 points.  The outliers are
+  D = 7 at 5×10⁻⁴ (1.36×, 19 vs 14 events) and D = 11 at 1.5×10⁻³ (2.3×, 46 vs 20; the memory point is low).  So the gate
+  still costs about what it costs untick.
+- Joint fit, shared p_th, D ≥ 5 (`scratchpad/csum_tick_fit.py`): per basis CSUM A = 0.70, memory A = 0.63, p_th = 5.77×10⁻³;
+  X basis 0.72 / 0.64 / 5.80×10⁻³ (rms 0.15 / 0.20 in log).  The proxy had CSUM A = 0.36 at p_th = 5.10×10⁻³, so the
+  measured CSUM is ~0.5× the proxy at D = 21–25, p = 10⁻³.  D ≥ 7 alone gives p_th 6.1×10⁻³ (lower still at large D); the D ≥ 5
+  fit is kept.
+- Footprint (`footprint_tick_proxy.py 1 e2e=... c713=c csum-tick escape-gap census-sparse`), d = 4 priors pooled record:
+  **10⁻¹⁰ at 10⁻³ is now D = 23, 8 520 qudits** (was D = 25, 10 056) at cut 7 (611 attempts/output, central and UL) and at
+  cut 10 (909).  10⁻¹² is unchanged at D = 29, 13 512 q: cut 10 one round at the central value (909), two at the UL.
+  5×10⁻⁴ unchanged (4 680 / 7 112 q at 10⁻¹⁰ / 10⁻¹²).
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).

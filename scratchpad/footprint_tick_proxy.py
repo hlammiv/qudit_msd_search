@@ -3,7 +3,8 @@ runs/surface/zd_d4_tick{f}.jsonl replace HOST_Z4, and the CSUM / two-patch fits 
 (A ratio, p_th ratio).  python scratchpad/footprint_tick_proxy.py f [cult=a,p_L] [footprint args...]
 (f = 0: no host patch; cult=a,p_L replaces the 1e-3 cultivation input, e.g. the end-to-end cultivation -> escape numbers;
  e2e=p,attempts_per_kept,p_in replaces cultivation and escape at p by the end-to-end numbers;
- c713=c sets the W=3 coefficient of the [[7,1,3]] stages)"""
+ c713=c sets the W=3 coefficient of the [[7,1,3]] stages;
+ csum-tick replaces the rescaled CSUM / two-patch fits by the measured tick-idle ones, scratchpad/csum_tick_fit.py D >= 5)"""
 import sys
 
 from primepower_msd import footprint as FP, host_census as HC
@@ -32,6 +33,12 @@ for D_ in (FP.CSUM_Z4, FP.BASE2_Z4):
     D_.update(A=D_["A"] * ra_b, p_th=D_["p_th"] * rp_b)
 for D_ in (HC.BASE2_X, HC.CSUM_X):
     D_.update(A=D_["A"] * ra_x, p_th=D_["p_th"] * rp_x)
+CSUM_TICK = "csum-tick" in sys.argv[1:]
+if CSUM_TICK:        # measured f=1 tick CSUM (seq) / two-patch memory (base), D = 5..11, joint fit with shared p_th (2026-11-28)
+    sys.argv.remove("csum-tick")
+    assert f == 1.0, "csum-tick is the f = 1 measurement"
+    FP.CSUM_Z4.update(A=0.700, p_th=5.77e-3); FP.BASE2_Z4.update(A=0.629, p_th=5.77e-3)
+    HC.CSUM_X.update(A=0.7185, p_th=5.80e-3); HC.BASE2_X.update(A=0.6418, p_th=5.80e-3)
 print(f"tick f={f}: HOST {FP.HOST_Z4}, CSUM {FP.CSUM_Z4}, BASE2_X {HC.BASE2_X}, CSUM_X {HC.CSUM_X}")
 import textwrap
 src = open(FP.__file__).read().split('if __name__ == "__main__":\n', 1)[1]
