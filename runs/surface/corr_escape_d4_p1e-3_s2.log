@@ -1,0 +1,15 @@
+setup Z 0 s
+setup X 0 s
+Z kept 18726 changed edges/shot 614.9853252722039 min 13.8
+  Z cut 0: base kept 18726 fails 25 | corr kept 18726 fails 7
+  Z cut 4: base kept 16461 fails 1 | corr kept 16644 fails 1
+  Z cut 6: base kept 15206 fails 1 | corr kept 15631 fails 1
+  Z cut 8: base kept 13946 fails 0 | corr kept 14590 fails 0
+  Z cut 10: base kept 12588 fails 0 | corr kept 13459 fails 0
+X kept 18726 changed edges/shot 562.370990894627 min 27.4
+  X cut 0: base kept 18726 fails 29 | corr kept 18726 fails 11
+  X cut 4: base kept 16225 fails 7 | corr kept 16429 fails 1
+  X cut 6: base kept 14946 fails 3 | corr kept 15251 fails 1
+  X cut 8: base kept 13763 fails 1 | corr kept 14186 fails 1
+  X cut 10: base kept 12465 fails 1 | corr kept 13107 fails 0
+saved runs/surface/corr_escape_d4_p1e-3_s2.npz

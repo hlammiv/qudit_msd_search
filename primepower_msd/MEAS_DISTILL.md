@@ -1419,6 +1419,38 @@ footprints need no proxy correction.
   - One of the three workers was killed by the kernel OOM killer (3.7 GB on one shot) and not restarted.  A larger run would
     need a lower cap and a per-worker memory limit below the OOM threshold.
 
+*Correlated (X↔Z) escape decoder* (`scratchpad/corr_escape.py`, d = 4, 10⁻³, 10⁶ shots per basis, seed 3, 184 892 shots kept
+by both runs, 2026-11-28).  Fowler-style reweighting:
+1. Decode the other sector with the plain peel decoder.
+2. For each edge it used, reweight the main-sector edges by the exact joint probability. The joint table comes from the
+   noise locations' Pauli enumeration, keeping only Paulis whose both projections are graphlike: P' = pP − pJ + J/P_f.
+3. Take the complementary gap on the reweighted graph.
+
+About 600 edges change per shot, at ~35 ms/shot.  Joint (b′ − a′ mod d) failures on the same shots, at matched keep (gap
+quantile of min(Z, X)):
+
+| keep | base: cut, fails, rate | corr: cut, fails, rate | ratio |
+|---|---|---|---|
+| 0.75 | 4.2, 72, 5.2×10⁻⁴ | 4.5, 43, 3.1×10⁻⁴ | 1.7 |
+| 0.65 | 6.0, 35, 2.9×10⁻⁴ | 6.6, 20, 1.7×10⁻⁴ | 1.75 |
+| 0.60 | 6.9, 23, 2.1×10⁻⁴ | 7.8, 9, 8.1×10⁻⁵ | 2.6 |
+| 0.55 | 8.0, 14, 1.4×10⁻⁴ | 8.9, 6, 5.9×10⁻⁵ | 2.3 |
+| 0.50 | 9.0, 6, 6.5×10⁻⁵ | 10.1, 2, 2.2×10⁻⁵ | 3.0 |
+| ≤ 0.45 | 1 event | 1–2 events | — |
+
+Without a cut the improvement is 591 → 286.  At a fixed integer cut the correlated decoder also keeps 4–11% more shots.  So
+correlated decoding cuts the clean floor by **1.7–3× at matched keep**.  Equivalently, at fixed error (~2×10⁻⁴) it keeps
+0.70 vs 0.60, about 15% fewer attempts.
+
+Shot 513 422 fails with gaps (25, 14.5) under both decoders, so it is a high-confidence logical fault that no reweighting
+fixes; it sets a ~10⁻⁵ floor at keep ≤ 0.5.  These are bare-escape rates: clean injection, no cultivation residual frames or
+priors, Z/X postselection only.  They are therefore a relative comparison, not the recipe's err column.
+
+Consequence for 10⁻¹² in one round (needs ε ≲ 3.5×10⁻⁵ with c = 23):
+- Correlated at keep 0.5 is inside the window at its central value (2.2×10⁻⁵, 2 events), but its UL is not.
+- Base at keep 0.5 (6.5×10⁻⁵) is not inside the window.
+- Settling it needs ~10⁷ shots and integration with the escape_keep_rules pipeline (priors + residual frames).
+
 ## 6. Open / next
 1. Done (§5d): concatenated order-3 stages; partial discard ruled out.
 2. Done: w = 50 outer on 9500 inputs for [[112,50]] (γ 1.372, ≈ 9.6k qudits).  Open: smaller w = 26 outer (< 2080).
